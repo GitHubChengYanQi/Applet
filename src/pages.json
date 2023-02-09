@@ -1,0 +1,48 @@
+{
+	"easycom": {
+			"autoscan": true,
+			"custom": {
+				// uni-ui 规则如下配置
+				"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+			}
+		},
+	
+	
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/Approval/Detailed/index",
+			"style": {
+				"navigationBarTitleText": "出库明细"
+			}
+		},
+		{
+			"path": "pages/Error/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
+		},
+		{
+			"path": "pages/Approval/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/login/index/index",
+			"style": {
+				"navigationBarTitleText": "表单配置"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+}
