@@ -32,7 +32,7 @@
 						<template v-slot:right>
 							<view class="picker">
 								<view class="headPortrait2">
-									<img src="../../static/logo.png" alt="">
+									<img src="../../../../static/logo.png" alt="">
 								</view>
 								<view class="pickerInfo">
 									<view>雷敏</view>
@@ -42,42 +42,42 @@
 						</template>
 					</uni-section>
 				<view class="space"></view>
-				
+
 					<uni-section title="出库类型" type="line" style="margin-bottom: 3px;">
 					<template v-slot:right>
 						生产任务
 					</template>
 					</uni-section>
 				<view class="space"></view>
-				
+
 					<uni-section title="注意事项" type="line" style="margin-bottom: 3px;">
 						<view class="remarks">
 							注意轻拿轻放
 						</view>
 					</uni-section>
 				<view class="space"></view>
-				
+
 					<uni-section title="备注" type="line" style="margin-bottom: 3px;">
 						<view class="remarks">
 							无
 						</view>
 					</uni-section>
 				<view class="space"></view>
-				
+
 					<uni-section title="附件" type="line" style="margin-bottom: 3px;">
 						<view class="remarks">
 							无
 						</view>
 					</uni-section>
 				<view class="space"></view>
-				
+
 					<uni-section title="审批流程" type="line" style="margin-bottom: 3px;">
 						<view class="remarks">
 							<UniSetpsD :options="list2" active-icon="checkbox" :active="active" direction="column" />
 						</view>
 					</uni-section>
 				<view class="space"></view>
-				
+
 				<view class="comment">
 					<view class="addComment" @click="toggle('bottom')">
 						<uni-icons type="compose" size="20"></uni-icons>
@@ -96,12 +96,12 @@
 		<scroll-view v-else-if="curr==1">
 			<view class="">
 				<view class="outbound">
-					<uni-search-bar 
+					<uni-search-bar
 						v-model="searchVal"
 						cancel-text="搜索"
-						placeholder="请输入搜索内容" 
-						bgColor="#f1f1f1" 
-						clearButton="auto" 
+						placeholder="请输入搜索内容"
+						bgColor="#f1f1f1"
+						clearButton="auto"
 						cancelButton="auto">
 					</uni-search-bar>
 				</view>
@@ -222,7 +222,7 @@
 				</view>
 			</view>
 		</scroll-view>
-		
+
 		<view class="space2"></view>
 		<view class="goods-carts">
 			<view class="points" @tap="again">
@@ -236,7 +236,7 @@
 		<!-- <view class="goods-carts">
 			<uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  />
 		</view> -->
-		
+
 	</view>
 </template>
 
@@ -262,7 +262,7 @@
 					backgroundColor: '#2680eb',
 					color: '#fff'
 				}],
-				
+
 				list2: [{
 					title: '买家下单',
 					desc: '雷敏',
@@ -295,7 +295,7 @@
 			    itemList: ['再次提交', '撤销'],
 			    success (res) {
 			       // 选择其中任意一项后，获取其索引（res.tapIndex），从0开始
-			       console.log(res.tapIndex) 
+			       console.log(res.tapIndex)
 			    },
 			    fail (res) {
 			       // 取消后的操作
@@ -365,7 +365,7 @@
 		display: flex;
 		padding: 12px 12px 8px 12px;
 		border-bottom: 1px solid #f5f5f5;
-		
+
 		.blueBold{
 			font-size: 14px;
 			font-weight: bold;
@@ -418,7 +418,7 @@
 		width: 100%;
 		height: 100%;
 	}
-	
+
 	.state{
 		font-size: 14px;
 		color: #2680eb;
@@ -431,7 +431,7 @@
 	.time2{
 		font-size: 12px;
 		color: #ACACAC;
-		padding:10px 0 5px 12px;	
+		padding:10px 0 5px 12px;
 	}
 	.tab{
 		background-color: #e1ebf6;
@@ -491,7 +491,7 @@
 	.details{
 		display: flex;
 	}
-	
+
 	.describe{
 		flex: 1;
 		padding: 4px 12px;
