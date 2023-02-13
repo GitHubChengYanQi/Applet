@@ -10,13 +10,19 @@
 
 	"pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/Approval/index",
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/Erp/OutStock/OutStockDetail/index",
 			"style": {
 				"navigationBarTitleText": "审批详情"
 			}
 		},
 		{
-			"path": "pages/Approval/Detailed/index",
+			"path": "pages/Erp/OutStock/OutStockDetail/Detailed/page",
 			"style": {
 				"navigationBarTitleText": "出库明细"
 			}
@@ -28,18 +34,6 @@
 			}
 		},
 	
-		{
-			"path": "pages/login/index",
-			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		},
-		{
-			"path": "pages/login/index/index",
-			"style": {
-				"navigationBarTitleText": "表单配置"
-			}
-		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
