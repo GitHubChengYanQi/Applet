@@ -10,6 +10,12 @@
 	
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/Approval/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
+		},
+		{
 			"path": "pages/Approval/Detailed/index",
 			"style": {
 				"navigationBarTitleText": "出库明细"
@@ -21,12 +27,7 @@
 				"navigationBarTitleText": "审批详情"
 			}
 		},
-		{
-			"path": "pages/Approval/index",
-			"style": {
-				"navigationBarTitleText": "审批详情"
-			}
-		},
+	
 		{
 			"path": "pages/login/index",
 			"style": {

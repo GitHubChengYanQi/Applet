@@ -83,7 +83,7 @@
 
 <script>
 	import UniSetpsD from "@/components/uni-steps-d/uni-steps-d.vue"
-	import ApprovalHeader from '@/components/ApprovalHeader/ApprovalHeader.vue'
+	import ApprovalHeader from '@/pages/Approval/components/ApprovalHeader/ApprovalHeader.vue'
 	export default{
 		components:{
 			ApprovalHeader,

@@ -15,7 +15,7 @@
 				<!-- 出库明细 -->
 					<uni-section title="出库明细" type="line" style="margin-bottom: 3px;">
 					<template v-slot:right>
-						<view class="state">更多</view>
+						<view class="state" @tap="more">更多</view>
 					</template>
 					</uni-section>
 				<!-- 间隔 -->
@@ -79,9 +79,16 @@
 				<view class="space"></view>
 				
 				<view class="comment">
-					<view class="addComment">
+					<view class="addComment" @click="toggle('bottom')">
 						<uni-icons type="compose" size="20"></uni-icons>
 						添加评论
+					</view>
+					<view>
+						<!-- 普通弹窗 -->
+						<!-- 	<uni-popup ref="popup" background-color="#fff" @change="change">
+								<view class="popup-content" :class="{ 'popup-height': type === 'left' || type === 'right' }"><text
+										class="text">popup 内容</text></view>
+							</uni-popup> -->
 					</view>
 			</view>
 		</scroll-view>
@@ -209,7 +216,7 @@
 				<view class="bill">
 					程彦祺发起的入库异常 / 230207001
 				</view>
-				<view class="bill1">
+				<view class="bill1" @click="error">
 					• 核实异常
 					<uni-icons type="forward"></uni-icons>
 				</view>
@@ -218,15 +225,24 @@
 		
 		<view class="space2"></view>
 		<view class="goods-carts">
-			<uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  />
+			<view class="points" @tap="again">
+				<view>更多</view>
+				<uni-icons type="more-filled" size="20" color="#2680eb"></uni-icons>
+			</view>
+			<view class="picking">
+				领料
+			</view>
 		</view>
+		<!-- <view class="goods-carts">
+			<uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  />
+		</view> -->
 		
 	</view>
 </template>
 
 <script>
 	import UniSetpsD from "@/components/uni-steps-d/uni-steps-d.vue"
-	import ApprovalHeader from '@/components/ApprovalHeader/ApprovalHeader'
+	import ApprovalHeader from '@/pages/Approval/components/ApprovalHeader/ApprovalHeader.vue'
 	export default {
 		components: {
 			ApprovalHeader,
@@ -235,9 +251,11 @@
 		data() {
 			return {
 				curr:0,
+				type: 'center',
 				options:[{
 					text:'更多',
 					icon:"more-filled",
+					color:'blue'
 				}],
 				customButtonGroup1: [{
 					text: '领料',
@@ -266,8 +284,34 @@
 			let thisCurr = e.detail.current || e.currentTarget.dataset.index || 0;
 			// console.log(thisCurr)
 			this.curr = thisCurr;
-		}
-
+		},
+		more() {
+			uni.navigateTo({
+				url: 'Detailed/index'
+			});
+		},
+		again(){
+			uni.showActionSheet({
+			    itemList: ['再次提交', '撤销'],
+			    success (res) {
+			       // 选择其中任意一项后，获取其索引（res.tapIndex），从0开始
+			       console.log(res.tapIndex) 
+			    },
+			    fail (res) {
+			       // 取消后的操作
+			    }
+			})
+		},
+		error(){
+			uni.navigateTo({
+				url: '../Error/index'
+			});
+		},
+		toggle(type) {
+			this.type = type
+			// open 方法传入参数 等同在 uni-popup 组件上绑定 type属性
+			this.$refs.popup.open(type)
+		},
 	},
 	}
 </script>
@@ -431,11 +475,12 @@
 		font-size: 14px;
 	}
 	.goods-carts {
+		display: flex;
 		box-shadow: 0 0 10px 2px #ccc;
 		position: fixed;
 		left: 0;
 		right: 0;
-		padding: 5px 0;
+		padding: 10px 12px;
 		background-color: #fff;
 		bottom: 0;
 	}
@@ -480,6 +525,21 @@
 		font-size: 14px;
 		color: #ACACAC;
 		margin: 15px auto;
-		
+	}
+	.points{
+		padding-right: 12px;
+		font-size: 14px;
+		color: #808080;
+		text-align: center;
+	}
+	.picking{
+		font-size: 14px;
+		max-width: 640px;
+		flex-grow: 1;
+		background-color: #2680eb;
+		border-radius: 50px;
+		text-align: center;
+		line-height: 40px;
+		color: #fff;
 	}
 </style>

@@ -1,11 +1,12 @@
 <template>
-	<view class="">
+	<view class=""><movable-area>
 		<view class="tab">
 			<view class="tabCheck2" :class="curr==0 ? 'tabCheck' : ''" data-index="0" @tap="setCurr">一键备料</view>
 			<view class="tabCheck2" :class="curr==1 ? 'tabCheck' : ''" data-index="1" @tap="setCurr">单独备料</view>
 		</view>
 		<scroll-view v-if="curr==0">
 			<view class="list">
+				
 				<view class="list2">
 					<view class="text">主题：123</view>
 					<view class="text">负责人：程彦祺</view>
@@ -13,28 +14,33 @@
 					<view class="text">注意事项：无</view>
 					<view class="text">备注：无</view>
 				</view>
+				
 				<view class="list2">
 					<view class="text">订单编号：23020200005</view>
 					<view class="text">申请时间：02月02日 09:44</view>
 				</view>
+				
 				<view class="row">
 					<view class="text1">物料</view>
 					<view class="text2">申请数量</view>
 				</view>
+				
 				<view class="list2">
 					<view class="row">
 						<view class="text3">带养护周期的物料 / 母鸡 / 木有</view>
 						<view class="number">× 5</view>
 					</view>
 				</view>
+				
 				<view class="text4">
 					合计：&nbsp;&nbsp;1类&nbsp;&nbsp;5件
 				</view>
 		
 				<view class="goods-carts">
-					<uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  />
+					<uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  @tap='tips'/>
 				</view>
-		</view>	
+				
+			</view>	
 		</scroll-view>
 		
 		<scroll-view v-if="curr==1">
@@ -42,62 +48,80 @@
 				<view class="">
 					搜索
 				</view>
-				<view class="list4">
-					<view class="material">
-						<view class="material2">可备料</view>
-					</view>
-					<!-- 右 -->
-					<view class="a">
-						<!-- 右上 -->
-							<view class="overview2">
-								<view class="headPortrait3">
-									<img src="/static/logo.png" alt="" >
-									<view class="quantity">306台</view>
+					<swiper>
+						<swiper-item>
+							<view class="list4">
+								<view class="material">
+									<view class="material2">可备料</view>
 								</view>
-								<view class="describe">
-									<view class="">带养护周期的物料</view>
-									<view class="grey">母鸡/木有</view>
-									<view class="mini">浑河库存</view>
-									<view class="mini">库位</view>
-								</view>
-								<view class="number">
-									×5
+								<!-- 右 -->
+								<view class="a">
+									<!-- 右上 -->
+										<view class="overview2">
+											<view class="headPortrait3">
+												<img src="/static/logo.png" alt="" >
+												<view class="quantity">306台</view>
+											</view>
+											<view class="describe">
+												<view class="">带养护周期的物料</view>
+												<view class="grey">母鸡/木有</view>
+												<view class="mini">浑河库存</view>
+												<view class="mini">库位</view>
+											</view>
+											<view class="number">
+												×5
+											</view>
+										</view>
+									<view class="">
+										<view class="progress-box">
+											<view class="grayLine">
+												<view class="blueLine" :style="{width:decimalToPercent()}"></view>
+											</view>
+										</view>
+										<view class="progress-box2">
+											<view class="progress-box3">
+												<view class="colorCard"></view>
+												<view class="">可领&nbsp;{{collectable}}</view>
+											</view>
+											<view class="progress-box3">
+												<view class="colorCard2"></view>
+												<view class="">未备&nbsp;{{unclaimed}}</view>
+											</view>
+										</view>
+									</view>
 								</view>
 							</view>
-						<view class="">
-							<view class="progress-box">
-								<view class="grayLine">
-									<view class="blueLine" :style="{width:decimalToPercent()}"></view>
-								</view>
-							</view>
-							<view class="progress-box2">
-								<view class="progress-box3">
-									<view class="colorCard"></view>
-									<view class="">可领&nbsp;{{collectable}}</view>
-								</view>
-								<view class="progress-box3">
-									<view class="colorCard"></view>
-									<view class="">未备&nbsp;{{unclaimed}}</view>
-								</view>
-							</view>
-						</view>
-					</view>
-				</view>
+						</swiper-item>
+					</swiper>
+					
 				<view class="none">
 					没有更多了
 				</view>
 			</view>
 		</scroll-view>
 		
+			<movable-view class="suspension" :x="x" :y="y" direction="all" @change="onChange" >
+				<uni-badge :text="8" absolute="rightTop" :offset="[0, 0]" size="small">
+				<view class="suspension2">
+					<img src="../../../static/xuanfu.png" alt="">
+				</view>
+			</uni-badge>
+			</movable-view>
+		</movable-area>
 	</view>
-	
 </template>
 
 <script>
 	export default{
 		data(){
 			return{
-				curr:1,
+				curr:0,
+				x: 340,
+				y: 680,
+				old: {
+					x: 0,
+					y: 0,
+				},
 				customButtonGroup1: [{
 					text: '一键备料',
 					backgroundColor: '#2680eb',
@@ -115,7 +139,30 @@
 			decimalToPercent(){
 				let data = ((this.collectable/this.unclaimed)*100).toFixed(2)+'%'
 				return data
-			}
+			},
+			onChange(e) {
+				this.old.x = e.detail.x
+				this.old.y = e.detail.y
+			},
+			tips(e) {
+				uni.showModal({
+					title: '提示',
+					content: '这是一个模态弹窗',
+					success: function (res) {
+						if (res.confirm) {
+								uni.showModal({
+									title: "123",
+									content: "弹窗内容，告知当前状态、信息和解决方法，描述文字尽量控制在三行内",
+									showCancel: false,
+									confirmText: "确定"
+								})
+						} else if (res.cancel) {
+							console.log('用户点击取消');
+						}
+					}
+				});
+
+			},
 		}
 	}
 </script>
@@ -127,6 +174,20 @@
 	image{
 		width: 100%;
 		height: 100%;
+	}
+	movable-area {
+		height: 740px;
+		width: 100%;
+	}
+	movable-view {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 150rpx;
+		width: 150rpx;
+		background-color: #007AFF;
+		color: #fff;
+		z-index: 1;
 	}
 	.a{
 		width: 90%;
@@ -227,7 +288,7 @@
 		width: 100%;
 		background-color: #fff;
 		display: flex;
-		padding: 12px 12px 8px 12px;
+		padding: 15px 12px 8px 12px;
 	}
 	.headPortrait3{
 		width: 72px;
@@ -274,7 +335,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin: 10px 12px;
+		margin:10px 12px 5px 12px;
 		width: 100%;
 	
 	 .grayLine {
@@ -292,17 +353,38 @@
 	.progress-box2{
 		display: flex;
 		font-size: 12px;
+		margin-bottom: 10px;
 		width: 100%;
-		.colorCard{
-			background-color: #D3E7FD;
-			width: 8px;
-			height: 8px;
-			border-radius: 50%;
+		.progress-box3{
+			display: flex;
+			margin: 0 12px;
+			.colorCard{
+				margin: auto 5px;
+				background-color: #D3E7FD;
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+			}
+			.colorCard2{
+				margin: auto 5px;
+				background-color: #E8E8E8;
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+			}
 		}
-	}
-	.progress-box3{
-		display: flex;
 		
 	}
+	.suspension{
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		background-color: #e1ebf6;
 			
+		.suspension2{
+			width: 24px;
+			height:18px;
+		}
+	}
+		
 </style>

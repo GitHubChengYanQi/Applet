@@ -12,11 +12,15 @@
 										:class="[direction==='column'?'uni-steps__column-title':'uni-steps__row-title']">{{item.title}}</text>
 								</template>
 								<view class="substep">
-								<uni-badge class="checkmark" text=" " type="primary" :customStyle="{background: '#2680eb'}" absolute="rightTop" :offset="[-2, -2]">
-								<view class="headPortrait3">
-									<img src="../../static/logo.png" alt="">
-								</view>
-								</uni-badge>
+									<view class="as">
+										<view class="ball">
+											<uni-icons type="checkmarkempty" size="10" color="#fff"></uni-icons>
+										</view>
+										<view class="headPortrait3">
+											<img src="../../static/logo.png" alt="">
+										</view>
+									</view>
+									
 								<text :style="{color: deactiveColor}"
 									:class="[direction==='column'?'uni-steps__column-desc':'uni-steps__row-desc']">{{item.desc}}</text>
 								<text :style="{color: deactiveColor}"
@@ -306,5 +310,20 @@
 		height: 26px;
 		border-radius: 5px;
 		overflow: hidden;
+	}
+	.as{
+		position: relative;
+	}
+	.ball{
+		width: 14px;
+		height: 14px;
+		line-height: 14px;
+		text-align: center;
+		border-radius: 50%;
+		background-color:#2680eb;
+		position: absolute;
+		top: -6px;
+		right: -6px;
+		z-index: 1;
 	}
 </style>
