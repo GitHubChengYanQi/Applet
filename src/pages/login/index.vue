@@ -1,6 +1,25 @@
 <template>
-  <view>
-  
+  <view class="login">
+	  <view class="logo">
+	  	<img src="../../static/logo2.png" alt="">
+	  </view>
+		<view>
+			<view class="text">欢迎使用浑河云</view>
+		  <form @submit="formSubmit" @reset="formReset">
+			<view class="uni-form-item uni-column">
+			  <view class="title">姓名</view>
+			  <input class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
+			</view>
+			<view class="uni-form-item uni-column">
+			  <view class="title">密码</view>
+			  <input class="uni-input" type="password" name="password" v-model="password" placeholder="请输入密码" />
+			</view>
+			<view class="uni-btn-v">
+			  <button form-type="submit">登录</button>
+			  <button type="default" form-type="reset">Reset</button>
+			</view>
+		  </form>
+		</view>
   </view>
 </template>
 <script>
@@ -73,8 +92,24 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .uni-form-item .title {
   padding: 20px 0;
 }
+body{
+	background-image: url('../../static/login.png');
+}
+image{
+	width: 100%;
+	height: 100%;
+}
+.login{
+	padding: 53px 20px;
+	.logo{
+		width: 87px;
+		height: 87px;
+		margin: auto;
+	}
+}
+
 </style>
