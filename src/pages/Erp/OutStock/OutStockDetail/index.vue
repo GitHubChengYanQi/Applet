@@ -66,7 +66,7 @@
       </uni-section>
 
     <!-- 出库记录 -->
-    <scroll-view v-else-if="curr==1">
+    <scroll-view v-if="false">
       <view class="">
         <view class="outbound">
           <uni-search-bar
@@ -141,7 +141,7 @@
       </view>
     </scroll-view>
     <!-- 动态日志 -->
-    <scroll-view v-else-if="curr==2">
+    <scroll-view v-if="false">
       <view class="overview4">
         <view class="headPortrait2">
           <img src="/static/logo.png" alt="">
@@ -181,7 +181,7 @@
       </view>
     </scroll-view>
     <!-- 关联单据 -->
-    <scroll-view v-else-if="curr==3">
+    <scroll-view v-if="false">
       <view class="overview5">
         <view class="headPortrait4">
           <img src="/static/logo.png" alt="">
