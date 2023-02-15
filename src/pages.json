@@ -1,4 +1,5 @@
 {
+	
 	"easycom": {
 			"autoscan": true,
 			"custom": {
@@ -9,6 +10,13 @@
 
 
 	"pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/Erp/Sku/SkuDetail/index",
+			"style": {
+				"navigationBarTitleText": "添加物料"
+				
+			}
+		},
 		{
 			"path": "pages/login/index",
 			"style": {
@@ -32,12 +40,16 @@
 			"style": {
 				"navigationBarTitleText": "审批详情"
 			}
-		},
+		}
 	
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"usingComponents": {
+		  "van-button": "/wxcomponents/button/index",
+		  "van-cascader": "/wxcomponents/cascader/index"
+		}
 	}
 }
