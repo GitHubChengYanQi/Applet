@@ -15,6 +15,7 @@
           :loading='loading'
           :type='detailData.type'
           :taskDetail='detailData'
+          :action="getAction('outStock').id && permissions"
       />
     </view>
     <view v-if="detailData.type === ReceiptsEnums.error"></view>
@@ -24,7 +25,11 @@
 
     <view class="process">
       <uni-section title="审批流程" type="line">
+        <view class="processLoading" v-if="loading">
+          <van-loading type="spinner" color="#1989fa" />
+        </view>
         <Process
+            v-else
             :auditData='detailData.stepsResult'
             :version='detailData.version'
             :createUser='detailData.user'
@@ -40,6 +45,7 @@
     </view>
 
     <Footer
+        v-if="!loading"
         :version='detailData.version'
         :currentNode='currentNode'
         :detail='detailData'
@@ -51,9 +57,9 @@
 <script>
 
 import OutStockDetail from "../../../../Erp/OutStock/OutStockDetail";
-import Footer from "../Footer";
+import Footer from "./components/Footer/index";
 import {ReceiptsEnums} from "../../../ReceiptsEnums";
-import Process from '../Process/index'
+import Process from './components/Process/index'
 
 export default {
   components: {OutStockDetail, Footer, Process},
@@ -67,7 +73,7 @@ export default {
       bottomButton: false
     }
   },
-  mounted() {
+  created() {
     const actions = [];
     const logIds = [];
     let actionNode = false;
@@ -99,7 +105,6 @@ export default {
     } else {
       actionNode = true;
     }
-
     this.actions = actions
     this.logIds = logIds
     this.actionNode = actionNode
@@ -109,7 +114,7 @@ export default {
       if (this.detailData.status !== 0) {
         return {};
       }
-      const actionData = actions.filter(item => {
+      const actionData = this.actions.filter(item => {
         return item.action === action;
       });
       return actionData[0] || {};
@@ -126,6 +131,11 @@ export default {
 
 .process {
   margin-top: 3px;
+}
+
+.processLoading {
+  padding: 24px;
+  text-align: center;
 }
 
 .comment {

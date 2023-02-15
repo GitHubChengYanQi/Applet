@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import axios from "axios";
-import MyPlugin from "./util";
+import Auth from "./auth";
 
 axios.defaults.adapter = function (config) {
     return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ axios.defaults.adapter = function (config) {
     })
 }
 
-Vue.use(MyPlugin)
+Vue.use(Auth)
 
 
 const app = new Vue({

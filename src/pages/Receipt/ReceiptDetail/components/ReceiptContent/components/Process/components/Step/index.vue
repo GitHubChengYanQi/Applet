@@ -72,8 +72,8 @@
 </template>
 
 <script>
-import AuditUsers from '../AuditUsers/index'
-import Step from '../Step/index'
+import AuditUsers from '../AuditUsers'
+import Step from './index'
 
 export default {
   components: {AuditUsers, Step},

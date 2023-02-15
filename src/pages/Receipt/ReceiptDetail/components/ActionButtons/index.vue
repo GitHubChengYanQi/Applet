@@ -28,7 +28,7 @@
           <button
               :disabled='actionsData[0].disabled'
               class="ok"
-              @clicl="actionClick(actionsData[0].action)"
+              @click="actionClick(actionsData[0].action)"
           >
             {{ actionsData[0].name }}
           </button>
