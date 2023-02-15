@@ -12,20 +12,24 @@
           :actions='actions'
       />
     </view>
-
+    <Loading :loading="loading" />
   </view>
 </template>
 
 <script>
-import ActionButtons from '../ActionButtons/index'
-import {ReceiptsEnums} from "../../../ReceiptsEnums";
+import ActionButtons from '../../../ActionButtons/index'
+import {ReceiptsEnums} from "../../../../../ReceiptsEnums";
+import {Process} from "MES-Apis/src/Process/promise";
+import Loading from '../../../../../../../components/Loading/index'
+import {Message} from "../../../../../../../components/Message";
 
 
 export default {
-  components: {ActionButtons},
+  components: {ActionButtons, Loading},
   props: ['version', 'currentNode', 'detail', 'refresh'],
   data() {
     return {
+      loading: false,
       auditNode: false,
       logIds: [],
       actions: [
@@ -52,19 +56,23 @@ export default {
         });
       }
     });
-    console.log(this.detail)
     this.auditNode = auditNode
     this.logIds = logIds
   },
   methods: {
     audit(status) {
-      // processLogRun({
-      //   data: {
-      //     taskId: detail.processTaskId,
-      //     logIds,
-      //     status,
-      //   },
-      // });
+      this.loading = true
+      Process.auditPost({
+        taskId: this.detail.processTaskId,
+        logIds: this.logIds,
+        status,
+      }).then(() => {
+        Message.successToast('审批成功！', () => {
+          this.$emit('refresh')
+        }, true)
+      }).finally(() => {
+        this.loading = false
+      })
     },
     onClick(action) {
       switch (action) {
