@@ -37,7 +37,7 @@ import {getLocalParmas} from "../../util/Tools";
 export default {
   mounted() {
     this.backUrl = getLocalParmas().search.backUrl
-    // this.requestPromise(getLocalParmas().search.backUrl)
+    this.requestPromise(getLocalParmas().search.backUrl)
   },
   data() {
     return {

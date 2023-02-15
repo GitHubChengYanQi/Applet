@@ -10,17 +10,18 @@
 
 
 	"pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		
+		{
+			"path": "pages/Erp/Sku/SkuAdd/index",
+			"style": {
+				"navigationBarTitleText": "添加物料"
+
+			}
+		},
 		{
 			"path": "pages/Receipt/ReceiptDetail/index",
 			"style": {
 				"navigationBarTitleText": "审批详情"
-			}
-		},
-		{
-			"path": "pages/Erp/Sku/SkuDetail/index",
-			"style": {
-				"navigationBarTitleText": "添加物料"
-
 			}
 		},
 		{
@@ -36,7 +37,9 @@
 		"backgroundColor": "#F8F8F8",
 		"usingComponents": {
 		  "van-button": "/wxcomponents/button/index",
-		  "van-cascader": "/wxcomponents/cascader/index"
+		  "van-cascader": "/wxcomponents/cascader/index",
+		  "van-popup": "/wxcomponents/popup/index",
+		  "van-field": "/wxcomponents/field/index"
 		}
 	}
 }
