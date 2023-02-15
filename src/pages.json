@@ -1,5 +1,5 @@
 {
-	
+
 	"easycom": {
 			"autoscan": true,
 			"custom": {
@@ -11,10 +11,16 @@
 
 	"pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/Receipt/ReceiptDetail/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
+		},
+		{
 			"path": "pages/Erp/Sku/SkuDetail/index",
 			"style": {
 				"navigationBarTitleText": "添加物料"
-				
+
 			}
 		},
 		{
@@ -22,26 +28,7 @@
 			"style": {
 				"navigationBarTitleText": "登录"
 			}
-		},
-		{
-			"path": "pages/Erp/OutStock/OutStockDetail/index",
-			"style": {
-				"navigationBarTitleText": "审批详情"
-			}
-		},
-		{
-			"path": "pages/Erp/OutStock/OutStockDetail/Detailed/page",
-			"style": {
-				"navigationBarTitleText": "出库明细"
-			}
-		},
-		{
-			"path": "pages/Error/index",
-			"style": {
-				"navigationBarTitleText": "审批详情"
-			}
 		}
-	
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

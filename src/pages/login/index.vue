@@ -7,7 +7,7 @@
 			<view class="text">欢迎使用浑河云</view>
 		  <form @submit="formSubmit">
 			<view class="login3">
-				
+
 			  <uni-icons  type="person" size="20"></uni-icons>
 			  <input class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
 			</view>
@@ -24,7 +24,7 @@
 		  	<view class="forget" @click="forget">忘记登录密码</view>
 		  </view>
 			<view class="technology">本系统由<span class='link'>道昕网络</span>提供技术支持</view>
-			
+
 		</view>
   </view>
 </template>
@@ -37,7 +37,7 @@ import {getLocalParmas} from "../../util/Tools";
 export default {
   mounted() {
     this.backUrl = getLocalParmas().search.backUrl
-    this.requestPromise(getLocalParmas().search.backUrl)
+    // this.requestPromise(getLocalParmas().search.backUrl)
   },
   data() {
     return {
@@ -49,21 +49,6 @@ export default {
   },
   methods: {
     formSubmit: function (e) {
-      //定义表单规则
-      // var rule = [{
-      //   name: "username",
-      //   checkType: "string",
-      //   checkRule: "1,3",
-      //   errorMsg: "姓名应为1-3个字符"
-      // },
-      //   {
-      //     name: "password",
-      //     checkType: "string",
-      //     checkRule: "4,6",
-      //     errorMsg: "密码应为4-6个字符"
-      //   }
-      // ];
-      //进行表单检查
       var formData = e.detail.value;
       var checkRes = graceChecker.check(formData, []);
       if (checkRes) {
@@ -99,7 +84,7 @@ export default {
         }
       })
     },
-	
+
 	forget(){
 		uni.showModal({
 			content: "请联系管理员",
@@ -112,7 +97,7 @@ export default {
 </script>
 
 <style lang="scss">
-	
+
 .title {
   margin-right: 5px;
 }
@@ -137,7 +122,7 @@ image{
 		padding: 0 28px;
 		border-radius: 8px;
 		background-color: rgba(255, 255, 255, 0.9);
-	
+
 		.uni-input{
 			width: 100%;
 			font-size: 14px;
@@ -171,7 +156,7 @@ image{
 			border-bottom: 1px solid #ACACAC;
 			width: 43px;
 			margin:4px 16px;
-			
+
 		}
 		.technology{
 			text-align: center;
