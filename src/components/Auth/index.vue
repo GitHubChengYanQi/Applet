@@ -1,7 +1,7 @@
 <template>
   <view>
     <view v-if="success">
-      <slot></slot>
+<!--      <slot></slot>-->
     </view>
     <view v-else-if="error">
       初始化失败！
@@ -17,6 +17,7 @@
 import {Init} from "MES-Apis/src/Init";
 import {User} from "MES-Apis/src/User";
 import Loading from "../Loading";
+import {getLocalParmas} from "../../util/Tools";
 
 export default {
   components: {Loading},
@@ -28,14 +29,12 @@ export default {
   },
   async mounted() {
 
-    const pages = getCurrentPages();
-
     Init.initBaseURL('http://192.168.2.111')
 
     Init.responseConfig({
       loginTimeOut: (res) => {
         uni.redirectTo({
-          url: `/pages/login/index?backUrl=/${pages[pages.length - 1].route}`,
+          url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
         })
       },
       errorMessage: (res) => {
@@ -44,7 +43,7 @@ export default {
     })
 
     const publicInfo = await Init.getPublicInfo({
-      onError:()=>{
+      onError: () => {
         this.error = true
       }
     })
@@ -54,11 +53,13 @@ export default {
     }
     getApp().globalData.publicInfo = publicInfo.data
     const token = getApp().globalData.token
+
+
     if (token) {
       this.getUserInfo()
     } else {
       uni.redirectTo({
-        url: `/pages/login/index?backUrl=/${pages[pages.length - 1].route}`,
+        url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
       })
     }
   },
@@ -66,7 +67,7 @@ export default {
     async getUserInfo() {
       const res = await User.getUserInfo({
         onSuccess: (res) => {
-          this.success = true
+          // this.success = true
         },
       })
     }
