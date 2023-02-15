@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <div v-if="loading">
-      loading...
-    </div>
-    <div v-else-if="!detailData">
+  <view>
+    <van-toast id="van-toast" />
+    <view v-if="!detailData && !loading">
       获取审批详情失败!
-    </div>
-    <div v-else>
+    </view>
+    <view v-if="!detailData && loading">
+      loading...
+    </view>
+    <view v-else>
+      <Loading :loading="loading" />
       <Header
           :avatar="user.avatar"
           :coding="receipts.coding"
@@ -43,23 +45,22 @@
         <view v-if="tabKey === 'dynamic'"></view>
         <view v-if="tabKey === 'relation'"></view>
       </view>
-
-
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script>
 
 import Header from './components/Header/index'
 import ReceiptContent from './components/ReceiptContent/index'
-import {auditDetail} from "MES-Apis/src/Process/promise";
 import {getLocalParmas} from "../../../util/Tools";
 import {ReceiptsEnums} from "../ReceiptsEnums";
+import {Process} from "MES-Apis/src/Process/promise";
+import Loading from '../../../components/Loading/index'
 
 export default {
   name: 'receiptDetail',
-  components: {Header,  ReceiptContent},
+  components: {Header, ReceiptContent, Loading},
   data() {
     return {
       tabs: [
@@ -89,7 +90,7 @@ export default {
       })
     },
     getTaskDetail() {
-      const taskId = '1625343288033648642' || getLocalParmas().search.id
+      const taskId = '1625734662482153473' || getLocalParmas().search.id
       const formId = getLocalParmas().search.formId
       const type = getLocalParmas().search.type
       this.loading = true
@@ -97,7 +98,7 @@ export default {
         this.loading = false
         return
       }
-      auditDetail({taskId, formId, type}).then((res) => {
+      Process.auditDetail({taskId, formId, type}).then((res) => {
         this.type = res.data?.type
         this.receipts = res.data?.receipts || {}
         this.user = res.data?.user || {}

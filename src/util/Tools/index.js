@@ -9,23 +9,19 @@ export const getLocalParmas = () => {
     }
 }
 
-const Show = (date) => {
-    if (!date) {
-        return '-';
-    }
-    const oneYear = moment(date).diff(new Date(), 'year') >= 1;
-    return moment(date).format(oneYear ? 'YYYY年MM月DD日 HH:mm' : 'MM月DD日 HH:mm');
-};
-
-const formatDate = (date) => {
-    const newDate = moment(date).format('YYYY/MM/DD HH:mm:ss');
-    return new Date(newDate);
-};
-
 
 export const MyDate = {
-    Show,
-    formatDate,
+    Show: (date) => {
+        if (!date) {
+            return '-';
+        }
+
+        return moment(date).format(moment(date).year() !== moment().year() ? 'YYYY年MM月DD日 HH:mm' : 'MM月DD日 HH:mm');
+    },
+    formatDate: (date) => {
+        const newDate = moment(date).format('YYYY/MM/DD HH:mm:ss');
+        return new Date(newDate);
+    },
 };
 
 // 返回空集合

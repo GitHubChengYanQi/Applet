@@ -1,69 +1,63 @@
 <template>
   <view>
-      <!-- 出库明细 -->
-      <uni-section title="来源" type="line" v-if="origin">
-        <template v-slot:right>
-          <view class="state">
-            {origin?.title} / {origin?.coding}
-          </view>
-        </template>
-      </uni-section>
-      <uni-section title="出库明细" type="line">
-        <template v-slot:right>
-          <view class="state" @tap="more">更多</view>
-        </template>
-      </uni-section>
-      <!-- 间隔 -->
-      <view class="space"></view>
-      <!-- 主题 -->
-      <uni-section title="主题" type="line">
-        <template v-slot:right>
-          128-台湾展
-        </template>
-      </uni-section>
-      <view class="space"></view>
-      <!-- 领料负责人 -->
-      <uni-section title="领料负责人" type="line">
-        <template v-slot:right>
-          <view class="picker">
-            <view class="headPortrait2">
-              <img src="../../../../static/logo.png" alt="">
-            </view>
-            <view class="pickerInfo">
-              <view>雷敏</view>
-              <view class="position">-&nbsp;总经理</view>
-            </view>
-          </view>
-        </template>
-      </uni-section>
-      <view class="space"></view>
-
-      <uni-section title="出库类型" type="line">
-        <template v-slot:right>
-          生产任务
-        </template>
-      </uni-section>
-      <view class="space"></view>
-
-      <uni-section title="注意事项" type="line">
-        <view class="remarks">
-          注意轻拿轻放
+    <!-- 出库明细 -->
+    <Card title="来源" v-if="origin">
+      <template v-slot:extra>
+        <view class="state">
+          {{ origin.title || '' }} / {{ origin.coding || '' }}
         </view>
-      </uni-section>
-      <view class="space"></view>
+      </template>
+    </Card>
+    <Card title="出库明细">
+      <template v-slot:extra>
+        <view class="state" @click="goToDetail">更多</view>
+      </template>
+    </Card>
+    <!-- 间隔 -->
+    <view class="space"></view>
+    <!-- 主题 -->
+    <Card title="主题" :extra="taskDetail.theme || '无'" />
+    <view class="space"></view>
+    <!-- 领料负责人 -->
+    <Card title="领料负责人">
+      <template v-slot:extra>
+        <UserName :user='data.userResult' />
+      </template>
+    </Card>
+    <view class="space"></view>
 
-      <uni-section title="备注" type="line" style="margin-bottom: 3px;">
-        <view class="remarks">
-          无
-        </view>
-      </uni-section>
-      <view class="space"></view>
+    <Card title="出库类型" :extra="getOutType(data.type)" />
+    <view class="space"></view>
 
-      <uni-section title="附件" type="line" style="margin-bottom: 3px;">
-        <view class="remarks">
-          无
-        </view>
-      </uni-section>
+    <Card title="注意事项">
+      {{
+        isArray(data.announcementsResults).length === 0 ? '无' : isArray(data.announcementsResults).map(item => item.content).join('、')
+      }}
+    </Card>
+    <view class="space"></view>
+
+    <Card title="备注">
+      {{ data.note }}
+    </Card>
+    <view class="space"></view>
+
+    <Card title="附件">
+      <view class="remarks">
+        无
+      </view>
+    </Card>
+
+    <ActionButtons
+        :taskDetail='taskDetail'
+        :statusName='data.statusName'
+        @afertShow="$emit('afertShow')"
+        :taskId='taskId'
+        :logIds='logIds'
+        :createUser='taskDetail.createUser'
+        :permissions="true"
+        :actions="nodeActions"
+        @onClick="(actions)=>onAction(action)"
+    />
 
     <!-- 出库记录 -->
     <scroll-view v-if="false">
@@ -206,9 +200,6 @@
         领料
       </view>
     </view>
-    <!-- <view class="goods-carts">
-      <uni-goods-nav :fill="true" :options="options" :button-group="customButtonGroup1"  />
-    </view> -->
 
   </view>
 </template>
@@ -216,6 +207,10 @@
 <script>
 
 import {isArray} from "../../../../util/Tools";
+import UserName from '../../../../components/UserName/index'
+import {getOutType} from "../outStock";
+import Card from '../../../../components/Card/index'
+import ActionButtons from "../../../Receipt/ReceiptDetail/components/ActionButtons";
 
 export default {
   props: [
@@ -229,17 +224,43 @@ export default {
     'taskId',
     'actions',
   ],
-  components: {},
+  components: {UserName, Card, ActionButtons},
   data() {
     return {
-      origin: {}
+      origin: null,
+      getOutType,
+      isArray,
+      nodeActions: []
     }
   },
-  mounted() {
+  created() {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
     this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
+    const userInfo = getApp().globalData.userInfo || {}
+    this.nodeActions = isArray(this.actions).map(item => ({
+      ...item,
+      name: item.action === 'outStock' ? '领料' : item.name
+    })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
   },
   methods: {
-
+    goToDetail() {
+      uni.redirectTo({
+        url: `/pages/Erp/OutStock/OutStockAction/index?pickListsId=${this.data.pickListsId}&taskId=${this.taskId}&theme=${this.taskDetail.theme}&action=${(this.action || false) + ''}&source=${this.data.source}`,
+      })
+    },
+    onAction(action) {
+      switch (value) {
+        case 'outStock':
+          setPicking(true);
+          break;
+        case 'revokeAndAsk':
+          OutStockRevoke(taskDetail);
+          break;
+        default:
+          break;
+      }
+    }
   },
 }
 </script>
@@ -398,21 +419,10 @@ image {
   font-size: 14px;
 }
 
-.picker {
-  display: flex;
-}
-
-.pickerInfo {
-  padding-left: 10px;
-}
 
 .position {
   font-size: 12px;
   color: #b5b5b5;
-}
-
-.remarks {
-  padding: 0 0 20px 20px;
 }
 
 

@@ -1,10 +1,10 @@
 import {Init} from "MES-Apis/src/Init";
 import {getLocalParmas} from "./util/Tools";
-import {User} from "MES-Apis/src/User";
+import {User} from "MES-Apis/src/User/promise";
 
-const MyPlugin = {}
+const Auth = {}
 
-MyPlugin.install = function (Vue, options) {
+Auth.install = function (Vue, options) {
     // 1. 添加全局方法或 property
     Vue.myGlobalMethod = function () {
         // 逻辑...
@@ -57,4 +57,4 @@ MyPlugin.install = function (Vue, options) {
     })
 }
 
-export default MyPlugin
+export default Auth

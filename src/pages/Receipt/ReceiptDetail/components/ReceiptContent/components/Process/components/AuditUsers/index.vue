@@ -7,9 +7,12 @@
       <view class='user'>
         <view class='nameAvatar'>
           <view class="avatar">
-            <view :class="itemData(item).stepsStatus === 'success' ? 'successIcon' : 'errorIcon'">
+            <view
+                v-if="itemData(item).stepsStatus"
+                :class="itemData(item).stepsStatus === 'success' ? 'successIcon' : 'errorIcon'"
+            >
               <uni-icons
-                  :type="itemData(item).stepsStatus === 'success' ? 'checkbox-filled' : 'close-filled'"
+                  :type="itemData(item).stepsStatus === 'success' ? 'checkbox-filled' : 'clear'"
               />
             </view>
             <image :src='old ? item.avatar : item.auditUserResult.avatar' />
@@ -26,7 +29,7 @@
 </template>
 
 <script>
-import {MyDate} from "../../../../../../../util/Tools";
+import {MyDate} from "../../../../../../../../../util/Tools";
 
 export default {
   props: ['users', 'step', 'old'],
@@ -48,7 +51,6 @@ export default {
   methods: {
     itemData(item) {
       let stepsStatus;
-      let content;
       if (this.old) {
         if (item.auditStatus) {
           switch (this.logResult.status) {
@@ -204,7 +206,9 @@ export default {
       }
 
       .errorIcon {
-        color: $uni-color-error !important;
+        text {
+          color: $uni-color-error !important;
+        }
       }
     }
 

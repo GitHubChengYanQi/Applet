@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import Step from './components/Step/index'
+import Step from './components/Step'
 
 export default {
   components: {Step},

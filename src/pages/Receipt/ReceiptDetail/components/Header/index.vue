@@ -11,16 +11,23 @@
       </view>
       <view class="overviewInfo">
         <view class="state">•&nbsp;&nbsp;{{ statusName || '' }}</view>
-        <view class="time">{{ createTime || '' }}</view>
+        <view class="time">{{ MyDate.Show(createTime) }}</view>
       </view>
     </view>
   </view>
 </template>
 
 <script>
+import {MyDate} from "../../../../../util/Tools";
+
 export default {
   name: 'Header',
-  props: ['title', 'coding', 'statusName', 'createTime', 'avatar', 'createName']
+  props: ['title', 'coding', 'statusName', 'createTime', 'avatar', 'createName'],
+  data() {
+    return {
+      MyDate
+    }
+  }
 }
 </script>
 

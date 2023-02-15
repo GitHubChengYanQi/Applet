@@ -1,42 +1,48 @@
 {
-
-	"easycom": {
-			"autoscan": true,
-			"custom": {
-				// uni-ui 规则如下配置
-				"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
-			}
-		},
-
-
-	"pages": [ // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/Receipt/ReceiptDetail/index",
-			"style": {
-				"navigationBarTitleText": "审批详情"
-			}
-		},
-		{
-			"path": "pages/Erp/Sku/SkuDetail/index",
-			"style": {
-				"navigationBarTitleText": "添加物料"
-
-			}
-		},
-		{
-			"path": "pages/login/index",
-			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		}
-	],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
-		"usingComponents": {
-		  "van-button": "/wxcomponents/button/index",
-		  "van-cascader": "/wxcomponents/cascader/index"
-		}
-	}
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      // uni-ui 规则如下配置
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/Receipt/ReceiptDetail/index",
+      "style": {
+        "navigationBarTitleText": "审批详情"
+      }
+    },
+    {
+      "path": "pages/Erp/OutStock/OutStockAction/index",
+      "style": {
+        "navigationBarTitleText": "出库操作"
+      }
+    },
+    {
+      "path": "pages/Erp/Sku/SkuDetail/index",
+      "style": {
+        "navigationBarTitleText": "添加物料"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8",
+    "usingComponents": {
+      "van-button": "/wxcomponents/button/index",
+      "van-cascader": "/wxcomponents/cascader/index",
+      "van-toast": "/wxcomponents/toast/index",
+      "van-loading": "/wxcomponents/loading/index",
+      "van-overlay": "/wxcomponents/overlay/index",
+      "van-dialog": "/wxcomponents/dialog/index"
+    }
+  }
 }
