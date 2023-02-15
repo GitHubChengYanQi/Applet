@@ -1,22 +1,23 @@
 <template>
   <view>
-  
+
   </view>
 </template>
 <script>
 import graceChecker from "../../common/graceChecker.js"
 import {login} from "MES-Apis/src/Login/promise";
+import {getLocalParmas} from "../../util/Tools";
 
 
 export default {
   mounted() {
-    const pages = getCurrentPages();
-    this.backUrl = pages[pages.length - 1]?.options?.backUrl
+    this.backUrl = getLocalParmas().search.backUrl
+    this.requestPromise(getLocalParmas().search.backUrl)
   },
   data() {
     return {
-      username: 'admin ',
-      password: '111111',
+      username: 'cheng',
+      password: '2683941980',
       backUrl: '',
     }
   },
@@ -51,7 +52,7 @@ export default {
     formReset: function (e) {
 
     },
-    requestPromise() {
+    requestPromise(url) {
       login({
         username: this.username,
         password: this.password
@@ -59,7 +60,7 @@ export default {
         onSuccess: (res) => {
           getApp().globalData.token = res
           uni.redirectTo({
-            url: this.backUrl,
+            url: url || this.backUrl,
           })
         },
         onError: () => {

@@ -1,6 +1,5 @@
 <template>
 	<view class="">
-		<ApprovalHeader/>
 		<view class="tab">
 			<view class="tabCheck2" :class="curr==0 ? 'tabCheck' : ''" data-index="0" @tap="setCurr">基本信息</view>
 			<view class="tabCheck2" :class="curr==1 ? 'tabCheck' : ''" data-index="1" @tap="setCurr">动态日志</view>
@@ -40,7 +39,7 @@
 								</view>
 							</view>
 						</view>
-						
+
 						<view class="details1">
 							<view class="describe1">
 								申请总数：1
@@ -52,28 +51,28 @@
 					</view>
 				</uni-section>
 			<view class="space"></view>
-			
+
 			<uni-section title="来源" type="line" style="margin-bottom: 3px;">
 				<view class="source">
 					<uni-link showUnderLine="false" href="https://uniapp.dcloud.io/" text="程彦祺发起的入库异常 / 221119001" color="#007BFF"></uni-link>
 				</view>
 			</uni-section>
 			<view class="space"></view>
-			
+
 			<uni-section title="审批流程" type="line" style="margin-bottom: 3px;">
 					<view class="remarks">
 						<UniSetpsD :options="list2" active-icon="checkbox" :active="active" direction="column" />
 					</view>
 				</uni-section>
 			<view class="space"></view>
-			
+
 			<view class="comment">
 				<uni-icons type="compose" size="20"></uni-icons>
 				添加评论
 			</view>
 		</scroll-view>
 		<scroll-view v-if="curr==1">
-			
+
 		</scroll-view>
 		<scroll-view v-if="curr==2">
 			789
@@ -83,10 +82,8 @@
 
 <script>
 	import UniSetpsD from "@/components/uni-steps-d/uni-steps-d.vue"
-	import ApprovalHeader from '@/pages/Erp/OutStock/OutStockDetail/components/ApprovalHeader/ApprovalHeader.vue'
 	export default{
 		components:{
-			ApprovalHeader,
 			UniSetpsD
 		},
 		data() {
@@ -172,7 +169,7 @@
 	}
 	.describe{
 		padding-left: 12px;
-		
+
 		flex-grow: 1;
 		font-size: 14px;
 		.describe2{
