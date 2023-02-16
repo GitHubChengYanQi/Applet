@@ -40,11 +40,10 @@
 import SkuItem from "../../../Sku/components/SkuItem";
 import {isArray} from "../../../../../util/Tools";
 import OutPerogress from "../OutProgress";
-import empty from '../../../../../wxcomponents/empty/index'
 
 export default {
   name: 'outStockItem',
-  components: {OutPerogress, SkuItem,empty},
+  components: {OutPerogress, SkuItem},
   props: [
     'item',
     'dataLength',

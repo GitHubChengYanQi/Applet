@@ -22,9 +22,6 @@ VantComponent({
         }, clearIcon: {
             type: String,
             value: 'clear',
-        }, extraEventParams: {
-            type: Boolean,
-            value: false,
         } }),
     data: {
         focused: false,
@@ -40,7 +37,7 @@ VantComponent({
             const { value = '' } = event.detail || {};
             this.value = value;
             this.setShowClear();
-            this.emitChange(event.detail);
+            this.emitChange();
         },
         onFocus(event) {
             this.focused = true;
@@ -63,7 +60,7 @@ VantComponent({
             this.value = '';
             this.setShowClear();
             nextTick(() => {
-                this.emitChange({ value: '' });
+                this.emitChange();
                 this.$emit('clear', '');
             });
         },
@@ -79,7 +76,7 @@ VantComponent({
             if (value === '') {
                 this.setData({ innerValue: '' });
             }
-            this.emitChange({ value });
+            this.emitChange();
         },
         onLineChange(event) {
             this.$emit('linechange', event.detail);
@@ -87,13 +84,11 @@ VantComponent({
         onKeyboardHeightChange(event) {
             this.$emit('keyboardheightchange', event.detail);
         },
-        emitChange(detail) {
-            const { extraEventParams } = this.data;
-            this.setData({ value: detail.value });
+        emitChange() {
+            this.setData({ value: this.value });
             nextTick(() => {
-                const data = extraEventParams ? detail : detail.value;
-                this.$emit('input', data);
-                this.$emit('change', data);
+                this.$emit('input', this.value);
+                this.$emit('change', this.value);
             });
         },
         setShowClear() {

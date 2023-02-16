@@ -46,7 +46,10 @@
       "van-skeleton": "/wxcomponents/skeleton/index",
       "van-tab": "/wxcomponents/tab/index",
       "van-tabs": "/wxcomponents/tabs/index",
-      "van-icon": "/wxcomponents/icon/index"
+      "van-icon": "/wxcomponents/icon/index",
+      "van-divider": "/wxcomponents/divider/index",
+      "van-swipe-cell": "/wxcomponents/swipe-cell/index",
+      "van-empty": "/wxcomponents/empty/index"
     }
   }
 }

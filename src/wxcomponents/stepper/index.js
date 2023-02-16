@@ -16,6 +16,7 @@ VantComponent({
     props: {
         value: {
             type: null,
+            observer: 'observeValue',
         },
         integer: {
             type: Boolean,
@@ -65,11 +66,6 @@ VantComponent({
     data: {
         currentValue: '',
     },
-    watch: {
-        value() {
-            this.observeValue();
-        },
-    },
     created() {
         this.setData({
             currentValue: this.format(this.data.value),
@@ -77,8 +73,10 @@ VantComponent({
     },
     methods: {
         observeValue() {
-            const { value } = this.data;
-            this.setData({ currentValue: this.format(value) });
+            const { value, currentValue } = this.data;
+            if (!equal(value, currentValue)) {
+                this.setData({ currentValue: this.format(value) });
+            }
         },
         check() {
             const val = this.format(this.data.currentValue);
@@ -99,7 +97,6 @@ VantComponent({
         onBlur(event) {
             const value = this.format(event.detail.value);
             this.setData({ currentValue: value });
-            this.emitChange(value);
             this.$emit('blur', Object.assign(Object.assign({}, event.detail), { value }));
         },
         // filter illegal characters

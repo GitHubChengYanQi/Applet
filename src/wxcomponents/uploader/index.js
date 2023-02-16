@@ -1,6 +1,6 @@
 import { VantComponent } from '../common/component';
 import { isImageFile, chooseFile, isVideoFile } from './utils';
-import { imageProps, videoProps, mediaProps, messageFileProps } from './shared';
+import { chooseImageProps, chooseVideoProps, chooseMediaProps, chooseMessageFileProps, } from './shared';
 import { isBoolean, isPromise } from '../common/validator';
 VantComponent({
     props: Object.assign(Object.assign(Object.assign(Object.assign({ disabled: Boolean, multiple: Boolean, uploadText: String, useBeforeRead: Boolean, afterRead: null, beforeRead: null, previewSize: {
@@ -40,7 +40,7 @@ VantComponent({
         }, uploadIcon: {
             type: String,
             value: 'photograph',
-        } }, imageProps), videoProps), mediaProps), messageFileProps),
+        } }, chooseImageProps), chooseVideoProps), chooseMediaProps), chooseMessageFileProps),
     data: {
         lists: [],
         isInCount: true,
@@ -114,12 +114,11 @@ VantComponent({
             if (!this.data.previewFullImage)
                 return;
             const { index } = event.currentTarget.dataset;
-            const { lists, showmenu } = this.data;
+            const { lists } = this.data;
             const item = lists[index];
             wx.previewImage({
                 urls: lists.filter((item) => isImageFile(item)).map((item) => item.url),
                 current: item.url,
-                showmenu,
                 fail() {
                     wx.showToast({ title: '预览图片失败', icon: 'none' });
                 },
