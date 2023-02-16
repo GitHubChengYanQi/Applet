@@ -1,4 +1,5 @@
 import Toast from "../../wxcomponents/toast/toast";
+import Dialog from "../../wxcomponents/dialog/dialog";
 
 const toast = (title) => {
     Toast.show(title || '成功！');
@@ -41,33 +42,39 @@ const errorToast = (
 
 const MyDialog = (
     {
-        getContainer,
-        only,
+        title,
         content,
         confirmText = '确认',
-        onConfirm,
-        cancelText,
-        onCancel,
-        onClose,
-        closeOnMaskClick,
+        cancelText = '取消',
+        onCancel = () => {
+            return true
+        },
+        onConfirm = () => {
+            return true
+        },
+        only = true,
     }) => {
     if (only) {
-        // Dialog.alert({
-        //     content,
-        //     confirmText,
-        //     onConfirm,
-        // });
+        Dialog.alert({
+            title,
+            message: content,
+            confirmButtonText: confirmText,
+            beforeClose: onConfirm
+        })
     } else {
-        // Dialog.confirm({
-        //     content,
-        //     confirmText,
-        //     cancelText,
-        //     onCancel,
-        //     onConfirm,
-        //     onClose,
-        //     closeOnMaskClick,
-        //     getContainer,
-        // });
+        Dialog.confirm({
+            title,
+            message: content,
+            confirmButtonText: confirmText,
+            cancelButtonText: cancelText,
+            beforeClose: (action) => {
+                if (action === 'confirm') {
+                    return onConfirm()
+                } else {
+                    return onCancel()
+                }
+            }
+        })
     }
 };
 
@@ -105,32 +112,22 @@ const warningDialog = (
         confirmText,
         cancelText,
         onCancel = () => {
-        },
-        onClose = () => {
+            return true
         },
         onConfirm = () => {
+            return true
         },
-        getContainer,
         only = true,
-        closeOnMaskClick,
     }) => {
 
-    // const contentDom = <div className={style.warningContent}>
-    //     <ExclamationTriangleOutline className={style.waringIcon} />
-    //     <div className={style.content}>{content}</div>
-    // </div>;
-    //
-    // MyDialog({
-    //     getContainer,
-    //     onClose,
-    //     confirmText,
-    //     cancelText,
-    //     onCancel,
-    //     onConfirm,
-    //     closeOnMaskClick,
-    //     only,
-    //     content: contentDom,
-    // });
+    MyDialog({
+        confirmText,
+        cancelText,
+        onConfirm,
+        onCancel,
+        only,
+        content,
+    });
 
 };
 
@@ -202,6 +199,7 @@ const dialogSuccess = (
 
 export const Message = {
     toast,
+    dialog: MyDialog,
     successToast,
     errorToast,
     dialogSuccess,

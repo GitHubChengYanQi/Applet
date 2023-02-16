@@ -1,18 +1,22 @@
 <template>
-  <view v-if="loading">
-    <van-dialog
-        use-slot
-        show
-        :show-confirm-button="false"
-        :overlay="false"
-        custom-class="my-custom-class"
-    >
-      <view class="content">
-        <van-loading type="spinner" color="#fff" :size="50" />
-        加载中...
-      </view>
-    </van-dialog>
-
+  <view>
+    <view v-if="skeleton" class="skeletonLoading">
+      <van-loading type="spinner" color="#1989fa" :size="50" />
+    </view>
+    <view v-if="loading">
+      <van-dialog
+          use-slot
+          show
+          :show-confirm-button="false"
+          :overlay="false"
+          custom-class="my-custom-class"
+      >
+        <view class="content">
+          <van-loading type="spinner" color="#fff" :size="50" />
+          加载中...
+        </view>
+      </van-dialog>
+    </view>
   </view>
 </template>
 
@@ -20,7 +24,7 @@
 
 export default {
   name: 'loading',
-  props: ['title', 'loading'],
+  props: ['title', 'loading', 'skeleton'],
 }
 </script>
 
@@ -40,6 +44,11 @@ export default {
   justify-content: center;
   color: #fff;
   gap: 4px;
+}
+
+.skeletonLoading {
+  padding: 24px;
+  text-align: center;
 }
 
 </style>

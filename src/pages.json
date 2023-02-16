@@ -16,7 +16,7 @@
     {
       "path": "pages/Erp/OutStock/OutStockAction/index",
       "style": {
-        "navigationBarTitleText": "出库操作"
+        "navigationBarTitleText": "出库明细"
       }
     },
     {
@@ -42,7 +42,11 @@
       "van-toast": "/wxcomponents/toast/index",
       "van-loading": "/wxcomponents/loading/index",
       "van-overlay": "/wxcomponents/overlay/index",
-      "van-dialog": "/wxcomponents/dialog/index"
+      "van-dialog": "/wxcomponents/dialog/index",
+      "van-skeleton": "/wxcomponents/skeleton/index",
+      "van-tab": "/wxcomponents/tab/index",
+      "van-tabs": "/wxcomponents/tabs/index",
+      "van-icon": "/wxcomponents/icon/index"
     }
   }
 }
