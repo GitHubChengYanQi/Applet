@@ -14,3 +14,7 @@ export const getOutType = (type) => {
             return '';
     }
 };
+
+export const receivedColor = '#257BDE';
+export const collectableColor = '#D3E7FD';
+export const notPreparedColor = '#E8E8E8';

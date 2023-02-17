@@ -71,11 +71,12 @@
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
     "Local-MES-Apis": "../MES-Apis",
-    "MES-Apis": "0.0.19",
+    "MES-Apis": "0.0.24",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "^0.6.2",
     "moment": "^2.29.4",
+    "qs": "^6.11.0",
     "vue": ">= 2.6.14 < 2.7",
     "vuex": "^3.6.2"
   },

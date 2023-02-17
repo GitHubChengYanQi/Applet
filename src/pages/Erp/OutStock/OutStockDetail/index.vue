@@ -48,6 +48,7 @@
     </Card>
 
     <ActionButtons
+        v-if="actionNode"
         :taskDetail='taskDetail'
         :statusName='data.statusName'
         @afertShow="$emit('afertShow')"
@@ -56,7 +57,7 @@
         :createUser='taskDetail.createUser'
         :permissions="true"
         :actions="nodeActions"
-        @onClick="(actions)=>onAction(action)"
+        @onClick="(action)=>onAction(action)"
     />
 
     <!-- 出库记录 -->
@@ -223,6 +224,7 @@ export default {
     'logIds',
     'taskId',
     'actions',
+    'action',
   ],
   components: {UserName, Card, ActionButtons},
   data() {
@@ -233,15 +235,20 @@ export default {
       nodeActions: []
     }
   },
-  created() {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
-    const userInfo = getApp().globalData.userInfo || {}
-    this.nodeActions = isArray(this.actions).map(item => ({
-      ...item,
-      name: item.action === 'outStock' ? '领料' : item.name
-    })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+  watch: {
+    loading(loading) {
+      if (!loading) {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
+        const userInfo = getApp().globalData.userInfo || {}
+        this.nodeActions = isArray(this.actions).map(item => ({
+          ...item,
+          name: item.action === 'outStock' ? '领料' : item.name
+        })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+        this.goToDetail()
+      }
+    }
   },
   methods: {
     goToDetail() {
