@@ -127,7 +127,7 @@ export default {
             OutStock.autoPick({pickListsId: this.pickListsId, taskId: this.taskId}).then((res) => {
               resolve(true)
               this.autoPick(res.data)
-            }).catch(()=>{
+            }).catch(() => {
               resolve(false)
             })
           })
@@ -137,14 +137,17 @@ export default {
     async autoPick(res) {
 
       const all = this.data.filter(item => item.notPrepared > 0).length;
-      // shopRef.current.jump(() => {
-      // }, all - res.data.length);
-      this.detailList();
-      Message.dialog({
-        title: '备料成功',
-        content: `已备${all - res.length}个,库存不足${res.length}个`,
-        only: true,
-      });
+      this.$emit('jump', () => {
+        this.detailList();
+        Message.dialog({
+          title: '备料成功',
+          content: `已备${all - res.length}个,库存不足${res.length}个`,
+          only: true,
+        });
+      }, all - res.length)
+    },
+    refresh() {
+      this.detailList()
     }
   }
 }

@@ -49,7 +49,12 @@
       "van-icon": "/wxcomponents/icon/index",
       "van-divider": "/wxcomponents/divider/index",
       "van-swipe-cell": "/wxcomponents/swipe-cell/index",
-      "van-empty": "/wxcomponents/empty/index"
+      "van-empty": "/wxcomponents/empty/index",
+      "van-checkbox": "/wxcomponents/checkbox/index",
+      "van-checkbox-group": "/wxcomponents/checkbox-group/index",
+      "van-popup": "/wxcomponents/popup/index",
+      "van-field": "/wxcomponents/field/index",
+      "van-stepper": "/wxcomponents/van-stepper/index"
     }
   }
 }

@@ -2,7 +2,7 @@ import Toast from "../../wxcomponents/toast/toast";
 import Dialog from "../../wxcomponents/dialog/dialog";
 
 const toast = (title) => {
-    Toast.show(title || '成功！');
+    Toast(title || '成功！');
 };
 
 const successToast = (

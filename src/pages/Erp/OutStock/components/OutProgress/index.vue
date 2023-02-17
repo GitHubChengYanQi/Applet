@@ -3,7 +3,7 @@
     <view class='dataNumber'>
       <view class="allProgress">
         <view
-            v-for="(item,index) in progress"
+            v-for="(item,index) in progress()"
             :key='index'
             class='progress'
             :style="{ backgroundColor: item.color, width: `${item.num}%` }"
@@ -44,22 +44,26 @@ export default {
     return {
       collectableColor,
       notPreparedColor,
-      receivedColor,
-      progress: []
+      receivedColor
+    }
+  },
+  methods: {
+    progress() {
+      const total = this.received + this.collectable + this.notPrepared
+      const received = Math.round((this.received / total) * 100) || 0
+      const collectable = Math.round((this.collectable / total) * 100) || 0
+      return [
+        {num: received, color: receivedColor},
+        {num: collectable, color: collectableColor},
+        {
+          num: total <= 0 ? 0 : 100 - received - collectable,
+          color: notPreparedColor
+        },
+      ]
     }
   },
   mounted() {
-    const total = this.received + this.collectable + this.notPrepared
-    const received = Math.round((this.received / total) * 100) || 0
-    const collectable = Math.round((this.collectable / total) * 100) || 0
-    this.progress = [
-      {num: received, color: receivedColor},
-      {num: collectable, color: collectableColor},
-      {
-        num: total <= 0 ? 0 : 100 - received - collectable,
-        color: notPreparedColor
-      },
-    ]
+
   }
 }
 </script>

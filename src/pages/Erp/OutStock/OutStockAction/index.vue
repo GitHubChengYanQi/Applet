@@ -5,30 +5,43 @@
     <view v-if="loading">
       <Loading :skeleton="true" />
     </view>
-    <van-tabs :active="1" v-else color="#007aff" border line-width="30%">
-      <van-tab title="一键备料" >
-        <BatchPrepare
-            :shopRef='shopRef'
-            :ref='batchPrepareRef'
-            :detail='detail'
-            :taskId='query.taskId'
-            :action="query.action === 'true'"
-            :pickListsId='query.pickListsId'
-            :theme='query.theme'
-        />
-      </van-tab>
-      <van-tab title="单独备料">
-        <OnePrepare
-            :shopRef='shopRef'
-            :ref='onePrepareRef'
-            :positionIds='detail.positionIds'
-            :taskId='query.taskId'
-            :action="query.action === 'true'"
-            :pickListsId='query.pickListsId'
-            :theme='query.theme'
-        />
-      </van-tab>
-    </van-tabs>
+    <view v-else>
+      <van-tabs color="#007aff" border line-width="30%" @change="change">
+        <van-tab title="一键备料">
+          <BatchPrepare
+              v-if="tabKey === 0"
+              ref='batchPrepareRef'
+              :detail='detail'
+              :taskId='query.taskId'
+              :action="query.action === 'true'"
+              :pickListsId='query.pickListsId'
+              :theme='query.theme'
+              @jump="jump"
+          />
+        </van-tab>
+        <van-tab title="单独备料">
+          <OnePrepare
+              v-if="tabKey === 1"
+              ref='onePrepareRef'
+              :positionIds='detail.positionIds'
+              :taskId='query.taskId'
+              :action="query.action === 'true'"
+              :pickListsId='query.pickListsId'
+              :theme='query.theme'
+              @jump="jump"
+          />
+        </van-tab>
+      </van-tabs>
+
+      <OutStockShop
+          v-if="query.action === 'true'"
+          ref='shopRef'
+          :taskId='query.taskId'
+          :outType='query.source'
+          :pickListsId='query.pickListsId'
+          @refresh="(resh)=>refresh(resh)"
+      />
+    </view>
   </view>
 </template>
 
@@ -38,17 +51,17 @@ import OnePrepare from './components/OnePrepare'
 import {getLocalParmas} from "../../../../util/Tools";
 import {OutStock} from "MES-Apis/src/OutStock/promise";
 import Loading from "../../../../components/Loading";
+import OutStockShop from "../OutStockShop";
 
 export default {
-  components: {Loading, BatchPrepare, OnePrepare},
+  components: {OutStockShop, Loading, BatchPrepare, OnePrepare},
   data() {
     return {
       query: {},
       detail: {},
-      batchPrepareRef: null,
-      onePrepareRef: null,
-      shopRef: null,
+      shopRef: 'shopRef',
       loading: false,
+      tabKey: 0
     }
   },
   mounted() {
@@ -56,6 +69,16 @@ export default {
     this.getDetail()
   },
   methods: {
+    change(tab) {
+      this.tabKey = tab.detail ? tab.detail.index : tab.index
+    },
+    jump(after, num) {
+      this.$refs.shopRef.jump(after, num)
+    },
+    refresh(refresh) {
+      this.$refs.batchPrepareRef?.refresh();
+      this.$refs.onePrepareRef?.refresh(refresh);
+    },
     async getDetail() {
       this.loading = true
       const res = await OutStock.outStockDetail({pickListsId: getLocalParmas().search.pickListsId}).finally(() => {

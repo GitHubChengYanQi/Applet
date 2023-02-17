@@ -1,10 +1,10 @@
 <template>
   <view>
     <view class='out'>
-      <view v-if="!ask" :class="['statusName',noAction && 'noStatusName']">
-        <view v-if="statusDom === 0">可 <br />备 <br />料</view>
-        <view v-if="statusDom === 1">已 <br />领 <br />完</view>
-        <view v-if="statusDom === 2">已 <br />备 <br />完</view>
+      <view v-if="!ask" :class="['statusName',itemStatus().noAction && 'noStatusName']">
+        <view v-if="itemStatus().statusDom === 0">可 <br />备 <br />料</view>
+        <view v-if="itemStatus().statusDom === 1">已 <br />领 <br />完</view>
+        <view v-if="itemStatus().statusDom === 2">已 <br />备 <br />完</view>
       </view>
       <view class='skuData'>
         <view class='sku' style='padding-bottom: 8px'>
@@ -57,26 +57,31 @@ export default {
   ],
   data() {
     return {
-      statusDom: 0,
-      noAction: false,
       isArray,
     }
   },
   mounted() {
-    let statusDom = 0;
-    let noAction = true;
 
-    if (this.item.stockNumber) {
-      if (this.item.number === this.received) {
-        statusDom = 1;
-      } else if (this.item.number === this.received + this.collectable) {
-        statusDom = 2;
-      } else {
-        noAction = false;
+  },
+  methods: {
+    itemStatus() {
+      let statusDom = 0;
+      let noAction = true;
+
+      if (this.item.stockNumber) {
+        if (this.item.number === this.received) {
+          statusDom = 1;
+        } else if (this.item.number === this.received + this.collectable) {
+          statusDom = 2;
+        } else {
+          noAction = false;
+        }
+      }
+      return {
+        noAction,
+        statusDom
       }
     }
-    this.noAction = noAction
-    this.statusDom = statusDom
   }
 }
 </script>
