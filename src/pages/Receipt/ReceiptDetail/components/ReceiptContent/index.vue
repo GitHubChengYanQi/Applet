@@ -73,41 +73,45 @@ export default {
       bottomButton: false
     }
   },
-  created() {
-    const actions = [];
-    const logIds = [];
-    let actionNode = false;
+  watch: {
+    loading(loading) {
+      if (!loading){
+        const actions = [];
+        const logIds = [];
+        let actionNode = false;
 
-    if (this.detailData.status === 0) {
-      this.currentNode.forEach((item) => {
+        if (this.detailData.status === 0) {
+          this.currentNode.forEach((item) => {
 
-        if (item.stepType === 'status' && !actionNode) {
-          actionNode = true;
-        }
+            if (item.stepType === 'status' && !actionNode) {
+              actionNode = true;
+            }
 
-        if (this.detailData.version) {
-          const logResults = item.logResults || [];
-          logResults.map(item => {
-            logIds.push(item.logId);
+            if (this.detailData.version) {
+              const logResults = item.logResults || [];
+              logResults.map(item => {
+                logIds.push(item.logId);
+              });
+            } else {
+              const logResult = item.logResult || {};
+              logIds.push(logResult.logId);
+            }
+
+            if (item.auditRule && Array.isArray(item.auditRule.actionStatuses)) {
+              item.auditRule.actionStatuses.map((item) => {
+                actions.push({action: item.action, id: item.actionId, name: item.actionName});
+              });
+            }
+            return null;
           });
         } else {
-          const logResult = item.logResult || {};
-          logIds.push(logResult.logId);
+          actionNode = true;
         }
-
-        if (item.auditRule && Array.isArray(item.auditRule.actionStatuses)) {
-          item.auditRule.actionStatuses.map((item) => {
-            actions.push({action: item.action, id: item.actionId, name: item.actionName});
-          });
-        }
-        return null;
-      });
-    } else {
-      actionNode = true;
+        this.actions = actions
+        this.logIds = logIds
+        this.actionNode = actionNode
+      }
     }
-    this.actions = actions
-    this.logIds = logIds
-    this.actionNode = actionNode
   },
   methods: {
     getAction(action) {

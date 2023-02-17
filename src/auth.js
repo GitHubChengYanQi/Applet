@@ -1,6 +1,7 @@
 import {Init} from "MES-Apis/src/Init";
 import {getLocalParmas} from "./util/Tools";
 import {User} from "MES-Apis/src/User/promise";
+import {Message} from "./components/Message";
 
 const Auth = {}
 
@@ -20,6 +21,9 @@ Auth.install = function (Vue, options) {
     // 3. 注入组件选项
     Vue.mixin({
         mounted: async function () {
+            if (this.$mp.app) {
+                return
+            }
             Init.initBaseURL('http://192.168.3.59')
 
             Init.responseConfig({
@@ -29,7 +33,7 @@ Auth.install = function (Vue, options) {
                     })
                 },
                 errorMessage: (res) => {
-
+                    Message.errorToast(res)
                 },
             })
             if (!getApp()?.globalData?.publicInfo) {
@@ -45,12 +49,12 @@ Auth.install = function (Vue, options) {
             }
             const token = getApp().globalData.token
             if (token) {
-                if (!getApp()?.globalData?.userInfo){
+                if (!getApp()?.globalData?.userInfo) {
                     const res = await User.getUserInfo()
                     getApp().globalData.userInfo = res.data
                 }
                 typeof this.logined == "function" && this.logined();
-            } else {
+            } else if (getLocalParmas().route !== '/pages/login/index') {
                 typeof this.notLogin == "function" && this.notLogin();
             }
         },
