@@ -37,4 +37,3 @@ export const queryString = (value = '', string) => {
     const patt = new RegExp(value, 'i');
     return patt.test(string);
 };
-
