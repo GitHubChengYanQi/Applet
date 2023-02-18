@@ -1,6 +1,7 @@
 <template>
   <view class="empty">
     <view>
+      <van-empty v-if="brands.length === 0" description="暂无库存" />
       <image
           :src="`../../static/empty-image-${type || 'default'}.png`"
           class="image"

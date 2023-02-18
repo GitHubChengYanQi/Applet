@@ -11,9 +11,10 @@
           :data='detailData.receipts'
           :actions='actions'
           :getAction='getAction'
-          :refresh='refreshOrder'
+          @refresh='refreshOrder'
           :loading='loading'
           :type='detailData.type'
+          :pickListsId="detailData.receipts.pickListsId"
           :taskDetail='detailData'
           :action="getAction('outStock').id && permissions"
       />

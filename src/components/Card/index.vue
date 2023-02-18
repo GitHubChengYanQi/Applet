@@ -14,7 +14,9 @@
 
 <script>
 export default {
-  props: ['title', 'extra']
+  props: ['title', 'extra'],
+  mounted() {
+  }
 }
 </script>
 
