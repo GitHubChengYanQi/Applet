@@ -1,6 +1,6 @@
 import { VantComponent } from '../common/component';
 import { isDef } from '../common/validator';
-import { pickerProps } from '../picker/shared';
+import { pickerProps } from '../vant-picker/shared';
 const currentYear = new Date().getFullYear();
 function isValidDate(date) {
     return isDef(date) && !isNaN(new Date(date).getTime());
@@ -89,7 +89,7 @@ VantComponent({
         },
         getPicker() {
             if (this.picker == null) {
-                this.picker = this.selectComponent('.van-datetime-picker');
+                this.picker = this.selectComponent('.van-datetime-vant-picker');
                 const { picker } = this;
                 const { setColumnValues } = picker;
                 picker.setColumnValues = (...args) => setColumnValues.apply(picker, [...args, false]);
