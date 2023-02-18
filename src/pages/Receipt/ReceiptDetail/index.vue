@@ -1,11 +1,12 @@
 <template>
   <view>
     <van-toast id="van-toast" />
+    <van-dialog id="van-dialog" />
     <view v-if="!detailData && !loading">
-      获取审批详情失败!
+     <Empty type="error" description="获取审批详情失败!" />
     </view>
-    <view v-if="!detailData && loading">
-      loading...
+    <view v-else-if="!detailData && loading">
+      <Loading :skeleton="true" />
     </view>
     <view v-else>
       <Loading :loading="loading" />
@@ -57,12 +58,14 @@ import {getLocalParmas} from "../../../util/Tools";
 import {ReceiptsEnums} from "../ReceiptsEnums";
 import {Process} from "MES-Apis/src/Process/promise";
 import Loading from '../../../components/Loading/index'
+import Empty from "../../../components/Empty";
 
 export default {
   name: 'receiptDetail',
-  components: {Header, ReceiptContent, Loading},
+  components: {Empty, Header, ReceiptContent, Loading},
   data() {
     return {
+      auth: true,
       tabs: [
         {key: 'data', title: '基本信息'},
         {key: 'log', title: ''},

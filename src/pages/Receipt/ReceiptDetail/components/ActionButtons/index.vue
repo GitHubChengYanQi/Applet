@@ -192,7 +192,7 @@ export default {
   //line-height: 60px;
   padding: 12px;
   height: 60px;
-  z-index: 999;
+  z-index: 1;
   width: calc(100% - 24px);
   max-width: 640px;
   position: fixed;

@@ -48,6 +48,7 @@
     </Card>
 
     <ActionButtons
+        v-if="actionNode"
         :taskDetail='taskDetail'
         :statusName='data.statusName'
         @afertShow="$emit('afertShow')"
@@ -56,8 +57,48 @@
         :createUser='taskDetail.createUser'
         :permissions="true"
         :actions="nodeActions"
-        @onClick="(actions)=>onAction(action)"
+        @onClick="onAction"
     />
+
+    <Popup
+        title='领料'
+        @close='picking = false'
+        :show="picking"
+    >
+      <MyPicking
+          v-if="picking"
+          :pickListsId='pickListsId'
+          @onSuccess="openCode"
+      />
+    </Popup>
+
+    <van-dialog
+        use-slot
+        :show="code"
+        :show-confirm-button="false"
+        @close="onClose"
+        @cancel="onCancel"
+        show-cancel-button
+        cancel-button-text="关闭"
+        cancel-button-color="#007aff"
+        custom-class="codeDialog"
+    >
+      <view style='text-align: center;padding-top: 12px'>
+        <view class='codeTitle'>领料码</view>
+        <view style="position: relative;padding-top: 19px">
+          <view class='code'>{{ code }}</view>
+          <view class='time' v-if="code && !success">
+            失效剩余时间：
+            <Clock :seconds='600' />
+          </view>
+          <canvas id="qrcode" canvas-id="qrcode" style="width: 200px;height: 200px;display: inline-block"></canvas>
+          <view v-if="success" class='getCodeSuccess'>
+            <van-icon name="passed" size="64px" />
+            领取成功！
+          </view>
+        </view>
+      </view>
+    </van-dialog>
 
     <!-- 出库记录 -->
     <scroll-view v-if="false">
@@ -211,6 +252,11 @@ import UserName from '../../../../components/UserName/index'
 import {getOutType} from "../outStock";
 import Card from '../../../../components/Card/index'
 import ActionButtons from "../../../Receipt/ReceiptDetail/components/ActionButtons";
+import Popup from "../../../../components/Popup";
+import MyPicking from "../components/MyPicking";
+import Clock from "../../../../components/Clock";
+import {OutStock} from "MES-Apis/src/OutStock/promise";
+import UQRCode from 'uqrcodejs';
 
 export default {
   props: [
@@ -223,25 +269,36 @@ export default {
     'logIds',
     'taskId',
     'actions',
+    'action',
+    'pickListsId',
   ],
-  components: {UserName, Card, ActionButtons},
+  components: {Clock, MyPicking, Popup, UserName, Card, ActionButtons},
   data() {
     return {
       origin: null,
       getOutType,
       isArray,
-      nodeActions: []
+      nodeActions: [],
+      picking: false,
+      success: false,
+      code: '',
+      codeUrl: ''
     }
   },
-  created() {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
-    const userInfo = getApp().globalData.userInfo || {}
-    this.nodeActions = isArray(this.actions).map(item => ({
-      ...item,
-      name: item.action === 'outStock' ? '领料' : item.name
-    })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+  watch: {
+    loading(loading) {
+      if (!loading) {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
+        const userInfo = getApp().globalData.userInfo || {}
+        this.nodeActions = isArray(this.actions).map(item => ({
+          ...item,
+          name: item.action === 'outStock' ? '领料' : item.name
+        })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+        // this.goToDetail()
+      }
+    }
   },
   methods: {
     goToDetail() {
@@ -250,18 +307,62 @@ export default {
       })
     },
     onAction(action) {
-      switch (value) {
+      switch (action) {
         case 'outStock':
-          setPicking(true);
+          this.picking = true
+          // setPicking(true);
           break;
         case 'revokeAndAsk':
-          OutStockRevoke(taskDetail);
+          // OutStockRevoke(taskDetail);
           break;
         default:
           break;
       }
+    },
+    onClose() {
+    },
+    onCancel() {
+      if (this.success) {
+        this.$emit('refresh')
+      }
+      this.code = ''
+    },
+    openCode(res) {
+      this.picking = false
+      this.code = res
+      this.success = false
+
+      // 获取uQRCode实例
+      var qr = new UQRCode();
+      // 设置二维码内容
+      qr.data = "https://uqrcode.cn/doc";
+      // 设置二维码大小，必须与canvas设置的宽高一致
+      qr.size = 200;
+      // 调用制作二维码方法
+      qr.make();
+      // 获取canvas上下文
+      // 如果是组件，this必须传入
+      // 设置uQRCode实例的canvas上下文
+      qr.canvasContext = uni.createCanvasContext('qrcode', this);
+      // 调用绘制方法将二维码图案绘制到canvas上
+      qr.drawCanvas();
+
+      this.checkCode()
+    },
+    checkCode() {
+      OutStock.checkCode(this.code, {
+        onSuccess: (res) => {
+          if (res.data === false) {
+            this.success = true
+          } else {
+            setTimeout(() => {
+              this.checkCode()
+            }, 1000)
+          }
+        }
+      })
     }
-  },
+  }
 }
 </script>
 
@@ -505,5 +606,55 @@ image {
   text-align: center;
   line-height: 40px;
   color: #fff;
+}
+
+.codeDialog {
+  :global .adm-dialog-body {
+    padding-top: 12px;
+  }
+
+  .codeTitle {
+    font-size: 18px;
+    color: #000000;
+    border-bottom: solid 1px #EEEEEE;
+    padding-bottom: 12px;
+  }
+
+  .time {
+    padding: 10px 0;
+    color: #888888;
+  }
+
+  .code {
+    width: 184px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: #257BDE;
+    background: $body-color;
+    margin: auto;
+  }
+
+
+  .getCodeSuccess {
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+
+    svg {
+      font-size: 64px;
+    }
+  }
 }
 </style>
