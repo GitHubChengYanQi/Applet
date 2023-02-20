@@ -16,11 +16,11 @@
           />
         </view>
         <view class='skuData'>
-          <van-stepper
+          <ShopNumber
               :max="itemFormat().collectable"
               :min="1"
               :value="skuItem.outNumber"
-              @change="({detail:outNumber})=>$emit('dataChange',skuItem.key, { outNumber })"
+              @onChange="(outNumber)=>$emit('dataChange',skuItem.key, { outNumber })"
           />
         </view>
       </view>
@@ -38,10 +38,11 @@
 <script>
 import SkuItem from "../../../../Sku/components/SkuItem";
 import OutPerogress from "../../OutProgress";
+import ShopNumber from "../../../../../../components/ShopNumber";
 
 export default {
   name: 'OutItem',
-  components: {OutPerogress, SkuItem},
+  components: {ShopNumber, OutPerogress, SkuItem},
   props: [
     'skuItem',
     'skuIndex',

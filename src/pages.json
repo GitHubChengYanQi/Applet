@@ -56,7 +56,8 @@
       "van-field": "/wxcomponents/field/index",
       "van-stepper": "/wxcomponents/van-stepper/index",
       "van-uploader": "/wxcomponents/vant-uploader/index",
-      "van-picker": "/wxcomponents/vant-picker/index"
+      "van-picker": "/wxcomponents/vant-picker/index",
+      "van-search": "/wxcomponents/search/index"
     }
   }
 }

@@ -5,6 +5,16 @@
     </view>
     <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成" />
     <view class="onePrepare" v-else>
+      <Search
+          placeholder='请输入物料名称查询'
+          @onChange="(value)=> searchValue = value"
+          @onSearch='search'
+          :value="searchValue"
+      >
+        <template slot="extraIcon">
+          <van-icon name="aim" @click="positionVisible = true" />
+        </template>
+      </Search>
       <scroll-view
           :scroll-top="50"
           scroll-y="true"
@@ -84,7 +94,7 @@ export default {
       defaultData: [],
       hasMore: false,
       moreStatus: 'more',
-      seacrchValue: ''
+      searchValue: ''
     }
   },
   mounted() {
@@ -146,7 +156,7 @@ export default {
       const {array} = outPickListFormatSort(isArray(res.data));
       this.showCount = 10
       const newData = array.filter(item => {
-        return this.searchSkuName(this.seacrchValue, item);
+        return this.searchSkuName(this.searchValue, item);
       });
       this.data = newData
       this.defaultData = array
@@ -219,8 +229,17 @@ export default {
       const newDefaultData = this.defaultData.map(format);
       this.data = newData
       this.defaultData = newDefaultData
+    },
+    search(value) {
+      const newData = this.defaultData.filter(item => {
+        return this.searchSkuName(value, item);
+      });
+      this.data = newData
+      this.showCount = 10
+      this.getImgs(0, 20, newData);
+      this.hasMore = newData.length > 10
     }
-  },
+  }
 }
 </script>
 

@@ -288,19 +288,25 @@ export default {
   watch: {
     loading(loading) {
       if (!loading) {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
-        const userInfo = getApp().globalData.userInfo || {}
-        this.nodeActions = isArray(this.actions).map(item => ({
-          ...item,
-          name: item.action === 'outStock' ? '领料' : item.name
-        })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
-        // this.goToDetail()
+        this.refreshData()
       }
     }
   },
+  mounted() {
+    this.refreshData()
+    // this.goToDetail()
+  },
   methods: {
+    refreshData() {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
+      const userInfo = getApp().globalData.userInfo || {}
+      this.nodeActions = isArray(this.actions).map(item => ({
+        ...item,
+        name: item.action === 'outStock' ? '领料' : item.name
+      })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+    },
     goToDetail() {
       uni.redirectTo({
         url: `/pages/Erp/OutStock/OutStockAction/index?pickListsId=${this.data.pickListsId}&taskId=${this.taskId}&theme=${this.taskDetail.theme}&action=${(this.action || false) + ''}&source=${this.data.source}`,

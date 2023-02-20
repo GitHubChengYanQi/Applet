@@ -1,22 +1,37 @@
 <template>
-  <view>
-    <vantSearch
-        :value="value"
-        :placeholder="placeholder || '请输入搜索关键词'"
-        @cancel="onCancel"
-        @clear="onClear"
-        @focus="onFocus"
-        @blur="onBlur"
-    >
-      <view slot="action" @tap="onSearch">搜索</view>
-    </vantSearch>
+  <view class="search">
+    <view class="input">
+      <van-search
+          use-action-slot
+          :value="value"
+          :placeholder="placeholder || '请输入搜索关键词'"
+          @cancel="onCancel"
+          @clear="onClear"
+          @focus="onFocus"
+          @blur="onBlur"
+          @change="onChange"
+          @search="onSearch"
+      />
+    </view>
+    <view>
+      <view
+          class="action"
+          v-if="!historyType && (focus || value) && !noSearchButton"
+          @click="onSearch({detail:value})"
+      >
+        搜索
+      </view>
+      <view v-else class='icon'>
+        <slot name="extraIcon"></slot>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
 
 export default {
-  name: 'search',
+  name: 'Search',
   props: [
     'placeholder',
     'searchStyle',
@@ -30,23 +45,29 @@ export default {
     'value',
   ],
   data() {
-    return {}
+    return {
+      focus: false
+    }
   },
   methods: {
-    onCancel(value) {
-      console.log('onCancel', value)
+    onClear() {
+      this.$emit('onSearch', '')
+      this.$emit('onChange', '')
+      this.$emit('onClear', '')
     },
-    onClear(value) {
-      console.log('onClear', value)
+    onFocus() {
+      this.focus = true
     },
-    onFocus(value) {
-      console.log('onFocus', value)
-    },
-    onBlur(value) {
-      console.log('onBlur', value)
+    onBlur() {
+      setTimeout(() => {
+        this.focus = false
+      }, 100)
     },
     onSearch(value) {
-      console.log('onSearch', value)
+      this.$emit('onSearch', value.detail)
+    },
+    onChange(value) {
+      this.$emit('onChange', value.detail)
     },
   }
 }
@@ -54,4 +75,23 @@ export default {
 
 <style lang="scss">
 
+.search {
+  display: flex;
+  align-items: center;
+
+  .input {
+    flex-grow: 1;
+  }
+
+}
+
+.action {
+  padding: 0 12px;
+}
+
+.icon {
+  min-width: 30px;
+  margin-left: 12px;
+  text-align: center;
+}
 </style>

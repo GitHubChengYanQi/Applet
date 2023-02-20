@@ -6,7 +6,7 @@
       <Loading :skeleton="true" />
     </view>
     <view v-else>
-      <van-tabs color="#007aff" border line-width="30%" @change="change">
+      <van-tabs :active="1" color="#007aff" border line-width="30%" @change="change">
         <van-tab title="一键备料">
           <BatchPrepare
               v-if="tabKey === 0"
