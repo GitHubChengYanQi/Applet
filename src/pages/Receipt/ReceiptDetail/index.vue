@@ -3,7 +3,7 @@
     <van-toast id="van-toast" />
     <van-dialog id="van-dialog" />
     <view v-if="!detailData && !loading">
-     <Empty type="error" description="获取审批详情失败!" />
+     <van-empty image="error" description="获取审批详情失败!" />
     </view>
     <view v-else-if="!detailData && loading">
       <Loading :skeleton="true" />
@@ -93,7 +93,7 @@ export default {
       })
     },
     getTaskDetail() {
-      const taskId = '1625734662482153473' || getLocalParmas().search.id
+      const taskId = '1627514074314362882' || getLocalParmas().search.id
       const formId = getLocalParmas().search.formId
       const type = getLocalParmas().search.type
       this.loading = true

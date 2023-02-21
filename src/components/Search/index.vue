@@ -2,6 +2,7 @@
   <view class="search">
     <view class="input">
       <van-search
+          custom-class="searchCustomClass"
           use-action-slot
           :value="value"
           :placeholder="placeholder || '请输入搜索关键词'"
@@ -21,7 +22,7 @@
       >
         搜索
       </view>
-      <view v-else class='icon'>
+      <view v-else v-if="$slots.extraIcon" class='icon'>
         <slot name="extraIcon"></slot>
       </view>
     </view>
@@ -33,6 +34,7 @@
 export default {
   name: 'Search',
   props: [
+    'customClass',
     'placeholder',
     'searchStyle',
     'searchBarStyle',
@@ -86,6 +88,7 @@ export default {
 }
 
 .action {
+  color: $primary-color;
   padding: 0 12px;
 }
 
@@ -93,5 +96,9 @@ export default {
   min-width: 30px;
   margin-left: 12px;
   text-align: center;
+}
+
+.searchCustomClass {
+  padding: 12px 0 !important;
 }
 </style>

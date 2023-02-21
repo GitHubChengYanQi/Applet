@@ -29,14 +29,14 @@
               :disabled='actionsData()[1].disabled'
               class='reject'
               plain="true"
-              @click='actionClick(actionsData()[1].action)'
+              @click='()=>actionClick(actionsData()[1].action)'
           >
             {{ actionsData()[1].name }}
           </button>
           <button
               :disabled='actionsData()[0].disabled'
               class="ok"
-              @click="actionClick(actionsData()[0].action)"
+              @click="()=>actionClick(actionsData()[0].action)"
           >
             {{ actionsData()[0].name }}
           </button>

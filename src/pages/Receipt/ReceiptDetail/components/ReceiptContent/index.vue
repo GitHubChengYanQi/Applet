@@ -1,6 +1,24 @@
 <template>
   <view>
-    <view v-if="detailData.type === ReceiptsEnums.instockOrder"></view>
+    <view v-if="detailData.type === ReceiptsEnums.instockOrder">
+      <InStockDetail
+          :actionNode='receiptData().actionNode'
+          :logIds='receiptData().logIds'
+          :taskId='detailData.processTaskId'
+          :loading='loading'
+          :handleResults='isArray(detailData.receipts && detailData.receipts.handleResults)'
+          :order='detailData.receipts'
+          :nodeActions='actions'
+          :data='isArray(detailData.receipts && detailData.receipts.instockListResults)'
+          :permissions='permissions'
+          :actionId="getAction('performInstock').id"
+          :action="getAction('performInstock').id && permissions"
+          :instockOrderId="detailData.receipts.instockOrderId"
+          @refresh='refreshOrder'
+          @afertShow='() => bottomButton = true'
+          :taskDetail='detailData'
+      />
+    </view>
     <view v-if="detailData.type === ReceiptsEnums.outstockOrder">
       <OutStockDetail
           :actionNode='receiptData().actionNode'
@@ -13,7 +31,6 @@
           :getAction='getAction'
           @refresh='refreshOrder'
           :loading='loading'
-          :type='detailData.type'
           :pickListsId="detailData.receipts.pickListsId"
           :taskDetail='detailData'
           :action="getAction('outStock').id && permissions"
@@ -63,12 +80,15 @@ import OutStockDetail from "../../../../Erp/OutStock/OutStockDetail";
 import Footer from "./components/Footer/index";
 import {ReceiptsEnums} from "../../../ReceiptsEnums";
 import Process from './components/Process/index'
+import InStockDetail from "../../../../Erp/InStock/InStockDetail";
+import {isArray} from "../../../../../util/Tools"
 
 export default {
-  components: {OutStockDetail, Footer, Process},
+  components: {InStockDetail, OutStockDetail, Footer, Process},
   props: ['success', 'detailData', 'currentNode', 'loading', 'permissions'],
   data() {
     return {
+      isArray,
       ReceiptsEnums,
       bottomButton: false
     }
