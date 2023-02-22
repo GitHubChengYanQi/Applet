@@ -1,19 +1,35 @@
 <template>
   <view>
-    <view v-if="detailData.type === ReceiptsEnums.instockOrder"></view>
+    <view v-if="detailData.type === ReceiptsEnums.instockOrder">
+      <InStockDetail
+          :actionNode='receiptData().actionNode'
+          :logIds='receiptData().logIds'
+          :taskId='detailData.processTaskId'
+          :loading='loading'
+          :handleResults='isArray(detailData.receipts && detailData.receipts.handleResults)'
+          :order='detailData.receipts'
+          :data='isArray(detailData.receipts && detailData.receipts.instockListResults)'
+          :permissions='permissions'
+          :actionId="getAction('performInstock').id"
+          :action="getAction('performInstock').id && permissions"
+          :instockOrderId="detailData.receipts.instockOrderId"
+          @refresh='refreshOrder'
+          @afertShow='() => bottomButton = true'
+          :taskDetail='detailData'
+      />
+    </view>
     <view v-if="detailData.type === ReceiptsEnums.outstockOrder">
       <OutStockDetail
-          :actionNode='actionNode'
-          :logIds='logIds'
+          :actionNode='receiptData().actionNode'
+          :logIds='receiptData().logIds'
           :taskId='detailData.processTaskId'
           @afertShow='() => bottomButton = true'
           :permissions='permissions'
           :data='detailData.receipts'
-          :actions='actions'
+          :actions='receiptData().actions'
           :getAction='getAction'
           @refresh='refreshOrder'
           :loading='loading'
-          :type='detailData.type'
           :pickListsId="detailData.receipts.pickListsId"
           :taskDetail='detailData'
           :action="getAction('outStock').id && permissions"
@@ -45,6 +61,8 @@
       </view>
     </view>
 
+    <div v-if="bottomButton" style="height: 90px" />
+
     <Footer
         v-if="!loading"
         :version='detailData.version'
@@ -61,65 +79,63 @@ import OutStockDetail from "../../../../Erp/OutStock/OutStockDetail";
 import Footer from "./components/Footer/index";
 import {ReceiptsEnums} from "../../../ReceiptsEnums";
 import Process from './components/Process/index'
+import InStockDetail from "../../../../Erp/InStock/InStockDetail";
+import {isArray} from "../../../../../util/Tools"
 
 export default {
-  components: {OutStockDetail, Footer, Process},
+  components: {InStockDetail, OutStockDetail, Footer, Process},
   props: ['success', 'detailData', 'currentNode', 'loading', 'permissions'],
   data() {
     return {
+      isArray,
       ReceiptsEnums,
-      actions: [],
-      logIds: [],
-      actionNode: false,
       bottomButton: false
     }
   },
-  watch: {
-    loading(loading) {
-      if (!loading){
-        const actions = [];
-        const logIds = [];
-        let actionNode = false;
-
-        if (this.detailData.status === 0) {
-          this.currentNode.forEach((item) => {
-
-            if (item.stepType === 'status' && !actionNode) {
-              actionNode = true;
-            }
-
-            if (this.detailData.version) {
-              const logResults = item.logResults || [];
-              logResults.map(item => {
-                logIds.push(item.logId);
-              });
-            } else {
-              const logResult = item.logResult || {};
-              logIds.push(logResult.logId);
-            }
-
-            if (item.auditRule && Array.isArray(item.auditRule.actionStatuses)) {
-              item.auditRule.actionStatuses.map((item) => {
-                actions.push({action: item.action, id: item.actionId, name: item.actionName});
-              });
-            }
-            return null;
-          });
-        } else {
-          actionNode = true;
-        }
-        this.actions = actions
-        this.logIds = logIds
-        this.actionNode = actionNode
-      }
-    }
-  },
   methods: {
+    receiptData() {
+      const actions = [];
+      const logIds = [];
+      let actionNode = false;
+
+      if (this.detailData.status === 0) {
+        this.currentNode.forEach((item) => {
+
+          if (item.stepType === 'status' && !actionNode) {
+            actionNode = true;
+          }
+
+          if (this.detailData.version) {
+            const logResults = item.logResults || [];
+            logResults.map(item => {
+              logIds.push(item.logId);
+            });
+          } else {
+            const logResult = item.logResult || {};
+            logIds.push(logResult.logId);
+          }
+
+          if (item.auditRule && Array.isArray(item.auditRule.actionStatuses)) {
+            item.auditRule.actionStatuses.map((item) => {
+              actions.push({action: item.action, id: item.actionId, name: item.actionName});
+            });
+          }
+          return null;
+        });
+      } else {
+        actionNode = true;
+      }
+      return {
+        actions,
+        logIds,
+        actionNode
+      }
+    },
     getAction(action) {
       if (this.detailData.status !== 0) {
         return {};
       }
-      const actionData = this.actions.filter(item => {
+      const actionData = this.receiptData().actions.filter(item => {
         return item.action === action;
       });
       return actionData[0] || {};

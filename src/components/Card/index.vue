@@ -1,27 +1,92 @@
 <template>
   <view>
-    <uni-section :title="title" type="line">
-      <template v-slot:right>
-        {{ extra || '' }}
-        <slot name="extra"></slot>
-      </template>
-      <view class="content" v-if="$slots.default">
+    <view
+        :style="style"
+        @click="$emit('click')"
+        v-if="!hidden"
+        :class="[className, 'card']"
+    >
+      <view :style='headerStyle' v-if="!noHeader" :class="[headerClassName, 'header']">
+        <view class='title'>
+          <view class='leftBorder' />
+          {{ title || '' }}
+          <slot name="title"></slot>
+        </view>
+        <view :class='extraClassName'>
+          {{ extra || '' }}
+          <slot name="extra"></slot>
+        </view>
+      </view>
+      <view v-if="$slots.default" :style="bodyStyle" :class="[bodyClassName, 'content']">
         <slot></slot>
       </view>
-    </uni-section>
+    </view>
   </view>
 </template>
 
 <script>
 export default {
-  props: ['title', 'extra'],
+  name: 'Card',
+  props: [
+    'title',
+    'extra',
+    'bodyClassName',
+    'headerClassName',
+    'headerStyle',
+    'bodyStyle',
+    'className',
+    'noHeader',
+    'hidden',
+    'titleClassName',
+    'extraClassName',
+    'style',
+  ],
   mounted() {
   }
 }
 </script>
 
 <style lang="scss">
-.content {
-  padding: 0 16px 16px 16px;
+.card {
+  background-color: #fff;
+  padding: 12px;
+  margin-bottom: 3px;
+  font-size: 14px;
+
+  .header {
+    display: flex;
+    align-items: center;
+    //border-bottom: 1px solid #F5F5F5;
+
+    .title {
+      flex-grow: 1;
+    }
+  }
+
+  .content {
+    padding: 8px;
+  }
+}
+
+
+
+.title {
+  color: #666666;
+  display: flex;
+  align-items: center;
+
+  .leftBorder {
+    width: 3px;
+    height: 14px;
+    background: $primary-color;
+    margin: 0 5px 0 0;
+    font-size: 14px;
+    border-radius: 50px;
+  }
+
+  //.leftBorder::before {
+  //  border-radius: 50px;
+  //  //content: "123";
+  //}
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <view>
-    <!-- 出库明细 -->
     <Card title="来源" v-if="origin">
       <template v-slot:extra>
         <view class="state">
@@ -13,34 +12,21 @@
         <view class="state" @click="goToDetail">更多</view>
       </template>
     </Card>
-    <!-- 间隔 -->
-    <view class="space"></view>
-    <!-- 主题 -->
     <Card title="主题" :extra="taskDetail.theme || '无'" />
-    <view class="space"></view>
-    <!-- 领料负责人 -->
     <Card title="领料负责人">
       <template v-slot:extra>
         <UserName :user='data.userResult' />
       </template>
     </Card>
-    <view class="space"></view>
-
     <Card title="出库类型" :extra="getOutType(data.type)" />
-    <view class="space"></view>
-
     <Card title="注意事项">
       {{
         isArray(data.announcementsResults).length === 0 ? '无' : isArray(data.announcementsResults).map(item => item.content).join('、')
       }}
     </Card>
-    <view class="space"></view>
-
     <Card title="备注">
       {{ data.note }}
     </Card>
-    <view class="space"></view>
-
     <Card title="附件">
       <view class="remarks">
         无
@@ -265,7 +251,6 @@ export default {
     'loading',
     'data',
     'permissions',
-    'type',
     'logIds',
     'taskId',
     'actions',
@@ -288,19 +273,25 @@ export default {
   watch: {
     loading(loading) {
       if (!loading) {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
-        const userInfo = getApp().globalData.userInfo || {}
-        this.nodeActions = isArray(this.actions).map(item => ({
-          ...item,
-          name: item.action === 'outStock' ? '领料' : item.name
-        })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
-        // this.goToDetail()
+        this.refreshData()
       }
     }
   },
+  mounted() {
+    this.refreshData()
+    // this.goToDetail()
+  },
   methods: {
+    refreshData() {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
+      const userInfo = getApp().globalData.userInfo || {}
+      this.nodeActions = isArray(this.actions).map(item => ({
+        ...item,
+        name: item.action === 'outStock' ? '领料' : item.name
+      })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
+    },
     goToDetail() {
       uni.redirectTo({
         url: `/pages/Erp/OutStock/OutStockAction/index?pickListsId=${this.data.pickListsId}&taskId=${this.taskId}&theme=${this.taskDetail.theme}&action=${(this.action || false) + ''}&source=${this.data.source}`,

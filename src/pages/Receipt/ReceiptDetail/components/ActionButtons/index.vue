@@ -1,5 +1,5 @@
 <template>
-  <view class='actionBottom' v-if="!(actionsData.length === 0 && createUser !== userInfo.id)">
+  <view class='actionBottom' v-if="!(actionsData().length === 0 && createUser !== userInfo.id)">
     <view class='actions'>
       <view class='all' @click='more'>
         <view>更多</view>
@@ -7,30 +7,38 @@
       </view>
 
       <view class='buttons'>
-        <view v-if="actionsData.length <= 1">
+        <view v-if="actionsData().length === 0">
           <button
-              :disabled='actionsData[0] ? actionsData[0].disabled : true'
+              :disabled='true'
               class='only'
-              @click='actionClick(actionsData[0].action)'
           >
-            {{ actionsData[0].name || statusName }}
+            {{ statusName }}
+          </button>
+        </view>
+        <view v-else-if="actionsData().length === 1">
+          <button
+              :disabled='actionsData()[0].disabled'
+              class='only'
+              @click='()=>actionClick(actionsData()[0].action)'
+          >
+            {{ actionsData()[0].name }}
           </button>
         </view>
         <view v-else>
           <button
-              :disabled='actionsData[1].disabled'
+              :disabled='actionsData()[1].disabled'
               class='reject'
               plain="true"
-              @click='actionClick(actionsData[1].action)'
+              @click='()=>actionClick(actionsData()[1].action)'
           >
-            {{ actionsData[1].name }}
+            {{ actionsData()[1].name }}
           </button>
           <button
-              :disabled='actionsData[0].disabled'
+              :disabled='actionsData()[0].disabled'
               class="ok"
-              @click="actionClick(actionsData[0].action)"
+              @click="()=>actionClick(actionsData()[0].action)"
           >
-            {{ actionsData[0].name }}
+            {{ actionsData()[0].name }}
           </button>
         </view>
       </view>
@@ -40,6 +48,7 @@
 
 <script>
 export default {
+  name: 'ActionButtons',
   props: [
     'taskDetail',
     'statusName',
@@ -52,20 +61,20 @@ export default {
   data() {
     return {
       revoke: '',
-      actionsData: [],
       userInfo: {},
     }
   },
   mounted() {
-    const actions = this.permissions ? this.actions : [];
-    this.actionsData = actions
-    const userInfo = getApp().globalData.userInfo || {}
-    this.userInfo = userInfo
-    if (!(actions.length === 0 && this.createUser !== userInfo.id)) {
-      this.$emit('afertShow')
-    }
+    this.userInfo = getApp().globalData.userInfo || {}
   },
   methods: {
+    actionsData() {
+      const actions = this.actions || []
+      if (!(actions.length === 0 && this.createUser !== this.userInfo.id)) {
+        this.$emit('afertShow')
+      }
+      return this.permissions ? actions : []
+    },
     more() {
       const current = this
       const list = [
@@ -76,7 +85,7 @@ export default {
           key: 'revokeAndAsk',
           disabled: this.createUser !== this.userInfo.id || this.taskDetail.status !== 0
         },
-        ...this.actionsData.filter((item, index) => index > 1).map(item => ({
+        ...this.actionsData().filter((item, index) => index > 1).map(item => ({
           text: item.name,
           key: item.action,
           disabled: item.disabled,

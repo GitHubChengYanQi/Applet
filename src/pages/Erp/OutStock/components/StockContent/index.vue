@@ -24,10 +24,10 @@
             </view>
 
             <view v-if="positionItem.checked">
-              <van-stepper
+              <ShopNumber
                   :min="0"
                   :value="positionItem.outStockNumber"
-                  @change="({detail:num})=>numberChange(num,positionItem,positionIndex,index)"
+                  @onChange="(num)=>numberChange(num,positionItem,positionIndex,index)"
               />
             </view>
 
@@ -43,10 +43,11 @@ import {isArray} from "../../../../../util/Tools";
 import {Message} from "../../../../../components/Message";
 import {OutStock} from "MES-Apis/src/OutStock/promise";
 import Loading from "../../../../../components/Loading";
+import ShopNumber from "../../../../../components/ShopNumber";
 
 export default {
   name: 'StockContent',
-  components: {Loading},
+  components: {ShopNumber, Loading},
   props: [
     'pickId',
     'pickListsDetailId',

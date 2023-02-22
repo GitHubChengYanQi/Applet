@@ -1,21 +1,15 @@
 <template>
   <view>
-    <view class="float">
-      <view id='pickShop' class='actions'>
-        <view class='action' @click='click'>
-          <view class='actionButton'>
-            <Bouncing
-                ref='shopRef'
-                :size='32'
-                :height='24'
-                :img='outShop'
-                :number='loading? undefined : allSkus.length'
-                @addAfter='addAfter'
-            />
-          </view>
-        </view>
-      </view>
-    </view>
+
+    <Bouncing
+        @click="click"
+        name="outStockShop"
+        :size='32'
+        :height='24'
+        :img='outShop'
+        :number='loading? undefined : allSkus.length'
+        @addAfter='addAfter'
+    />
 
     <Popup
         :show="show"
@@ -38,12 +32,12 @@
 </template>
 
 <script>
-import Bouncing from "../../../../components/Bouncing";
-import outShop from '../../../../static/outShop.png'
+import Bouncing from "../../../../../components/Bouncing";
+import outShop from '../../../../../static/outShop.png'
 import {OutStock} from "MES-Apis/src/OutStock/promise";
-import {isArray} from "../../../../util/Tools";
-import Popup from "../../../../components/Popup";
-import WaitOutSku from "../components/WaitOutSku";
+import {isArray} from "../../../../../util/Tools";
+import Popup from "../../../../../components/Popup";
+import WaitOutSku from "../WaitOutSku";
 
 export default {
   name: 'OutStockShop',
@@ -65,7 +59,7 @@ export default {
     }
   },
   mounted() {
-    this.getOutStockShop()
+    // this.getOutStockShop()
   },
   methods: {
     close() {
@@ -74,9 +68,6 @@ export default {
         this.refreshOrder = false;
       }
       this.show = false
-    },
-    jump(after, num) {
-      this.$refs.shopRef.jump(after, num)
     },
     click() {
       this.getOutStockShop();
@@ -127,51 +118,6 @@ export default {
 
 
 <style lang="scss">
-.float {
-  position: fixed;
-  bottom: 100px;
-  right: 24px;
-
-  .actions, .action {
-    display: flex;
-    flex-direction: column;
-    font-size: 10px;
-    align-items: center;
-    color: #3D3D3D;
-    gap: 8px;
-
-    :global .ant-avatar {
-      background-color: $body-color;
-    }
-
-    .actionButton {
-      border-radius: 100%;
-      background-color: $body-color;
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      svg {
-        font-size: 24px;
-      }
-    }
-
-
-    .text {
-      padding: 4px 0 6px;
-    }
-
-    .dimension {
-      width: 24px;
-      height: 24px;
-      //background-color: var(--body--background--color);
-    }
-  }
-
-}
-
 
 .content {
   max-height: 80vh;

@@ -5,31 +5,12 @@
     </view>
     <view class="login2">
       <view class="text">欢迎使用浑河云</view>
-      <form @submit="formSubmit">
-        <view class="login3">
-
-          <uni-icons type="person" size="20"></uni-icons>
-          <input class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
-        </view>
-        <view class="login3">
-          <view class="title">密</view>
-          <input class="uni-input" name="password" v-model="password" :password="showPassword" placeholder="请输入密码" />
-          <!-- <text class="uni-icon" :class="[!showPassword ? 'uni-eye-active' : '']" @click="changePassword"></text> -->
-        </view>
-        <view class="uni-btn-v">
-          <button form-type="submit" type="default">立即登录</button>
-        </view>
-      </form>
-      <view class="">
-        <view class="forget" @click="forget">忘记登录密码</view>
-      </view>
+      <button type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">手机号授权登录</button>
       <view class="technology">本系统由<span class='link'>道昕网络</span>提供技术支持</view>
-
     </view>
   </view>
 </template>
 <script>
-import graceChecker from "../../common/graceChecker.js"
 import {getLocalParmas} from "../../util/Tools";
 import {Login} from "MES-Apis/src/Login/promise";
 
@@ -43,28 +24,12 @@ export default {
     return {
       username: 'cheng',
       password: '2683941980',
-      backUrl: '',
-      showPassword: true,
+      backUrl: ''
     }
   },
   methods: {
-    formSubmit: function (e) {
-      var formData = e.detail.value;
-      var checkRes = graceChecker.check(formData, []);
-      if (checkRes) {
-        this.requestPromise();
-      } else {
-        uni.showToast({
-          title: graceChecker.error,
-          icon: "none"
-        });
-      }
-    },
-    formReset: function (e) {
-
-    },
-    changePassword() {
-      this.showPassword = !this.showPassword;
+    getphonenumber(res){
+      console.log(res)
     },
     requestPromise(url) {
       Login.login({
@@ -83,14 +48,6 @@ export default {
           });
         }
       })
-    },
-
-    forget() {
-      uni.showModal({
-        content: "请联系管理员",
-        showCancel: false,
-        confirmText: "确定"
-      });
     }
   },
 }

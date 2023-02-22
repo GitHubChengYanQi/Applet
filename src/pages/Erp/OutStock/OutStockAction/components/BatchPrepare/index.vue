@@ -137,14 +137,18 @@ export default {
     async autoPick(res) {
 
       const all = this.data.filter(item => item.notPrepared > 0).length;
-      this.$emit('jump', () => {
-        this.detailList();
-        Message.dialog({
-          title: '备料成功',
-          content: `已备${all - res.length}个,库存不足${res.length}个`,
-          only: true,
-        });
-      }, all - res.length)
+      this.$store.dispatch('bouncing/jump', {
+        name: 'outStockShop',
+        number:all - res.length,
+        after: () => {
+          this.detailList();
+          Message.dialog({
+            title: '备料成功',
+            content: `已备${all - res.length}个,库存不足${res.length}个`,
+            only: true,
+          });
+        }
+      })
     },
     refresh() {
       this.detailList()

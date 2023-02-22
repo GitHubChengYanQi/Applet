@@ -20,9 +20,15 @@
       }
     },
     {
+      "path": "pages/Erp/OutStock/OutStockDetail/index",
+      "style": {
+        "navigationBarTitleText": "出库详情"
+      }
+    },
+    {
       "path": "pages/Erp/OutStock/OutStockAction/index",
       "style": {
-        "navigationBarTitleText": "出库明细"
+        "navigationBarTitleText": "出库操作"
       }
     },
     {
@@ -56,7 +62,8 @@
       "van-field": "/wxcomponents/field/index",
       "van-stepper": "/wxcomponents/van-stepper/index",
       "van-uploader": "/wxcomponents/vant-uploader/index",
-      "van-picker": "/wxcomponents/vant-picker/index"
+      "van-picker": "/wxcomponents/vant-picker/index",
+      "van-search": "/wxcomponents/search/index"
     }
   }
 }

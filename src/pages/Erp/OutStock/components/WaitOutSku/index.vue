@@ -123,7 +123,6 @@ export default {
         onSuccess: () => {
           Message.successToast('移出成功!');
           this.$emit('listRefresh')
-          console.log('1',this.returnSkus)
           this.$emit('refresh', this.returnSkus)
         }
       })
