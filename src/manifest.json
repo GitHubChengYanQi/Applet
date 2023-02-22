@@ -5,50 +5,6 @@
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
-    "oauth": {
-        //可选，JSON对象，OAuth(登录鉴权)模块三方SDK配置
-        "univerify": {
-            //可选，JSON对象，使用一键登录(univerify)SDK配置，无需手动配置参数，云端打包自动获取配置参数
-        },
-        "apple": {
-            //可选，JSON对象，使用苹果登录(Sign in with Apple)SDK配置，无配置参数，仅iOS平台支持
-        },
-        "weixin": {
-            //可选，JSON对象，使用微信登录SDK配置
-            "appid": "ww4d053c3a7cebff09",
-            //必填，字符串类型，微信开放平台申请的appid
-            "appsecret": "T_z92-En8k2u-zeJeuK1GYoIPqSA_OnewujNFi8EY_U",
-            //必填，字符串类型，微信开放平台申请的appsecret
-            "UniversalLinks": ""
-            //可选，字符串类型，微信开放平台配置的iOS平台通用链接
-        },
-        "qq": {
-            //可选，JSON对象，使用QQ登录SDK配置
-            "appid": "",
-            //必填，字符串类型，QQ开放平台申请的appid
-            "UniversalLinks": ""
-            //可选，字符串类型，QQ开放平台配置的iOS平台通用链接
-        },
-        "sina": {
-            //可选，JSON对象，使用新浪微博登录SDK配置
-            "appkey": "",
-            //必填，字符串类型，新浪微博开放平台申请的appid
-            "redirect_uri": "",
-            //必填，字符串类型，新浪微博开放平台配置的redirect_uri
-            "UniversalLinks": ""
-            //可选，字符串类型，新浪微博开放平台配置的iOS平台通用链接
-        },
-        "google": {
-            //可选，JSON对象，使用Google登录SDK配置
-            "clientid": ""
-            //必填，字符串类型，Google开发者后台申请的clientid
-        },
-        "facebook": {
-            //可选，JSON对象，使用Facebook登录SDK配置
-            "appid": ""
-            //必填，字符串类型，Facebook开发者后台申请的appid
-        }
-    },
     "app-plus" : {
         /* 5+App特有相关 */
         "usingComponents" : true,

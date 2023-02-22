@@ -2,6 +2,7 @@ import {Init} from "MES-Apis/src/Init";
 import {getLocalParmas} from "./util/Tools";
 import {User} from "MES-Apis/src/User/promise";
 import {Message} from "./components/Message";
+import {Login} from "MES-Apis/src/Login/promise";
 
 const Auth = {}
 
@@ -21,41 +22,33 @@ Auth.install = function (Vue, options) {
     // 3. 注入组件选项
     Vue.mixin({
         mounted: async function () {
-            if (this.$mp.app) {
+            if (this.$mp.app || this.mpType !== 'page') {
                 return
-            }
-            Init.initBaseURL('http://192.168.3.59')
-
-            Init.responseConfig({
-                loginTimeOut: () => {
-                    uni.redirectTo({
-                        url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
-                    })
-                },
-                errorMessage: (res) => {
-                    Message.errorToast(res)
-                },
-            })
-            if (!getApp()?.globalData?.publicInfo) {
-                // const publicInfo = await Init.getPublicInfo({
-                //     onError: () => {
-
-                //     }
-                // })
-                // if (!publicInfo) {
-                //     return
-                // }
-                // getApp().globalData.publicInfo = publicInfo.data
             }
             const token = getApp().globalData.token
             if (token) {
                 if (!getApp()?.globalData?.userInfo) {
-                    // const res = await User.getUserInfo()
-                    // getApp().globalData.userInfo = res.data
+                    console.log(this)
+                    const res = await User.getUserInfo()
+                    getApp().globalData.userInfo = res.data
                 }
                 typeof this.logined == "function" && this.logined();
             } else if (getLocalParmas().route !== '/pages/login/index') {
-                typeof this.notLogin == "function" && this.notLogin();
+                const auth = this
+                uni.login({
+                    success: async function (loginRes) {
+                        if (loginRes.errMsg === 'login:ok') {
+                            Login.codeToSession({code: loginRes.code}, {
+                                onSuccess: () => {
+                                    typeof auth.notLogin == "function" && auth.notLogin();
+                                },
+                                onError:()=>{
+
+                                }
+                            })
+                        }
+                    }
+                });
             }
         },
     })

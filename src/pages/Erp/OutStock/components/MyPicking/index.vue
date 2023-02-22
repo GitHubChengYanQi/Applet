@@ -198,7 +198,7 @@ export default {
         const brandIds = [];
         cartResults.forEach(item => {
           if (!brandIds.includes(item.brandId)) {
-            brandIds.push(item.brandId);
+            brandIds.push(item.brandId || '0');
           }
         });
         return cartsParams.push({

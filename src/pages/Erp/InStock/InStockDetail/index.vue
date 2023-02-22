@@ -145,11 +145,6 @@ export default {
   },
   mounted() {
     this.inStockData()
-    uni.login({
-      success: function (loginRes) {
-        console.log(loginRes.authResult);
-      }
-    });
   },
   methods: {
     onAction(value) {

@@ -42,9 +42,9 @@
               @addComments='hiddenFooter=true'
           />
         </view>
-        <view v-if="tabKey === 'log'"></view>
+        <view v-if="tabKey === 'log'"><Log :type='type' :detail='detailData'  /></view>
         <view v-if="tabKey === 'dynamic'"></view>
-        <view v-if="tabKey === 'relation'"></view>
+        <view v-if="tabKey === 'relation'"><Relation /></view>
       </view>
     </view>
   </view>
@@ -59,10 +59,12 @@ import {ReceiptsEnums} from "../ReceiptsEnums";
 import {Process} from "MES-Apis/src/Process/promise";
 import Loading from '../../../components/Loading/index'
 import Empty from "../../../components/Empty";
+import Log from "./components/Log";
+import Relation from "./components/Relation";
 
 export default {
   name: 'receiptDetail',
-  components: {Empty, Header, ReceiptContent, Loading},
+  components: {Relation, Log, Empty, Header, ReceiptContent, Loading},
   data() {
     return {
       auth: true,
@@ -93,8 +95,8 @@ export default {
       })
     },
     getTaskDetail() {
-      // const id = '1627909533017092098' // 出库
-      const id = '1627514074314362882' // 入库
+      const id = '1627909533017092098' // 出库
+      // const id = '1627514074314362882' // 入库
       const taskId = id || getLocalParmas().search.id
       const formId = getLocalParmas().search.formId
       const type = getLocalParmas().search.type
