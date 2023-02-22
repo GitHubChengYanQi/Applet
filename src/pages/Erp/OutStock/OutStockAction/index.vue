@@ -6,7 +6,7 @@
       <Loading :skeleton="true" />
     </view>
     <view v-else>
-      <van-tabs :active="1" color="#007aff" border line-width="30%" @change="change">
+      <van-tabs color="#007aff" border line-width="30%" @change="change">
         <van-tab title="一键备料">
           <BatchPrepare
               v-if="tabKey === 0"
@@ -16,7 +16,6 @@
               :action="query.action === 'true'"
               :pickListsId='query.pickListsId'
               :theme='query.theme'
-              @jump="jump"
           />
         </van-tab>
         <van-tab title="单独备料">
@@ -28,14 +27,12 @@
               :action="query.action === 'true'"
               :pickListsId='query.pickListsId'
               :theme='query.theme'
-              @jump="jump"
           />
         </van-tab>
       </van-tabs>
 
       <OutStockShop
           v-if="query.action === 'true'"
-          ref='shopRef'
           :taskId='query.taskId'
           :outType='query.source'
           :pickListsId='query.pickListsId'
@@ -51,7 +48,7 @@ import OnePrepare from './components/OnePrepare'
 import {getLocalParmas} from "../../../../util/Tools";
 import {OutStock} from "MES-Apis/src/OutStock/promise";
 import Loading from "../../../../components/Loading";
-import OutStockShop from "../OutStockShop";
+import OutStockShop from "../components/OutStockShop";
 
 export default {
   components: {OutStockShop, Loading, BatchPrepare, OnePrepare},
@@ -71,9 +68,6 @@ export default {
   methods: {
     change(tab) {
       this.tabKey = tab.detail ? tab.detail.index : tab.index
-    },
-    jump(after, num) {
-      this.$refs.shopRef.jump(after, num)
     },
     refresh(refresh) {
       this.$refs.batchPrepareRef?.refresh();

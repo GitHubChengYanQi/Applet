@@ -92,12 +92,15 @@ export default {
       }
     },
     addShop() {
+      const skuItem = this.skuItem
       this.$emit('onClose')
       // const imgUrl = ToolUtil.isArray(skuResult.imgResults)[0]?.thumbUrl || state.homeLogo;
       // addShopCart(imgUrl, 'pickSkuImg');
-      let number = 0;
-      this.outStockSkus.forEach(item => number += item.number);
-      this.$emit('onSuccess', {...this.skuItem, number})
+      setTimeout(()=>{
+        let number = 0;
+        this.outStockSkus.forEach(item => number += item.number);
+        this.$emit('onSuccess', {...skuItem, number})
+      },500)
     },
     cartAdd(warning) {
       const current = this

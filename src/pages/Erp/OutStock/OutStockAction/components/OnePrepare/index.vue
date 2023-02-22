@@ -137,11 +137,14 @@ export default {
           return item;
         }
       };
-      this.$emit('jump', () => {
-        const newDefaultData = this.defaultData.map(format);
-        const newData = this.data.map(format);
-        this.defaultData = newDefaultData
-        this.data = newData
+      this.$store.dispatch('bouncing/jump', {
+        name: 'outStockShop',
+        after: () => {
+          const newDefaultData = this.defaultData.map(format);
+          const newData = this.data.map(format);
+          this.defaultData = newDefaultData
+          this.data = newData
+        }
       })
     },
     async getDetailList(data) {

@@ -15,7 +15,7 @@
             {{ statusName }}
           </button>
         </view>
-        <view v-if="actionsData().length === 1">
+        <view v-else-if="actionsData().length === 1">
           <button
               :disabled='actionsData()[0].disabled'
               class='only'
@@ -48,6 +48,7 @@
 
 <script>
 export default {
+  name: 'ActionButtons',
   props: [
     'taskDetail',
     'statusName',
@@ -69,7 +70,7 @@ export default {
   methods: {
     actionsData() {
       const actions = this.actions || []
-      if (!(this.actions.length === 0 && this.createUser !== this.userInfo.id)) {
+      if (!(actions.length === 0 && this.createUser !== this.userInfo.id)) {
         this.$emit('afertShow')
       }
       return this.permissions ? actions : []

@@ -32,50 +32,69 @@
             v-for="(item, index) in inStockDetails()"
             :key="index"
         >
-          <Slide
-              :swipeId="'inStockItem'+index"
-              :disabled="!action || item.status !== 0 || item.instockHandleId"
-              @onRight="inWaitInShop"
-              @onLeft="addError"
-          >
-            <InStockItem
-                :ask="true"
-                :detail='item.handle'
-                :index='index'
-                :item='item'
-                :dataLength="(inStockDetails().length > 3 && !allSku) ? 2 : inStockDetails().length - 1"
-                :key='index'
-            />
-          </Slide>
+          <view v-if="!(!allSku && index >= 3)">
+            <Slide
+                :swipeId="'inStockItem'+index"
+                :disabled="!action || item.status !== 0 || item.instockHandleId"
+                @onRight="inWaitInShop"
+                @onLeft="addError"
+            >
+              <InStockItem
+                  :ask="true"
+                  :detail='item.handle'
+                  :index='index'
+                  :item='item'
+                  :dataLength="(inStockDetails().length > 3 && !allSku) ? 2 : inStockDetails().length - 1"
+                  :key='index'
+              />
+            </Slide>
+          </view>
         </view>
+        <van-divider v-if="inStockDetails().length > 3" contentPosition="center">
+          <view @click="allSku = !allSku">
+            <van-icon v-if="allSku" name="arrow-up" />
+            <van-icon v-else name="arrow-down" />
+          </view>
+        </van-divider>
       </view>
     </Card>
-    <Card title="供应商" :extra="data.customerResult && data.customerResult.customerName || '无'" />
+    <Card title="供应商" :extra="order.customerResult && order.customerResult.customerName || '无'" />
     <Card title="主题" :extra="taskDetail.theme || '无'" />
     <Card title="入库类型" :extra="getInType(data.instockType)" />
     <Card title="注意事项">
       {{
-        isArray(data.announcementsList).length === 0 ? '无' : isArray(data.announcementsList).map(item => item.content).join('、')
+        isArray(order.announcementsList).length === 0 ? '无' : isArray(order.announcementsList).map(item => item.content).join('、')
       }}
     </Card>
-    <Card title="备注">{{ data.remark }}</Card>
+    <Card title="备注">{{ order.remark }}</Card>
     <Card title="附件">
       <view class="remarks">
         无
       </view>
     </Card>
 
+
     <ActionButtons
         v-if="actionNode"
         :taskDetail='taskDetail'
-        :statusName='data.statusName'
+        :statusName='order.statusName'
+        @refresh="$emit('refresh')"
         @afertShow="$emit('afertShow')"
         :taskId='taskId'
         :logIds='logIds'
-        :createUser='taskDetail.createUser'
-        :permissions="true"
-        :actions="nodeActions"
+        :createUser='order.createUser'
+        :permissions="permissions"
         @onClick="onAction"
+    />
+
+    <InstockShop
+        v-if="action"
+        errorShopRef={errorShopRef}
+        :order='order'
+        :actionId='actionId'
+        :instockOrderId='instockOrderId'
+        @refresh="$emit('refresh')"
+        waitShopRef={waitShopRef}
     />
   </view>
 </template>
@@ -90,23 +109,28 @@ import {SkuResultSkuJsons} from "../../Sku/sku";
 import Empty from "../../../../components/Empty";
 import Slide from "../../../../components/Slide";
 import InStockItem from "../components/InStockItem";
+import ActionButtons from "../../../Receipt/ReceiptDetail/components/ActionButtons";
+import Button from "../../../../components/Button";
+import InstockShop from "../components/InstockShop";
 
 export default {
   name: 'InStockDetail',
-  components: {InStockItem, Slide, Empty, Search, LinkButton, Card},
+  components: {InstockShop, Button, ActionButtons, InStockItem, Slide, Empty, Search, LinkButton, Card},
   props: [
     'actionNode',
     'taskDetail',
     'loading',
     'data',
     'permissions',
+    'order',
     'type',
     'logIds',
     'taskId',
     'actions',
     'action',
-    'pickListsId',
+    'instockOrderId',
     'handleResults',
+    'actionId',
   ],
   data() {
     return {
@@ -121,8 +145,22 @@ export default {
   },
   mounted() {
     this.inStockData()
+    uni.login({
+      success: function (loginRes) {
+        console.log(loginRes.authResult);
+      }
+    });
   },
   methods: {
+    onAction(value) {
+      switch (value) {
+        case 'revokeAndAsk':
+          // InStockRevoke(taskDetail);
+          break;
+        default:
+          break;
+      }
+    },
     inStockData() {
 
       const actions = [];
@@ -175,11 +213,38 @@ export default {
     inStockDetails() {
       return this.seacrchValue ? this.filterData : this.details;
     },
-    inWaitInShop() {
-      console.log('inWaitInShop')
+    inWaitInShop(formStatus, item, index, type) {
+      const publicInfo = getApp().globalData.publicInfo
+      const skuResult = item.skuResult || {};
+      const imgUrl = isArray(skuResult.imgResults)[0]?.thumbUrl || publicInfo.homeLogo;
+
+      addShop({
+        data: {
+          formStatus,
+          type,
+          instockListId: item.instockListId,
+          skuId: item.skuId,
+          customerId: item.customerId,
+          brandId: item.brandId,
+          number: item.realNumber,
+          formId: item.instockListId,
+          storehouseId: item.storeHouseId,
+        },
+      }).then(() => {
+        addShopCart(imgUrl, `skuImg${index}`, () => {
+          waitShopRef.current.jump(() => {
+            orderInfo = {...orderInfo, waitInStockNum: orderInfo.waitInStockNum + 1};
+            refresh();
+          });
+          // itemChange({ status: 1 }, item.instockListId);
+        });
+      });
     },
     addError() {
       console.log('addError')
+    },
+    getphonenumber(res) {
+      console.log(res)
     }
   }
 }

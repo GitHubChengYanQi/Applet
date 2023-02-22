@@ -8,7 +8,6 @@
           :loading='loading'
           :handleResults='isArray(detailData.receipts && detailData.receipts.handleResults)'
           :order='detailData.receipts'
-          :nodeActions='actions'
           :data='isArray(detailData.receipts && detailData.receipts.instockListResults)'
           :permissions='permissions'
           :actionId="getAction('performInstock').id"

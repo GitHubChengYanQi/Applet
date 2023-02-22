@@ -93,7 +93,9 @@ export default {
       })
     },
     getTaskDetail() {
-      const taskId = '1627514074314362882' || getLocalParmas().search.id
+      // const id = '1627909533017092098' // 出库
+      const id = '1627514074314362882' // 入库
+      const taskId = id || getLocalParmas().search.id
       const formId = getLocalParmas().search.formId
       const type = getLocalParmas().search.type
       this.loading = true
