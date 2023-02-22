@@ -167,7 +167,7 @@ export default {
       return queryString(value, sku);
     },
     async getImgs(startIndex, count, skus) {
-      const {newSkus} = await Sku.getSkuImgs({
+      const {newSkus} = await Sku.loadSkuImgs({
         startIndex,
         count,
         skus,

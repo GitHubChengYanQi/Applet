@@ -1,7 +1,7 @@
 {
   "component": true,
   "usingComponents": {
-    "picker-column": "../picker-column/index",
+    "picker-column": "../vant-picker-column/index",
     "loading": "../loading/index"
   }
 }
