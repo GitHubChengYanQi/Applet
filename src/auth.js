@@ -37,21 +37,21 @@ Auth.install = function (Vue, options) {
                 },
             })
             if (!getApp()?.globalData?.publicInfo) {
-                const publicInfo = await Init.getPublicInfo({
-                    onError: () => {
+                // const publicInfo = await Init.getPublicInfo({
+                //     onError: () => {
 
-                    }
-                })
-                if (!publicInfo) {
-                    return
-                }
-                getApp().globalData.publicInfo = publicInfo.data
+                //     }
+                // })
+                // if (!publicInfo) {
+                //     return
+                // }
+                // getApp().globalData.publicInfo = publicInfo.data
             }
             const token = getApp().globalData.token
             if (token) {
                 if (!getApp()?.globalData?.userInfo) {
-                    const res = await User.getUserInfo()
-                    getApp().globalData.userInfo = res.data
+                    // const res = await User.getUserInfo()
+                    // getApp().globalData.userInfo = res.data
                 }
                 typeof this.logined == "function" && this.logined();
             } else if (getLocalParmas().route !== '/pages/login/index') {

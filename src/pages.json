@@ -7,31 +7,40 @@
     }
   },
   "pages": [
-    {
-      "path": "pages/Receipt/ReceiptDetail/index",
-      "style": {
-        "navigationBarTitleText": "审批详情"
-      }
-    },
-    {
-      "path": "pages/Erp/Sku/SkuAdd/index",
-      "style": {
-        "navigationBarTitleText": "添加物料"
-      }
-    },
-    {
-      "path": "pages/Erp/OutStock/OutStockAction/index",
-      "style": {
-        "navigationBarTitleText": "出库明细"
-      }
-    },
-    {
-      "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    }
-  ],
+		{
+			"path": "pages/Erp/Sku/SkuAdd/index",
+			"style": {
+				"navigationBarTitleText": "添加物料"
+	  
+			}
+		},
+		{
+		  "path": "pages/Erp/OutStock/OutStockDetail/index",
+		  "style": {
+			"navigationBarTitleText": "审批详情"
+		  }
+		},
+		{
+		  "path": "pages/Receipt/ReceiptDetail/index",
+		  "style": {
+			"navigationBarTitleText": "审批详情"
+		  }
+		},
+		{
+		  "path": "pages/Erp/OutStock/OutStockAction/index",
+		  "style": {
+			"navigationBarTitleText": "出库操作"
+		  }
+		},
+	  
+		{
+		  "path": "pages/login/index",
+		  "style": {
+			"navigationBarTitleText": "登录"
+		  }
+		}
+	  ],
+	  
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarBackgroundColor": "#F8F8F8",
@@ -55,9 +64,10 @@
       "van-popup": "/wxcomponents/popup/index",
       "van-field": "/wxcomponents/field/index",
       "van-stepper": "/wxcomponents/van-stepper/index",
-      "van-uploader": "/wxcomponents/vant-uploader/index",
-      "van-picker": "/wxcomponents/vant-picker/index",
+	  "van-uploader": "/wxcomponents/vant-uploader/index",
+	  "van-picker": "/wxcomponents/picker/index",
       "van-search": "/wxcomponents/search/index"
     }
   }
+}
 }
