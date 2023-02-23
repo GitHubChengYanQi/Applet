@@ -1,7 +1,11 @@
 <script>
 import {Init} from "MES-Apis/src/Init";
+import {errorHandler} from "./auth";
+import {Message} from "./components/Message";
 
-Init.initBaseURL('http://192.168.2.111')
+
+Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
+
 export default {
   onLaunch: function () {
     this.appInit();
@@ -14,10 +18,19 @@ export default {
   },
   methods: {
     async appInit() {
-      const publicInfo = await Init.getPublicInfo({
-        onError: () => {
+      Init.responseConfig({
+        loginTimeOut: () => {
+          uni.redirectTo({
+            url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
+          })
+        },
+        errorMessage: (res) => {
+          Message.errorToast(res)
+        },
+      })
 
-        }
+      const publicInfo = await Init.getPublicInfo().catch(() => {
+        errorHandler()
       })
       if (!publicInfo) {
         return

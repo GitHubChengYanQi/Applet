@@ -22,7 +22,7 @@
       >
         搜索
       </view>
-      <view v-else v-if="$slots.extraIcon" class='icon'>
+      <view v-else-if="$slots.extraIcon" class='icon'>
         <slot name="extraIcon"></slot>
       </view>
     </view>
