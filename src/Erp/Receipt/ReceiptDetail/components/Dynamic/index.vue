@@ -2,11 +2,12 @@
   <view>
     <view style="background-color: #fff">
       <List
-          :requestList="Process"
+          ref="listRef"
           :params="{ taskId }"
           :list="list"
           @listSource="listSource"
           max-height="calc(100vh - 130px)"
+          @request="Process.dynamicList"
       >
         <DynamicList :remarks="list" />
       </List>

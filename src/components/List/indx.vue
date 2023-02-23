@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import {Process} from "MES-Apis/src/Process/promise";
 
 export default {
   name: 'List',
@@ -29,7 +28,6 @@ export default {
     'manual',
     'options',
     'noTips',
-    'requestList',
     'pullDisabled',
     'maxHeight'
   ],
@@ -48,12 +46,13 @@ export default {
       limit: 10,
       page: 1,
       data: [],
+      requestList: () => {
+      }
     }
   },
   methods: {
-    getList() {
-      // this.$emit()
-      Process.dynamicList({
+    async getList() {
+      await this.$emit('request', {
         params: {
           limit: this.limit,
           page: this.page,
@@ -82,13 +81,14 @@ export default {
               this.$emit('listSource', []);
             }
           }
+          this.$emit('onLoading', false)
+          this.moreStatus = 'more'
         },
         onError: () => {
           this.hasMore = false
+          this.$emit('onLoading', false)
+          this.moreStatus = 'more'
         },
-      }).finally(()=>{
-        this.$emit('onLoading', false)
-        this.moreStatus = 'more'
       })
     },
     submit(value, sorter, pull) {

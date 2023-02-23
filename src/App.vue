@@ -5,6 +5,7 @@ import {Message} from "./components/Message";
 
 
 Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
+
 export default {
   onLaunch: function () {
     this.appInit();
