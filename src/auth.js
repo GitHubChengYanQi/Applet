@@ -1,10 +1,32 @@
-import {Init} from "MES-Apis/src/Init";
-import {getLocalParmas} from "./util/Tools";
 import {User} from "MES-Apis/src/User/promise";
-import {Message} from "./components/Message";
 import {Login} from "MES-Apis/src/Login/promise";
+import GetUserInfo from "./util/GetUserInfo";
 
 const Auth = {}
+
+export const errorHandler = () => {
+    getApp().globalData.error = true
+    getApp().globalData.token = ''
+    uni.redirectTo({
+        url: "/pages/Error/index",
+    })
+}
+
+export const tokenType = async (auth) => {
+    const userInfo = GetUserInfo().userInfo || {};
+    const userId = !!userInfo.userId;
+    if (!userId) {
+        typeof auth.notLogin == "function" && auth.notLogin();
+    } else {
+        if (!getApp()?.globalData?.userInfo) {
+            const userRes = await User.getUserInfo().catch(() => {
+                errorHandler()
+            })
+            getApp().globalData.userInfo = userRes.data
+        }
+        typeof auth.logined == "function" && auth.logined();
+    }
+}
 
 Auth.install = function (Vue, options) {
     // 1. 添加全局方法或 property
@@ -22,28 +44,31 @@ Auth.install = function (Vue, options) {
     // 3. 注入组件选项
     Vue.mixin({
         mounted: async function () {
+            const auth = this
             if (this.$mp.app || this.mpType !== 'page') {
                 return
             }
-            const token = getApp().globalData.token
+
+            if (getApp().globalData.error) {
+                return
+            }
+
+            const token = GetUserInfo().token;
             if (token) {
-                if (!getApp()?.globalData?.userInfo) {
-                    console.log(this)
-                    const res = await User.getUserInfo()
-                    getApp().globalData.userInfo = res.data
-                }
-                typeof this.logined == "function" && this.logined();
-            } else if (getLocalParmas().route !== '/pages/login/index') {
-                const auth = this
+                tokenType(auth)
+            } else {
+                // typeof auth.notLogin == "function" && auth.notLogin();
+                // return
                 uni.login({
                     success: async function (loginRes) {
                         if (loginRes.errMsg === 'login:ok') {
-                            Login.codeToSession({code: loginRes.code}, {
-                                onSuccess: () => {
-                                    typeof auth.notLogin == "function" && auth.notLogin();
+                            await Login.codeToSession({code: loginRes.code}, {
+                                onSuccess: (token) => {
+                                    getApp().globalData.token = token
+                                    tokenType(auth)
                                 },
-                                onError:()=>{
-
+                                onError: (res) => {
+                                    errorHandler()
                                 }
                             })
                         }

@@ -14,7 +14,6 @@ const successToast = (
     if (!wait) {
         afterClose();
     }
-    Toast.clear()
     Toast({
         forbidClick: wait,
         message: title || '成功！',
