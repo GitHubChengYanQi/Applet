@@ -4,6 +4,7 @@ import GetUserInfo from "./util/GetUserInfo";
 
 const Auth = {}
 
+
 export const errorHandler = () => {
     getApp().globalData.error = true
     getApp().globalData.token = ''

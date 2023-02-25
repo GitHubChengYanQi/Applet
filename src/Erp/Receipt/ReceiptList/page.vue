@@ -57,7 +57,7 @@ export default {
   methods: {
     onClick(){
       uni.navigateTo({
-        url:'/OutStock/OutStockConfirm/index'
+        url:'/Erp/OutStock/OutStockConfirm/index'
       })
     }
   }

@@ -1,7 +1,5 @@
 <template>
   <view>
-    <van-toast id="van-toast" />
-    <van-dialog id="van-dialog" />
     <Loading v-if="loading" :skeleton="true" />
     <Error v-else-if="error" />
     <slot v-else></slot>
@@ -55,7 +53,7 @@ export default {
                   current.tokenAuth()
                 },
                 onError: () => {
-                  this.authError()
+                  current.authError()
                 }
               })
             }

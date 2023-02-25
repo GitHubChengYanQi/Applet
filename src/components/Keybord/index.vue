@@ -1,6 +1,7 @@
 <template>
   <view>
     <van-popup
+        :overlay-style="overlayStyle"
         :show="visible"
         :z-index="101"
         @close="$emit('visiblChange',false)"
@@ -53,6 +54,8 @@
 export default {
   name: 'Keybord',
   props: {
+    overlayStyle: String,
+    noMask: Boolean,
     popupClassName: String,
     noStepper: Boolean,
     visible: Boolean,
@@ -255,6 +258,7 @@ export default {
 
     .ok {
       button {
+        display: flex;
         height: 166px;
         align-items: center;
         justify-content: center;

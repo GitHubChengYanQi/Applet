@@ -192,17 +192,31 @@ export default {
     },
     click() {
       const cartIds = []
+      const cartsParams = [];
       this.checkData().checkSku.map(skuItem => {
         const cartResults = skuItem.cartResults || [];
+        const brandIds = [];
         cartResults.forEach(item => {
+          if (!brandIds.includes(item.brandId)) {
+            brandIds.push(item.brandId || '0');
+          }
           if (item.storehouseId === this.storehouse.storehouseId) {
             cartIds.push(item.pickListsCart)
           }
+
+          cartsParams.push({
+            storehouseId: this.storehouse.storehouseId,
+            skuId: skuItem.skuId,
+            pickListsId: skuItem.pickListsId,
+            number: skuItem.outNumber,
+            brandIds,
+          });
         });
       });
       this.createCodeLoading = true
-      OutStock.createPickCode({
+      OutStock.createPickCodeV2_0({
         cartIds,
+        cartsParams,
       }, {
         onSuccess: (res) => {
           this.$emit('onSuccess', res.data)
