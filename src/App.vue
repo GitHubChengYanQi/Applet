@@ -1,7 +1,10 @@
 <script>
 import {Init} from "MES-Apis/src/Init";
+import {Message} from "./components/Message";
 
-Init.initBaseURL('http://192.168.2.111')
+
+Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.111' : process.env.VUE_APP_BASE_URL)
+
 export default {
   onLaunch: function () {
     this.appInit();
@@ -13,16 +16,17 @@ export default {
     // console.log('App Hide')
   },
   methods: {
-    async appInit() {
-      const publicInfo = await Init.getPublicInfo({
-        onError: () => {
-
-        }
+    appInit() {
+      Init.responseConfig({
+        loginTimeOut: () => {
+          uni.redirectTo({
+            url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
+          })
+        },
+        errorMessage: (res) => {
+          Message.errorToast(res)
+        },
       })
-      if (!publicInfo) {
-        return
-      }
-      getApp().globalData.publicInfo = publicInfo.data
     }
   },
   globalData: {
@@ -33,6 +37,6 @@ export default {
 
 <style>
 /*每个页面公共css */
-@import "@/static/iconfont.css";
+@import "@/static/font/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
 </style>

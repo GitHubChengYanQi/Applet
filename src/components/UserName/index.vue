@@ -2,7 +2,7 @@
   <view>
     <view v-if="user && user.name">
       <view class='userName'>
-        <image :src='user.avatar' :style="{width:`${size || 35}px`,height:`${size || 35}px`}" />
+        <Avatar size="35" :src='user.avatar' />
         <view>
           <view>{{ user.name }}</view>
           <view class="info">
@@ -18,9 +18,11 @@
 
 <script>
 import {isArray} from "../../util/Tools";
+import Avatar from "../Avatar";
 
 export default {
   name: 'userName',
+  components: {Avatar},
   props: ['user', 'size'],
   data() {
     return {

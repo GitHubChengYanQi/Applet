@@ -83,10 +83,5 @@ export default {
     font-size: 14px;
     border-radius: 50px;
   }
-
-  //.leftBorder::before {
-  //  border-radius: 50px;
-  //  //content: "123";
-  //}
 }
 </style>

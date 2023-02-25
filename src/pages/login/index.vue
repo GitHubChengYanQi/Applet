@@ -1,52 +1,98 @@
 <template>
   <view class="login">
+    <van-toast id="van-toast" />
+    <van-dialog id="van-dialog" />
     <view class="logo">
       <img src="../../static/logo2.png" alt="">
     </view>
     <view class="login2">
       <view class="text">欢迎使用浑河云</view>
-      <button type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">手机号授权登录</button>
-      <view class="technology">本系统由<span class='link'>道昕网络</span>提供技术支持</view>
+      <view v-if="!mobile">
+        <uni-forms>
+          <uni-forms-item :label-width="40" label="账号">
+            <uni-easyinput  class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
+          </uni-forms-item>
+          <uni-forms-item :label-width="40" label="密码">
+            <uni-easyinput class="uni-input" name="password" v-model="password" placeholder="请输入密码" />
+          </uni-forms-item>
+          <view class="uni-btn-v">
+            <button :loading="loading" form-type="submit" type="default" @click="()=>submit()">立即登录</button>
+          </view>
+        </uni-forms>
+      </view>
+      <view v-else>
+        <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">手机号授权登录
+        </button>
+      </view>
+      <view class="technology">本小程序为沈阳浑河工业有限责任公司内部办公终端，请登录后使用。</view>
     </view>
   </view>
 </template>
 <script>
 import {getLocalParmas} from "../../util/Tools";
 import {Login} from "MES-Apis/src/Login/promise";
+import GetUserInfo from "../../util/GetUserInfo";
+import {Message} from "../../components/Message";
 
 
 export default {
-  mounted() {
-    this.backUrl = getLocalParmas().search.backUrl
-    this.requestPromise(getLocalParmas().search.backUrl)
-  },
+  components: {},
   data() {
     return {
-      username: 'cheng',
-      password: '2683941980',
-      backUrl: ''
+      username: '',
+      password: '',
+      backUrl: '',
+      mobile: true,
+      loading: false
     }
   },
+  created() {
+    const userInfo = GetUserInfo().userInfo || {};
+    this.mobile = !userInfo.mobile;
+    if (userInfo.userId) {
+      uni.redirectTo({
+        url: '/pages/Home/index'
+      })
+    }
+  },
+  mounted() {
+    this.backUrl = getLocalParmas().search.backUrl
+  },
   methods: {
-    getphonenumber(res){
-      console.log(res)
+    getphonenumber(res) {
+      this.loading = true
+      Login.loginByPhone({encryptedData: res.detail.encryptedData, iv: res.detail.iv}, {
+        onSuccess: (res) => {
+          getApp().globalData.token = res
+          this.mobile = false
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
-    requestPromise(url) {
-      Login.login({
+    submit(url) {
+      if (!this.username) {
+        return Message.errorToast('账号不能为空');
+      } else if (!this.password) {
+        return Message.errorToast('密码不能为空');
+      }
+      this.loading = true
+      Login.wxCpLogin({
         username: this.username,
         password: this.password
       }, {
         onSuccess: (res) => {
+          this.$store.commit('userInfo/clear')
           getApp().globalData.token = res
-          uni.redirectTo({
-            url: url || this.backUrl,
-          })
-        },
-        onError: () => {
-          uni.showToast({
-            title: '失败',
-          });
+          this.goBack(url)
         }
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    goBack(url) {
+      uni.redirectTo({
+        url: (url || this.backUrl).replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
       })
     }
   },

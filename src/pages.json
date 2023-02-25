@@ -8,15 +8,9 @@
   },
   "pages": [
     {
-      "path": "pages/Receipt/ReceiptDetail/index",
+      "path": "pages/Home/index",
       "style": {
-        "navigationBarTitleText": "审批详情"
-      }
-    },
-    {
-      "path": "pages/Erp/Sku/SkuAdd/index",
-      "style": {
-        "navigationBarTitleText": "添加物料"
+        "navigationBarTitleText": "首页"
       }
     },
     {
@@ -26,22 +20,57 @@
       }
     },
     {
-      "path": "pages/Erp/OutStock/OutStockDetail/index",
-      "style": {
-        "navigationBarTitleText": "出库详情"
-      }
-    },
-    {
-      "path": "pages/Erp/OutStock/OutStockAction/index",
-      "style": {
-        "navigationBarTitleText": "出库操作"
-      }
-    },
-    {
       "path": "pages/login/index",
       "style": {
         "navigationBarTitleText": "登录"
       }
+    },
+    {
+      "path": "pages/Error/index",
+      "style": {
+        "navigationBarTitleText": "初始化失败"
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "Erp",
+      "pages": [
+        {
+          "path": "Receipt/ReceiptList/index",
+          "style": {
+            "navigationBarTitleText": "出库任务列表"
+          }
+        },{
+          "path": "Receipt/ReceiptDetail/index",
+          "style": {
+            "navigationBarTitleText": "审批详情"
+          }
+        },
+        {
+          "path": "Sku/SkuAdd/index",
+          "style": {
+            "navigationBarTitleText": "添加物料"
+          }
+        },
+        {
+          "path": "OutStock/OutStockDetail/index",
+          "style": {
+            "navigationBarTitleText": "出库详情"
+          }
+        },
+        {
+          "path": "OutStock/OutStockAction/index",
+          "style": {
+            "navigationBarTitleText": "出库操作"
+          }
+        }, {
+          "path": "OutStock/OutStockConfirm/index",
+          "style": {
+            "navigationBarTitleText": "出库确认"
+          }
+        }
+      ]
     }
   ],
   "globalStyle": {
@@ -69,7 +98,9 @@
       "van-stepper": "/wxcomponents/van-stepper/index",
       "van-uploader": "/wxcomponents/vant-uploader/index",
       "van-picker": "/wxcomponents/vant-picker/index",
-      "van-search": "/wxcomponents/search/index"
+      "van-search": "/wxcomponents/search/index",
+      "van-tabbar": "/wxcomponents/tabbar/index",
+      "van-tabbar-item": "/wxcomponents/tabbar-item/index"
     }
   }
 }

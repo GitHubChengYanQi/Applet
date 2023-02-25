@@ -14,7 +14,6 @@ const successToast = (
     if (!wait) {
         afterClose();
     }
-    Toast.clear()
     Toast({
         forbidClick: wait,
         message: title || '成功！',
@@ -56,6 +55,7 @@ const MyDialog = (
     }) => {
     if (only) {
         Dialog.alert({
+            zIndex: 9999,
             title,
             message: content,
             confirmButtonText: confirmText,
@@ -63,6 +63,7 @@ const MyDialog = (
         })
     } else {
         Dialog.confirm({
+            zIndex: 9999,
             title,
             message: content,
             confirmButtonText: confirmText,
