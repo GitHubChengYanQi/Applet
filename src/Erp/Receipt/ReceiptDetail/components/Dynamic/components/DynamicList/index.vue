@@ -9,7 +9,7 @@
       >
 
         <view class='avatar'>
-          <image :src='user(item).avatar' />
+          <Avatar :size="24" :src='user(item).avatar' />
         </view>
 
         <view>
@@ -53,9 +53,11 @@
 
 <script>
 import {isArray, isObject, timeDifference} from "../../../../../../../util/Tools";
+import Avatar from "../../../../../../../components/Avatar";
 
 export default {
   name: 'DynamicList',
+  components: {Avatar},
   props: [
     'remarks'
   ],

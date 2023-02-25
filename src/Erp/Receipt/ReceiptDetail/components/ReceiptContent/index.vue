@@ -75,7 +75,7 @@
 
 <script>
 
-import OutStockDetail from "../../../../OutStock/OutStockDetail";
+import OutStockDetail from "../../../../OutStock/OutStockDetail/page";
 import Footer from "./components/Footer";
 import {ReceiptsEnums} from "../../../ReceiptsEnums";
 import Process from './components/Process'

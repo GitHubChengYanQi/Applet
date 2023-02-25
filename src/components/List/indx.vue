@@ -25,7 +25,6 @@ export default {
     'topBottom',
     'defaultSorter',
     'noEmpty',
-    'manual',
     'options',
     'noTips',
     'pullDisabled',
@@ -92,7 +91,8 @@ export default {
       })
     },
     submit(value, sorter, pull) {
-      this.hasMore = false
+      this.moreStatus = 'loading'
+      this.hasMore = true
       this.page = 1
       this.data = []
       this.params = value

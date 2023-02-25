@@ -7,7 +7,7 @@ export const outPickListFormat = (list = []) => {
         ToolUtil.isArray(item.cartResults).map(item => perpareNumber += item.number);
 
         const received = Number(item.receivedNumber) || 0;
-        const collectable = Number(perpareNumber) || 0;
+        const collectable = Number(perpareNumber - received) || 0;
         const notPrepared = Number(item.number - collectable - received) || 0;
 
         countNumber += (item.number || 0);
@@ -26,31 +26,34 @@ export const outPickListFormat = (list = []) => {
     };
 };
 
-export const outPickListFormatSort = (list = []) => {
+export const outPickListFormatSort = (list = [], showAll) => {
     let countNumber = 0;
     const actions = [];
     const noAction = [];
     const other = [];
+    const receivedSkus = []
 
     list.map(item => {
         let perpareNumber = 0;
         ToolUtil.isArray(item.cartResults).map(item => perpareNumber += item.number);
 
         const received = Number(item.receivedNumber) || 0;
-        const collectable = Number(perpareNumber) || 0;
+        const collectable = Number(perpareNumber - received) || 0;
         const notPrepared = Number(item.number - collectable - received) || 0;
 
 
         if (item.number > received) {
             if (item.number === (received + collectable) || !item.stockNumber) {
                 if (notPrepared > 0) {
-                    other.push({ ...item, perpareNumber, received, collectable, notPrepared });
+                    other.push({...item, perpareNumber, received, collectable, notPrepared});
                 } else {
-                    noAction.push({ ...item, perpareNumber, received, collectable, notPrepared });
+                    noAction.push({...item, perpareNumber, received, collectable, notPrepared});
                 }
             } else {
-                actions.push({ ...item, perpareNumber, received, collectable, notPrepared, action: true });
+                actions.push({...item, perpareNumber, received, collectable, notPrepared, action: true});
             }
+        } else if (showAll) {
+            receivedSkus.push({...item, perpareNumber, received, collectable, notPrepared})
         }
         return countNumber += (item.number || 0);
     });
@@ -62,6 +65,7 @@ export const outPickListFormatSort = (list = []) => {
                 return a.notPrepared - b.notPrepared;
             }),
             ...noAction,
+            ...receivedSkus
         ],
     };
 };

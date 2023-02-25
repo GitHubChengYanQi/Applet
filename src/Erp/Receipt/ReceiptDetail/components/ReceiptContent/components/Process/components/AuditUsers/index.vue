@@ -15,7 +15,7 @@
                   :type="itemData(item).stepsStatus === 'success' ? 'checkbox-filled' : 'clear'"
               />
             </view>
-            <image :src='old ? item.avatar : item.auditUserResult.avatar' />
+            <Avatar :src='old ? item.avatar : item.auditUserResult.avatar' />
           </view>
           {{ old ? item.name : item.auditUserResult.name }}
         </view>
@@ -30,8 +30,10 @@
 
 <script>
 import {MyDate} from "../../../../../../../../../util/Tools";
+import Avatar from "../../../../../../../../../components/Avatar";
 
 export default {
+  components: {Avatar},
   props: ['users', 'step', 'old'],
   data() {
     return {

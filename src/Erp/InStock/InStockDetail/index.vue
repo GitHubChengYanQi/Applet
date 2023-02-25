@@ -209,7 +209,7 @@ export default {
       return this.seacrchValue ? this.filterData : this.details;
     },
     inWaitInShop(formStatus, item, index, type) {
-      const publicInfo = getApp().globalData.publicInfo
+      const publicInfo = this.$store.state.userInfo.publicInfo
       const skuResult = item.skuResult || {};
       const imgUrl = isArray(skuResult.imgResults)[0]?.thumbUrl || publicInfo.homeLogo;
 

@@ -16,6 +16,7 @@
         </view>
         <view class='skuData'>
           <ShopNumber
+              show
               :max="itemFormat().collectable"
               :min="1"
               :value="skuItem.outNumber"

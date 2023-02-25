@@ -65,7 +65,7 @@ export default {
     }
   },
   mounted() {
-    this.userInfo = getApp().globalData.userInfo || {}
+    this.userInfo = this.$store.state.userInfo.userInfo
   },
   methods: {
     actionsData() {

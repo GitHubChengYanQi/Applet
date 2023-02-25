@@ -1,7 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 2837038 */
-  src: 
-       url('~@/static/iconfont.ttf?t=1668064490488') format('truetype');
+  src: url('~@/static/font/iconfont.woff2?t=1677221159295') format('woff2'),
+       url('~@/static/font/iconfont.woff?t=1677221159295') format('woff'),
+       url('~@/static/font/iconfont.ttf?t=1677221159295') format('truetype');
 }
 
 .iconfont {
@@ -10,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-wuliaojiage:before {
+  content: "\e6dd";
+}
+
+.icon-calendar:before {
+  content: "\e6dc";
+}
+
+.icon-kucunyujing:before {
+  content: "\e6db";
 }
 
 .icon-rukuzongshu:before {

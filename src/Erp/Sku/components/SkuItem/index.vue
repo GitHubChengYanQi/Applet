@@ -94,7 +94,7 @@ export default {
   mounted() {
     const spuResult = this.skuResult.spuResult || {};
     this.unitResult = spuResult.unitResult || {}
-    this.publicInfo = getApp()?.globalData?.publicInfo
+    this.publicInfo = this.$store.state.userInfo.publicInfo
     this.skuImgSize = this.imgSize || 74
   },
   methods: {

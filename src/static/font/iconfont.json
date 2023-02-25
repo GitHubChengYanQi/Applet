@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "33745997",
+      "name": "物料价格",
+      "font_class": "wuliaojiage",
+      "unicode": "e6dd",
+      "unicode_decimal": 59101
+    },
+    {
+      "icon_id": "33500075",
+      "name": "日历",
+      "font_class": "calendar",
+      "unicode": "e6dc",
+      "unicode_decimal": 59100
+    },
+    {
+      "icon_id": "33484372",
+      "name": "库存预警",
+      "font_class": "kucunyujing",
+      "unicode": "e6db",
+      "unicode_decimal": 59099
+    },
+    {
       "icon_id": "32452434",
       "name": "入库总数",
       "font_class": "rukuzongshu",
