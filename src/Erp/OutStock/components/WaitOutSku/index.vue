@@ -121,10 +121,10 @@ export default {
       });
       OutStock.shopBack({productionPickListsCartParams}, {
         onSuccess: () => {
-          this.returnSkus = []
           Message.successToast('移出成功!');
           this.$emit('listRefresh')
           this.$emit('refresh', this.returnSkus)
+          this.returnSkus = []
         }
       })
     },

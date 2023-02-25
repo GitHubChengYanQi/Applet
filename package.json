@@ -30,7 +30,7 @@
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
     "Local-MES-Apis": "../MES-Apis",
-    "MES-Apis": "0.0.33",
+    "MES-Apis": "0.0.35",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "^0.6.2",

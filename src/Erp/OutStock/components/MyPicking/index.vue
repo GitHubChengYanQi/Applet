@@ -191,26 +191,18 @@ export default {
       }
     },
     click() {
-      const cartsParams = [];
+      const cartIds = []
       this.checkData().checkSku.map(skuItem => {
         const cartResults = skuItem.cartResults || [];
-        const brandIds = [];
         cartResults.forEach(item => {
-          if (!brandIds.includes(item.brandId)) {
-            brandIds.push(item.brandId || '0');
+          if (item.storehouseId === this.storehouse.storehouseId) {
+            cartIds.push(item.pickListsCart)
           }
-        });
-        return cartsParams.push({
-          storehouseId: this.storehouse.storehouseId,
-          skuId: skuItem.skuId,
-          pickListsId: skuItem.pickListsId,
-          number: skuItem.outNumber,
-          brandIds,
         });
       });
       this.createCodeLoading = true
       OutStock.createPickCode({
-        cartsParams,
+        cartIds,
       }, {
         onSuccess: (res) => {
           this.$emit('onSuccess', res.data)

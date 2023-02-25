@@ -33,7 +33,7 @@
           :pickId='pickId'
           :pickListsDetailId='skuItem.pickListsDetailId'
           :skuId='skuItem.skuId'
-          :outStockNumber='allocation ? skuItem.number : skuItem.number - parseInt(skuItem.receivedNumber || 0) - skuItem.perpareNumber'
+          :outStockNumber='allocation ? skuItem.number : skuItem.notPrepared'
           @onChange="(array)=>outStockSkus = [...array]"
       />
     </view>

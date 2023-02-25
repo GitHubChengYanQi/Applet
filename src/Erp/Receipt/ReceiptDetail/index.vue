@@ -43,7 +43,7 @@
           />
         </view>
         <view v-if="tabKey === 'log'"><Log :type='type' :detail='detailData'  /></view>
-        <view v-if="tabKey === 'dynamic'"><Dynamic :taskId="detailData.taskId" /> </view>
+        <view v-if="tabKey === 'dynamic'"><Dynamic :taskId="detailData.processTaskId" /> </view>
         <view v-if="tabKey === 'relation'"><Relation /></view>
       </view>
     </view>
@@ -87,16 +87,14 @@ export default {
     }
   },
   mounted() {
-
+    this.getTaskDetail()
   },
   methods: {
     logined() {
-      this.getTaskDetail()
+
     },
     notLogin() {
-      uni.redirectTo({
-        url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
-      })
+
     },
     getTaskDetail() {
       const taskId = getLocalParmas().search.id

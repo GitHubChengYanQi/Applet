@@ -55,6 +55,7 @@ const MyDialog = (
     }) => {
     if (only) {
         Dialog.alert({
+            zIndex: 9999,
             title,
             message: content,
             confirmButtonText: confirmText,
@@ -62,6 +63,7 @@ const MyDialog = (
         })
     } else {
         Dialog.confirm({
+            zIndex: 9999,
             title,
             message: content,
             confirmButtonText: confirmText,
