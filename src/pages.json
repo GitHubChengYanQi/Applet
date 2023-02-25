@@ -20,6 +20,12 @@
       }
     },
     {
+      "path": "pages/Erp/Sku/SkuDetail/index",
+      "style": {
+        "navigationBarTitleText": "物料详情"
+      }
+    },
+    {
       "path": "pages/Erp/OutStock/OutStockDetail/index",
       "style": {
         "navigationBarTitleText": "出库详情"
