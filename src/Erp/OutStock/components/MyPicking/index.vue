@@ -174,6 +174,7 @@ export default {
         skuName: itemSku.skuName,
         specifications: itemSku.specifications,
         imgResults: media ? [{thumbUrl: media.thumbUrl}] : [],
+        stockNumber:itemSku.stockNum
       }
     },
     checkData() {
@@ -214,8 +215,12 @@ export default {
         });
       });
       this.createCodeLoading = true
-      OutStock.createPickCode({
-        // cartIds,
+      console.log(JSON.stringify({
+        cartIds,
+        cartsParams,
+      }))
+      OutStock.createPickCodeV2_0({
+        cartIds,
         cartsParams,
       }, {
         onSuccess: (res) => {

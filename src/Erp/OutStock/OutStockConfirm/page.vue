@@ -66,7 +66,8 @@ export default {
   methods: {
     onClick() {
       const current = this
-      OutStock.outStock({
+      this.outStockLoading = true
+      OutStock.outStockV2_0({
         code: current.code
       }, {
         onSuccess() {
@@ -75,11 +76,13 @@ export default {
               },
           );
         }
+      }).finally(() => {
+        this.outStockLoading = false
       });
     },
     onSuccess(code) {
       this.code = code
-      this.outStockLoading = true
+      this.loading = true
       const current = this
       OutStock.listByCode({code}, {
         onSuccess(res) {
@@ -89,7 +92,7 @@ export default {
           Message.errorToast('此领料码未查询到物料或码已被使用')
         },
       }).finally(() => {
-        this.outStockLoading = false
+        this.loading = false
       });
     }
   }

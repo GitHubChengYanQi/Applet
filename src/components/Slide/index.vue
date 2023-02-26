@@ -1,6 +1,6 @@
 <template>
   <view>
-    <van-swipe-cell :disabled="disabled" :id="swipeId" :right-width="width" :left-width="width" @open="open">
+    <van-swipe-cell :disabled="disabled" :id="swipeId" :right-width="500" :left-width="500" @open="open">
       <view slot="left"></view>
       <slot></slot>
       <view slot="right"></view>
@@ -18,7 +18,7 @@ export default {
     }
   },
   mounted() {
-    this.width = uni.getWindowInfo().screenWidth
+    // this.width = uni.getWindowInfo().screenWidth
   },
   methods: {
     open(event) {
