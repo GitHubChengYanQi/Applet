@@ -1,9 +1,9 @@
 <template>
   <view>
-    <van-toast id="van-toast" />
-    <van-dialog id="van-dialog" />
+    <van-toast id="van-toast"/>
+    <van-dialog id="van-dialog"/>
     <view v-if="loading">
-      <Loading :skeleton="true" />
+      <Loading :skeleton="true"/>
     </view>
     <view v-else>
       <van-tabs color="#007aff" border line-width="30%" @change="change">
@@ -22,6 +22,8 @@
           <OnePrepare
               v-if="tabKey === 1"
               ref='onePrepareRef'
+              @closePrepare="prepare=false"
+              @openPrepare="prepare=true"
               :positionIds='detail.positionIds'
               :taskId='query.taskId'
               :action="query.action === 'true'"
@@ -32,7 +34,7 @@
       </van-tabs>
 
       <OutStockShop
-          v-if="query.action === 'true'"
+          v-if="query.action === 'true' && !prepare"
           :taskId='query.taskId'
           :outType='query.source'
           :pickListsId='query.pickListsId'
@@ -58,7 +60,8 @@ export default {
       detail: {},
       shopRef: 'shopRef',
       loading: false,
-      tabKey: 0
+      tabKey: 0,
+      prepare: false,
     }
   },
   mounted() {

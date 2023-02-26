@@ -61,12 +61,12 @@ export default {
     }
   },
   mounted() {
-    console.log(7718)
+
   },
   methods: {
     onClick() {
       const current = this
-      OutStock.outStockV2_0({
+      OutStock.outStock({
         code: current.code
       }, {
         onSuccess() {

@@ -21,7 +21,7 @@
     <Keybord
         :decimal='decimal'
         :visible='visible'
-        @visiblChange="(visi)=>visible = visi"
+        @visiblChange="visiblChange"
         :value='value'
         :min='min'
         :max='max'
@@ -61,8 +61,13 @@ export default {
   methods: {
     click() {
       if (!this.show) {
+        this.$store.commit('shopNumber/openChange', true)
         this.visible = true
       }
+    },
+    visiblChange(visible) {
+      this.$store.commit('shopNumber/openChange', visible)
+      this.visible = visible
     }
   }
 }

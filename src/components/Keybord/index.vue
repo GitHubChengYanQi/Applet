@@ -3,7 +3,7 @@
     <van-popup
         :overlay-style="overlayStyle"
         :show="visible"
-        :z-index="101"
+        :z-index="999"
         @close="$emit('visiblChange',false)"
         position="bottom"
     >

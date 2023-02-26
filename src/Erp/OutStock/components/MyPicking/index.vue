@@ -52,11 +52,11 @@
 
 <script>
 import {OutStock} from "MES-Apis/src/OutStock/promise";
-import {isArray} from "../../../../util/Tools";
 import LinkButton from "../../../../components/LinkButton";
 import OutItem from "./components";
 import Loading from "../../../../components/Loading";
 import {Sku} from "MES-Apis/src/Sku/promise";
+import {isArray} from "@/util/Tools";
 
 export default {
   name: 'MyPicking',
@@ -214,8 +214,8 @@ export default {
         });
       });
       this.createCodeLoading = true
-      OutStock.createPickCodeV2_0({
-        cartIds,
+      OutStock.createPickCode({
+        // cartIds,
         cartsParams,
       }, {
         onSuccess: (res) => {

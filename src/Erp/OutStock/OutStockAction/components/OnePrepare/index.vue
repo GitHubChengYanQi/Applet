@@ -1,9 +1,9 @@
 <template>
   <view>
     <view v-if="loading">
-      <Loading skeleton="" />
+      <Loading skeleton=""/>
     </view>
-    <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成" />
+    <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成"/>
     <view class="onePrepare" v-else>
       <view style="padding: 0 8px">
         <Search
@@ -13,7 +13,7 @@
             :value="searchValue"
         >
           <template slot="extraIcon">
-            <van-icon name="aim" @click="positionVisible = true" />
+            <van-icon name="aim" @click="positionVisible = true"/>
           </template>
         </Search>
       </view>
@@ -30,8 +30,8 @@
           <Slide
               :swipeId="'outStockItem'+index"
               :disabled="!action || !item.action"
-              @onLeft="show = true;skuItem=item"
-              @onRight="show = true;skuItem=item"
+              @onLeft="openPrepare(item)"
+              @onRight="openPrepare(item)"
           >
             <OutStockItem
                 :item="itemFormat(item)"
@@ -51,16 +51,17 @@
     </view>
 
     <van-popup
+        :z-index="999"
         :show="show"
         position="bottom"
-        @close="show = false;skuItem={}"
+        @close="closePrepare"
     >
       <PrePare
           :taskId='taskId'
           :pickId='pickListsId'
           :skuItem='skuItem'
           @onSuccess="(detail)=>onPrepare(detail)"
-          @onClose="show = false;skuItem={}"
+          @onClose="closePrepare"
       />
     </van-popup>
   </view>
@@ -106,6 +107,16 @@ export default {
     this.getDetailList()
   },
   methods: {
+    openPrepare(item) {
+      this.$emit('openPrepare')
+      this.show = true
+      this.skuItem = item
+    },
+    closePrepare() {
+      this.$emit('closePrepare')
+      this.show = false
+      this.skuItem = {}
+    },
     lower() {
       if (!this.hasMore) {
         return

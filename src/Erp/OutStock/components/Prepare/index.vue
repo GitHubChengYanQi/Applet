@@ -1,6 +1,6 @@
 <template>
   <view>
-    <Loading :loading="loading" />
+    <Loading :loading="loading"/>
     <view class='header'>
       {{ allocation ? '调拨' : '备料' }}
     </view>
@@ -39,6 +39,7 @@
     </view>
 
     <BottomButton
+        v-if="!numberOpen"
         @leftOnClick="$emit('onClose')"
         :rightDisabled='outStockSkus.length === 0'
         rightText='确定'
@@ -71,6 +72,12 @@ export default {
       loading: false
     }
   },
+  computed: {
+    numberOpen() {
+      console.log(this.$store.state.shopNumber.open)
+      return this.$store.state.shopNumber.open
+    }
+  },
   methods: {
     scanClick() {
       // inkindRef.current.open({
@@ -96,11 +103,11 @@ export default {
       this.$emit('onClose')
       // const imgUrl = ToolUtil.isArray(skuResult.imgResults)[0]?.thumbUrl || state.homeLogo;
       // addShopCart(imgUrl, 'pickSkuImg');
-      setTimeout(()=>{
+      setTimeout(() => {
         let number = 0;
         this.outStockSkus.forEach(item => number += item.number);
         this.$emit('onSuccess', {...skuItem, number})
-      },500)
+      }, 500)
     },
     cartAdd(warning) {
       const current = this

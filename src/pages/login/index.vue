@@ -13,7 +13,7 @@
             <uni-easyinput  class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
           </uni-forms-item>
           <uni-forms-item :label-width="40" label="密码">
-            <uni-easyinput class="uni-input" name="password" v-model="password" placeholder="请输入密码" />
+            <uni-easyinput class="uni-input" type="password" name="password" v-model="password" placeholder="请输入密码" />
           </uni-forms-item>
           <view class="uni-btn-v">
             <button :loading="loading" form-type="submit" type="default" @click="()=>submit()">立即登录</button>
