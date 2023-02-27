@@ -23,7 +23,6 @@
           :actionNode='receiptData().actionNode'
           :logIds='receiptData().logIds'
           :taskId='detailData.processTaskId'
-          @afertShow='() => bottomButton = true'
           :permissions='permissions'
           :data='detailData.receipts'
           :actions='receiptData().actions'
@@ -54,14 +53,14 @@
       </uni-section>
     </view>
 
-    <view class="comment">
+    <view v-if="false" class="comment">
       <view class="addComment">
         <uni-icons type="compose" size="20"></uni-icons>
         添加评论
       </view>
     </view>
 
-    <div v-if="bottomButton" style="height: 90px" />
+    <div style="height: 90px" />
 
     <Footer
         v-if="!loading"

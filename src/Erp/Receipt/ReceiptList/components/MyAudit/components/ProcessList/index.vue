@@ -6,7 +6,7 @@
         @request="Process.auditList"
         :list="list"
         @listSource="(newList)=>list = newList"
-        :default-params="{type:'OUTSTOCK'}"
+        :default-params="{type:'OUTSTOCK',status:7}"
     >
       <view
           v-for="(item,index) in list"
@@ -22,6 +22,7 @@
             v-if="item.type === ReceiptsEnums.outstockOrder"
             :noProgress="noProgress"
             @onClick="onClick"
+            @deleteTask="list = list.filter(listItem=>listItem.processTaskId !== item.processTaskId)"
             :item="item"
         />
         <MaintenaceItem
@@ -100,7 +101,7 @@ export default {
   },
   methods: {
     onClick(item) {
-      uni.redirectTo({
+      uni.navigateTo({
         url: `/Erp/Receipt/ReceiptDetail/index?id=${item.processTaskId}`,
       })
     },

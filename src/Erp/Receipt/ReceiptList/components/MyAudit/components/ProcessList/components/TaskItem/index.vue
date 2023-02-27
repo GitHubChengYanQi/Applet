@@ -31,9 +31,8 @@
           <Elliptsis width='100%'>{{ otherData }}</Elliptsis>
         </div>
         <div class='process' v-if="!noProgress">
-          <slot name="processRender">
-            <MyProgress :percent='percent' />
-          </slot>
+          <slot name="processRender" />
+          <Process v-if="!$slots.processRender" :progress="progress" />
         </div>
       </view>
     </view>
@@ -46,10 +45,11 @@
 import Elliptsis from "../../../../../../../../../components/Ellipsis";
 import {isArray, timeDifference} from "../../../../../../../../../util/Tools";
 import Avatar from "../../../../../../../../../components/Avatar";
+import Process from "../../../../../../../../components/Process";
 
 export default {
   name: 'TaskItem',
-  components: {Avatar, Elliptsis},
+  components: {Process, Avatar, Elliptsis},
   props: [
     'taskName',
     'createTime',
@@ -66,8 +66,15 @@ export default {
   data() {
     return {
       isArray,
-      timeDifference
+      timeDifference,
+      progress: []
     }
+  },
+  mounted() {
+    this.progress = [
+      {num: this.percent, color: '#257BDE'},
+      {num: 100 - this.percent, color: '#E8E8E8'}
+    ]
   },
   methods: {
     statusColor() {

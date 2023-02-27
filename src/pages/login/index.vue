@@ -50,7 +50,7 @@ export default {
     const userInfo = GetUserInfo().userInfo || {};
     this.mobile = !userInfo.mobile;
     if (userInfo.userId) {
-      uni.redirectTo({
+      uni.navigateTo({
         url: '/pages/Home/index'
       })
     }
@@ -91,7 +91,7 @@ export default {
       })
     },
     goBack(url) {
-      uni.redirectTo({
+      uni.navigateTo({
         url: (url || this.backUrl).replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
       })
     }

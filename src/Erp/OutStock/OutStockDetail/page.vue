@@ -37,7 +37,6 @@
         v-if="actionNode"
         :taskDetail='taskDetail'
         :statusName='data.statusName'
-        @afertShow="$emit('afertShow')"
         :taskId='taskId'
         :logIds='logIds'
         :createUser='taskDetail.createUser'
@@ -150,7 +149,7 @@ export default {
       })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
     },
     goToDetail() {
-      uni.redirectTo({
+      uni.navigateTo({
         url: `/Erp/OutStock/OutStockAction/index?pickListsId=${this.data.pickListsId}&taskId=${this.taskId}&theme=${this.taskDetail.theme}&action=${(this.action || false) + ''}&source=${this.data.source}`,
       })
     },

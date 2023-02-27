@@ -11,6 +11,7 @@
           <view class='skuItem' style='padding-bottom: 8px'>
             <view class='item'>
               <SkuItem
+                  :unitName="item.skuResult.unitName"
                   :number='item.stockNumber || 0'
                   :skuResult='item.skuResult'
                   extraWidth='124px'

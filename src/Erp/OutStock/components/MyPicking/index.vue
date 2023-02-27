@@ -215,11 +215,7 @@ export default {
         });
       });
       this.createCodeLoading = true
-      console.log(JSON.stringify({
-        cartIds,
-        cartsParams,
-      }))
-      OutStock.createPickCodeV2_0({
+      OutStock.createPickCode({
         cartIds,
         cartsParams,
       }, {

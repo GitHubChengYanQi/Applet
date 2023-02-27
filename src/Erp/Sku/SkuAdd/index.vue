@@ -358,7 +358,7 @@
 				this.show = false
 			},
 			notLogin() {
-				uni.redirectTo({
+				uni.navigateTo({
 					url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
 				});
 			}

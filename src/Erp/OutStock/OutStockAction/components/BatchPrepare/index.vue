@@ -45,7 +45,7 @@
             <view v-if="loading">
               <Loading :skeleton="true" />
             </view>
-            <view v-if="total().num">
+            <view v-else-if="total().num">
               <view
                   v-for="(item,index) in data"
                   :key="index"
@@ -54,18 +54,21 @@
                     :class="['skuContent', item.complete && type === 'all' && 'complete']"
                     v-if="skuNumberShow(item)"
                 >
+                  <view class='img'>
+                    <image
+                        :src='item.thumbUrl || publicInfo.imgLogo'
+                        alt=''
+                    />
+                    <view class='number'>
+                      {{ item.stockNumber || 0 }}{{ item.skuResult.unitName }}
+                    </view>
+                  </view>
                   <view class="sku">
-                    {{
-                      SkuResultSkuJsons({
-                        skuResult: {
-                          spuResult: {
-                            name: item.skuResult.spuName,
-                          },
-                          skuName: item.skuResult.skuName,
-                          specifications: item.skuResult.specifications,
-                        },
-                      })
-                    }}
+                    <view class="skuShow">
+                      {{
+                        SkuResultSkuJsons(skuResult(item))
+                      }}
+                    </view>
                   </view>
                   <view>
                     X {{ skuNumberShow(item) }}
@@ -103,6 +106,7 @@ import {outPickListFormatSort} from "../../index";
 import BottomButton from "../../../../../components/BottomButton";
 import {Message} from "../../../../../components/Message";
 import Empty from "../../../../../components/Empty";
+import {Sku} from "MES-Apis/src/Sku/promise";
 
 export default {
   components: {Empty, BottomButton, Loading},
@@ -119,8 +123,8 @@ export default {
       type: 'notPrepared',
       types: [
         {title: '全部', name: 'all'},
-        {title: '已备', name: 'perpare'},
         {title: '未备', name: 'notPrepared'},
+        {title: '已备', name: 'perpare'},
         {title: '已领', name: 'received'}
       ]
     }
@@ -128,22 +132,57 @@ export default {
   mounted() {
     this.detailList()
   },
+  computed: {
+    publicInfo() {
+      return this.$store.state.userInfo.publicInfo
+    }
+  },
   methods: {
+    skuResult(item) {
+      return {
+        skuResult: {
+          spuResult: {
+            name: item.skuResult.spuName,
+          },
+          skuName: item.skuResult.skuName,
+          specifications: item.skuResult.specifications,
+          unitName: item.skuResult.unitName
+        },
+      }
+    },
     async detailList() {
       if (!this.pickListsId) {
         return
       }
       this.loading = true
-      const res = await OutStock.outStockDetailList({pickListsId: this.pickListsId}).finally(() => {
-        this.loading = false
+      const res = await OutStock.outStockDetailList({pickListsId: this.pickListsId})
+      const {countNumber, array, receivedTotal, collectableTotal} = outPickListFormatSort(isArray(res?.data), true);
+      const skuMediaUrls = await Sku.getMediaUrls({
+        mediaIds: array.map(item => item.skuResult?.images?.split(',')[0]),
+        option: 'image/resize,m_fill,h_74,w_74',
       })
-      const {countNumber, array} = outPickListFormatSort(isArray(res.data), true);
       this.countNumber = countNumber
-      this.data = array.map(item => ({
-        ...item,
-        complete: item.notPrepared === 0,
-        skuResult: item.skuResult || {}
-      }))
+      const data = array.map(item => {
+        const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        return {
+          ...item,
+          complete: item.notPrepared === 0,
+          skuResult: item.skuResult || {},
+          thumbUrl: media.thumbUrl
+        }
+      })
+      this.data = data
+      this.type = this.types.find(item => {
+        if (item.name !== 'all') {
+          return this.total(item.name, data).num
+        }
+        return false
+      }).name
+      this.loading = false
+      return {
+        received: receivedTotal,
+        collectable: collectableTotal,
+      }
     },
     onClick() {
       Message.dialog({
@@ -168,24 +207,34 @@ export default {
       this.$store.dispatch('bouncing/jump', {
         name: 'outStockShop',
         number: all - res.length,
-        after: () => {
-          this.detailList();
+        after: async () => {
           Message.dialog({
             title: '备料成功',
             content: `已备${all - res.length}个,库存不足${res.length}个`,
             only: true,
           });
+          const detailInfo = await this.detailList();
+          uni.$emit('outStockAction', {
+            taskId: this.taskId,
+            collectable: detailInfo.collectable,
+            received: detailInfo.received
+          })
         }
       })
     },
-    refresh() {
-      this.detailList()
+    async refresh() {
+      const detailInfo = await this.detailList()
+      uni.$emit('outStockAction', {
+        taskId: this.taskId,
+        collectable: detailInfo.collectable,
+        received: detailInfo.received
+      })
     },
     onChange({detail: {name}}) {
       this.type = name
     },
-    skuNumberShow(item) {
-      switch (this.type) {
+    skuNumberShow(item, type) {
+      switch (type || this.type) {
         case "all":
           return item.number
         case 'perpare':
@@ -198,8 +247,8 @@ export default {
           break;
       }
     },
-    total() {
-      switch (this.type) {
+    total(type, data) {
+      switch (type || this.type) {
         case "all":
           return {
             num: this.data.length,
@@ -209,8 +258,8 @@ export default {
         case 'notPrepared':
         case 'received':
           let number = 0
-          const num = this.data.filter(item => {
-            const skuNumber = this.skuNumberShow(item)
+          const num = (data || this.data).filter(item => {
+            const skuNumber = this.skuNumberShow(item, type)
             number += skuNumber
             return skuNumber
           }).length
@@ -256,12 +305,18 @@ export default {
 
   .skuContent {
     display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 16px;
     padding: 8px 0;
 
     .sku {
       flex-grow: 1;
       padding-right: 12px;
+
+      .skuShow {
+        max-width: 60vw;
+      }
     }
   }
 
@@ -283,5 +338,38 @@ export default {
 
 .bottom {
   margin-bottom: 70px;
+}
+
+.img {
+  border-radius: 4px;
+  border: solid #F1F1F1 1px;
+  overflow: hidden;
+  position: relative;
+  height: 40px;
+  width: 40px;
+
+  image {
+    filter: grayscale(50%);
+    height: 40px;
+    width: 40px;
+  }
+
+  .number {
+    font-size: 12px;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    color: #fff;
+    background-color: rgba(27, 27, 27, 0.5);
+
+    .error {
+      margin-left: 4px;
+
+      svg {
+        font-size: 12px;
+      }
+    }
+  }
 }
 </style>

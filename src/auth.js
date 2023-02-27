@@ -8,7 +8,7 @@ const Auth = {}
 export const errorHandler = () => {
     getApp().globalData.error = true
     getApp().globalData.token = ''
-    uni.redirectTo({
+    uni.navigateTo({
         url: "/pages/Error/index",
     })
 }

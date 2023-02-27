@@ -74,7 +74,6 @@ export default {
   },
   computed: {
     numberOpen() {
-      console.log(this.$store.state.shopNumber.open)
       return this.$store.state.shopNumber.open
     }
   },

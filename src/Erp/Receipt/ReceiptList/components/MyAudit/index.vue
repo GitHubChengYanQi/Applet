@@ -11,7 +11,7 @@
     <view>
       <ProcessList
           ref="listRef"
-          :noProgress="!createUser"
+          :noProgress="createUser"
       />
     </view>
   </view>

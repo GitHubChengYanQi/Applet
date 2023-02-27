@@ -1,7 +1,7 @@
 <template>
-  <view class='actionBottom' v-if="!(actionsData().length === 0 && createUser !== userInfo.id)">
+  <view class='actionBottom'>
     <view class='actions'>
-      <view class='all' @click='more'>
+      <view class='all' v-if="createUser === userInfo.id && false" @click='more'>
         <view>更多</view>
         <uni-icons type="more-filled"></uni-icons>
       </view>

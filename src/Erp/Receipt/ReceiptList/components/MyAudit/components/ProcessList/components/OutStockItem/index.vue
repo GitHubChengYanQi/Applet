@@ -16,13 +16,11 @@
         @onClick="() => $emit('onClick',item)"
     >
       <view slot="processRender">
-        <MyProgress
-            class='outProcess'
-            :percent="percent + successPercent"
-            :success="{ percent: successPercent, strokeColor: receivedColor }"
-            :trailColor={notPreparedColor}
-            :strokeColor={collectableColor}
-        />
+        <Process :progress="[
+        {num: successPercent, color: '#257BDE'},
+        {num: percent, color: '#D3E7FD'},
+        {num: 100 - successPercent - percent, color: '#E8E8E8'},
+      ]" />
       </view>
     </TaskItem>
   </view>
@@ -31,9 +29,11 @@
 <script>
 import TaskItem from "../TaskItem";
 import {isArray} from "../../../../../../../../../util/Tools";
+import Process from "../../../../../../../../components/Process";
+
 export default {
   name: 'OutStockItem',
-  components: {TaskItem},
+  components: {Process, TaskItem},
   props: [
     'item',
     'index',
@@ -45,11 +45,15 @@ export default {
       isArray,
       receipts: {},
       can: false,
+      progress: [],
       successPercent: 0,
-      percent: 0
+      percent: 0,
+      received: 0,
+      collectable: 0
     }
   },
   mounted() {
+
     const receipts = this.item.receipts || {}
     this.receipts = receipts
     const canPick = receipts.canPick;
@@ -60,8 +64,27 @@ export default {
     const received = receipts.receivedCount || 0;
     const collectable = receipts.cartNumCount || 0;
 
-    this.successPercent = Number(((received / receipts.numberCount)).toFixed(2)) * 100;
-    this.percent = Number(((collectable / receipts.numberCount)).toFixed(2)) * 100;
+    this.progressChange(receipts, received, collectable, false);
+    const current = this
+    uni.$on('outStockAction', function (data) {
+      if (data.pickListsId === receipts.pickListsId) {
+        current.progressChange(receipts, current.received + data.received, current.collectable - data.collectable, true)
+      } else if (data.taskId === current.item.processTaskId) {
+        current.progressChange(receipts, data.received, data.collectable, true);
+      }
+    })
+  },
+  methods: {
+    progressChange(receipts, received, collectable, action) {
+      this.received = received
+      this.collectable = collectable
+      const successPercent = Number(((received / receipts.numberCount)).toFixed(2)) * 100 || 0;
+      this.percent = Number(((collectable / receipts.numberCount)).toFixed(2)) * 100 || 0;
+      this.successPercent = successPercent
+      if (successPercent === 100 && action) {
+        this.$emit('deleteTask')
+      }
+    }
   }
 }
 </script>

@@ -46,6 +46,7 @@ export default {
         const current = this
         uni.login({
           success: function (loginRes) {
+            console.log(loginRes.errMsg)
             if (loginRes.errMsg === 'login:ok') {
               Login.codeToSession({code: loginRes.code}, {
                 onSuccess: (token) => {
@@ -56,6 +57,8 @@ export default {
                   current.authError()
                 }
               })
+            }else {
+              current.authError()
             }
           }
         });
@@ -68,10 +71,10 @@ export default {
   methods: {
     tokenAuth() {
       const userInfo = GetUserInfo().userInfo || {};
-      // console.log(userInfo)
+      console.log(userInfo)
       const userId = !!userInfo.userId;
       if (!userId) {
-        uni.redirectTo({
+        uni.navigateTo({
           url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
         })
       } else {

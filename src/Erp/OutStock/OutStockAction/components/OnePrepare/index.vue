@@ -1,9 +1,9 @@
 <template>
   <view>
     <view v-if="loading">
-      <Loading skeleton=""/>
+      <Loading skeleton="" />
     </view>
-    <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成"/>
+    <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成" />
     <view class="onePrepare" v-else>
       <view style="padding: 0 8px">
         <Search
@@ -13,12 +13,11 @@
             :value="searchValue"
         >
           <template slot="extraIcon">
-            <van-icon name="aim" @click="positionVisible = true"/>
+            <van-icon name="aim" @click="positionVisible = true" />
           </template>
         </Search>
       </view>
       <scroll-view
-          :scroll-top="50"
           scroll-y="true"
           class="scroll-Y"
           @scrolltolower="lower"
@@ -107,6 +106,21 @@ export default {
     this.getDetailList()
   },
   methods: {
+    outStockAction(newDefaultData) {
+      let collectable = 0
+      let received = 0
+
+      newDefaultData.forEach(item => {
+        collectable += item.collectable
+        received += item.received
+      })
+
+      uni.$emit('outStockAction', {
+        taskId: this.taskId,
+        collectable: collectable,
+        received: received
+      })
+    },
     openPrepare(item) {
       this.$emit('openPrepare')
       this.show = true
@@ -118,15 +132,15 @@ export default {
       this.skuItem = {}
     },
     lower() {
-      if (!this.hasMore) {
+      if (!this.hasMore || this.moreStatus === 'loading') {
         return
       }
-      const newData = this.data.filter((item, index) => index >= (this.showCount + 10) && index < (this.showCount + 20));
-      this.hasMore = newData.length === 10
-      this.getImgs(this.showCount + 10, 10, this.data);
       this.moreStatus = 'loading'
+      this.getImgs(this.showCount + 10, 10, this.data);
       setTimeout(() => {
         this.moreStatus = 'more'
+        const newData = this.data.filter((item, index) => index >= (this.showCount + 10) && index < (this.showCount + 20));
+        this.hasMore = newData.length === 10
         this.showCount = this.showCount + 10
       }, 1000)
     },
@@ -157,6 +171,8 @@ export default {
           const newData = this.data.map(format);
           this.defaultData = newDefaultData
           this.data = newData
+
+          this.outStockAction(newDefaultData)
         }
       })
     },
@@ -210,6 +226,7 @@ export default {
         skuName: sku.skuName,
         specifications: sku.specifications,
         imgResults: item.imgUrl ? [{thumbUrl: item.imgUrl}] : [],
+        unitName: sku.unitName
       };
       return {...item, skuResult}
     },
@@ -245,6 +262,8 @@ export default {
       const newDefaultData = this.defaultData.map(format);
       this.data = newData
       this.defaultData = newDefaultData
+
+      this.outStockAction(newDefaultData)
     },
     search(value) {
       const newData = this.defaultData.filter(item => {
@@ -266,6 +285,6 @@ export default {
 }
 
 .scroll-Y {
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 140px);
 }
 </style>
