@@ -14,7 +14,12 @@
 
 <script>
 export default {
-  props: ['title', 'extra'],
+  props: {
+	  title:{
+		  default:""
+	  }, 
+	  extra:String
+	  },
   mounted() {
   }
 }

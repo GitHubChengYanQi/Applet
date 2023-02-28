@@ -24,7 +24,7 @@ Auth.install = function (Vue, options) {
             if (this.$mp.app) {
                 return
             }
-            Init.initBaseURL('http://192.168.3.59')
+            // Init.initBaseURL('http://192.168.3.59')
 
             Init.responseConfig({
                 loginTimeOut: () => {

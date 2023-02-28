@@ -1,72 +1,70 @@
 {
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      // uni-ui 规则如下配置
-      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
-    }
-  },
-  "pages": [
-		{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			// uni-ui 规则如下配置
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
+	"pages": [{
 			"path": "pages/Erp/Sku/SkuAdd/index",
 			"style": {
 				"navigationBarTitleText": "添加物料"
-	  
+
 			}
 		},
 		{
-		  "path": "pages/Erp/OutStock/OutStockDetail/index",
-		  "style": {
-			"navigationBarTitleText": "审批详情"
-		  }
+			"path": "pages/Erp/OutStock/OutStockDetail/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
 		},
 		{
-		  "path": "pages/Receipt/ReceiptDetail/index",
-		  "style": {
-			"navigationBarTitleText": "审批详情"
-		  }
+			"path": "pages/Receipt/ReceiptDetail/index",
+			"style": {
+				"navigationBarTitleText": "审批详情"
+			}
 		},
 		{
-		  "path": "pages/Erp/OutStock/OutStockAction/index",
-		  "style": {
-			"navigationBarTitleText": "出库操作"
-		  }
+			"path": "pages/Erp/OutStock/OutStockAction/index",
+			"style": {
+				"navigationBarTitleText": "出库操作"
+			}
 		},
-	  
+
 		{
-		  "path": "pages/login/index",
-		  "style": {
-			"navigationBarTitleText": "登录"
-		  }
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
 		}
-	  ],
-	  
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8",
-    "usingComponents": {
-      "van-button": "/wxcomponents/button/index",
-      "van-cascader": "/wxcomponents/cascader/index",
-      "van-toast": "/wxcomponents/toast/index",
-      "van-loading": "/wxcomponents/loading/index",
-      "van-overlay": "/wxcomponents/overlay/index",
-      "van-dialog": "/wxcomponents/dialog/index",
-      "van-skeleton": "/wxcomponents/skeleton/index",
-      "van-tab": "/wxcomponents/tab/index",
-      "van-tabs": "/wxcomponents/tabs/index",
-      "van-icon": "/wxcomponents/icon/index",
-      "van-divider": "/wxcomponents/divider/index",
-      "van-swipe-cell": "/wxcomponents/swipe-cell/index",
-      "van-empty": "/wxcomponents/empty/index",
-      "van-checkbox": "/wxcomponents/checkbox/index",
-      "van-checkbox-group": "/wxcomponents/checkbox-group/index",
-      "van-popup": "/wxcomponents/popup/index",
-      "van-field": "/wxcomponents/field/index",
-      "van-stepper": "/wxcomponents/van-stepper/index",
-	  "van-uploader": "/wxcomponents/vant-uploader/index",
-	  "van-picker": "/wxcomponents/picker/index"
-    }
-  }
-}
+	],
+
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"usingComponents": {
+			"van-button": "/wxcomponents/button/index",
+			"van-cascader": "/wxcomponents/cascader/index",
+			"van-toast": "/wxcomponents/toast/index",
+			"van-loading": "/wxcomponents/loading/index",
+			"van-overlay": "/wxcomponents/overlay/index",
+			"van-dialog": "/wxcomponents/dialog/index",
+			"van-skeleton": "/wxcomponents/skeleton/index",
+			"van-tab": "/wxcomponents/tab/index",
+			"van-tabs": "/wxcomponents/tabs/index",
+			"van-icon": "/wxcomponents/icon/index",
+			"van-divider": "/wxcomponents/divider/index",
+			"van-swipe-cell": "/wxcomponents/swipe-cell/index",
+			"van-empty": "/wxcomponents/empty/index",
+			"van-checkbox": "/wxcomponents/checkbox/index",
+			"van-checkbox-group": "/wxcomponents/checkbox-group/index",
+			"van-popup": "/wxcomponents/popup/index",
+			"van-field": "/wxcomponents/field/index",
+			"van-stepper": "/wxcomponents/van-stepper/index",
+			"van-uploader": "/wxcomponents/vant-uploader/index",
+			"van-picker": "/wxcomponents/vant-picker/index"
+		}
+	}
 }

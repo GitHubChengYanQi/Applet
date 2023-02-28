@@ -166,7 +166,7 @@ function HTMLParser(html, handler) {
     }
 
     if (html == last) {
-      throw 'Parse ErrorOrder: ' + html;
+      throw 'Parse Error: ' + html;
     }
 
     last = html;
