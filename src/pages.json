@@ -62,6 +62,21 @@
           "style": {
             "navigationBarTitleText": "出库确认"
           }
+        },{
+          "path": "InStock/InStockAsk/index",
+          "style": {
+            "navigationBarTitleText": "入库申请"
+          }
+        },{
+          "path": "InStock/InStockAction/index",
+          "style": {
+            "navigationBarTitleText": "入库申请"
+          }
+        },{
+          "path": "InStock/InStockVoucher/index",
+          "style": {
+            "navigationBarTitleText": "入库凭证"
+          }
         }
       ]
     }

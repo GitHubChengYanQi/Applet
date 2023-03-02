@@ -18,7 +18,7 @@
         </Search>
       </view>
       <scroll-view
-          scroll-y="true"
+          :scroll-y="scroll"
           class="scroll-Y"
           @scrolltolower="lower"
       >
@@ -99,11 +99,21 @@ export default {
       searchValue: ''
     }
   },
+  watch:{
+    show(show){
+      this.$store.commit('dialog/openChange', show)
+    }
+  },
   mounted() {
     if (!this.pickListsId) {
       return
     }
     this.getDetailList()
+  },
+  computed: {
+    scroll() {
+      return !this.$store.state.dialog.show
+    }
   },
   methods: {
     outStockAction(newDefaultData) {

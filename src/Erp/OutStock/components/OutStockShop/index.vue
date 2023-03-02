@@ -28,6 +28,8 @@
           :user='user'
           :data='data'
           :allSkus='allSkus'
+          @close="show = false"
+          @click="$emit('confirm')"
       />
     </Popup>
   </view>
@@ -58,6 +60,11 @@ export default {
       data: [],
       show: false,
       refreshOrder: false,
+    }
+  },
+  watch: {
+    show(show) {
+      this.$store.commit('dialog/openChange', show)
     }
   },
   mounted() {

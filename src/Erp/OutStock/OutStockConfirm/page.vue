@@ -66,6 +66,16 @@ export default {
   methods: {
     onClick() {
       const current = this
+      // let received = 0;
+      // current.outSkus.map(item => {
+      //   received += item.number
+      // })
+      // uni.$emit('outStockAction', {
+      //   receivedAction: true,
+      //   pickListsId: current.outSkus[0].pickListsId,
+      //   received: received
+      // })
+      // return
       this.outStockLoading = true
       OutStock.outStock({
         code: current.code
@@ -74,10 +84,11 @@ export default {
           Message.successToast('出库成功！',
               () => {
                 let received = 0;
-                current.outSkus.map(item=>{
+                current.outSkus.map(item => {
                   received += item.number
                 })
                 uni.$emit('outStockAction', {
+                  receivedAction: true,
                   pickListsId: current.outSkus[0].pickListsId,
                   received: received
                 })

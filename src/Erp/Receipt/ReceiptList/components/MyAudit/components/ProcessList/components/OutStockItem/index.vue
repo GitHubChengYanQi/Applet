@@ -9,10 +9,8 @@
         :statusName="receipts.statusName"
         :percent="percent"
         :coding="receipts.coding"
-        :endTime="receipts.endTime"
         :createTime='item.createTime'
         :taskName="item.taskName"
-        :beginTime="receipts.beginTime"
         @onClick="() => $emit('onClick',item)"
     >
       <view slot="processRender">
@@ -67,7 +65,8 @@ export default {
     this.progressChange(receipts, received, collectable, false);
     const current = this
     uni.$on('outStockAction', function (data) {
-      if (data.pickListsId === receipts.pickListsId) {
+      console.log(data.receivedAction && data.pickListsId === receipts.pickListsId,'7337')
+      if (data.receivedAction && data.pickListsId === receipts.pickListsId) {
         current.progressChange(receipts, current.received + data.received, current.collectable - data.collectable, true)
       } else if (data.taskId === current.item.processTaskId) {
         current.progressChange(receipts, data.received, data.collectable, true);

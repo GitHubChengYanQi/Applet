@@ -2,7 +2,10 @@ import Toast from "../../wxcomponents/toast/toast";
 import Dialog from "../../wxcomponents/dialog/dialog";
 
 const toast = (title) => {
-    Toast(title || '成功！');
+    Toast({
+        title: title || '成功！',
+        duration: 3000
+    });
 };
 
 const successToast = (
@@ -19,6 +22,7 @@ const successToast = (
         message: title || '成功！',
         type: 'success',
         onClose: wait && afterClose,
+        duration: 3000
     });
 };
 
@@ -36,6 +40,7 @@ const errorToast = (
         message: title || '失败！',
         type: 'fail',
         onClose: wait && afterClose,
+        duration: 3000
     });
 };
 
@@ -55,6 +60,8 @@ const MyDialog = (
     }) => {
     if (only) {
         Dialog.alert({
+            zIndex:100,
+            className: 'dialog',
             title,
             message: content,
             confirmButtonText: confirmText,
@@ -62,6 +69,7 @@ const MyDialog = (
         })
     } else {
         Dialog.confirm({
+            zIndex:100,
             title,
             message: content,
             confirmButtonText: confirmText,

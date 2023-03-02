@@ -1,6 +1,7 @@
 <script>
 import {Init} from "MES-Apis/src/Init";
 import {Message} from "./components/Message";
+import {getLocalParmas} from "./util/Tools";
 
 
 Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
@@ -35,9 +36,11 @@ export default {
     appInit() {
       Init.responseConfig({
         loginTimeOut: () => {
-          uni.navigateTo({
-            url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
-          })
+          Message.errorToast('您已登录超时，正在重新登录...',()=>{
+            getApp().globalData.token = ''
+            this.$store.commit('userInfo/clear')
+            this.$store.commit('userInfo/refresh', true)
+          },true)
         },
         errorMessage: (res) => {
           Message.errorToast(res)
@@ -53,6 +56,6 @@ export default {
 
 <style>
 /*每个页面公共css */
-@import "@/static/font/iconfont.css";
+@import "/static/font/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
 </style>

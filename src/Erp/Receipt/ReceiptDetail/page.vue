@@ -1,9 +1,9 @@
 <template>
-  <view>
+  <scroll-view style="height:100vh" :scroll-y="scroll">
     <van-toast id="van-toast" />
     <van-dialog id="van-dialog" />
     <view v-if="!detailData && !loading">
-     <van-empty image="error" description="获取审批详情失败!" />
+      <van-empty image="error" description="获取审批详情失败!" />
     </view>
     <view v-else-if="!detailData && loading">
       <Loading :skeleton="true" />
@@ -42,12 +42,18 @@
               @addComments='hiddenFooter=true'
           />
         </view>
-        <view v-if="tabKey === 'log'"><Log :type='type' :detail='detailData'  /></view>
-        <view v-if="tabKey === 'dynamic'"><Dynamic :taskId="detailData.processTaskId" /> </view>
-        <view v-if="tabKey === 'relation'"><Relation /></view>
+        <view v-if="tabKey === 'log'">
+          <Log :type='type' :detail='detailData' />
+        </view>
+        <view v-if="tabKey === 'dynamic'">
+          <Dynamic :taskId="detailData.processTaskId" />
+        </view>
+        <view v-if="tabKey === 'relation'">
+          <Relation />
+        </view>
       </view>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <script>
@@ -88,6 +94,11 @@ export default {
   },
   mounted() {
     this.getTaskDetail()
+  },
+  computed: {
+    scroll() {
+      return !this.$store.state.dialog.show
+    }
   },
   methods: {
     logined() {

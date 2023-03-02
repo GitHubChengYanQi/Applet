@@ -2,7 +2,7 @@
   <view class='process'>
     <view class='content'>
       <Create v-if="active === 'create'" />
-      <MyAudit v-if="active === 'audit'" :taskSkuId='taskSkuId' />
+      <MyAudit v-if="active === 'audit'" :taskSkuId='taskSkuId' :type="type" />
       <MyAudit v-if="active === 'start'" :createUser='userId' />
     </view>
     <van-tabbar v-if="false" :active="active" @change="({detail})=>active = detail">
@@ -25,6 +25,7 @@
       </van-tabbar-item>
     </van-tabbar>
     <BottomButton
+        v-if="type === ReceiptsEnums.outstockOrder"
         text="出库确认"
         only
         @onClick="onClick"
@@ -38,6 +39,7 @@ import {getLocalParmas} from "../../../util/Tools";
 import Loading from "../../../components/Loading";
 import Avatar from "../../../components/Avatar";
 import BottomButton from "../../../components/BottomButton";
+import {ReceiptsEnums} from '../ReceiptsEnums'
 
 export default {
   props: ['auth'],
@@ -49,15 +51,30 @@ export default {
       taskSkuId: '',
       userId: '',
       loading: true,
+      type: '',
+      ReceiptsEnums
     }
   },
   mounted() {
-
+    const type = getLocalParmas().search.type
+    this.type = type
+    let title = ''
+    switch (type) {
+      case ReceiptsEnums.outstockOrder:
+        title = '出库列表'
+        break;
+      case ReceiptsEnums.instockOrder:
+        title = '入库列表'
+        break;
+    }
+    uni.setNavigationBarTitle({
+      title
+    });
   },
   methods: {
-    onClick(){
+    onClick() {
       uni.navigateTo({
-        url:'/Erp/OutStock/OutStockConfirm/index'
+        url: '/Erp/OutStock/OutStockConfirm/index'
       })
     }
   }

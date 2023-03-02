@@ -2,15 +2,15 @@
   <view>
     <List
         ref="listRef"
-        max-height="calc(100vh - 140px)"
+        :max-height="type === ReceiptsEnums.outstockOrder ? 'calc(100vh - 140px)' : 'calc(100vh - 80px)'"
         @request="Process.auditList"
         :list="list"
         @listSource="(newList)=>list = newList"
-        :default-params="{type:'OUTSTOCK',status:7}"
+        :default-params="{type,status:7}"
     >
       <view
-          v-for="(item,index) in list"
-          :key="index"
+          v-for="item in list"
+          :key="item.processTaskId"
       >
         <InStockItem
             v-if="item.type === ReceiptsEnums.instockOrder"
@@ -22,7 +22,7 @@
             v-if="item.type === ReceiptsEnums.outstockOrder"
             :noProgress="noProgress"
             @onClick="onClick"
-            @deleteTask="list = list.filter(listItem=>listItem.processTaskId !== item.processTaskId)"
+            @deleteTask="()=>deleteTask(item)"
             :item="item"
         />
         <MaintenaceItem
@@ -71,6 +71,7 @@ import AllocationItem from "./components/AllocationItem";
 import ErrorItem from "./components/ErrorItem";
 import ForwardItem from "./components/ForwardItem";
 import {Process} from "MES-Apis/src/Process/promise";
+import {getLocalParmas} from "../../../../../../../util/Tools";
 
 export default {
   name: 'ProcessList',
@@ -91,6 +92,7 @@ export default {
     'api',
     'processListRef',
     'ReceiptDom',
+    'type'
   ],
   data() {
     return {
@@ -107,6 +109,9 @@ export default {
     },
     submit(params) {
       this.$refs.listRef.submit(params)
+    },
+    deleteTask(item) {
+      this.list = [...this.list.filter(listItem => listItem.processTaskId !== item.processTaskId)]
     }
   }
 }

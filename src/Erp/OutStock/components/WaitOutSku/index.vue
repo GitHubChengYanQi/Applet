@@ -49,7 +49,7 @@
         <van-button custom-class="button" v-if="sys" type="danger" :disabled='returnSkus.length=== 0' @click='remove'>
           移出
         </van-button>
-        <van-button custom-class="button" v-if="!sys" @click='confirm'>
+        <van-button custom-class="button" v-if="!sys" @click="$emit('confirm')">
           出库确认
         </van-button>
         <van-button custom-class="button" v-if="!sys" type="info" @click='send'>
@@ -136,11 +136,6 @@ export default {
         onSuccess: () => {
           Message.successToast('提醒成功!');
         }
-      })
-    },
-    confirm(){
-      uni.navigateTo({
-        url:'/Erp/OutStock/OutStockConfirm/index'
       })
     },
     checkedSkus() {

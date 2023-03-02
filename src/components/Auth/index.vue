@@ -26,50 +26,62 @@ export default {
   components: {Error, Loading},
   data() {
     return {
-      loading: true,
+      loading: false,
       error: false,
     }
   },
   mounted() {
-    try {
-      this.$store.dispatch('userInfo/getPublicInfo')
-
-      if (!this.auth) {
-        this.authSuccess()
-        return
-      }
-
-      const token = GetUserInfo().token;
-      if (token) {
-        this.tokenAuth()
-      } else {
-        const current = this
-        uni.login({
-          success: function (loginRes) {
-            console.log(loginRes.errMsg)
-            if (loginRes.errMsg === 'login:ok') {
-              Login.codeToSession({code: loginRes.code}, {
-                onSuccess: (token) => {
-                  getApp().globalData.token = token
-                  current.tokenAuth()
-                },
-                onError: () => {
-                  current.authError()
-                }
-              })
-            }else {
-              current.authError()
-            }
-          }
-        });
-      }
-    } catch (e) {
-      this.authError()
+    this.authInfo()
+  },
+  watch: {
+    '$store.state.userInfo.refresh': {
+      handler(value) {
+        if (value) {
+          this.authInfo()
+        }
+      },
+      deep: true
     }
-
   },
   methods: {
-    tokenAuth() {
+    async authInfo() {
+      this.loading = true
+      try {
+        await this.$store.dispatch('userInfo/getPublicInfo')
+
+        if (!this.auth) {
+          this.authSuccess()
+          return
+        }
+
+        const token = GetUserInfo().token;
+        if (token) {
+          this.tokenAuth()
+        } else {
+          const current = this
+          uni.login({
+            success: function (loginRes) {
+              if (loginRes.errMsg === 'login:ok') {
+                Login.codeToSession({code: loginRes.code}, {
+                  onSuccess: (token) => {
+                    getApp().globalData.token = token
+                    current.tokenAuth()
+                  },
+                  onError: () => {
+                    current.authError()
+                  }
+                })
+              } else {
+                current.authError()
+              }
+            }
+          });
+        }
+      } catch (e) {
+        this.authError()
+      }
+    },
+    async tokenAuth() {
       const userInfo = GetUserInfo().userInfo || {};
       console.log(userInfo)
       const userId = !!userInfo.userId;
@@ -78,21 +90,23 @@ export default {
           url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
         })
       } else {
-        this.getSystemInfo()
+        await this.getSystemInfo()
         this.authSuccess()
       }
     },
     authSuccess() {
       this.$store.commit('userInfo/authStatus', true)
+      this.$store.commit('userInfo/refresh', false)
       this.loading = false
     },
     authError() {
       this.$store.commit('userInfo/authStatus', false)
+      this.$store.commit('userInfo/refresh', false)
       this.loading = false
       this.error = true
     },
-    getSystemInfo() {
-      this.$store.dispatch('userInfo/getUserInfo')
+    async getSystemInfo() {
+      await this.$store.dispatch('userInfo/getUserInfo')
     }
   }
 }

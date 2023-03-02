@@ -185,13 +185,15 @@ export default {
       }
     },
     onClick() {
+      this.$store.commit('dialog/openChange', true)
       Message.dialog({
         content: '该操作会按照申请数量进行备料，库存不足按照库存数量备料。',
         confirmText: '开始备料',
         only: false,
         onConfirm: () => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             OutStock.autoPick({pickListsId: this.pickListsId, taskId: this.taskId}).then((res) => {
+              this.$store.commit('dialog/openChange', false)
               resolve(true)
               this.autoPick(res.data)
             }).catch(() => {
@@ -199,6 +201,10 @@ export default {
             })
           })
         },
+        onCancel: () => {
+          this.$store.commit('dialog/openChange', false)
+          return true
+        }
       })
     },
     async autoPick(res) {

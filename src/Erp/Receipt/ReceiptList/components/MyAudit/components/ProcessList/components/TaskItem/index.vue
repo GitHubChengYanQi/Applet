@@ -70,11 +70,13 @@ export default {
       progress: []
     }
   },
-  mounted() {
-    this.progress = [
-      {num: this.percent, color: '#257BDE'},
-      {num: 100 - this.percent, color: '#E8E8E8'}
-    ]
+  watch:{
+    percent(value){
+      this.progress = [
+        {num: value || 0, color: '#257BDE'},
+        {num: 100 - (value || 0), color: '#E8E8E8'}
+      ]
+    }
   },
   methods: {
     statusColor() {
@@ -131,8 +133,8 @@ export default {
         }
 
         .error {
-          border: solid 1px var(--adm-color-danger);
-          color: var(--adm-color-danger);
+          border: solid 1px $uni-color-error;
+          color: $uni-color-error;
         }
       }
     }

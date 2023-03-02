@@ -10,6 +10,8 @@
     </view>
     <view>
       <ProcessList
+          v-if="type"
+          :type="type"
           ref="listRef"
           :noProgress="createUser"
       />

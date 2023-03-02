@@ -68,7 +68,7 @@
         cancel-button-color="#007aff"
         custom-class="codeDialog"
     >
-      <view v-if="code" style='text-align: center;padding-top: 12px'>
+      <view style='text-align: center;padding-top: 12px'>
         <view class='codeTitle'>领料码</view>
         <view style="position: relative;padding-top: 19px">
           <view class='code'>{{ code }}</view>
@@ -131,6 +131,12 @@ export default {
       if (!loading) {
         this.refreshData()
       }
+    },
+    code(show){
+      this.$store.commit('dialog/openChange', show)
+    },
+    picking(show){
+      this.$store.commit('dialog/openChange', show)
     }
   },
   mounted() {
@@ -167,6 +173,7 @@ export default {
       }
     },
     onClose() {
+
     },
     onCancel() {
       if (this.success) {
@@ -178,7 +185,6 @@ export default {
       this.picking = false
       this.code = res
       this.success = false
-
 
       // 获取uQRCode实例
       const qr = new UQRCode();

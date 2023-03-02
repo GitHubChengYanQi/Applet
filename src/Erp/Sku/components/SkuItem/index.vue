@@ -1,15 +1,19 @@
 <template>
   <view>
     <view :class="['skuList', className]">
-      <view :id='imgId' class='img' :style="{ maxHeight: `${skuImgSize}px`, minWidth: `${skuImgSize}px` }"
-            @click='view'>
+      <view
+          :id='imgId'
+          class='img'
+          :style="{ maxHeight: `${skuImgSize}px`, minWidth: `${skuImgSize}px` }"
+          @click='view'
+      >
         <image
-            :src='(isArray(skuResult.imgResults)[0] || {}).thumbUrl || publicInfo.imgLogo'
+            :src='skuResult.thumbUrl || (isArray(skuResult.imgResults)[0] || {}).thumbUrl || publicInfo.imgLogo'
             :style="{ height: `${skuImgSize}px`, width: `${skuImgSize}px` }"
             alt=''
         />
         <view v-if="!hiddenNumber" class='number'>
-          {{ getStockNumber() }}{{ unitName || unitResult.unitName || '' }}
+          {{ getStockNumber() || 0 }}{{ unitName || skuResult.unitName || unitResult.unitName || '' }}
           <span v-if="skuResult.lockStockDetailNumber > 0" class='error'>
               <van-icon name="warn-o" />
           </span>
@@ -18,14 +22,14 @@
       <view
           @click='view'
           class='sku'
-          :style="{ height: `${skuImgSize}px`,maxWidth: `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth})`}"
+          :style="{ height: `${skuImgSize}px`,maxWidth: `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth || '0px'})`}"
       >
         <Elliptsis width='100%'>
-          {{ title || SkuResultSkuJsons({skuResult, spu: !oneRow}) }}
+          {{ title || SkuResultSkuJsons({skuResult, spu: !oneRow}) || '' }}
         </Elliptsis>
         <view v-if="!oneRow" class='describe'>
           <Elliptsis width='100%'>
-            {{ describe || SkuResultSkuJsons({skuResult, sku: true}) }}
+            {{ describe || SkuResultSkuJsons({skuResult, sku: true}) || '' }}
           </Elliptsis>
         </view>
         <view v-if="!(otherData.length === 0 || !otherData.some(item => item))">
@@ -57,34 +61,44 @@
 
 <script>
 import {isArray} from "../../../../util/Tools";
-import {SkuResultSkuJsons} from "../../sku";
+import {SkuResultSkuJsons, SkuFormat} from "../../sku";
 import Elliptsis from "../../../../components/Ellipsis";
 
 export default {
   name: 'SkuItem',
   components: {Elliptsis},
-  props: [
-    'hiddenNumber',
-    'number',
-    'unitName',
-    'skuResult',
-    'otherData',
-    'extraWidth',
-    'imgSize',
-    'imgId',
-    'className',
-    'describe',
-    'title',
-    'more',
-    'moreDom',
-    'noView',
-    'oneRow',
-    'backTitle',
-    'showDetail',
-  ],
+  props: {
+    hiddenNumber: Boolean,
+    number: undefined,
+    unitName: String,
+    skuResult: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    otherData: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    extraWidth: String,
+    imgSize: Number,
+    imgId: String,
+    className: String,
+    describe: String,
+    title: String,
+    more: Boolean,
+    noView: Boolean,
+    oneRow: Boolean,
+    backTitle: Boolean,
+    showDetail: Boolean
+  },
   data() {
     return {
       SkuResultSkuJsons,
+      SkuFormat,
       publicInfo: {},
       unitResult: {},
       skuImgSize: 74,
@@ -104,7 +118,7 @@ export default {
     view() {
     },
     getStockNumber() {
-      const stockNumber = (this.skuResult.stockNumber || 0) - (this.skuResult.lockStockDetailNumber || 0);
+      const stockNumber = (this.skuResult.stockNumber || this.skuResult.stockNum || 0) - (this.skuResult.lockStockDetailNumber || 0);
       return typeof this.number === 'number' ? this.number : stockNumber;
     }
   }

@@ -7,7 +7,7 @@
   </Auth>
 </template>
 <script>
-import Auth from '../../components/Auth/index'
+import Auth from '../../../components/Auth/index'
 import Page from "./page";
 
 export default {

@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import App from './App'
 import axios from "axios";
-import Auth from "./auth";
 import store from './store'
 
 axios.defaults.adapter = function (config) {
@@ -30,8 +29,6 @@ axios.defaults.adapter = function (config) {
         })
     })
 }
-
-Vue.use(Auth)
 
 
 const app = new Vue({

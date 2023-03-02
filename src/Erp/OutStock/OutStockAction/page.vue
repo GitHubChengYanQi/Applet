@@ -1,9 +1,9 @@
 <template>
-  <view>
-    <van-toast id="van-toast"/>
-    <van-dialog id="van-dialog"/>
+  <scroll-view style="height:100vh" :scroll-y="scroll">
+    <van-toast id="van-toast" />
+    <van-dialog id="van-dialog" />
     <view v-if="loading">
-      <Loading :skeleton="true"/>
+      <Loading :skeleton="true" />
     </view>
     <view v-else>
       <van-tabs color="#007aff" border line-width="30%" @change="change">
@@ -39,9 +39,10 @@
           :outType='query.source'
           :pickListsId='query.pickListsId'
           @refresh="(resh)=>refresh(resh)"
+          @confirm="confirm"
       />
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <script>
@@ -64,11 +65,22 @@ export default {
       prepare: false,
     }
   },
+  computed: {
+    scroll() {
+      return !this.$store.state.dialog.show
+    }
+  },
   mounted() {
     this.query = getLocalParmas().search
     this.getDetail()
   },
   methods: {
+    confirm() {
+      uni.navigateTo({
+        url:'/Erp/OutStock/OutStockConfirm/index',
+
+      })
+    },
     change(tab) {
       this.tabKey = tab.detail ? tab.detail.index : tab.index
     },

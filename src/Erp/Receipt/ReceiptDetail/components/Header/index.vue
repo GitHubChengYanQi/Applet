@@ -2,8 +2,7 @@
   <view>
     <view class="overview">
       <view class="headPortrait">
-        <img v-if="avatar" :src='avatar'>
-        <view class="createName" v-else>{{ createName ? createName.substring(0, 1) : '' }}</view>
+        <Avatar :src="avatar" :size="55" />
       </view>
       <view class="overviewText">
         <view class="boldTitle">{{ title || '' }}</view>
@@ -19,9 +18,11 @@
 
 <script>
 import {MyDate} from "../../../../../util/Tools";
+import Avatar from "../../../../../components/Avatar";
 
 export default {
   name: 'Header',
+  components: {Avatar},
   props: ['title', 'coding', 'statusName', 'createTime', 'avatar', 'createName'],
   data() {
     return {

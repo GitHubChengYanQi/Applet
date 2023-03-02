@@ -8,7 +8,8 @@
         @scrolltolower="scrolltolower"
     >
       <slot></slot>
-      <view @click="scrolltolower">
+      <Empty v-if="list.length === 0 && moreStatus !== 'loading'" :description="description || '暂无数据'" />
+      <view v-else @click="scrolltolower">
         <uni-load-more :status="hasMore ? moreStatus : 'noMore'"></uni-load-more>
       </view>
     </scroll-view>
@@ -17,8 +18,10 @@
 
 <script>
 
+import Empty from "../Empty";
 export default {
   name: 'List',
+  components: {Empty},
   props: [
     'list',
     'defaultParams',
@@ -28,7 +31,8 @@ export default {
     'options',
     'noTips',
     'pullDisabled',
-    'maxHeight'
+    'maxHeight',
+    'description'
   ],
   mounted() {
     this.sorter = this.defaultSorter
@@ -51,6 +55,7 @@ export default {
   },
   methods: {
     async getList() {
+      this.moreStatus = 'loading'
       await this.$emit('request', {
         params: {
           limit: this.limit,
@@ -91,7 +96,6 @@ export default {
       })
     },
     submit(value, sorter, pull) {
-      this.moreStatus = 'loading'
       this.hasMore = true
       this.page = 1
       this.data = []
@@ -105,7 +109,6 @@ export default {
       if (!this.hasMore || this.moreStatus === 'loading') {
         return
       }
-      this.moreStatus = 'loading'
       this.getList()
     }
   }

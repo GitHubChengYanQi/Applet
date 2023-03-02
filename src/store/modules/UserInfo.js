@@ -4,7 +4,8 @@ import {Init} from "MES-Apis/src/Init";
 const init = {
     auth: false,
     userInfo: {},
-    publicInfo: {}
+    publicInfo: {},
+    refresh: false
 }
 
 const state = () => ({...init})
@@ -33,8 +34,13 @@ const mutations = {
     authStatus(state, payload) {
         state.auth = payload
     },
+    refresh(state, payload) {
+        state.refresh = payload
+    },
     clear(state) {
-        state = {...init}
+        Object.keys(init).forEach((key)=>{
+            state[key] = init[key]
+        })
     },
 }
 

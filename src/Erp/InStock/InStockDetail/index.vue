@@ -1,102 +1,106 @@
 <template>
   <view>
-    <Card title="来源" v-if="origin">
-      <template v-slot:extra>
-        <view class="state">
-          {{ origin.title || '' }} / {{ origin.coding || '' }}
-        </view>
-      </template>
-    </Card>
-    <Card body-style="padding:0px">
-      <template slot="title">
-        <view class='header'>
-          入库明细
-          <LinkButton style="margin-left: 12px" @click="">申请明细</LinkButton>
-        </view>
-      </template>
-      <template slot="extra">
-        <view class='extra'>
-          合计：<span>{{ data.length }}</span>类<span>{{ countNumber }}</span>件
-        </view>
-      </template>
-      <view>
-        <Search
-            placeholder='请输入物料名称查询'
-            @onClear="filterData = []"
-            @onChange="searchChange"
-            :value="seacrchValue"
-            :noSearchButton="true"
-        />
-        <Empty description="已全部操作完毕" v-if="inStockDetails().length === 0" />
-        <view
-            v-for="(item, index) in inStockDetails()"
-            :key="index"
-        >
-          <view v-if="!(!allSku && index >= 3)">
-            <Slide
-                :swipeId="'inStockItem'+index"
-                :disabled="!action || item.status !== 0 || item.instockHandleId"
-                @onRight="inWaitInShop"
-                @onLeft="addError"
-            >
-              <InStockItem
-                  :ask="true"
-                  :detail='item.handle'
-                  :index='index'
-                  :item='item'
-                  :dataLength="(inStockDetails().length > 3 && !allSku) ? 2 : inStockDetails().length - 1"
-                  :key='index'
-              />
-            </Slide>
+    <web-view :src="`https://wx.zz2025.com/cp/#/Receipts/ReceiptsDetail?id=${taskId}`"></web-view>
+    <view v-if="false">
+      <Card title="来源" v-if="origin">
+        <template v-slot:extra>
+          <view class="state">
+            {{ origin.title || '' }} / {{ origin.coding || '' }}
           </view>
-        </view>
-        <van-divider v-if="inStockDetails().length > 3" contentPosition="center">
-          <view @click="allSku = !allSku">
-            <van-icon v-if="allSku" name="arrow-up" />
-            <van-icon v-else name="arrow-down" />
+        </template>
+      </Card>
+      <Card body-style="padding:0px">
+        <template slot="title">
+          <view class='header'>
+            入库明细
+            <LinkButton style="margin-left: 12px" @click="">申请明细</LinkButton>
           </view>
-        </van-divider>
-      </view>
-    </Card>
-    <Card title="供应商" :extra="order.customerResult && order.customerResult.customerName || '无'" />
-    <Card title="主题" :extra="taskDetail.theme || '无'" />
-    <Card title="入库类型" :extra="getInType(data.instockType)" />
-    <Card title="注意事项">
-      {{
-        isArray(order.announcementsList).length === 0 ? '无' : isArray(order.announcementsList).map(item => item.content).join('、')
-      }}
-    </Card>
-    <Card title="备注">{{ order.remark }}</Card>
-    <Card title="附件">
-      <view class="remarks">
-        无
-      </view>
-    </Card>
+        </template>
+        <template slot="extra">
+          <view class='extra'>
+            合计：<span>{{ data.length }}</span>类<span>{{ countNumber }}</span>件
+          </view>
+        </template>
+        <view>
+          <Search
+              placeholder='请输入物料名称查询'
+              @onClear="filterData = []"
+              @onChange="searchChange"
+              :value="seacrchValue"
+              :noSearchButton="true"
+          />
+          <Empty description="已全部操作完毕" v-if="inStockDetails().length === 0" />
+          <view
+              v-for="(item, index) in inStockDetails()"
+              :key="index"
+          >
+            <view v-if="!(!allSku && index >= 3)">
+              <Slide
+                  :swipeId="'inStockItem'+index"
+                  :disabled="!action || item.status !== 0 || item.instockHandleId"
+                  @onRight="inWaitInShop"
+                  @onLeft="addError"
+              >
+                <InStockItem
+                    :ask="true"
+                    :detail='item.handle'
+                    :index='index'
+                    :item='item'
+                    :dataLength="(inStockDetails().length > 3 && !allSku) ? 2 : inStockDetails().length - 1"
+                    :key='index'
+                />
+              </Slide>
+            </view>
+          </view>
+          <van-divider v-if="inStockDetails().length > 3" contentPosition="center">
+            <view @click="allSku = !allSku">
+              <van-icon v-if="allSku" name="arrow-up" />
+              <van-icon v-else name="arrow-down" />
+            </view>
+          </van-divider>
+        </view>
+      </Card>
+      <Card title="供应商" :extra="order.customerResult && order.customerResult.customerName || '无'" />
+      <Card title="主题" :extra="taskDetail.theme || '无'" />
+      <Card title="入库类型" :extra="getInType(data.instockType)" />
+      <Card title="注意事项">
+        {{
+          isArray(order.announcementsList).length === 0 ? '无' : isArray(order.announcementsList).map(item => item.content).join('、')
+        }}
+      </Card>
+      <Card title="备注">{{ order.remark }}</Card>
+      <Card title="附件">
+        <view class="remarks">
+          无
+        </view>
+      </Card>
 
 
-    <ActionButtons
-        v-if="actionNode"
-        :taskDetail='taskDetail'
-        :statusName='order.statusName'
-        @refresh="$emit('refresh')"
-        @afertShow="$emit('afertShow')"
-        :taskId='taskId'
-        :logIds='logIds'
-        :createUser='order.createUser'
-        :permissions="permissions"
-        @onClick="onAction"
-    />
+      <ActionButtons
+          v-if="actionNode"
+          :taskDetail='taskDetail'
+          :statusName='order.statusName'
+          @refresh="$emit('refresh')"
+          @afertShow="$emit('afertShow')"
+          :taskId='taskId'
+          :logIds='logIds'
+          :createUser='order.createUser'
+          :permissions="permissions"
+          @onClick="onAction"
+      />
 
-    <InstockShop
-        v-if="action"
-        errorShopRef={errorShopRef}
-        :order='order'
-        :actionId='actionId'
-        :instockOrderId='instockOrderId'
-        @refresh="$emit('refresh')"
-        waitShopRef={waitShopRef}
-    />
+      <InstockShop
+          v-if="action"
+          errorShopRef={errorShopRef}
+          :order='order'
+          :actionId='actionId'
+          :instockOrderId='instockOrderId'
+          @refresh="$emit('refresh')"
+          waitShopRef={waitShopRef}
+      />
+    </view>
   </view>
+
 </template>
 
 <script>
@@ -112,6 +116,7 @@ import InStockItem from "../components/InStockItem";
 import ActionButtons from "../../Receipt/ReceiptDetail/components/ActionButtons";
 import Button from "../../../components/Button";
 import InstockShop from "../components/InstockShop";
+import {InStock} from "MES-Apis/src/InStock/promise";
 
 export default {
   name: 'InStockDetail',
@@ -213,7 +218,7 @@ export default {
       const skuResult = item.skuResult || {};
       const imgUrl = isArray(skuResult.imgResults)[0]?.thumbUrl || publicInfo.homeLogo;
 
-      addShop({
+      InStock.shopCartAdd({
         data: {
           formStatus,
           type,
