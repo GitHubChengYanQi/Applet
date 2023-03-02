@@ -240,6 +240,7 @@
           </view>
           <view class="adm-popup-body adm-popup-body-position-bottom" style="transform: translate(0,0%)"
                 :hidden="cancelHidden">
+
             <view class="headers">
               供应商
               <view class="right" @click="cancel">
@@ -377,21 +378,6 @@ body {
   background: var(--body--background--color);
 }
 
-.adm-swiper {
-  --height: auto;
-  --width: 100%;
-  --border-radius: 0;
-  --track-padding: 0;
-  --slide-size: 100%;
-  --track-offset: 0%;
-  display: block;
-  width: var(--width);
-  height: var(--height);
-  position: relative;
-  border-radius: var(--border-radius);
-  z-index: 0;
-  overflow: hidden;
-}
 
 .adm-swiper-track {
   width: 100%;
@@ -522,7 +508,6 @@ image {
 .flexCenter {
   display: flex;
   align-items: center;
-  height: 100%;
 }
 
 .spuName {
@@ -895,7 +880,6 @@ image {
   position: absolute;
   left: 0;
   bottom: 0;
-  font-family: 新宋体;
 }
 
 .unit {

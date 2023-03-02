@@ -15,12 +15,6 @@
       }
     },
     {
-      "path": "pages/Erp/Sku/SkuDetail/index",
-      "style": {
-        "navigationBarTitleText": "物料详情"
-      }
-    },
-    {
       "path": "pages/login/index",
       "style": {
         "navigationBarTitleText": "登录"
@@ -52,6 +46,12 @@
           "path": "Sku/SkuAdd/index",
           "style": {
             "navigationBarTitleText": "添加物料"
+          }
+        },
+        {
+          "path": "Sku/SkuDetail/index",
+          "style": {
+            "navigationBarTitleText": "物料详情"
           }
         },
         {
@@ -101,7 +101,9 @@
       "van-picker": "/wxcomponents/vant-picker/index",
       "van-search": "/wxcomponents/search/index",
       "van-tabbar": "/wxcomponents/tabbar/index",
-      "van-tabbar-item": "/wxcomponents/tabbar-item/index"
+      "van-tabbar-item": "/wxcomponents/tabbar-item/index",
+      "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
+      "van-dropdown-item": "/wxcomponents/dropdown-item/index"
     }
   }
 }
