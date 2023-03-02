@@ -1,6 +1,7 @@
 <script>
 import {Init} from "MES-Apis/src/Init";
 import {Message} from "./components/Message";
+import "uview-ui-x/index.scss";
 import {getLocalParmas} from "./util/Tools";
 
 
@@ -58,4 +59,5 @@ export default {
 /*每个页面公共css */
 @import "/static/font/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
+
 </style>
