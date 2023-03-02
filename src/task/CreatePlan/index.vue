@@ -4,18 +4,29 @@
 			<template v-slot:extra>
 				<uni-icons custom-prefix="iconfont" type="icon-rili" size="20" color="#007AFF" @click="date"></uni-icons>
 			</template>
-			<van-popup :show="show" position="bottom" custom-style="height: 30%" round closeable @close="onClose">
-				 <van-datetime-picker
-				        type="datetime"
-				        v-model="currentDate"
-				        title="选择出生日期"
-				        :min-date="minDate"
-				        :max-date="maxDate"
-				      />
-			</van-popup>
-
+			<!-- <van-popup :show="show" position="bottom" custom-style="height: 30%" round closeable @close="onClose"> -->
+				<!--  <u-datetime-picker
+				                :show="show"
+				                v-model="value1"
+				                mode="datetime"
+				        ></u-datetime-picker> -->
+			<!-- </van-popup> -->
+		</Card>
+		<Card title="类型">
+			<template v-slot:extra>
+				<view class="" @click="date">订单</view>
+			</template>
 		</Card>
 		
+		<van-popup :show="show" position="bottom" round @close="onClose">
+			<van-picker :columns="columns" bind:change="onChange"  show-toolbar toolbar-class="blue"/>
+		</van-popup>
+		
+		<Card title="产品">
+			<view class="product">
+				<u-button type="primary" :plain="true" text="+"></u-button>
+			</view>
+		</Card>
 	</view>
 </template>
 
@@ -28,14 +39,13 @@
 		data() {
 			return{
 				show:false,
-				minDate: new Date().getTime(),
-				maxDate: new Date(2019, 10, 1).getTime(),
-				currentDate: new Date().getTime(),
+				columns: ['订单', '生产'],
 			}
 		},
 		methods:{
 			date(){
 				this.show = true;
+				
 			},
 			onClose() {
 			    this.show=false;
@@ -45,4 +55,10 @@
 </script>
 
 <style lang="scss">
+	.product{
+		width: 25%;
+		font-size: 16px;
+		height: 30px;
+	}
+	
 </style>
