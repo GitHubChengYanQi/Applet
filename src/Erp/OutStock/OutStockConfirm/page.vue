@@ -77,7 +77,7 @@ export default {
       // })
       // return
       this.outStockLoading = true
-      OutStock.outStock({
+      OutStock.outStockV2_0({
         code: current.code
       }, {
         onSuccess() {

@@ -215,7 +215,7 @@ export default {
         });
       });
       this.createCodeLoading = true
-      OutStock.createPickCode({
+      OutStock.createPickCodeV2_0({
         cartIds,
         cartsParams,
       }, {

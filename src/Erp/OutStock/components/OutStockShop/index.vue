@@ -29,7 +29,7 @@
           :data='data'
           :allSkus='allSkus'
           @close="show = false"
-          @click="$emit('confirm')"
+          @confirm="$emit('confirm')"
       />
     </Popup>
   </view>

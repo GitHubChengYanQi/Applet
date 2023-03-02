@@ -78,7 +78,6 @@ export default {
     confirm() {
       uni.navigateTo({
         url:'/Erp/OutStock/OutStockConfirm/index',
-
       })
     },
     change(tab) {
