@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App'
 import axios from "axios";
 import store from './store'
-import uView from "uview-ui-x";
+import uView from "uview-ui";
 Vue.use(uView);
 
 axios.defaults.adapter = function (config) {
