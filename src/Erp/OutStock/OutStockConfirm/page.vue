@@ -1,6 +1,6 @@
 <template>
   <view>
-    <Loading v-if="(loading && query.code) || outStockLoading" :skeleton="true" />
+    <Loading v-if="(loading && query.code) || outStockLoading" :skeleton="true" skeleton-type="page" />
     <view v-else>
       <view v-if="outSkus.length === 0">
         <Loading :loading="loading" />
@@ -61,7 +61,9 @@ export default {
     }
   },
   mounted() {
-
+  // setTimeout(()=>{
+  //   this.$emit('outStock')
+  // },2000)
   },
   methods: {
     onClick() {
@@ -75,9 +77,10 @@ export default {
       //   pickListsId: current.outSkus[0].pickListsId,
       //   received: received
       // })
+      // current.$emit('outStock')
       // return
       this.outStockLoading = true
-      OutStock.outStockV2_0({
+      OutStock.outStockV1_2({
         code: current.code
       }, {
         onSuccess() {
@@ -92,7 +95,7 @@ export default {
                   pickListsId: current.outSkus[0].pickListsId,
                   received: received
                 })
-
+                current.$emit('outStock')
                 current.outSkus = []
               },
           );
@@ -123,6 +126,7 @@ export default {
 <style lang="scss">
 .skus {
   padding: 8px;
+  margin-bottom: 100px;
 
   .skuItem {
     display: flex;

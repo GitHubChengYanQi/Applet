@@ -3,7 +3,7 @@
     <van-notify id="van-notify" />
     <van-toast id="van-toast" />
     <van-dialog id="van-dialog" />
-    <Page v-if="auth" />
+    <Page v-if="auth && type" :receiptType="type" />
   </Auth>
 </template>
 <script>
@@ -13,7 +13,12 @@ import Page from "./page";
 export default {
   components: {Page, Auth},
   data() {
-    return {}
+    return {
+      type: ''
+    }
+  },
+  onLoad(options) {
+    this.type = options.type
   },
   computed: {
     auth() {

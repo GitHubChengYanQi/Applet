@@ -89,7 +89,7 @@
 
 <script>
 
-import {isArray} from "../../../util/Tools";
+import {getLocalParmas, isArray} from "../../../util/Tools";
 import UserName from '../../../components/UserName'
 import {getOutType} from "../outStock";
 import Card from '../../../components/Card'
@@ -123,7 +123,9 @@ export default {
       picking: false,
       success: false,
       code: '',
-      codeUrl: ''
+      codeUrl: '',
+      received: 0,
+      collectable: 0,
     }
   },
   watch: {
@@ -132,19 +134,32 @@ export default {
         this.refreshData()
       }
     },
-    code(show){
+    code(show) {
       this.$store.commit('dialog/openChange', show)
     },
-    picking(show){
+    picking(show) {
       this.$store.commit('dialog/openChange', show)
     }
   },
   mounted() {
     this.refreshData()
     // this.goToDetail()
+    const current = this
+    uni.$on('outStockAction', function (data) {
+      if (data.receivedAction && data.pickListsId === current.pickListsId) {
+        const successPercent = Number((((current.received + data.received) / current.data.numberCount)).toFixed(2)) * 100 || 0;
+        if (successPercent === 100) {
+          current.$emit('refresh')
+        }
+        current.received = current.received + data.received
+        current.collectable = current.collectable - data.collectable
+      }
+    })
   },
   methods: {
     refreshData() {
+      this.received = this.data.receivedCount || 0
+      this.collectable = this.data.cartNumCount || 0
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       this.origin = isArray(this.taskDetail?.themeAndOrigin?.parent)[0]?.ret
@@ -155,8 +170,15 @@ export default {
       })).filter((item) => item.action === 'outStock' ? userInfo.id === this.data.userId : true)
     },
     goToDetail() {
+      const current = this
       uni.navigateTo({
         url: `/Erp/OutStock/OutStockAction/index?pickListsId=${this.data.pickListsId}&taskId=${this.taskId}&theme=${this.taskDetail.theme}&action=${(this.action || false) + ''}&source=${this.data.source}`,
+        events: {
+          // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
+          outStock: function () {
+            current.$emit('refresh')
+          },
+        },
       })
     },
     onAction(action) {

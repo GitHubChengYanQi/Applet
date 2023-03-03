@@ -42,7 +42,7 @@ import BottomButton from "../../../components/BottomButton";
 import {ReceiptsEnums} from '../ReceiptsEnums'
 
 export default {
-  props: ['auth'],
+  props: ['receiptType'],
   name: 'ReceiptList',
   components: {BottomButton, Avatar, Loading, MyAudit},
   data() {
@@ -56,7 +56,7 @@ export default {
     }
   },
   mounted() {
-    const type = getLocalParmas().search.type
+    const type = this.receiptType
     this.type = type
     let title = ''
     switch (type) {

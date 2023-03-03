@@ -3,7 +3,8 @@ import Dialog from "../../wxcomponents/dialog/dialog";
 
 const toast = (title) => {
     Toast({
-        title: title || '成功！',
+        forbidClick: true,
+        title,
         duration: 3000
     });
 };
@@ -11,17 +12,14 @@ const toast = (title) => {
 const successToast = (
     title,
     afterClose = () => {
-    },
-    wait,
-) => {
-    if (!wait) {
-        afterClose();
     }
+) => {
+
     Toast({
-        forbidClick: wait,
+        forbidClick: true,
         message: title || '成功！',
         type: 'success',
-        onClose: wait && afterClose,
+        onClose:afterClose,
         duration: 3000
     });
 };
@@ -29,17 +27,13 @@ const successToast = (
 const errorToast = (
     title,
     afterClose = () => {
-    },
-    wait,
-) => {
-    if (!wait) {
-        afterClose();
     }
+) => {
     Toast({
-        forbidClick: wait,
+        forbidClick: true,
         message: title || '失败！',
         type: 'fail',
-        onClose: wait && afterClose,
+        onClose: afterClose,
         duration: 3000
     });
 };
@@ -60,7 +54,7 @@ const MyDialog = (
     }) => {
     if (only) {
         Dialog.alert({
-            zIndex:100,
+            zIndex: 100,
             className: 'dialog',
             title,
             message: content,
@@ -69,7 +63,7 @@ const MyDialog = (
         })
     } else {
         Dialog.confirm({
-            zIndex:100,
+            zIndex: 100,
             title,
             message: content,
             confirmButtonText: confirmText,

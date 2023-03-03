@@ -99,8 +99,8 @@ export default {
       searchValue: ''
     }
   },
-  watch:{
-    show(show){
+  watch: {
+    show(show) {
       this.$store.commit('dialog/openChange', show)
     }
   },
@@ -124,7 +124,6 @@ export default {
         collectable += item.collectable
         received += item.received
       })
-
       uni.$emit('outStockAction', {
         taskId: this.taskId,
         collectable: collectable,
@@ -195,7 +194,7 @@ export default {
         this.loading = false
       })
 
-      const {array} = outPickListFormatSort(isArray(res.data));
+      const {array} = outPickListFormatSort(isArray(res.data), true);
       this.showCount = 10
       const newData = array.filter(item => {
         return this.searchSkuName(this.searchValue, item);
@@ -240,6 +239,9 @@ export default {
       };
       return {...item, skuResult}
     },
+    outStockAfter() {
+      this.getDetailList()
+    },
     refresh(returnSkus) {
       const format = (item) => {
         let number = 0;
@@ -272,7 +274,6 @@ export default {
       const newDefaultData = this.defaultData.map(format);
       this.data = newData
       this.defaultData = newDefaultData
-
       this.outStockAction(newDefaultData)
     },
     search(value) {

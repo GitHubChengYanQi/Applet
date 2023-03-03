@@ -1,11 +1,11 @@
 <template>
-  <u-avatar :src="src" :size="size" :shape="circular ? 'circle' : 'square'"></u-avatar>
+  <u-avatar :text="text" :src="src" :size="size" :shape="circular ? 'circle' : 'square'"></u-avatar>
 </template>
 
 <script>
 export default {
   name: 'Avatar',
-  props: ['size', 'src', 'circular'],
+  props: ['size', 'src', 'circular', 'text'],
 }
 </script>
 

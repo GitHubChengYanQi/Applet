@@ -1,7 +1,8 @@
 <template>
   <view>
     <view v-if="skeleton" class="skeletonLoading">
-      <van-loading type="spinner" color="#1989fa" :size="50" />
+      <u-loading-page v-if="skeletonType === 'page'" loading-text="loading..." loading></u-loading-page>
+      <u-loading-icon v-else mode="circle" text="loading..." :vertical="true"></u-loading-icon>
     </view>
     <view v-if="loading">
       <van-dialog
@@ -24,7 +25,7 @@
 
 export default {
   name: 'loading',
-  props: ['title', 'loading', 'skeleton'],
+  props: ['title', 'loading', 'skeleton', 'skeletonType'],
 }
 </script>
 

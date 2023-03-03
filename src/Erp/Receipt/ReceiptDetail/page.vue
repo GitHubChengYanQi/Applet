@@ -1,12 +1,10 @@
 <template>
   <scroll-view style="height:100vh" :scroll-y="scroll">
-    <van-toast id="van-toast" />
-    <van-dialog id="van-dialog" />
     <view v-if="!detailData && !loading">
       <van-empty image="error" description="获取审批详情失败!" />
     </view>
     <view v-else-if="!detailData && loading">
-      <Loading :skeleton="true" />
+      <Loading :skeleton="true" skeleton-type="page" />
     </view>
     <view v-else>
       <Loading :loading="loading" />
@@ -90,9 +88,11 @@ export default {
       loading: true,
       detailData: null,
       currentNode: [],
+      search: {},
     }
   },
   mounted() {
+    this.search = getLocalParmas().search
     this.getTaskDetail()
   },
   computed: {
@@ -108,9 +108,9 @@ export default {
 
     },
     getTaskDetail() {
-      const taskId = getLocalParmas().search.id
-      const formId = getLocalParmas().search.formId
-      const type = getLocalParmas().search.type
+      const taskId = this.search.id
+      const formId = this.search.formId
+      const type = this.search.type
       this.loading = true
       if (!taskId && !(formId && type)) {
         this.loading = false

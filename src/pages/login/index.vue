@@ -10,7 +10,7 @@
       <view v-if="!mobile">
         <uni-forms>
           <uni-forms-item :label-width="40" label="账号">
-            <uni-easyinput  class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
+            <uni-easyinput class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
           </uni-forms-item>
           <uni-forms-item :label-width="40" label="密码">
             <uni-easyinput class="uni-input" type="password" name="password" v-model="password" placeholder="请输入密码" />
@@ -56,7 +56,7 @@ export default {
     }
   },
   mounted() {
-    this.backUrl = getLocalParmas().search.backUrl
+    this.backUrl = getLocalParmas().search.backUrl.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26")
   },
   methods: {
     getphonenumber(res) {

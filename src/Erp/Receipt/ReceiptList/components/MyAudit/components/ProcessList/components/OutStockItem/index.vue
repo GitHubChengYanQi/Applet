@@ -65,7 +65,6 @@ export default {
     this.progressChange(receipts, received, collectable, false);
     const current = this
     uni.$on('outStockAction', function (data) {
-      console.log(data.receivedAction && data.pickListsId === receipts.pickListsId,'7337')
       if (data.receivedAction && data.pickListsId === receipts.pickListsId) {
         current.progressChange(receipts, current.received + data.received, current.collectable - data.collectable, true)
       } else if (data.taskId === current.item.processTaskId) {

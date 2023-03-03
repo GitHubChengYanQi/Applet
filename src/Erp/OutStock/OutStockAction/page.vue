@@ -1,9 +1,7 @@
 <template>
   <scroll-view style="height:100vh" :scroll-y="scroll">
-    <van-toast id="van-toast" />
-    <van-dialog id="van-dialog" />
     <view v-if="loading">
-      <Loading :skeleton="true" />
+      <Loading :skeleton="true" skeleton-type="page" />
     </view>
     <view v-else>
       <van-tabs color="#007aff" border line-width="30%" @change="change">
@@ -34,12 +32,13 @@
       </van-tabs>
 
       <OutStockShop
+          ref="outStockShopRef"
           v-if="query.action === 'true' && !prepare"
           :taskId='query.taskId'
           :outType='query.source'
           :pickListsId='query.pickListsId'
           @refresh="(resh)=>refresh(resh)"
-          @confirm="confirm"
+          @confirm="()=>confirm()"
       />
     </view>
   </scroll-view>
@@ -60,7 +59,7 @@ export default {
       query: {},
       detail: {},
       shopRef: 'shopRef',
-      loading: false,
+      loading: true,
       tabKey: 0,
       prepare: false,
     }
@@ -76,8 +75,19 @@ export default {
   },
   methods: {
     confirm() {
+      const current = this
+      this.$emit('outStock')
       uni.navigateTo({
-        url:'/Erp/OutStock/OutStockConfirm/index',
+        url: '/Erp/OutStock/OutStockConfirm/index',
+        events: {
+          // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
+          outStock: function () {
+            // current.$emit('outStock')
+            current.$refs.outStockShopRef.refresh()
+            current.$refs.batchPrepareRef?.refresh();
+            current.$refs.onePrepareRef?.outStockAfter();
+          },
+        },
       })
     },
     change(tab) {

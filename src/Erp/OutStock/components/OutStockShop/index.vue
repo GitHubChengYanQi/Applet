@@ -71,6 +71,10 @@ export default {
     // this.getOutStockShop()
   },
   methods: {
+    refresh(){
+      this.getOutStockShop();
+      this.show = false
+    },
     close() {
       if (this.refreshOrder) {
         this.$emit('refresh', this.refreshOrder)

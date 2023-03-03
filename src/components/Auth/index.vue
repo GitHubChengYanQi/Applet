@@ -1,6 +1,6 @@
 <template>
   <view>
-    <Loading v-if="loading" :skeleton="true" />
+    <Loading v-if="loading" :skeleton="true" skeleton-type="page" />
     <Error v-else-if="error" />
     <slot v-else></slot>
   </view>
@@ -27,22 +27,22 @@ export default {
   data() {
     return {
       loading: false,
-      error: false,
+      error: false
     }
   },
   mounted() {
     this.authInfo()
   },
-  watch: {
-    '$store.state.userInfo.refresh': {
-      handler(value) {
-        if (value) {
-          this.authInfo()
-        }
-      },
-      deep: true
-    }
-  },
+  // watch: {
+  // '$store.state.userInfo.refresh': {
+  //   handler(value) {
+  //     if (value) {
+  //       this.authInfo()
+  //     }
+  //   },
+  //   deep: true
+  // }
+  // },
   methods: {
     async authInfo() {
       this.loading = true

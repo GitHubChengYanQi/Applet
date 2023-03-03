@@ -52,7 +52,7 @@
         <van-button custom-class="button" v-if="!sys" @click="$emit('confirm')">
           出库确认
         </van-button>
-        <van-button custom-class="button" v-if="!sys" type="info" @click='send'>
+        <van-button :loading="sendLoading" :disabled="allSkus.length === 0" custom-class="button" v-if="!sys" type="info" @click='send'>
           通知领料
         </van-button>
       </view>
@@ -81,7 +81,8 @@ export default {
     return {
       sys: false,
       returnSkus: [],
-      errorSku: []
+      errorSku: [],
+      sendLoading: false
     }
   },
   mounted() {
@@ -132,10 +133,13 @@ export default {
       })
     },
     send() {
+      this.sendLoading = true
       OutStock.send({userId: this.user.userId, taskId: this.taskId}, {
         onSuccess: () => {
           Message.successToast('提醒成功!');
         }
+      }).finally(()=>{
+        this.sendLoading = false
       })
     },
     checkedSkus() {

@@ -2,6 +2,7 @@
 import {Init} from "MES-Apis/src/Init";
 import {Message} from "./components/Message";
 import "uview-ui/index.scss";
+import {getLocalParmas} from "./util/Tools";
 
 
 Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
@@ -36,10 +37,13 @@ export default {
     appInit() {
       Init.responseConfig({
         loginTimeOut: () => {
-          Message.errorToast('您已登录超时，正在重新登录...',()=>{
+          Message.errorToast('您已登录超时!\n正在重新登录...',()=>{
             getApp().globalData.token = ''
             this.$store.commit('userInfo/clear')
-            this.$store.commit('userInfo/refresh', true)
+            uni.reLaunch({
+              url: getLocalParmas().route,
+            });
+            // this.$store.commit('userInfo/refresh', true)
           },true)
         },
         errorMessage: (res) => {

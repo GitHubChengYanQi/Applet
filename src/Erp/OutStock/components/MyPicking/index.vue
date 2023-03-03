@@ -105,6 +105,9 @@ export default {
         const cartResults = item.cartResults || [];
         let collectable = 0;
         cartResults.forEach(cartItem => {
+          if (cartItem.status === 99) {
+            return
+          }
           if (storehouseId) {
             if (storehouseId === cartItem.storehouseId) {
               collectable += cartItem.number;
@@ -174,7 +177,7 @@ export default {
         skuName: itemSku.skuName,
         specifications: itemSku.specifications,
         imgResults: media ? [{thumbUrl: media.thumbUrl}] : [],
-        stockNumber:itemSku.stockNum
+        stockNumber: itemSku.stockNum
       }
     },
     checkData() {
@@ -192,11 +195,11 @@ export default {
       }
     },
     click() {
-      const cartIds = []
       const cartsParams = [];
       this.checkData().checkSku.map(skuItem => {
         const cartResults = skuItem.cartResults || [];
         const brandIds = [];
+        const cartIds = []
         cartResults.forEach(item => {
           if (!brandIds.includes(item.brandId)) {
             brandIds.push(item.brandId || '0');
@@ -204,19 +207,18 @@ export default {
           if (item.storehouseId === this.storehouse.storehouseId) {
             cartIds.push(item.pickListsCart)
           }
-
-          cartsParams.push({
-            storehouseId: this.storehouse.storehouseId,
-            skuId: skuItem.skuId,
-            pickListsId: skuItem.pickListsId,
-            number: skuItem.outNumber,
-            brandIds,
-          });
+        });
+        cartsParams.push({
+          cartIds,
+          storehouseId: this.storehouse.storehouseId,
+          skuId: skuItem.skuId,
+          pickListsId: skuItem.pickListsId,
+          number: skuItem.outNumber,
+          brandIds,
         });
       });
       this.createCodeLoading = true
-      OutStock.createPickCodeV2_0({
-        cartIds,
+      OutStock.createPickCode({
         cartsParams,
       }, {
         onSuccess: (res) => {
