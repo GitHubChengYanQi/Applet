@@ -17,6 +17,7 @@
     <view>
       <view
           class="action"
+          :style="{width}"
           v-if="!historyType && (focus || value) && !noSearchButton"
           @click="onSearch({detail:value})"
       >
@@ -45,6 +46,7 @@ export default {
     'value',
     'historyType',
     'value',
+    'width'
   ],
   data() {
     return {

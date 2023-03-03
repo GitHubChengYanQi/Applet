@@ -60,7 +60,8 @@ export default {
 
 <style>
 /*每个页面公共css */
-@import "/static/font/iconfont.css";
+@import "@/static/font/iconfont.css";
+@import "@/static/iconfont/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
 
 </style>
