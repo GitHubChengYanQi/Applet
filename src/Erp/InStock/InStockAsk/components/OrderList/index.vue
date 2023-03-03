@@ -1,7 +1,7 @@
 <template>
   <view class="orderList" :style="{padding:maxHeight && '0'}">
     <Search
-        placeholder='请输入关键字搜索采购订单'
+        placeholder='搜索编码、主题、供应商名称'
         :value="searchValue"
         @onChange="(value)=>searchValue = value"
         @onSearch="onSearch"

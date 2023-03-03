@@ -39,7 +39,7 @@ export default {
         loginTimeOut: () => {
           Message.errorToast('您已登录超时!\n正在重新登录...',()=>{
             getApp().globalData.token = ''
-            this.$store.commit('userInfo/clear')
+            // this.$store.commit('userInfo/clear')
             uni.reLaunch({
               url: getLocalParmas().route,
             });

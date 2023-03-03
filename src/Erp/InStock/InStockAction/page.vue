@@ -137,7 +137,7 @@ export default {
       })
 
       this.listAll = this.listAll.map((item) => {
-        if (item.skuId === detailListItem.skuId) {
+        if (item.detailId === detailListItem.detailId) {
           return {...item, purchaseNumber: number}
         }
         return item
