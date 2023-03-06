@@ -7,7 +7,7 @@
 		<view class="content">
 			<view v-show="current === 0">
 				<view class="uni-list">
-					<checkbox-group @change="checkboxChange">
+					<checkbox-group >
 						<label class="uni-list2">
 							<view class="uni-list3">
 								<checkbox :value="item.value" :checked="item.checked" style="transform:scale(0.6)" color="#007AFF"/>
@@ -58,7 +58,7 @@
 				<view class="space"></view>
 				
 				<view class="uni-list">
-					<checkbox-group @change="checkboxChange">
+					<checkbox-group>
 						<label class="uni-list2">
 							<view class="uni-list3">
 								<checkbox :value="item.value" :checked="item.checked" style="transform:scale(0.6)" color="#007AFF"/>
@@ -107,25 +107,44 @@
 				</view>
 			</view>
 			<view v-show="current === 1">
-				<view class="uni-list4">
-					<view class="uni-list6">
+				<view class="">
+					<view class="uni-list4">
+						<view class="uni-list6">
+							<view class="check">
+								<checkbox :value="item.value" :checked="item.checked" style="transform:scale(0.6)" color="#007AFF"/>
+							</view>
+							<view class="headPortrait3">
+							  <image src="../../static/3.png" alt="" />
+							  <view class="quantity">10件</view>
+							</view>
+							<view class="describe">
+								<view>大孔过渡板</view>
+								<view class="grey">t5-76041l / 大孔用</view>
+							</view>
+							<view class="uni-list5">
+								<view class="warn">无工艺</view>
+							</view>
+						</view>
+					</view>
+					<view class="uni-list4">
 						<view class="check">
 							<checkbox :value="item.value" :checked="item.checked" style="transform:scale(0.6)" color="#007AFF"/>
 						</view>
-						<view class="headPortrait3">
-						  <image src="../../static/3.png" alt="" />
-						  <view class="quantity">10件</view>
+						<view class="content2">
+							<view class="information">
+								<view class="title">国家</view>
+								<view class="substance">：无</view>
+							</view>
+							<view class="information">
+								<view class="title">订单编号</view>
+								<view class="substance">：123</view>
+							</view>
 						</view>
-						<view class="describe">
-							<view>大孔过渡板</view>
-							<view class="grey">t5-76041l / 大孔用</view>
-						</view>
-						
-						<view class="uni-list5">
+						<view class="center">
 							<view class="warn">无工艺</view>
+							<view class="number">×2</view>
 						</view>
 					</view>
-					
 				</view>
 			</view>
 			
@@ -209,10 +228,12 @@
 	}
 	.uni-list6{
 		display: flex;
+		width: 100%;
+		padding-bottom: 8px;
 		border-bottom: 1px solid #e1ebf6;
 	}
 	.check{
-		line-height: 72px;
+		margin: auto 0;
 	}
 	.warn{
 		color: #ff3141;
@@ -266,5 +287,24 @@
 		padding: 10px 0;
 		position: absolute;
 		bottom: 0;
+	}
+	.information{
+		display: flex;
+	}
+	.title{
+		width: 70px;
+		color: #9d9d9d;
+		font-size: 14px;
+		padding: 1px 0;
+		text-align-last: justify;
+	}
+	.content2{
+		flex-grow: 1;
+	}
+	.substance{
+		font-size: 14px;
+	}
+	.center{
+		text-align: center;
 	}
 </style>

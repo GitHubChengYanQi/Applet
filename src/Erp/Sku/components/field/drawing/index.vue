@@ -6,7 +6,7 @@
 </template>
 
 <script>
-	import Uploader from '../../../../../../components/Uploader/index.vue';
+	import Uploader from '../../../../../components/Uploader/index.vue';
 	export default {
 		name:"drawing",
 		components:{

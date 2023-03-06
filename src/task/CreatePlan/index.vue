@@ -23,8 +23,13 @@
 		</van-popup>
 		
 		<Card title="产品">
-			<view class="product" @click="onclick">
+			<!-- <view class="product" @click="onclick">
 				<u-button type="primary" :plain="true" text="+"></u-button>
+			</view> -->
+			<view class="information">
+				
+				<view class="country">国家</view>
+				<input class="entry" type="text"  placeholder="请输入" placeholder-style="color:#ccc"/>
 			</view>
 		</Card>
 		<u-popup :show="show2" mode="bottom" round @close="onClose" closeable>
@@ -64,20 +69,23 @@
 				<uni-icons type="personadd" size="20" color="#007AFF" @click="date"></uni-icons>
 			</template>
 		</Card>
+		
 		<Card title="添加备注">
 			<u--textarea  placeholder="请输入添加备注" border="none"></u--textarea>
 		</Card>
 		<Card title="添加附件">
 			<template v-slot:extra>
-				<Uploader>
-					<uni-icons type="personadd" size="20" color="#007AFF" @click="date"></uni-icons>
-				</Uploader>
+				<Uploader file color="#007AFF"></Uploader>
 			</template>
 		</Card>
+		<BottomButton leftText="上一步" rightText="保存"></BottomButton>
 	</view>
 </template>
 
 <script>
+	import {
+		getLocalParmas
+	} from "../../util/Tools";
 	import Card from '../../components/Card/index.vue'
 	import BottomButton from '../../components/BottomButton/index.vue'
 	import Uploader from '../../components/Uploader/index.vue'
@@ -110,6 +118,9 @@
 </script>
 
 <style lang="scss">
+	.iconColor{
+		color: red !important;
+	}
 	.product{
 		width: 23%;
 		font-size: 16px;
@@ -155,5 +166,23 @@
 	}
 	.custom-style{
 		border-radius: 0px;
+	}
+	.list-cell {
+			display: flex;
+			box-sizing: border-box;
+			width: 100%;
+			padding: 10px 24rpx;
+			overflow: hidden;
+			color: #323233;
+			font-size: 14px;
+			line-height: 24px;
+			background-color: #fff;
+	}
+	.country{
+		width: 50%;
+	}
+	.entry{
+		width: 50%;
+		text-align: right;
 	}
 </style>

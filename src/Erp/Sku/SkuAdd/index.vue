@@ -54,7 +54,6 @@
 	import {
 		request
 	} from 'MES-Apis/uitl/Service/request';
-	import Uploader from '../../../../components/Uploader/index.vue'
 	import Brandids from "../components/field/brand-ids";
 	import Batch from "../components/field/batch";
 	import Color from "../components/field/color";
@@ -83,7 +82,6 @@
 	export default {
 		components: {
 			Card,
-			Uploader,
 			Batch,
 			Brandids,
 			Color,

@@ -1,7 +1,7 @@
 <template>
 		<van-uploader :file-list="fileList" :deletable="true" max-count="5" use-before-read @before-read="uploader"
 			@delete="doDelete">
-				<uni-icons type="paperclip" size="20" v-if="file"></uni-icons>
+				<uni-icons type="paperclip" size="20" v-if="file" :color="color"></uni-icons>
 		</van-uploader>
 </template>
 
@@ -24,7 +24,8 @@
 			file:{
 				type:Boolean,
 				default:false
-			}
+			},
+			color:String
 		},
 		methods: {
 			getToken(fielname){
