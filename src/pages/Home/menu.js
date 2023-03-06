@@ -21,5 +21,6 @@ export const Menu = [
         icon: 'icon-rukuguanli2',
         url: `/Erp/Receipt/ReceiptList/index?type=${ReceiptsEnums.instockOrder}`
     },
-    {name: '办理入库', key: 'inStockAsk', icon: 'icon-rukuguanli2', url: '/Erp/InStock/InStockAsk/index'}
+    {name: '办理入库', key: 'inStockAsk', icon: 'icon-rukuguanli2', url: '/Erp/InStock/InStockAsk/index'},
+    {name: '采购单列表', key: 'procurementOrder', icon: 'icon-caigoudanguanli', url: '/Purchase/Order/OrderList/index'}
 ]

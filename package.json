@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch",
-    "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --minimize",
+    "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode cheng --watch --minimize",
     "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh"
   },
   "dependencies": {
@@ -30,7 +30,7 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "0.0.46",
+    "MES-Apis": "0.0.47",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",

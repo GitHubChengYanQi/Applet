@@ -98,6 +98,23 @@
           }
         }
       ]
+    },
+    {
+      "root": "Purchase",
+      "pages": [
+        {
+          "path": "Order/OrderList/index",
+          "style": {
+            "navigationBarTitleText": "订单列表"
+          }
+        },
+        {
+          "path": "Order/OrderDetail/index",
+          "style": {
+            "navigationBarTitleText": "订单详情"
+          }
+        }
+      ]
     }
   ],
   "globalStyle": {

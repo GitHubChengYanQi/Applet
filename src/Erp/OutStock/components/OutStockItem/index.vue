@@ -558,7 +558,7 @@ export default {
 }
 
 .details {
-  max-height: 80vh;
+  max-height: 50vh;
   overflow: auto;
 }
 
@@ -589,7 +589,7 @@ export default {
 }
 
 .askContent {
-  max-height: 80vh;
+  max-height: 50vh;
   overflow: auto;
 }
 

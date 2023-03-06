@@ -1,24 +1,25 @@
 <template>
-  <view class="orderList" :style="{padding:maxHeight && '0'}">
-    <Search
-        placeholder='搜索编码、主题、供应商名称'
-        :value="searchValue"
-        @onChange="(value)=>searchValue = value"
-        @onSearch="onSearch"
-    />
+  <view class="orderList">
+    <view class="search">
+      <Search
+          placeholder='搜索编码、主题、供应商名称'
+          :value="searchValue"
+          @onChange="(value)=>searchValue = value"
+          @onSearch="onSearch"
+      />
+    </view>
     <List
         ref="listRef"
-        :max-height="maxHeight || '50vh'"
-        @request="InStock.showOrderListV2_0"
+        max-height="calc(100vh - 100px)"
+        @request="Order.list"
         :list="list"
         @listSource="(newList)=>list = newList"
     >
       <view
           v-for="(item,index) in list"
           :key="index"
-          @click="$emit('onCheck',item)"
       >
-        <view class="card">
+        <view class="card" @click="click(item.orderId)">
           <view class="cardHeader">
             <view class='cardTitle'>
               <div class='header'>
@@ -31,16 +32,16 @@
           </view>
           <view class="body">
             <div class='theme'>{{ item.theme || '无主题' }}</div>
-            <view>供应商</view>
+            <view>{{ item.bcustomer ? item.bcustomer.customerName : '无' }}</view>
             <div class='user'>
               创建人：
               <view class='userItem'>
                 <Avatar
                     :circular="true"
                     style="margin-right: 4px"
-                    :src="item.createUserResult && item.createUserResult.avatar" size="18"
+                    :src="item.user && item.user.avatar" size="18"
                 />
-                {{ item.createUserResult && item.createUserResult.name }}
+                {{ item.user ? item.user.name : '无' }}
               </view>
             </div>
           </view>
@@ -50,33 +51,38 @@
     </List>
   </view>
 </template>
+
 <script>
-import Search from "../../../../../components/Search";
-import {InStock} from "MES-Apis/src/InStock/promise";
-import List from "../../../../../components/List/indx";
-import {timeDifference} from "../../../../../util/Tools";
-import Avatar from "../../../../../components/Avatar";
+import {timeDifference} from "../../../util/Tools";
+import Search from "../../../components/Search";
+import List from "../../../components/List/indx";
+import Avatar from "../../../components/Avatar";
+import {Order} from "MES-Apis/src/Order/promise";
 
 export default {
   name: 'OrderList',
-  props: ['maxHeight'],
   components: {Avatar, List, Search},
   data() {
     return {
-      InStock,
+      Order,
       list: [],
       orderList: [],
       timeDifference,
       searchValue: ''
     }
   },
-  mounted() {
+  onLoad(option) {
 
   },
   methods: {
     onSearch(value) {
       this.$refs.listRef.submit({
         keywords: value
+      })
+    },
+    click(id) {
+      uni.navigateTo({
+        url: `/Purchase/Order/OrderDetail/index?id=${id}`
       })
     }
   }
@@ -85,6 +91,12 @@ export default {
 
 <style lang="scss">
 .orderList {
+  background-color: #fff;
+  height: 100vh;
+  padding: 0;
+}
+
+.search {
   padding: 0 12px;
 }
 

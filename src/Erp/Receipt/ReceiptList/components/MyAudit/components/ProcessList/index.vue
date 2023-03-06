@@ -2,7 +2,7 @@
   <view>
     <List
         ref="listRef"
-        :max-height="type === ReceiptsEnums.outstockOrder ? 'calc(100vh - 140px)' : 'calc(100vh - 80px)'"
+        :max-height="type === ReceiptsEnums.outstockOrder ? 'calc(100vh - 185px)' : 'calc(100vh - 125px)'"
         @request="Process.auditList"
         :list="list"
         @listSource="(newList)=>list = newList"
@@ -108,7 +108,7 @@ export default {
       })
     },
     submit(params) {
-      this.$refs.listRef.submit(params)
+      this.$refs.listRef.submit({type: this.type, status: 7, ...params})
     },
     deleteTask(item) {
       this.list = [...this.list.filter(listItem => listItem.processTaskId !== item.processTaskId)]

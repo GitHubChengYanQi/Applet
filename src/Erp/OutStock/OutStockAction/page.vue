@@ -1,5 +1,5 @@
 <template>
-  <scroll-view style="height:100vh" :scroll-y="scroll">
+  <view>
     <view v-if="loading">
       <Loading :skeleton="true" skeleton-type="page" />
     </view>
@@ -41,7 +41,7 @@
           @confirm="()=>confirm()"
       />
     </view>
-  </scroll-view>
+  </view>
 </template>
 
 <script>
@@ -62,11 +62,6 @@ export default {
       loading: true,
       tabKey: 0,
       prepare: false,
-    }
-  },
-  computed: {
-    scroll() {
-      return !this.$store.state.dialog.show
     }
   },
   mounted() {

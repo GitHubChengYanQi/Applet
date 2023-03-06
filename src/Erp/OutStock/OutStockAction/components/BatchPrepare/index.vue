@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <scroll-view style="height:calc(100vh - 130px)" :scroll-y="scroll">
     <view class='batchPrepare'>
       <view class='box'>
         <view>
@@ -29,62 +29,64 @@
           <span class="label">申请时间：</span>{{ MyDate.Show(detail.createTime) }}
         </view>
       </view>
-      <van-tabs swipeable border color="#007aff" :active="type" @change="onChange">
-        <van-tab
-            v-for="(typeItem,typeIndex) in types"
-            :key="typeIndex"
-            :title="typeItem.title"
-            :name="typeItem.name"
-        >
-          <view class="box">
-            <view class="skuHeader">
-              <view class="skuTitle">物料</view>
-              <view>申请数量</view>
-            </view>
-            <view class="divider" />
-            <view v-if="loading">
-              <Loading :skeleton="true" />
-            </view>
-            <view v-else-if="total().num">
-              <view
-                  v-for="(item,index) in data"
-                  :key="index"
-              >
-                <view
-                    :class="['skuContent', item.complete && type === 'all' && 'complete']"
-                    v-if="skuNumberShow(item)"
-                >
-                  <view class='img'>
-                    <image
-                        :src='item.thumbUrl || publicInfo.imgLogo'
-                        alt=''
-                    />
-                    <view class='number'>
-                      {{ item.stockNumber || 0 }}{{ item.skuResult.unitName }}
-                    </view>
-                  </view>
-                  <view class="sku">
-                    <view class="skuShow">
-                      {{
-                        SkuResultSkuJsons(skuResult(item))
-                      }}
-                    </view>
-                  </view>
-                  <view>
-                    X {{ skuNumberShow(item) }}
-                  </view>
+      <view class="tabs">
+        <van-tabs swipeable border color="#007aff" :active="type" @change="onChange">
+          <van-tab
+              v-for="(typeItem,typeIndex) in types"
+              :key="typeIndex"
+              :title="typeItem.title"
+              :name="typeItem.name"
+          />
+        </van-tabs>
+      </view>
+
+      <view class="box">
+        <view class="skuHeader">
+          <view class="skuTitle">物料</view>
+          <view>申请数量</view>
+        </view>
+        <view class="divider" />
+        <view v-if="loading">
+          <Loading :skeleton="true" />
+        </view>
+        <view v-else-if="total().num">
+          <view
+              v-for="(item,index) in data"
+              :key="index"
+          >
+            <view
+                :class="['skuContent', item.complete && type === 'all' && 'complete']"
+                v-if="skuNumberShow(item)"
+            >
+              <view class='img'>
+                <image
+                    :src='item.thumbUrl || publicInfo.imgLogo'
+                    alt=''
+                />
+                <view class='number'>
+                  {{ item.stockNumber || 0 }}{{ item.skuResult.unitName }}
                 </view>
               </view>
-            </view>
-            <Empty v-else description='暂无物料' />
-
-
-            <view class='total'>
-              合计：&nbsp;&nbsp;{{ total().num }}类&nbsp;&nbsp;{{ total().number }}件
+              <view class="sku">
+                <view class="skuShow">
+                  {{
+                    SkuResultSkuJsons(skuResult(item))
+                  }}
+                </view>
+              </view>
+              <view>
+                X {{ skuNumberShow(item) }}
+              </view>
             </view>
           </view>
-        </van-tab>
-      </van-tabs>
+        </view>
+        <Empty v-else description='暂无物料' />
+
+
+        <view class='total'>
+          合计：&nbsp;&nbsp;{{ total().num }}类&nbsp;&nbsp;{{ total().number }}件
+        </view>
+      </view>
     </view>
     <view class="bottom"></view>
     <BottomButton
@@ -93,7 +95,7 @@
         text='一键备料'
         @onClick='onClick'
     />
-  </view>
+  </scroll-view>
 </template>
 
 <script>
@@ -133,6 +135,9 @@ export default {
     this.detailList()
   },
   computed: {
+    scroll() {
+      return !this.$store.state.dialog.show
+    },
     publicInfo() {
       return this.$store.state.userInfo.publicInfo
     }
@@ -168,7 +173,7 @@ export default {
           ...item,
           complete: item.notPrepared === 0,
           skuResult: item.skuResult || {},
-          thumbUrl: media.thumbUrl
+          thumbUrl: media ? media.thumbUrl : ''
         }
       })
       this.data = data
@@ -177,7 +182,7 @@ export default {
           return this.total(item.name, data).num
         }
         return false
-      }).name
+      })?.name || 'all'
       this.loading = false
       return {
         received: receivedTotal,
@@ -274,7 +279,7 @@ export default {
             number
           }
         default:
-          break;
+          return {}
       }
     }
   }
@@ -282,9 +287,18 @@ export default {
 </script>
 
 <style lang="scss">
+
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .batchPrepare {
   background-color: #fff;
   padding: 0 12px 60px;
+  //height: 100vh;
+  //overflow: auto;
 
   .box {
     padding: 12px 0;

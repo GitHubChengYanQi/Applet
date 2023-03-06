@@ -133,7 +133,7 @@ export default {
 <style lang="scss">
 
 .content {
-  max-height: 80vh;
+  max-height: 50vh;
   display: flex;
   flex-direction: column;
 

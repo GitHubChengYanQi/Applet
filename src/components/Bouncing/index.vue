@@ -93,10 +93,6 @@ export default {
     color: #3D3D3D;
     gap: 8px;
 
-    :global .ant-avatar {
-      background-color: $body-color;
-    }
-
     .actionButton {
       border-radius: 100%;
       background-color: $body-color;

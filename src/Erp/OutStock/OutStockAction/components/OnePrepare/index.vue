@@ -11,11 +11,7 @@
             @onChange="(value)=> searchValue = value"
             @onSearch='search'
             :value="searchValue"
-        >
-          <template slot="extraIcon">
-            <van-icon name="aim" @click="positionVisible = true" />
-          </template>
-        </Search>
+       />
       </view>
       <scroll-view
           :scroll-y="scroll"

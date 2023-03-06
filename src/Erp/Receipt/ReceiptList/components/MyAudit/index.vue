@@ -1,10 +1,18 @@
 <template>
   <view class="audit">
+    <van-tabs color="#007aff" border line-width="30%" @change="change">
+      <van-tab :name="7" title="执行中">
+      </van-tab>
+      <van-tab :name="5" title="已完成">
+      </van-tab>
+      <van-tab :name="6" title="已撤销">
+      </van-tab>
+    </van-tabs>
     <view class="search">
       <Search
-          :value="searchValue"
+          :value="searchData.skuName"
           placeholder='请输入单据相关信息'
-          @onChange="(value)=>searchValue = value"
+          @onChange="(value)=>searchData.skuName = value"
           @onSearch="onSearch"
       />
     </view>
@@ -40,12 +48,20 @@ export default {
   ],
   data() {
     return {
-      searchValue: ''
+      searchData: {
+        skuName: '',
+        status: 7
+      }
     }
   },
   methods: {
     onSearch(value) {
-      this.$refs.listRef.submit({skuName: value})
+      this.searchData.skuName = value
+      this.$refs.listRef.submit(this.searchData)
+    },
+    change({detail}) {
+      this.searchData.status = detail.name
+      this.$refs.listRef.submit({...this.searchData, status: detail.name})
     }
   }
 }

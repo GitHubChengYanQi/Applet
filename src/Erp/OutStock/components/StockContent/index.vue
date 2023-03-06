@@ -216,7 +216,7 @@ export default {
 
 .action {
   padding: 12px;
-  max-height: 80vh;
+  max-height: 50vh;
   overflow: auto;
 
   .storeHouseTitle {

@@ -1305,7 +1305,7 @@ image {
 }
 
 .contents {
-  max-height: 80vh;
+  max-height: 50vh;
   overflow: auto;
 }
 

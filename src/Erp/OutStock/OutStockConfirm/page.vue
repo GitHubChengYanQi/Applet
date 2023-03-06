@@ -61,9 +61,9 @@ export default {
     }
   },
   mounted() {
-  // setTimeout(()=>{
-  //   this.$emit('outStock')
-  // },2000)
+    // setTimeout(()=>{
+    //   this.$emit('outStock')
+    // },2000)
   },
   methods: {
     onClick() {
@@ -84,21 +84,31 @@ export default {
         code: current.code
       }, {
         onSuccess() {
-          Message.successToast('出库成功！',
-              () => {
-                let received = 0;
-                current.outSkus.map(item => {
-                  received += item.number
-                })
-                uni.$emit('outStockAction', {
-                  receivedAction: true,
-                  pickListsId: current.outSkus[0].pickListsId,
-                  received: received
-                })
-                current.$emit('outStock')
-                current.outSkus = []
-              },
-          );
+          let received = 0;
+          current.outSkus.map(item => {
+            received += item.number
+          })
+          uni.$emit('outStockAction', {
+            receivedAction: true,
+            pickListsId: current.outSkus[0].pickListsId,
+            received: received
+          })
+          current.$emit('outStock')
+
+          Message.dialog({
+            only: false,
+            title: '出库成功！',
+            confirmText: '继续出库',
+            cancelText: '返回',
+            onConfirm() {
+              current.outSkus = []
+              return true
+            },
+            onCancel() {
+              uni.navigateBack();
+              return true
+            }
+          })
         }
       }).finally(() => {
         this.outStockLoading = false

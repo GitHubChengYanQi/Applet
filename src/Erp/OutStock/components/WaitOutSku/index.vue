@@ -172,7 +172,7 @@ export default {
 }
 
 .content {
-  max-height: 80vh;
+  max-height: 50vh;
   overflow: auto;
 
   svg {

@@ -262,7 +262,7 @@ export default {
   .content {
     flex-grow: 1;
     overflow: auto;
-    max-height: 80vh;
+    max-height: 50vh;
 
     .top {
       position: sticky;

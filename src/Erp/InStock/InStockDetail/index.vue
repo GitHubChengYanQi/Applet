@@ -1,6 +1,6 @@
 <template>
   <view>
-    <web-view :src="`https://wx.zz2025.com/cp/#/Receipts/ReceiptsDetail?id=${taskId}`"></web-view>
+    <web-view :src="`${src}Receipts/ReceiptsDetail?id=${taskId}`"></web-view>
     <view v-if="false">
       <Card title="来源" v-if="origin">
         <template v-slot:extra>
@@ -139,6 +139,7 @@ export default {
   ],
   data() {
     return {
+      src: process.env.VUE_APP_PAGE_URL,
       getInType,
       isArray,
       filterData: [],

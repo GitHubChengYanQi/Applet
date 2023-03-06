@@ -105,7 +105,7 @@ export default {
 
       ctx.setFillStyle('#f95455')
 
-      ctx.fillText(receipts.coding, this.windowWidth / 2, 75)
+      ctx.fillText(receipts.coding || '', this.windowWidth / 2, 75)
 
 // 绘制矩形，在矩形中添加文本
       ctx.setFontSize(14)
@@ -120,7 +120,7 @@ export default {
 
       ctx.setFillStyle('#333333')
 
-      ctx.fillText(taskDetail.user?.name, this.windowWidth - 25, 110)
+      ctx.fillText(taskDetail.user?.name || '', this.windowWidth - 25, 110)
 
       ctx.setTextAlign('left')
 
@@ -132,7 +132,7 @@ export default {
 
       ctx.setFillStyle('#333333')
 
-      ctx.fillText(taskDetail.createTime, this.windowWidth - 25, 130)
+      ctx.fillText(taskDetail.createTime || '', this.windowWidth - 25, 130)
 
 // 绘制虚线
 
@@ -166,18 +166,17 @@ export default {
         if (sku.length > 20) {
           sku = sku.substring(0, 20) + '...'
         }
-        ctx.fillText(sku, 25, 190 + (20 * index))
+        ctx.fillText(sku || '', 25, 190 + (20 * index))
 
         ctx.setTextAlign('right')
 
         ctx.setFillStyle('#333333')
 
-        ctx.fillText(item.number, this.windowWidth - 25, 190 + (20 * index))
+        ctx.fillText(item.number || '', this.windowWidth - 25, 190 + (20 * index))
       })
 
       ctx.setTextAlign('right')
-
-      ctx.fillText(this.$store.state.userInfo.publicInfo.enterprise, this.windowWidth - 25, 220 + (instockListResults.length * 20))
+      ctx.fillText(this.$store.state.userInfo.publicInfo.enterprise || '', this.windowWidth - 25, 220 + (instockListResults.length * 20))
 
       if (img) {
         ctx.drawImage(img, this.windowWidth - 160, 165 + (instockListResults.length * 20), 100, 100)
