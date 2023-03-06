@@ -1,6 +1,8 @@
 <template>
-	<van-uploader :file-list="fileList" :deletable="true" max-count="5" use-before-read @before-read="uploader"
-		@delete="doDelete" />
+		<van-uploader :file-list="fileList" :deletable="true" max-count="5" use-before-read @before-read="uploader"
+			@delete="doDelete">
+				<uni-icons type="paperclip" size="20" v-if="file" :color="color"></uni-icons>
+		</van-uploader>
 </template>
 
 <script>
@@ -8,13 +10,22 @@
 	import {getLocalParmas} from "../../util/Tools";
 	export default {
 		name: 'Uploader',
+		behaviors: ['uni://form-field'],
 		props: {
 			value: Array
 		},
 		data() {
 			return {
 				fileList: [],
+				mediaId:[]
 			}
+		},
+		props:{
+			file:{
+				type:Boolean,
+				default:false
+			},
+			color:String
 		},
 		methods: {
 			getToken(fielname){
@@ -35,6 +46,7 @@
 			},
 			async uploader(event) {
 				// console.log(event);
+				const _this = this;
 				const {
 					file,
 					callback
@@ -46,7 +58,6 @@
 
 				})
 				const response = await this.getToken(file.url);
-				console.log(oss);
 				const oss = response.data;
 				uni.uploadFile({
 					url: oss.host, //仅为示例，非真实的接口地址
@@ -57,14 +68,12 @@
 					},
 					success: (uploadFileRes) => {
 						// console.log(uploadFileRes.data);
-						const index = this.fileList.findIndex(function(item) {
+						const index = _this.fileList.findIndex(function(item) {
 							return item.url == file.url
 						});
-						console.log(index);
-						this.fileList[index].status = 'done';
-					},
-					complete:()=>{
-						this.$emit("change",this.fileList);
+						_this.fileList[index].status = 'done';
+						_this.mediaId.push(oss.mediaId);
+						_this.$emit("input",_this.mediaId);
 					}
 				});
 				callback(true);

@@ -8,6 +8,24 @@
     }
   },
   "pages": [
+	  {
+	    "path": "task/information/index",
+	    "style": {
+	      "navigationBarTitleText": "选择产品信息"
+	    }
+	  }, 
+	  {
+	    "path": "task/CreatePlan/index",
+	    "style": {
+	      "navigationBarTitleText": "创建出库计划"
+	    }
+	  }, 
+	  {
+	    "path": "task/produced/index",
+	    "style": {
+	      "navigationBarTitleText": "待生产"
+	    }
+	  }, 
     {
       "path": "pages/Home/index",
       "style": {
@@ -145,6 +163,7 @@
       "van-search": "/wxcomponents/search/index",
       "van-tabbar": "/wxcomponents/tabbar/index",
       "van-tabbar-item": "/wxcomponents/tabbar-item/index",
+	  "van-datetime-picker": "/wxcomponents/datetime-picker/index"
       "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
       "van-dropdown-item": "/wxcomponents/dropdown-item/index"
     }
