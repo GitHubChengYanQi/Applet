@@ -8,24 +8,6 @@
     }
   },
   "pages": [
-	  {
-	    "path": "task/information/index",
-	    "style": {
-	      "navigationBarTitleText": "选择产品信息"
-	    }
-	  }, 
-	  {
-	    "path": "task/CreatePlan/index",
-	    "style": {
-	      "navigationBarTitleText": "创建出库计划"
-	    }
-	  }, 
-	  {
-	    "path": "task/produced/index",
-	    "style": {
-	      "navigationBarTitleText": "待生产"
-	    }
-	  }, 
     {
       "path": "pages/Home/index",
       "style": {
@@ -65,18 +47,6 @@
           "path": "Receipt/ReceiptDetail/index",
           "style": {
             "navigationBarTitleText": "审批详情"
-          }
-        },
-        {
-          "path": "Sku/SkuAdd/index",
-          "style": {
-            "navigationBarTitleText": "添加物料"
-          }
-        },
-        {
-          "path": "Sku/SkuDetail/index",
-          "style": {
-            "navigationBarTitleText": "物料详情"
           }
         },
         {
@@ -133,6 +103,69 @@
           }
         }
       ]
+    },
+    {
+      "root": "Production",
+      "pages": [
+        {
+          "path": "Information/index",
+          "style": {
+            "navigationBarTitleText": "选择产品信息"
+          }
+        },
+        {
+          "path": "CreatePlan/index",
+          "style": {
+            "navigationBarTitleText": "创建生产计划"
+          }
+        },
+        {
+          "path": "BomDetailList/index",
+          "style": {
+            "navigationBarTitleText": "创建生产计划"
+          }
+        },
+        {
+          "path": "Produced/index",
+          "style": {
+            "navigationBarTitleText": "待生产"
+          }
+        }
+      ]
+    },
+    {
+      "root": "Sku",
+      "pages": [
+        {
+          "path": "SkuAdd/index",
+          "style": {
+            "navigationBarTitleText": "添加物料"
+          }
+        },
+        {
+          "path": "SkuDetail/index",
+          "style": {
+            "navigationBarTitleText": "物料详情"
+          }
+        },
+        {
+          "path": "SkuDetailWebView/index",
+          "style": {
+            "navigationBarTitleText": "物料详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "User",
+      "pages": [
+        {
+          "path": "SelectUser/index",
+          "style": {
+            "navigationBarTitleText": "企业通讯录"
+          }
+        }
+      ]
     }
   ],
   "globalStyle": {
@@ -163,9 +196,11 @@
       "van-search": "/wxcomponents/search/index",
       "van-tabbar": "/wxcomponents/tabbar/index",
       "van-tabbar-item": "/wxcomponents/tabbar-item/index",
-	  "van-datetime-picker": "/wxcomponents/datetime-picker/index"
+      "van-datetime-picker": "/wxcomponents/datetime-picker/index",
       "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
-      "van-dropdown-item": "/wxcomponents/dropdown-item/index"
+      "van-dropdown-item": "/wxcomponents/dropdown-item/index",
+      "van-radio": "/wxcomponents/vant-radio/index",
+      "van-radio-group": "/wxcomponents/vant-radio-group/index"
     }
   }
 }

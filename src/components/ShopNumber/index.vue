@@ -1,6 +1,20 @@
 <template>
-  <view>
-    <view :style="{ backgroundColor: !show && '#fff' }" class='shopNumber'>
+  <view :style="{ backgroundColor: !show && '#fff' }" class='shopNumber'>
+    <view v-if="actionShow">
+      <view
+          :class="['number',className]"
+          :style="{ border: show && 'none', padding: show && 0, textAlign:textAlign || 'center' }"
+          @click="$emit('click')"
+      >
+        <view v-if="!number">
+          × {{ value }}
+        </view>
+        <view v-else-if="value">
+          {{ value }}
+        </view>
+      </view>
+    </view>
+    <view v-else>
       <view
           :class="['number',className]"
           :style="{ border: show && 'none', padding: show && 0, textAlign:textAlign || 'center' }"
@@ -40,6 +54,7 @@ export default {
     textAlign: String,
     value: String || Number,
     show: Boolean,
+    actionShow: Boolean,
     min: {
       type: Number,
       default: 1

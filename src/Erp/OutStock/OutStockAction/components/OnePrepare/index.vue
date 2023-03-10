@@ -69,7 +69,7 @@ import {outPickListFormatSort} from "../../index";
 import {isArray, queryString} from "../../../../../util/Tools";
 import {Sku} from "MES-Apis/src/Sku/promise";
 import OutStockItem from "../../../components/OutStockItem";
-import {SkuResultSkuJsons} from "../../../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";
 import Slide from "../../../../../components/Slide";
 import PrePare from "../../../components/Prepare";

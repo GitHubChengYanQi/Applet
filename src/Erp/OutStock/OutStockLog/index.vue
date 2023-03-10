@@ -45,7 +45,7 @@ import Empty from "../../../components/Empty";
 import Loading from "../../../components/Loading";
 import ShopNumber from "../../../components/ShopNumber";
 import {MyDate} from "../../../util/Tools";
-import SkuItem from "../../Sku/components/SkuItem";
+import SkuItem from "../../../components/SkuItem";
 
 export default {
   name: 'OutStockLog',

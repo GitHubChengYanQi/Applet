@@ -109,12 +109,12 @@ import {isArray, queryString} from "../../../util/Tools";
 import Card from "../../../components/Card";
 import LinkButton from "../../../components/LinkButton";
 import Search from "../../../components/Search";
-import {SkuResultSkuJsons} from "../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../Sku/sku";
 import Empty from "../../../components/Empty";
 import Slide from "../../../components/Slide";
 import InStockItem from "../components/InStockItem";
 import ActionButtons from "../../Receipt/ReceiptDetail/components/ActionButtons";
-import Button from "../../../components/Button";
+import Button from "../../../components/VantButton";
 import InstockShop from "../components/InstockShop";
 import {InStock} from "MES-Apis/src/InStock/promise";
 

@@ -33,7 +33,7 @@
 
 <script>
 import moment from "moment";
-import SkuItem from "../../../Sku/components/SkuItem";
+import SkuItem from "../../../../components/SkuItem";
 import ShopNumber from "../../../../components/ShopNumber";
 
 export default {

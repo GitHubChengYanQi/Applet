@@ -1,5 +1,13 @@
 <template>
-  <u-avatar :text="text" :src="src" :size="size" :shape="circular ? 'circle' : 'square'"></u-avatar>
+  <u-avatar
+      :text="text"
+      :src="src"
+      :size="size"
+      :shape="circular ? 'circle' : 'square'"
+      @click="$emit('click')"
+  >
+
+  </u-avatar>
 </template>
 
 <script>

@@ -4,6 +4,7 @@ import bouncing from './modules/Bouncing'
 import userInfo from './modules/UserInfo'
 import shopNumber from './modules/ShopNumber'
 import dialog from './modules/Dialog'
+import systemInfo from './modules/SystemInfo'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
         bouncing,
         userInfo,
         shopNumber,
-        dialog
+        dialog,
+        systemInfo
     },
 })

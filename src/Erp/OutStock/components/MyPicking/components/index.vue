@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import SkuItem from "../../../../Sku/components/SkuItem";
+import SkuItem from "../../../../../components/SkuItem";
 import OutPerogress from "../../OutProgress";
 import ShopNumber from "../../../../../components/ShopNumber";
 

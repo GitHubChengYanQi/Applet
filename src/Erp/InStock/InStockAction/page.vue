@@ -12,6 +12,10 @@
           <view>
             <span class="label">供应商</span>：供应商
           </view>
+          <view>
+            <span class="label">到货进度</span>：
+            <u-line-progress :percentage="percentage"></u-line-progress>
+          </view>
         </view>
       </view>
     </Card>
@@ -36,12 +40,20 @@
               <SkuItem
                   extra-width="100px"
                   :sku-result="item.skuResult"
-                  :other-data="[
-                      isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem=>positionBindItem.name).join('、') : '未绑定库位'
-                  ]"
-              />
+              >
+                <template slot="otherData">
+                  <view class="number">
+                    采购数量 {{ item.purchaseNumber || 0 }} 个，已到货 {{ item.arrivalNumber || 0 }} 个
+                  </view>
+                  <Elliptsis max-width="calc(100vw - 74px - 13px - 100px)">
+                    库位：{{
+                      isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem => positionBindItem.name).join('、') : '未绑定库位'
+                    }}
+                  </Elliptsis>
+                </template>
+              </SkuItem>
             </view>
-            <ShopNumber :min="0" :value="item.purchaseNumber" @onChange="(number)=>updateSkuListNumber(number,item)" />
+            <ShopNumber :min="0" :value="item.number" @onChange="(number)=>updateSkuListNumber(number,item)" />
           </view>
         </view>
 
@@ -64,20 +76,20 @@ import BottomButton from "../../../components/BottomButton";
 import Popup from "../../../components/Popup";
 import {InStock} from "MES-Apis/src/InStock/promise";
 import List from "../../../components/List/indx";
-import SkuItem from "../../Sku/components/SkuItem";
+import SkuItem from "../../../components/SkuItem";
 import ShopNumber from "../../../components/ShopNumber";
 import Search from "../../../components/Search";
 import {isArray, queryString} from "../../../util/Tools";
 import Loading from "../../../components/Loading";
-import {SkuResultSkuJsons} from "../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../Sku/sku";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/src/Init";
 import {Sku} from "MES-Apis/src/Sku/promise";
-import Toast from "../../../wxcomponents/toast/toast";
+import Elliptsis from "../../../components/Ellipsis";
 
 export default {
   name: 'InStockAsk',
-  components: {Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card},
+  components: {Elliptsis, Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card},
   props: ['order'],
   data() {
     return {
@@ -86,7 +98,8 @@ export default {
       list: [],
       listAll: [],
       searchValue: '',
-      isArray
+      isArray,
+      percentage: 0
     }
   },
   mounted() {
@@ -116,13 +129,20 @@ export default {
         option: 'image/resize,m_fill,h_74,w_74',
       })
 
+      let purchaseNumber = 0
+      let arrivalNumber = 0
+
       const data = isArray(res.data).map(item => {
         const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        purchaseNumber += item.purchaseNumber
+        arrivalNumber += (item.arrivalNumber || 0)
         return {
           ...item,
+          number: item.purchaseNumber - (item.arrivalNumber || 0),
           skuResult: {...item.skuResult, thumbUrl: media.thumbUrl}
         }
       })
+      this.percentage = Math.round((arrivalNumber / purchaseNumber) * 100) || 0
 
       this.list = data
       this.listAll = data
@@ -131,14 +151,14 @@ export default {
     updateSkuListNumber(number, detailListItem) {
       this.list = this.list.map((item) => {
         if (item.detailId === detailListItem.detailId) {
-          return {...item, purchaseNumber: number}
+          return {...item, number: number}
         }
         return item
       })
 
       this.listAll = this.listAll.map((item) => {
         if (item.detailId === detailListItem.detailId) {
-          return {...item, purchaseNumber: number}
+          return {...item, number: number}
         }
         return item
       })
@@ -156,7 +176,7 @@ export default {
                 detailParams: this.listAll.map((item) => {
                   return {
                     detailId: item.detailId,
-                    number: item.purchaseNumber,
+                    number: item.number,
                     skuId: item.skuId,
                     customerId: item.customerId,
                     brandId: item.brandId
@@ -209,6 +229,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  view {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .selectOrder {
@@ -219,7 +244,8 @@ export default {
 .detailListItem {
   display: flex;
   align-items: center;
-  padding-bottom: 8px;
+  padding: 6px 0;
+  border-bottom: solid 1px #f5f5f5;
 
   .skuItem {
     flex-grow: 1;
@@ -227,10 +253,16 @@ export default {
 }
 
 .label {
-  width: 50px;
+  width: 60px;
   text-align: justify;
   text-align-last: justify;
   display: inline-block;
   color: #9d9d9d;
+}
+
+.number {
+  margin-top: 4px;
+  color: $primary-color;
+  max-width: calc(100vw - 74px - 13px - 100px);
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <view>
-    <web-view ref="webview" :src="`${src}Work/Stock?skuDetailUrl=${skuDetailUrl}`"></web-view>
+    <web-view ref="webview" :src="`${src}Work/Stock`"></web-view>
   </view>
 </template>
 
@@ -9,8 +9,7 @@ export default {
   name: 'Stock',
   data() {
     return {
-      src: process.env.VUE_APP_PAGE_URL,
-      skuDetailUrl: '/Erp/Sku/SkuDetail/index'
+      src: process.env.VUE_APP_PAGE_URL
     }
   },
   mounted() {
