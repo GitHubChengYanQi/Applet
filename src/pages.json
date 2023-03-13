@@ -109,6 +109,18 @@
             "navigationBarTitleText": "入库申请"
           }
         },
+		{
+		  "path": "Stocktaking/immediately/index",
+		  "style": {
+		    "navigationBarTitleText": "即时盘点"
+		  }
+		},
+		{
+		  "path": "Stocktaking/immediatelyDetail/index",
+		  "style": {
+		    "navigationBarTitleText": "即时盘点"
+		  }
+		},
         {
           "path": "InStock/InStockVoucher/index",
           "style": {
@@ -163,8 +175,8 @@
       "van-search": "/wxcomponents/search/index",
       "van-tabbar": "/wxcomponents/tabbar/index",
       "van-tabbar-item": "/wxcomponents/tabbar-item/index",
-	  "van-datetime-picker": "/wxcomponents/datetime-picker/index"
-      "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
+	  "van-datetime-picker": "/wxcomponents/datetime-picker/index",
+	  "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
       "van-dropdown-item": "/wxcomponents/dropdown-item/index"
     }
   }

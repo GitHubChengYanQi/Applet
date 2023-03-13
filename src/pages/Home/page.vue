@@ -48,11 +48,7 @@ export default {
   margin-top: 5px;
 }
 
-.example-body {
-  /* #ifndef APP-NVUE */
-  // display: block;
-  /* #endif */
-}
+
 
 .grid-dynamic-box {
   margin-bottom: 15px;
@@ -60,10 +56,9 @@ export default {
 
 .grid-item-box {
   flex: 1;
-  // position: relative;
-  /* #ifndef APP-NVUE */
+
   display: flex;
-  /* #endif */
+
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -74,9 +69,9 @@ export default {
 .grid-item-box-row {
   flex: 1;
   // position: relative;
-  /* #ifndef APP-NVUE */
+
   display: flex;
-  /* #endif */
+
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -93,7 +88,7 @@ export default {
   height: 420px;
 }
 
-/* #ifdef H5 */
+
 @media screen and (min-width: 768px) and (max-width: 1425px) {
   .swiper {
     height: 630px;

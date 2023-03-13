@@ -40,16 +40,16 @@
 			<view class="add">选择版本</view>
 			<view class="box">
 				<view class="uni-list">
-				<view class="headPortrait3">
-				  <image src="../../static/3.png" alt="" />
-				  <view class="quantity">10件</view>
+					<view class="headPortrait3">
+					  <image src="../../static/3.png" alt="" />
+					  <view class="quantity">10件</view>
+					</view>
+					<view class="describe">
+						<view>大孔过渡板</view>
+						<view class="grey">t5-76041l / 大孔用</view>
+						<view class="otherData">预警</view>
+					</view>
 				</view>
-				<view class="describe">
-					<view>大孔过渡板</view>
-					<view class="grey">t5-76041l / 大孔用</view>
-					<view class="otherData">预警</view>
-				</view>
-			</view>
 			<view class="uni-list" v-for="item in list">
 				<view class="content2">
 					<view class="information">
