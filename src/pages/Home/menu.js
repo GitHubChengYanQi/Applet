@@ -23,5 +23,5 @@ export const Menu = [
     },
     {name: '办理入库', key: 'inStockAsk', icon: 'icon-rukuguanli2', url: '/Erp/InStock/InStockAsk/index'},
     {name: '采购单列表', key: 'procurementOrder', icon: 'icon-caigoudanguanli', url: '/Purchase/Order/OrderList/index'},
-    // {name: '创建生产计划', key: 'createProduction', icon: 'icon-shengchanjihua', url: '/Production/CreatePlan/index'}
+    {name: '创建生产计划', key: 'createProduction', icon: 'icon-shengchanjihua', url: '/Production/CreatePlan/index'}
 ]

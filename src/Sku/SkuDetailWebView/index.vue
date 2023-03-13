@@ -1,19 +1,20 @@
 <template>
   <view>
-    <web-view ref="webview" :src="`${src}Work/Sku/SkuDetail?skuId=${skuId}`"></web-view>
+    <WebView :src=`Work/Sku/SkuDetail?skuId=${skuId}` />
   </view>
 </template>
 
 
 <script>
+import WebView from "../../components/WebView";
 export default {
+  components: {WebView},
   onLoad(options) {
     this.skuId = options.skuId
   },
   data() {
     return {
-      skuId: '',
-      src: process.env.VUE_APP_PAGE_URL
+      skuId: ''
     }
   },
   mounted() {

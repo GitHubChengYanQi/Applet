@@ -13,7 +13,7 @@
             <van-icon name="minus" />
           </button>
           <view class='value'>
-            {{ showNumber() }}<span v-if="defaultNumber" class='line'>|</span>
+            {{ showNumber() }}<span v-if="!defaultNumber" class='line'>|</span>
           </view>
           <button :disabled="Number(showNumber() || 0) >= max" @click="jiaClick">
             <van-icon name="plus" />
@@ -223,6 +223,7 @@ export default {
 
     .actions {
       width: 25%;
+      padding-right: 10px;
 
       .numberButton {
         width: 100%;

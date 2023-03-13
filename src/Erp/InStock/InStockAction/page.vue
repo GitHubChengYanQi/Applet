@@ -1,19 +1,24 @@
 <template>
-  <view>
+  <view style="padding-bottom: 100px">
     <Card title="采购订单">
       <view v-if="order.orderId">
         <view class="header">
-          <view>
-            <span class="label">编码</span>：{{ order.coding }}
+          <view class="headerItem">
+            <span class="label">编码</span>：
+            <Elliptsis width="calc(100vw - 125px)">{{ order.coding }}</Elliptsis>
           </view>
-          <view>
-            <span class="label">主题</span>：{{ order.theme || '无' }}
+          <view class="headerItem">
+            <span class="label">主题</span>：
+            <Elliptsis width="calc(100vw - 125px)">{{ order.theme || '无' }}</Elliptsis>
           </view>
-          <view>
-            <span class="label">供应商</span>：供应商
+          <view class="headerItem">
+            <span class="label">供应商</span>：
+            <Elliptsis width="calc(100vw - 125px)">
+              {{ order.sellerResult && order.sellerResult.customerName || '无' }}
+            </Elliptsis>
           </view>
-          <view>
-            <span class="label">到货进度</span>：
+          <view class="headerItem" style="align-items: center">
+            <span class="label">入库进度</span>：
             <u-line-progress :percentage="percentage"></u-line-progress>
           </view>
         </view>
@@ -43,13 +48,17 @@
               >
                 <template slot="otherData">
                   <view class="number">
-                    采购数量 {{ item.purchaseNumber || 0 }} 个，已到货 {{ item.arrivalNumber || 0 }} 个
+                    采购 {{ item.purchaseNumber || 0 }} 个，到货 {{ item.arrivalNumber || 0 }} 个
                   </view>
-                  <Elliptsis max-width="calc(100vw - 74px - 13px - 100px)">
-                    库位：{{
-                      isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem => positionBindItem.name).join('、') : '未绑定库位'
-                    }}
-                  </Elliptsis>
+                  <view class="inStockNumber">
+                    入库 {{ item.inStockNumber || 0 }} 个，
+                    <span :style="{color:isArray(item.bindPositions).length <= 0 && 'red'}">
+                      库位：
+                      {{
+                        isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem => positionBindItem.name).join('、') : '未绑定库位'
+                      }}
+                   </span>
+                  </view>
                 </template>
               </SkuItem>
             </view>
@@ -61,7 +70,7 @@
     </Card>
 
     <BottomButton
-        only
+        only=""
         text="一键入库"
         @onClick="inStock"
     />
@@ -130,19 +139,19 @@ export default {
       })
 
       let purchaseNumber = 0
-      let arrivalNumber = 0
+      let inStockNumber = 0
 
       const data = isArray(res.data).map(item => {
         const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
         purchaseNumber += item.purchaseNumber
-        arrivalNumber += (item.arrivalNumber || 0)
+        inStockNumber += (item.inStockNumber || 0)
         return {
           ...item,
-          number: item.purchaseNumber - (item.arrivalNumber || 0),
+          number: item.purchaseNumber - (item.inStockNumber || 0) > 0 ? item.purchaseNumber - (item.inStockNumber || 0) : 0,
           skuResult: {...item.skuResult, thumbUrl: media.thumbUrl}
         }
       })
-      this.percentage = Math.round((arrivalNumber / purchaseNumber) * 100) || 0
+      this.percentage = Math.round((inStockNumber / purchaseNumber) * 100) || 0
 
       this.list = data
       this.listAll = data
@@ -230,9 +239,9 @@ export default {
   flex-direction: column;
   gap: 4px;
 
-  view {
+  .headerItem {
     display: flex;
-    align-items: center;
+    align-items: end;
   }
 }
 
@@ -244,7 +253,7 @@ export default {
 .detailListItem {
   display: flex;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: solid 1px #f5f5f5;
 
   .skuItem {
@@ -263,6 +272,12 @@ export default {
 .number {
   margin-top: 4px;
   color: $primary-color;
+  max-width: calc(100vw - 74px - 13px - 100px);
+}
+
+.inStockNumber {
+  margin-top: 4px;
+  color: $success-color;
   max-width: calc(100vw - 74px - 13px - 100px);
 }
 </style>

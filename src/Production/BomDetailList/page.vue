@@ -1,71 +1,82 @@
 <template>
-  <view class="boms">
-    <Card style="position: sticky;top:0" title="生产BOM数量">
-      <template slot="extra">
-        <ShopNumber action-show :value="number" @click="visible = true" />
-      </template>
-    </Card>
-    <Loading :skeleton="true" v-if="loading" />
-    <view v-else>
-      <Card
-          :no-body="open !== item.bomId"
-          no-left-border
-          body-style="border-top:solid 1px #f5f5f5;padding-top:0;margin-top:8px"
-          v-for="item in boms"
-          :key="item.bomId"
-          class="bomItem"
-      >
-        <view slot="title">
-          <SkuItem
-              extra-width="100px"
-              :sku-result="isObject(item.skuResult)"
-          >
-            <template slot="otherData" class="user">
-              负责人：
-              <LinkButton @click="selectUser(item.bomId,item.user)">
-                {{ item.user ? item.user.name : '请选择负责人' }}
-              </LinkButton>
-            </template>
-          </SkuItem>
-        </view>
-        <view slot="extra" class="extra">
-          x {{ item.number }}
-          <u-icon
-              :name="open !== item.bomId ? 'arrow-down' : 'arrow-up'"
-              color="#007aff"
-              @click="open = open === item.bomId ? null : item.bomId"
-          >
+  <view>
+    <scroll-view class="boms" scroll-y>
+      <view class="header">
+        <Card title="生产BOM数量">
+          <template slot="extra">
+            <ShopNumber action-show :value="number" @click="visible = true" />
+          </template>
+        </Card>
+      </view>
 
-          </u-icon>
-        </view>
-        <view>
-          <view
-              v-for="item in isArray(item.detailList)"
-              :key="item.skuId"
-              class="detailItem"
-          >
-            <view class="skuItem">
-              <SkuItem img-size="60" extra-width="120px" :sku-result="isObject(item.skuResult)" />
-            </view>
-            <ShopNumber show :value="item.number" />
+      <Loading :skeleton="true" v-if="loading" />
+      <view v-else>
+        <Card
+            :no-body="open !== item.bomId"
+            no-left-border
+            style="box-shadow: 0 5px 5px 0 #e1ebf6;margin-bottom: 16px;"
+            body-style="padding-top:0;margin-top:8px"
+            v-for="item in boms"
+            :key="item.bomId"
+            class="bomItem"
+        >
+          <view slot="title">
+            <SkuItem
+                extra-width="100px"
+                :sku-result="isObject(item.skuResult)"
+            >
+              <template slot="otherData" class="user">
+                负责人：
+                <LinkButton @click="selectUser(item.bomId,item.user)">
+                  {{ item.user ? item.user.name : '请选择负责人' }}
+                </LinkButton>
+              </template>
+            </SkuItem>
           </view>
-        </view>
+          <view slot="extra" class="extra">
+            x {{ item.number }}
+            <u-icon
+                :name="open !== item.bomId ? 'arrow-down' : 'arrow-up'"
+                color="#007aff"
+                @click="open = open === item.bomId ? null : item.bomId"
+            >
 
-      </Card>
-      <BottomButton
-          only
-          text="创建生产任务"
+            </u-icon>
+          </view>
+          <view class="details">
+            <view class="line"></view>
+            <view
+                v-for="(detailItem,index) in isArray(item.detailList)"
+                :key="detailItem.skuId"
+                class="detail"
+            >
+              <view :class="{detailItem:true,first:index === 0,end:index === isArray(item.detailList).length - 1}">
+                <view class="skuItem">
+                  <SkuItem img-size="60" extra-width="150px" :sku-result="isObject(detailItem.skuResult)" />
+                </view>
+                <ShopNumber show :value="detailItem.number" />
+              </view>
+            </view>
+          </view>
+
+        </Card>
+        <BottomButton
+            only
+            text="创建生产任务"
+        />
+      </view>
+
+      <keybord
+          :visible='visible'
+          @visiblChange="(value)=>visible = value"
+          :value='number'
+          :min='1'
+          @onChange="onChange"
       />
-    </view>
-
-    <keybord
-        :visible='visible'
-        @visiblChange="(value)=>visible = value"
-        :value='number'
-        :min='1'
-        @onChange="onChange"
-    />
+    </scroll-view>
+    <view style="height: 100px" />
   </view>
+
 </template>
 
 <script>
@@ -146,7 +157,17 @@ export default {
 <style lang="scss">
 
 .boms {
-  padding-bottom: 100px;
+  background-color: #fff;
+  padding-top: 51px;
+
+  .header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    background-color: #fff;
+    box-shadow: 0 5px 5px 0 #e1ebf6;
+  }
 }
 
 .bomItem {
@@ -166,13 +187,79 @@ export default {
   gap: 8px;
 }
 
-.detailItem {
-  display: flex;
-  align-items: center;
-  padding: 6px 0;
+.details {
+  padding-left: 12px;
 
-  .skuItem {
-    flex-grow: 1;
+  .line {
+    padding: 8px;
+    border: solid 1px #cacaca;
+    border-top: none;
+    margin: -12px -14px 0 -26px;
+  }
+
+  .detail {
+    position: relative;
+
+
+    .detailItem {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -12px;
+        width: 1px;
+        height: 100%;
+        background-color: #cacaca;
+        margin: auto;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: -12px;
+        width: 12px;
+        height: 1px;
+        background-color: #cacaca;
+        margin: auto;
+      }
+
+      .skuItem {
+        flex-grow: 1;
+      }
+    }
+
+
+    .first {
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -12px;
+        width: 1px;
+        height: 100%;
+        background-color: #cacaca;
+        margin: auto;
+      }
+    }
+
+    .end {
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -12px;
+        width: 1px;
+        height: 50%;
+        background-color: #cacaca;
+        margin: auto;
+      }
+    }
   }
 }
+
+
 </style>

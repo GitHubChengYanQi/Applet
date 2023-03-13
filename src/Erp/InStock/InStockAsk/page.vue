@@ -38,7 +38,7 @@
                 <div class='theme'>{{ item.theme || '无主题' }}</div>
                 <view>{{ item.sellerResult ? item.sellerResult.customerName : '无供应商' }}</view>
                 <view style="display: flex;align-items: center">
-                  到货进度：<u-line-progress :percentage="Math.round((item.arrivalNumber / item.purchaseNumber) * 100) || 0"></u-line-progress>
+                  入库进度：<u-line-progress :percentage="Math.round((item.inStockNumber / item.purchaseNumber) * 100) || 0"></u-line-progress>
                 </view>
                 <div class='user'>
                   创建人：

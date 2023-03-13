@@ -17,8 +17,8 @@
             @onSearch="onSearch"
         />
       </view>
-      <Loading skeleton v-if="loading" />
-      <view v-if="!loading" class="content">
+      <Loading :loading="loading" />
+      <view class="content">
         <Empty v-if="users.length === 0 && depts.length === 0" description="暂无人员信息" />
         <view v-else class="users" :style="{  height: `calc(100vh - 130px - ${safeAreaHeight}px)`}">
           <view
@@ -54,7 +54,7 @@
 
         </view>
       </view>
-      <view v-if="!loading" class="footer" :style="{paddingBottom:`${safeAreaHeight}px`}">
+      <view class="footer" :style="{paddingBottom:`${safeAreaHeight}px`}">
         <view class="checkUsers">
           <Avatar
               v-for="user in checkUsers"
@@ -253,6 +253,7 @@ export default {
     padding: 12px;
 
     .checkUsers {
+      height: 35px;
       flex-grow: 1;
       display: flex;
       align-items: center;
