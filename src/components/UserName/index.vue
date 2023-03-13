@@ -6,7 +6,7 @@
         <view>
           <view>{{ user.name }}</view>
           <view class="info">
-            {{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} -
+            <template v-if="!noDept">{{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} - </template>
             {{ user.role || isArray(user.roleResults)[0] && isArray(user.roleResults)[0].name || '-' }}
           </view>
         </view>
@@ -23,7 +23,7 @@ import Avatar from "../Avatar";
 export default {
   name: 'userName',
   components: {Avatar},
-  props: ['user', 'size'],
+  props: ['user', 'size','noDept'],
   data() {
     return {
       isArray
@@ -35,6 +35,7 @@ export default {
 <style lang="scss">
 .userName {
   display: flex;
+  align-items: center;
   gap: 8px;
 
   .info {

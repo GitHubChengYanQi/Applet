@@ -1,16 +1,25 @@
 <template>
-  <view>
+  <view style="padding-bottom: 100px">
     <Card title="采购订单">
       <view v-if="order.orderId">
         <view class="header">
-          <view>
-            <span class="label">编码</span>：{{ order.coding }}
+          <view class="headerItem">
+            <span class="label">编码</span>：
+            <Elliptsis width="calc(100vw - 125px)">{{ order.coding }}</Elliptsis>
           </view>
-          <view>
-            <span class="label">主题</span>：{{ order.theme || '无' }}
+          <view class="headerItem">
+            <span class="label">主题</span>：
+            <Elliptsis width="calc(100vw - 125px)">{{ order.theme || '无' }}</Elliptsis>
           </view>
-          <view>
-            <span class="label">供应商</span>：供应商
+          <view class="headerItem">
+            <span class="label">供应商</span>：
+            <Elliptsis width="calc(100vw - 125px)">
+              {{ order.sellerResult && order.sellerResult.customerName || '无' }}
+            </Elliptsis>
+          </view>
+          <view class="headerItem" style="align-items: center">
+            <span class="label">入库进度</span>：
+            <u-line-progress :percentage="percentage"></u-line-progress>
           </view>
         </view>
       </view>
@@ -36,12 +45,24 @@
               <SkuItem
                   extra-width="100px"
                   :sku-result="item.skuResult"
-                  :other-data="[
-                      isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem=>positionBindItem.name).join('、') : '未绑定库位'
-                  ]"
-              />
+              >
+                <template slot="otherData">
+                  <view class="number">
+                    采购 {{ item.purchaseNumber || 0 }} 个，到货 {{ item.arrivalNumber || 0 }} 个
+                  </view>
+                  <view class="inStockNumber">
+                    入库 {{ item.inStockNumber || 0 }} 个，
+                    <span :style="{color:isArray(item.bindPositions).length <= 0 && 'red'}">
+                      库位：
+                      {{
+                        isArray(item.bindPositions).length > 0 ? isArray(item.bindPositions).map(positionBindItem => positionBindItem.name).join('、') : '未绑定库位'
+                      }}
+                   </span>
+                  </view>
+                </template>
+              </SkuItem>
             </view>
-            <ShopNumber :min="0" :value="item.purchaseNumber" @onChange="(number)=>updateSkuListNumber(number,item)" />
+            <ShopNumber :min="0" :value="item.number" @onChange="(number)=>updateSkuListNumber(number,item)" />
           </view>
         </view>
 
@@ -49,7 +70,7 @@
     </Card>
 
     <BottomButton
-        only
+        only=""
         text="一键入库"
         @onClick="inStock"
     />
@@ -64,20 +85,20 @@ import BottomButton from "../../../components/BottomButton";
 import Popup from "../../../components/Popup";
 import {InStock} from "MES-Apis/src/InStock/promise";
 import List from "../../../components/List/indx";
-import SkuItem from "../../Sku/components/SkuItem";
+import SkuItem from "../../../components/SkuItem";
 import ShopNumber from "../../../components/ShopNumber";
 import Search from "../../../components/Search";
 import {isArray, queryString} from "../../../util/Tools";
 import Loading from "../../../components/Loading";
-import {SkuResultSkuJsons} from "../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../Sku/sku";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/src/Init";
 import {Sku} from "MES-Apis/src/Sku/promise";
-import Toast from "../../../wxcomponents/toast/toast";
+import Elliptsis from "../../../components/Ellipsis";
 
 export default {
   name: 'InStockAsk',
-  components: {Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card},
+  components: {Elliptsis, Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card},
   props: ['order'],
   data() {
     return {
@@ -86,7 +107,8 @@ export default {
       list: [],
       listAll: [],
       searchValue: '',
-      isArray
+      isArray,
+      percentage: 0
     }
   },
   mounted() {
@@ -116,13 +138,20 @@ export default {
         option: 'image/resize,m_fill,h_74,w_74',
       })
 
+      let purchaseNumber = 0
+      let inStockNumber = 0
+
       const data = isArray(res.data).map(item => {
         const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        purchaseNumber += item.purchaseNumber
+        inStockNumber += (item.inStockNumber || 0)
         return {
           ...item,
+          number: item.purchaseNumber - (item.inStockNumber || 0) > 0 ? item.purchaseNumber - (item.inStockNumber || 0) : 0,
           skuResult: {...item.skuResult, thumbUrl: media.thumbUrl}
         }
       })
+      this.percentage = Math.round((inStockNumber / purchaseNumber) * 100) || 0
 
       this.list = data
       this.listAll = data
@@ -131,14 +160,14 @@ export default {
     updateSkuListNumber(number, detailListItem) {
       this.list = this.list.map((item) => {
         if (item.detailId === detailListItem.detailId) {
-          return {...item, purchaseNumber: number}
+          return {...item, number: number}
         }
         return item
       })
 
       this.listAll = this.listAll.map((item) => {
         if (item.detailId === detailListItem.detailId) {
-          return {...item, purchaseNumber: number}
+          return {...item, number: number}
         }
         return item
       })
@@ -156,7 +185,7 @@ export default {
                 detailParams: this.listAll.map((item) => {
                   return {
                     detailId: item.detailId,
-                    number: item.purchaseNumber,
+                    number: item.number,
                     skuId: item.skuId,
                     customerId: item.customerId,
                     brandId: item.brandId
@@ -209,6 +238,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  .headerItem {
+    display: flex;
+    align-items: end;
+  }
 }
 
 .selectOrder {
@@ -219,7 +253,8 @@ export default {
 .detailListItem {
   display: flex;
   align-items: center;
-  padding-bottom: 8px;
+  padding: 8px 0;
+  border-bottom: solid 1px #f5f5f5;
 
   .skuItem {
     flex-grow: 1;
@@ -227,10 +262,22 @@ export default {
 }
 
 .label {
-  width: 50px;
+  width: 60px;
   text-align: justify;
   text-align-last: justify;
   display: inline-block;
   color: #9d9d9d;
+}
+
+.number {
+  margin-top: 4px;
+  color: $primary-color;
+  max-width: calc(100vw - 74px - 13px - 100px);
+}
+
+.inStockNumber {
+  margin-top: 4px;
+  color: $success-color;
+  max-width: calc(100vw - 74px - 13px - 100px);
 }
 </style>

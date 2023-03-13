@@ -23,7 +23,7 @@
       </view>
     </view>
 
-    <view style="padding-bottom: 60px">
+    <view style="padding-bottom: 70px">
       <StockContent
           :allocation='allocation'
           :storehousePositionsId='allocation && skuItem.positionId'
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import SkuItem from "../../../Sku/components/SkuItem";
+import SkuItem from "../../../../components/SkuItem";
 import BottomButton from "../../../../components/BottomButton";
 import StockContent from "../StockContent";
 import {OutStock} from "MES-Apis/src/OutStock/promise";

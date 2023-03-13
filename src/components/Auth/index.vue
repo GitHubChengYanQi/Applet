@@ -27,7 +27,8 @@ export default {
   data() {
     return {
       loading: false,
-      error: false
+      error: false,
+      height: 0
     }
   },
   mounted() {
@@ -48,6 +49,7 @@ export default {
       this.loading = true
       try {
         await this.$store.dispatch('userInfo/getPublicInfo')
+        await this.$store.dispatch('systemInfo/getSystemInfo')
 
         if (!this.auth) {
           this.authSuccess()

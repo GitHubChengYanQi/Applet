@@ -7,7 +7,7 @@
           v-show="!show"
           canvas-id="secondCanvas"
           id="secondCanvas"
-          :style="{ width: '100vw', height:`${height}px`}"
+          :style="{ width: '100vw', height:`${height}px`,backgroundColor:'#fff'}"
       />
       <view class="bottom"></view>
       <BottomButton
@@ -27,15 +27,17 @@
 
 <script>
 import moment from "moment";
-import SkuItem from "../../Sku/components/SkuItem";
+import SkuItem from "../../../components/SkuItem";
 import BottomButton from "../../../components/BottomButton";
 import Empty from "../../../components/Empty";
-import {SkuResultSkuJsons} from "../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../Sku/sku";
 import {Process} from "MES-Apis/src/Process/promise";
 import Loading from "../../../components/Loading";
 import {Message} from "../../../components/Message";
 import Bouncing from "../../../components/Bouncing";
 import Icon from "../../../components/Icon";
+
+const md5 = require('md5');
 
 export default {
   name: 'InStockVoucher',
@@ -52,7 +54,8 @@ export default {
       windowWidth: 0,
       tempFilePath: '',
       height: '',
-      show: false
+      show: false,
+      img: ''
     }
   },
   mounted() {
@@ -83,7 +86,8 @@ export default {
       })
     },
 
-    capture(img) {
+    async capture(addImg) {
+
 
       this.show = false
 
@@ -95,12 +99,22 @@ export default {
 
       const ctx = uni.createCanvasContext('secondCanvas', this)
 
+      // ctx.rect(0,0,this.windowWidth,100);
+
+      ctx.rect(0, 0, this.windowWidth, this.height)
+      ctx.setFillStyle('#fff')
+      ctx.fill()
+
+// begin another path
+      ctx.beginPath()
+      ctx.fill()
+
 // canvas布局
 
       ctx.setFontSize(20)
 
       ctx.setTextAlign('center')
-
+      ctx.setFillStyle('#000')
       ctx.fillText('入库凭证', this.windowWidth / 2, 40)
 
       ctx.setFillStyle('#f95455')
@@ -177,10 +191,12 @@ export default {
 
       ctx.setTextAlign('right')
       ctx.fillText(this.$store.state.userInfo.publicInfo.enterprise || '', this.windowWidth - 25, 220 + (instockListResults.length * 20))
-
-      if (img) {
-        ctx.drawImage(img, this.windowWidth - 160, 165 + (instockListResults.length * 20), 100, 100)
+      if (addImg) {
+        const path = await this.base64Save(this.$store.state.userInfo.publicInfo.seal || '')
+        // this.img = this.$store.state.userInfo.publicInfo.seal || ''
+        ctx.drawImage(path, this.windowWidth - 160, 165 + (instockListResults.length * 20), 100, 100)
       }
+      ctx.fill()
 
 
 // canvas画布转为图片 ，有时draw调用不成功，写了个定时器
@@ -311,16 +327,19 @@ export default {
       })
     },
     addImg() {
-      const current = this
-      uni.chooseImage({
-        count: 1, //默认9
-        sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-        sourceType: ['album'], //从相册选择
-        success: function (res) {
-          const imgs = res.tempFilePaths || []
-          current.capture(imgs[0])
-        }
-      });
+      if (this.$store.state.userInfo.publicInfo.seal){
+        this.capture(true)
+      }else {
+        uni.showToast({
+
+          title: '请在后台管理设置印章！',
+
+          icon: 'none',
+
+          duration: 3000
+
+        });
+      }
     },
     saveImageToPhotosAlbum() {
       uni.saveImageToPhotosAlbum({
@@ -363,7 +382,36 @@ export default {
     },
     back() {
       uni.navigateBack();
-    }
+    },
+    base64Save(base64File) { //base64File 需要加前缀
+      const fsm = uni.getFileSystemManager();//获取全局文件管理器
+
+      let extName = base64File.match(/data\:\S+\/(\S+);/)
+      if (extName) {
+        //获取文件后缀
+        extName = extName[1]
+      }
+
+      //获取自1970到现在的毫秒 + 文件后缀 生成文件名
+      let fileName = md5(base64File) + '.' + extName
+
+      return new Promise((resolve, reject) => {
+        //写入文件的路径
+        let filePath = wx.env.USER_DATA_PATH + '/' + fileName
+
+        fsm.writeFile({
+          filePath,
+          data: base64File.replace(/^data:\S+\/\S+;base64,/, ''), //替换前缀为空
+          encoding: 'base64',
+          success: (res) => {
+            resolve(filePath);
+          },
+          fail() {
+            reject('写入失败');
+          },
+        });
+      });
+    },
   }
 }
 

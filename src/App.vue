@@ -5,14 +5,14 @@ import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
 
 
-Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.111' : process.env.VUE_APP_BASE_URL)
+Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
 
 
 export default {
   onLaunch: function () {
     const updateManager = uni.getUpdateManager();
 
-    updateManager.onUpdateReady(function (res) {
+    updateManager.onUpdateReady(function () {
       uni.showModal({
         title: '更新提示',
         content: '新版本已经准备好，是否重启应用？',

@@ -8,7 +8,7 @@
     >
       <view :style='headerStyle' v-if="!noHeader" :class="[headerClassName, 'header']">
         <view class='title'>
-          <view class='leftBorder' />
+          <view v-if="!noLeftBorder" class='leftBorder' />
           {{ title || '' }}
           <slot name="title"></slot>
         </view>
@@ -17,7 +17,7 @@
           <slot name="extra"></slot>
         </view>
       </view>
-      <view v-if="$slots.default" :style="bodyStyle" :class="[bodyClassName, 'content']">
+      <view v-if="$slots.default && !noBody" :style="bodyStyle" :class="[bodyClassName, 'content']">
         <slot></slot>
       </view>
     </view>
@@ -28,6 +28,8 @@
 export default {
   name: 'Card',
   props: [
+    'noBody',
+    'noLeftBorder',
     'title',
     'extra',
     'bodyClassName',
@@ -67,7 +69,6 @@ export default {
     padding: 8px;
   }
 }
-
 
 
 .title {

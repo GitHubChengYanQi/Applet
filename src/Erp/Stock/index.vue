@@ -1,20 +1,21 @@
 <template>
   <view>
-    <web-view ref="webview" :src="`${src}Work/Stock?skuDetailUrl=${skuDetailUrl}`"></web-view>
+    <WebView src="Work/Stock" />
   </view>
 </template>
 
 <script>
+import WebView from "../../components/WebView";
 export default {
   name: 'Stock',
+  components: {WebView},
   data() {
     return {
-      src: process.env.VUE_APP_PAGE_URL,
-      skuDetailUrl: '/Erp/Sku/SkuDetail/index'
+
     }
   },
   mounted() {
-    // this.$refs.webview.evalJs("document.body.style.background ='#00FF00'");
+
   },
   methods: {}
 }

@@ -43,7 +43,7 @@
       <view class="box">
         <view class="skuHeader">
           <view class="skuTitle">物料</view>
-          <view>申请数量</view>
+          <view>{{ numberTitle() }}</view>
         </view>
         <view class="divider" />
         <view v-if="loading">
@@ -72,10 +72,12 @@
                   {{
                     SkuResultSkuJsons(skuResult(item))
                   }}
+                  <br>
+                  <view class="askNumber" v-if="type !== 'all'">申请数量：{{ item.number }}</view>
                 </view>
               </view>
               <view>
-                X {{ skuNumberShow(item) }}
+                x {{ skuNumberShow(item) }}
               </view>
             </view>
           </view>
@@ -99,7 +101,7 @@
 </template>
 
 <script>
-import {SkuResultSkuJsons} from "../../../../Sku/sku";
+import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";
 import {getOutType} from "../../../outStock";
 import {isArray, MyDate} from "../../../../../util/Tools";
@@ -281,7 +283,14 @@ export default {
         default:
           return {}
       }
-    }
+    },
+    numberTitle() {
+      if (this.type === 'all') {
+        return '申请数量'
+      } else {
+        return this.types.find(item => item.name === this.type).title + '数量'
+      }
+    },
   }
 }
 </script>
@@ -391,5 +400,10 @@ export default {
       }
     }
   }
+}
+
+.askNumber {
+  font-size: 12px;
+  color: $primary-color
 }
 </style>

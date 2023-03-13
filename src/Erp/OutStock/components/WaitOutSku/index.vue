@@ -62,7 +62,7 @@
 
 <script>
 import LinkButton from "../../../../components/LinkButton";
-import SkuItem from "../../../Sku/components/SkuItem";
+import SkuItem from "../../../../components/SkuItem";
 import {OutStock} from "MES-Apis/src/OutStock/promise";
 import {Message} from "../../../../components/Message";
 

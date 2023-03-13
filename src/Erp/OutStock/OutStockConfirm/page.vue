@@ -40,7 +40,7 @@
 
 <script>
 import ShopNumber from "../../../components/ShopNumber";
-import SkuItem from "../../Sku/components/SkuItem";
+import SkuItem from "../../../components/SkuItem";
 import {isArray} from '../../../util/Tools';
 import BottomButton from "../../../components/BottomButton";
 import Loading from "../../../components/Loading";
