@@ -167,10 +167,11 @@ export default {
       const skuMediaUrls = await Sku.getMediaUrls({
         mediaIds: array.map(item => item.skuResult?.images?.split(',')[0]),
         option: 'image/resize,m_fill,h_74,w_74',
+      }).catch(() => {
       })
       this.countNumber = countNumber
       const data = array.map(item => {
-        const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        const media = isArray(skuMediaUrls?.data).find(mediaItem=>  mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
         return {
           ...item,
           complete: item.notPrepared === 0,
