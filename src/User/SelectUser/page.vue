@@ -57,7 +57,8 @@
       <view class="footer" :style="{paddingBottom:`${safeAreaHeight}px`}">
         <view class="checkUsers">
           <Avatar
-              v-for="user in checkUsers"
+              v-for="(user,index) in checkUsers"
+              :key="index"
               size="35"
               :src='user.avatar'
               :text="!user.avatar ? user.name.substring(0,1) : null"

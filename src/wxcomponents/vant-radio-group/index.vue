@@ -1,12 +1,12 @@
 <template>
-<uni-shadow-root class="radio-group-index"><view :class="utils.bem('radio-group', [direction])">
+<uni-shadow-root class="vant-radio-group-index"><view :class="utils.bem('radio-group', [direction])">
   <slot></slot>
 </view></uni-shadow-root>
 </template>
 <wxs src="../wxs/utils.wxs" module="utils"></wxs>
 <script>
 
-global['__wxRoute'] = 'vant-vant-radio-group/index'
+global['__wxRoute'] = 'vant-radio-group/index'
 import { VantComponent } from '../common/component';
 import { useChildren } from '../common/relation';
 VantComponent({
@@ -29,7 +29,7 @@ VantComponent({
         },
     },
 });
-export default global['__wxComponents']['vant-vant-radio-group/index']
+export default global['__wxComponents']['vant-radio-group/index']
 </script>
 <style platform="mp-weixin">
 @import '../common/index.css';.van-radio-group--horizontal{display:flex;flex-wrap:wrap}

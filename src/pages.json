@@ -25,6 +25,11 @@
       "style": {
         "navigationBarTitleText": "初始化失败"
       }
+    },{
+      "path": "pages/searchPage/index",
+      "style": {
+        "navigationBarTitleText": "初始化失败"
+      }
     }
   ],
   "subPackages": [
@@ -112,6 +117,12 @@
           "path": "Order/OrderDetail/index",
           "style": {
             "navigationBarTitleText": "订单详情"
+          }
+        },
+        {
+          "path": "Order/ConfirmArrival/index",
+          "style": {
+            "navigationBarTitleText": "确认到货"
           }
         }
       ]

@@ -1,5 +1,5 @@
 <template>
-<uni-shadow-root class="radio-index"><view :class="(utils.bem('radio', [direction]))+' custom-class'">
+<uni-shadow-root class="vant-radio-index"><view :class="(utils.bem('radio', [direction]))+' custom-class'">
   <view v-if="labelPosition === 'left'" :class="(utils.bem('radio__label', [labelPosition, { disabled: disabled || parentDisabled }]))+' label-class'" @click="onClickLabel">
     <slot></slot>
   </view>
