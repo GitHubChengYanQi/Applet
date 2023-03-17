@@ -73,7 +73,7 @@
 
 <script>
 import Search from "../../components/Search";
-import {User} from "MES-Apis/src/User/promise";
+import {User} from "MES-Apis/lib/User/promise";
 import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
 import VantButton from "../../components/VantButton";

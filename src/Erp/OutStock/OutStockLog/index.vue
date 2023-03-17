@@ -40,7 +40,7 @@
 
 <script>
 import Search from "../../../components/Search";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import Empty from "../../../components/Empty";
 import Loading from "../../../components/Loading";
 import ShopNumber from "../../../components/ShopNumber";

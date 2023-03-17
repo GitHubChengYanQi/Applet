@@ -116,7 +116,7 @@ import InStockItem from "../components/InStockItem";
 import ActionButtons from "../../Receipt/ReceiptDetail/components/ActionButtons";
 import Button from "../../../components/VantButton";
 import InstockShop from "../components/InstockShop";
-import {InStock} from "MES-Apis/src/InStock/promise";
+import {InStock} from "MES-Apis/lib/InStock/promise";
 
 export default {
   name: 'InStockDetail',

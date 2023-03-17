@@ -30,7 +30,7 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "0.0.62",
+    "MES-Apis": "^0.2.10",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",
@@ -39,9 +39,9 @@
     "qs": "^6.11.0",
     "uqrcodejs": "^4.0.6",
     "uview-ui": "^2.0.35",
+    "vconsole": "^3.12.1",
     "vue": ">= 2.6.14 < 2.7",
-    "vuex": "3.6.2",
-    "vconsole": "^3.12.1"
+    "vuex": "3.6.2"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.0.4",

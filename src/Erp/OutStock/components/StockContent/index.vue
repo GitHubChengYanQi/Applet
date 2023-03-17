@@ -41,7 +41,7 @@
 <script>
 import {isArray} from "../../../../util/Tools";
 import {Message} from "../../../../components/Message";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import Loading from "../../../../components/Loading";
 import ShopNumber from "../../../../components/ShopNumber";
 

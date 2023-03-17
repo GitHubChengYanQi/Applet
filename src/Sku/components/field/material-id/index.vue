@@ -6,7 +6,7 @@
 	///material/listSelect
 	import {
 		request
-	} from 'MES-Apis/uitl/Service/request';
+	} from 'MES-Apis/lib/Service/request';
 	export default {
 		data() {
 			return {
@@ -36,7 +36,7 @@
 					}
 				});
 
-			}			
+			}
 		}
 	}
 </script>

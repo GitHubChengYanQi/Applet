@@ -51,11 +51,11 @@
 </template>
 
 <script>
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import LinkButton from "../../../../components/LinkButton";
 import OutItem from "./components";
 import Loading from "../../../../components/Loading";
-import {Sku} from "MES-Apis/src/Sku/promise";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 import {isArray} from "@/util/Tools";
 
 export default {

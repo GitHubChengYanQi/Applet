@@ -19,7 +19,7 @@
 <script>
 import ActionButtons from '../../../ActionButtons'
 import {ReceiptsEnums} from "../../../../../ReceiptsEnums";
-import {Process} from "MES-Apis/src/Process/promise";
+import {Process} from "MES-Apis/lib/Process/promise";
 import Loading from '../../../../../../../components/Loading'
 import {Message} from "../../../../../../../components/Message";
 

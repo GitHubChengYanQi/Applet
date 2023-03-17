@@ -55,7 +55,7 @@
 
 <script>
 import SkuItem from "../../../../components/SkuItem";
-import {Production} from "MES-Apis/src/Production/promise";
+import {Production} from "MES-Apis/lib/Production/promise";
 import Check from "../../../../components/Check";
 import Loading from "../../../../components/Loading";
 

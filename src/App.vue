@@ -1,11 +1,11 @@
 <script>
-import {Init} from "MES-Apis/src/Init";
+import {Init} from "MES-Apis/lib/Init";
 import {Message} from "./components/Message";
 import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
 
 
-Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.100' : process.env.VUE_APP_BASE_URL)
+Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.111' : process.env.VUE_APP_BASE_URL)
 
 
 export default {

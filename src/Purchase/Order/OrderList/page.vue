@@ -57,7 +57,7 @@ import {timeDifference} from "../../../util/Tools";
 import Search from "../../../components/Search";
 import List from "../../../components/List/indx";
 import Avatar from "../../../components/Avatar";
-import {Order} from "MES-Apis/src/Order/promise";
+import {Order} from "MES-Apis/lib/Order/promise";
 
 export default {
   name: 'OrderList',
