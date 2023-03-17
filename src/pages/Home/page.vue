@@ -88,17 +88,4 @@ export default {
   height: 420px;
 }
 
-
-@media screen and (min-width: 768px) and (max-width: 1425px) {
-  .swiper {
-    height: 630px;
-  }
-}
-
-@media screen and (min-width: 1425px) {
-  .swiper {
-    height: 830px;
-  }
-}
-
 </style>

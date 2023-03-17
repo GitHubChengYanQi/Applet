@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="actions">
     <view v-if="loading">
       <Loading :skeleton="true" skeleton-type="page" />
     </view>
@@ -104,5 +104,8 @@ export default {
 </script>
 
 <style>
-
+.actions {
+  height: 100vh;
+  background: #fff;
+}
 </style>
