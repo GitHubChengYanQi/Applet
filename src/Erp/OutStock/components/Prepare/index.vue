@@ -52,7 +52,7 @@
 import SkuItem from "../../../../components/SkuItem";
 import BottomButton from "../../../../components/BottomButton";
 import StockContent from "../StockContent";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {Message} from "../../../../components/Message";
 import Loading from "../../../../components/Loading";
 

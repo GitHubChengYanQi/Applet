@@ -83,7 +83,7 @@ import LinkButton from "../../../components/LinkButton";
 import Empty from "../../../components/Empty";
 import BottomButton from "../../../components/BottomButton";
 import Popup from "../../../components/Popup";
-import {InStock} from "MES-Apis/src/InStock/promise";
+import {InStock} from "MES-Apis/lib/InStock/promise";
 import List from "../../../components/List/indx";
 import SkuItem from "../../../components/SkuItem";
 import ShopNumber from "../../../components/ShopNumber";
@@ -92,8 +92,8 @@ import {isArray, queryString} from "../../../util/Tools";
 import Loading from "../../../components/Loading";
 import {SkuResultSkuJsons} from "../../../Sku/sku";
 import {Message} from "../../../components/Message";
-import {Init} from "MES-Apis/src/Init";
-import {Sku} from "MES-Apis/src/Sku/promise";
+import {Init} from "MES-Apis/lib/Init";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 import Elliptsis from "../../../components/Ellipsis";
 
 export default {

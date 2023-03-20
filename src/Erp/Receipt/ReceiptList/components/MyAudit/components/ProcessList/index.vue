@@ -70,7 +70,7 @@ import StocktakingItem from "./components/StocktakingItem";
 import AllocationItem from "./components/AllocationItem";
 import ErrorItem from "./components/ErrorItem";
 import ForwardItem from "./components/ForwardItem";
-import {Process} from "MES-Apis/src/Process/promise";
+import {Process} from "MES-Apis/lib/Process/promise";
 import {getLocalParmas} from "../../../../../../../util/Tools";
 
 export default {

@@ -97,7 +97,7 @@ import ActionButtons from "../../Receipt/ReceiptDetail/components/ActionButtons"
 import Popup from "../../../components/Popup";
 import MyPicking from "../components/MyPicking";
 import Clock from "../../../components/Clock";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import UQRCode from 'uqrcodejs';
 
 export default {

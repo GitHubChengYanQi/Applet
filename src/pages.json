@@ -160,12 +160,12 @@
     {
       "root": "Sku",
       "pages": [
-        {
-          "path": "SkuAdd/index",
-          "style": {
-            "navigationBarTitleText": "添加物料"
-          }
-        },
+//        {
+//          "path": "SkuAdd/index",
+//          "style": {
+//            "navigationBarTitleText": "添加物料"
+//          }
+//        },
         {
           "path": "SkuDetail/index",
           "style": {

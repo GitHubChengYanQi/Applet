@@ -1,5 +1,5 @@
 <script>
-import {Init} from "MES-Apis/src/Init";
+import {Init} from "MES-Apis/lib/Init";
 import {Message} from "./components/Message";
 import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
