@@ -153,7 +153,6 @@ export default {
           } else {
             Message.errorToast('请扫领料码！')
           }
-
         }
       });
     }
