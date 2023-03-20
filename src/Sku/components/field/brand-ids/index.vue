@@ -15,7 +15,7 @@
 	///brand/list?limit=20&page=1&sorter=%7B%7D
 	import {
 		request
-	} from 'MES-Apis/lib/uitl/Service/request';
+	} from 'MES-Apis/lib/Service/request';
 	export default {
 		name: "brand-ids",
 		data() {

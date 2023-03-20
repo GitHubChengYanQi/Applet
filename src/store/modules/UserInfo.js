@@ -24,7 +24,6 @@ const actions = {
     async getPublicInfo({state}) {
         if (Object.keys(state.publicInfo).length === 0) {
             const publicInfo = await Init.getPublicInfo({})
-            console.log(publicInfo)
             state.publicInfo = publicInfo.data || {}
         }
     }

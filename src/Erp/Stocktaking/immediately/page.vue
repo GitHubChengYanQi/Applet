@@ -51,7 +51,7 @@
 
 <script>
 import Search from "../../../components/Search";
-import {Storehouse} from "MES-Apis/src/Storehouse";
+import {Storehouse} from "MES-Apis/lib/Storehouse";
 import {isArray} from "../../../util/Tools";
 import LinkButton from "../../../components/LinkButton";
 

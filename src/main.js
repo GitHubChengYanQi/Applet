@@ -18,7 +18,6 @@ axios.defaults.adapter = function (config) {
             responseType: config.responseType,
             sslVerify: config.sslVerify,
             complete: function complete(response) {
-                console.log(response)
                 response = {
                     data: response.data,
                     status: response.statusCode,
