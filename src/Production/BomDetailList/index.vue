@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <van-toast id="van-toast" />
+
     <van-dialog id="van-dialog" />
     <Page v-if="auth && bomId" :bomId="bomId" />
   </Auth>

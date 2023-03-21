@@ -13,7 +13,7 @@
         </uni-breadcrumb>
       </view>
 
-      <view class="search">
+      <view class="search" v-if="false">
         <Search />
       </view>
 
@@ -41,11 +41,12 @@
       </view>
 
     </view>
-    <view class="bottomButton">
+    <view class="bottomButton" @click="scan">
       <view class="icon">
         <u-icon name="scan" size='36px' color="#fff"></u-icon>
       </view>
     </view>
+    <Loading :loading="loading" />
   </view>
 </template>
 
@@ -54,9 +55,12 @@ import Search from "../../../components/Search";
 import {Storehouse} from "MES-Apis/lib/Storehouse";
 import {isArray} from "../../../util/Tools";
 import LinkButton from "../../../components/LinkButton";
+import Loading from "../../../components/Loading";
+import {Message} from "../../../components/Message";
 
 export default {
   components: {
+    Loading,
     LinkButton,
     Search
   },
@@ -76,6 +80,33 @@ export default {
       safeAreaInsetTop: false
     })
     this.getStorehouse()
+  },
+  computed: {
+    loading() {
+      return this.$store.state.qrCode.loading
+    }
+  },
+  watch: {
+    '$store.state.qrCode.codeId'(codeId) {
+      if (codeId) {
+        const qrCode = {...this.$store.state.qrCode}
+        if (qrCode.type === 'storehousePositions') {
+          const result = qrCode.result || {};
+          if (result.storehousePositionsId) {
+            if (result.lowestLevel) {
+              this.goToStocktaking(result.storehousePositionsId,result.name,result.storehouseResult?.name)
+            } else {
+              Message.toast('请扫描最下级库位!');
+            }
+          } else {
+            Message.errorToast('获取失败!');
+          }
+        } else {
+          Message.errorToast('请扫描库位码!');
+        }
+      }
+      this.$store.commit("qrCode/clear")
+    }
   },
   methods: {
     getStorehouse() {
@@ -114,10 +145,13 @@ export default {
           children: item.children || []
         }))
       } else {
-        uni.navigateTo({
-          url: '/Erp/Stocktaking/immediatelyDetail/index'
-        })
+        this.goToStocktaking(item.id, item.name, this.navs.find(item => item.type === 'storehouse')?.name)
       }
+    },
+    goToStocktaking(positionId, name, storehouse) {
+      uni.navigateTo({
+        url: `/Erp/Stocktaking/immediatelyDetail/index?positionId=${positionId}&name=${name}&storehouse=${storehouse}`
+      })
     },
     pageClick(route, clickIndex) {
       if (clickIndex === 0) {
@@ -128,6 +162,9 @@ export default {
         this.action(route)
       }
 
+    },
+    scan() {
+      this.$store.dispatch('qrCode/scanCode')
     }
   }
 }

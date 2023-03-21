@@ -1,6 +1,6 @@
 <template>
   <view class="login">
-    <van-toast id="van-toast" />
+
     <van-dialog id="van-dialog" />
     <view class="logo">
       <img src="../../static/logo2.png" alt="">
