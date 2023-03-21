@@ -13,7 +13,7 @@
           custom-class="my-custom-class"
       >
         <view class="content">
-          <van-loading type="spinner" color="#fff" :size="50" />
+          <van-loading type="spinner" color="#fff" :size="50"/>
           加载中...
         </view>
       </van-dialog>
@@ -35,7 +35,7 @@ export default {
   width: auto !important;
   padding: 24px;
   text-align: center;
-  background-color: rgb(0 0 0 / 23%) !important;
+  background-color: rgba(0, 0, 0, 2.3) !important;
 }
 
 .content {

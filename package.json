@@ -30,18 +30,19 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "0.0.62",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",
     "md5": "^2.3.0",
+    "MES-Apis": "0.2.17",
     "moment": "^2.29.4",
+    "node-sass": "^4.14.1",
     "qs": "^6.11.0",
     "uqrcodejs": "^4.0.6",
     "uview-ui": "^2.0.35",
+    "vconsole": "^3.12.1",
     "vue": ">= 2.6.14 < 2.7",
-    "vuex": "3.6.2",
-    "vconsole": "^3.12.1"
+    "vuex": "3.6.2"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.0.4",
@@ -65,8 +66,8 @@
     "mini-types": "*",
     "miniprogram-api-typings": "*",
     "postcss-comment": "^2.0.0",
-    "sass": "^1.57.1",
-    "sass-loader": "^10.1.1",
+    "sass": "1.57.1",
+    "sass-loader": "10.1.1",
     "vue-template-compiler": ">= 2.6.14 < 2.7"
   },
   "browserslist": [

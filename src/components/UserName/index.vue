@@ -2,11 +2,11 @@
   <view>
     <view v-if="user && user.name">
       <view class='userName'>
-        <Avatar size="35" :src='user.avatar' />
+        <Avatar size="35" :src='user.avatar'/>
         <view>
           <view>{{ user.name }}</view>
           <view class="info">
-            <template v-if="!noDept">{{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} - </template>
+            <template v-if="!noDept">{{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} -</template>
             {{ user.role || isArray(user.roleResults)[0] && isArray(user.roleResults)[0].name || '-' }}
           </view>
         </view>
@@ -23,7 +23,7 @@ import Avatar from "../Avatar";
 export default {
   name: 'userName',
   components: {Avatar},
-  props: ['user', 'size','noDept'],
+  props: ['user', 'size', 'noDept'],
   data() {
     return {
       isArray
@@ -40,7 +40,7 @@ export default {
 
   .info {
     font-size: 12px;
-    color: rgb(148 148 148)
+    color: rgba(148, 148, 148, 1)
   }
 }
 </style>
