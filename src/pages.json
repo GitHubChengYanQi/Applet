@@ -29,7 +29,7 @@
     {
       "path": "pages/searchPage/index",
       "style": {
-        "navigationBarTitleText": "初始化失败"
+        "navigationBarTitleText": "搜索"
       }
     }
   ],
