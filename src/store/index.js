@@ -5,6 +5,7 @@ import userInfo from './modules/UserInfo'
 import shopNumber from './modules/ShopNumber'
 import dialog from './modules/Dialog'
 import systemInfo from './modules/SystemInfo'
+import qrCode from './modules/QrCode'
 
 Vue.use(Vuex)
 
@@ -14,6 +15,7 @@ export default new Vuex.Store({
         userInfo,
         shopNumber,
         dialog,
-        systemInfo
+        systemInfo,
+        qrCode
     },
 })

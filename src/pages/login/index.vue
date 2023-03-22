@@ -1,6 +1,6 @@
 <template>
   <view class="login">
-    <van-toast id="van-toast" />
+
     <van-dialog id="van-dialog" />
     <view class="logo">
       <img src="../../static/logo2.png" alt="">
@@ -30,7 +30,7 @@
 </template>
 <script>
 import {getLocalParmas} from "../../util/Tools";
-import {Login} from "MES-Apis/src/Login/promise";
+import {Login} from "MES-Apis/lib/Login/promise";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Message} from "../../components/Message";
 

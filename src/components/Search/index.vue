@@ -1,10 +1,11 @@
 <template>
-  <view class="search">
+  <view class="search" @click="$emit('click')">
     <view class="input">
       <van-search
           custom-class="searchCustomClass"
           use-action-slot
           :value="value"
+          :readonly="readonly"
           :placeholder="placeholder || '请输入搜索关键词'"
           @cancel="onCancel"
           @clear="onClear"
@@ -14,11 +15,11 @@
           @search="onSearch"
       />
     </view>
-    <view>
+    <view v-if="!readonly">
       <view
           class="action"
           :style="{width}"
-          v-if="!historyType && (focus || value) && !noSearchButton"
+          v-if="history || ((focus || value) && !noSearchButton)"
           @click="onSearch({detail:value})"
       >
         搜索
@@ -35,6 +36,7 @@
 export default {
   name: 'Search',
   props: [
+    'readonly',
     'customClass',
     'placeholder',
     'searchStyle',
@@ -44,8 +46,7 @@ export default {
     'className',
     'noSearchButton',
     'value',
-    'historyType',
-    'value',
+    'history',
     'width'
   ],
   data() {
@@ -53,9 +54,14 @@ export default {
       focus: false
     }
   },
+  mounted() {
+
+  },
   methods: {
     onClear() {
-      this.$emit('onSearch', '')
+      if (!this.history) {
+        this.$emit('onSearch', '')
+      }
       this.$emit('onChange', '')
       this.$emit('onClear', '')
     },
@@ -92,6 +98,7 @@ export default {
 .action {
   color: $primary-color;
   padding: 0 12px;
+  font-size: 14px;
 }
 
 .icon {

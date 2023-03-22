@@ -1,12 +1,22 @@
-import Toast from "../../wxcomponents/toast/toast";
 import Dialog from "../../wxcomponents/dialog/dialog";
 
-const toast = (title) => {
-    Toast({
-        forbidClick: true,
+const toast = (
+    title,
+    afterClose = () => {
+    },
+    icon,
+) => {
+    uni.showToast({
         title,
-        duration: 3000
+        mask: true,
+        icon: icon || 'none',
+        duration: 3000,
+        position: icon ? 'center' : 'bottom'
     });
+
+    setTimeout(() => {
+        afterClose()
+    }, 3000)
 };
 
 const successToast = (
@@ -15,13 +25,8 @@ const successToast = (
     }
 ) => {
 
-    Toast({
-        forbidClick: true,
-        message: title || '成功！',
-        type: 'success',
-        onClose:afterClose,
-        duration: 3000
-    });
+    toast(title || '成功!', afterClose, 'success')
+
 };
 
 const errorToast = (
@@ -29,29 +34,22 @@ const errorToast = (
     afterClose = () => {
     }
 ) => {
-    Toast({
-        forbidClick: true,
-        message: title || '失败！',
-        type: 'fail',
-        onClose: afterClose,
-        duration: 3000
-    });
+
+    toast(title || '失败!', afterClose, 'error')
+
 };
 
-const MyDialog = (
+const dialog = (
     {
-        title,
-        content,
+        title = '',
+        content = '',
         confirmText = '确认',
         cancelText = '取消',
-        onCancel = () => {
-            return true
-        },
-        onConfirm = () => {
-            return true
-        },
+        onCancel,
+        onConfirm,
         only = true,
     }) => {
+
     if (only) {
         Dialog.alert({
             zIndex: 100,
@@ -59,7 +57,9 @@ const MyDialog = (
             title,
             message: content,
             confirmButtonText: confirmText,
-            beforeClose: onConfirm
+            beforeClose: () => {
+                return typeof onConfirm === 'function' ? onConfirm() : () => true
+            }
         })
     } else {
         Dialog.confirm({
@@ -70,141 +70,19 @@ const MyDialog = (
             cancelButtonText: cancelText,
             beforeClose: (action) => {
                 if (action === 'confirm') {
-                    return onConfirm()
+                    return typeof onConfirm === 'function' ? onConfirm() : () => true
                 } else {
-                    return onCancel()
+                    return typeof onCancel === 'function' ? onCancel() : () => true
                 }
             }
-        })
+        });
     }
-};
-
-const successDialog = (
-    {
-        content,
-        confirmText,
-        cancelText,
-        onCancel = () => {
-        },
-        onConfirm = () => {
-        },
-        only,
-    }) => {
-    //
-    // const contentDom = <div className={style.successContent}>
-    //     <CheckCircleOutline className={style.successIcon} />
-    //     <div className={style.content}>{content}</div>
-    // </div>;
-    //
-    // MyDialog({
-    //     confirmText,
-    //     cancelText,
-    //     onCancel,
-    //     onConfirm,
-    //     only,
-    //     content: contentDom,
-    // });
-
-};
-
-const warningDialog = (
-    {
-        content,
-        confirmText,
-        cancelText,
-        onCancel = () => {
-            return true
-        },
-        onConfirm = () => {
-            return true
-        },
-        only = true,
-    }) => {
-
-    MyDialog({
-        confirmText,
-        cancelText,
-        onConfirm,
-        onCancel,
-        only,
-        content,
-    });
-
-};
-
-const errorDialog = (
-    {
-        content,
-        confirmText,
-        cancelText,
-        onCancel = () => {
-        },
-        onConfirm = () => {
-        },
-        only = true,
-    }) => {
-
-    // const contentDom = <div className={style.errorContent}>
-    //     <CloseCircleOutline className={style.errorIcon} />
-    //     <div className={style.content}>{content}</div>
-    // </div>;
-    //
-    // MyDialog({
-    //     confirmText,
-    //     cancelText,
-    //     onCancel,
-    //     onConfirm,
-    //     only,
-    //     content: contentDom,
-    // });
-
-};
-
-const dialogSuccess = (
-    {
-        title,
-        leftText,
-        rightText,
-        next = () => {
-        },
-        only,
-    }) => {
-
-    // const actions = [];
-    //
-    // if (!only) {
-    //     actions.push({
-    //         key: 'back',
-    //         text: <div style={{fontSize: 14}}>{leftText || '返回'}</div>,
-    //     });
-    // }
-    // actions.push({
-    //     key: 'next',
-    //     text: <div style={{fontSize: 14}}> {rightText || '继续'}</div>,
-    // });
-    //
-    // Dialog.show({
-    //     content: title || '成功！',
-    //     closeOnAction: true,
-    //     onAction: (action) => {
-    //         if (action.key === 'back') {
-    //             history.goBack();
-    //         } else {
-    //             next();
-    //         }
-    //     },
-    //     actions: [actions],
-    // });
 };
 
 
 export const Message = {
     toast,
-    dialog: MyDialog,
+    dialog,
     successToast,
-    errorToast,
-    dialogSuccess,
-    successDialog,
-    warningDialog,
-    errorDialog,
+    errorToast
 };

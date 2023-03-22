@@ -64,10 +64,10 @@
 
 <script>
 import Search from "../../../../../components/Search";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {outPickListFormatSort} from "../../index";
 import {isArray, queryString} from "../../../../../util/Tools";
-import {Sku} from "MES-Apis/src/Sku/promise";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 import OutStockItem from "../../../components/OutStockItem";
 import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";

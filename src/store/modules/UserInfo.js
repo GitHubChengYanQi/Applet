@@ -1,5 +1,5 @@
-import {User} from "MES-Apis/src/User/promise";
-import {Init} from "MES-Apis/src/Init";
+import {User} from "MES-Apis/lib/User/promise";
+import {Init} from "MES-Apis/lib/Init";
 
 const init = {
     auth: false,
@@ -23,7 +23,7 @@ const actions = {
     },
     async getPublicInfo({state}) {
         if (Object.keys(state.publicInfo).length === 0) {
-            const publicInfo = await Init.getPublicInfo()
+            const publicInfo = await Init.getPublicInfo({})
             state.publicInfo = publicInfo.data || {}
         }
     }

@@ -31,7 +31,7 @@ import SkuItem from "../../../components/SkuItem";
 import BottomButton from "../../../components/BottomButton";
 import Empty from "../../../components/Empty";
 import {SkuResultSkuJsons} from "../../../Sku/sku";
-import {Process} from "MES-Apis/src/Process/promise";
+import {Process} from "MES-Apis/lib/Process/promise";
 import Loading from "../../../components/Loading";
 import {Message} from "../../../components/Message";
 import Bouncing from "../../../components/Bouncing";

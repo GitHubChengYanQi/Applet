@@ -17,7 +17,7 @@
 
 <script>
 import List from "../../../../../components/List/indx";
-import {Process} from "MES-Apis/src/Process/promise";
+import {Process} from "MES-Apis/lib/Process/promise";
 import DynamicList from "./components/DynamicList";
 
 export default {

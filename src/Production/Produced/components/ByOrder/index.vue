@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import {Production} from "MES-Apis/src/Production/promise";
+import {Production} from "MES-Apis/lib/Production/promise";
 import Check from "../../../../components/Check";
 import SkuItem from "../../../../components/SkuItem";
 import {isArray} from "../../../../util/Tools";

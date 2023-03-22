@@ -1,7 +1,5 @@
 <template>
   <Auth>
-    <van-notify id="van-notify" />
-    <van-toast id="van-toast" />
     <van-dialog id="van-dialog" />
     <Page v-if="auth" />
   </Auth>
