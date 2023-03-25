@@ -5,7 +5,7 @@
 <script>
 	import {
 		request
-	} from 'MES-Apis/uitl/Service/request';
+	} from 'MES-Apis/lib/Service/request';
 	export default {
 		behaviors: ['uni://form-field'],
 		data() {

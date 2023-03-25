@@ -60,7 +60,7 @@ import Header from './components/Header'
 import ReceiptContent from './components/ReceiptContent'
 import {getLocalParmas} from "../../../util/Tools";
 import {ReceiptsEnums} from "../ReceiptsEnums";
-import {Process} from "MES-Apis/src/Process/promise";
+import {Process} from "MES-Apis/lib/Process/promise";
 import Loading from '../../../components/Loading'
 import Empty from "../../../components/Empty";
 import Log from "./components/Log";

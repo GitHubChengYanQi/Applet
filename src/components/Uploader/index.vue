@@ -6,7 +6,7 @@
 </template>
 
 <script>
-	import { request } from 'MES-Apis/uitl/Service/request';
+	import { request } from 'MES-Apis/lib/Service/request';
 	import {getLocalParmas} from "../../util/Tools";
 	export default {
 		name: 'Uploader',

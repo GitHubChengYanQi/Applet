@@ -1,5 +1,5 @@
 <script>
-import {Init} from "MES-Apis/src/Init";
+import {Init} from "MES-Apis/lib/Init";
 import {Message} from "./components/Message";
 import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
@@ -37,17 +37,17 @@ export default {
     appInit() {
       Init.responseConfig({
         loginTimeOut: () => {
-          Message.errorToast('您已登录超时!\n正在重新登录...',()=>{
+          Message.toast('您已登录超时!\n正在重新登录...',()=>{
             getApp().globalData.token = ''
             // this.$store.commit('userInfo/clear')
             uni.reLaunch({
               url: getLocalParmas().route,
             });
             // this.$store.commit('userInfo/refresh', true)
-          },true)
+          })
         },
         errorMessage: (res) => {
-          Message.errorToast(res)
+          Message.toast(res)
         },
       })
     }

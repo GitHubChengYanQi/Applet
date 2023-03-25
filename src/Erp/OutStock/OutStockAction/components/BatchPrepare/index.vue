@@ -105,12 +105,12 @@ import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";
 import {getOutType} from "../../../outStock";
 import {isArray, MyDate} from "../../../../../util/Tools";
-import {OutStock} from "MES-Apis/src/OutStock/promise";
+import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {outPickListFormatSort} from "../../index";
 import BottomButton from "../../../../../components/BottomButton";
 import {Message} from "../../../../../components/Message";
 import Empty from "../../../../../components/Empty";
-import {Sku} from "MES-Apis/src/Sku/promise";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 
 export default {
   components: {Empty, BottomButton, Loading},
@@ -167,10 +167,11 @@ export default {
       const skuMediaUrls = await Sku.getMediaUrls({
         mediaIds: array.map(item => item.skuResult?.images?.split(',')[0]),
         option: 'image/resize,m_fill,h_74,w_74',
+      }).catch(() => {
       })
       this.countNumber = countNumber
       const data = array.map(item => {
-        const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        const media = isArray(skuMediaUrls?.data).find(mediaItem=>  mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
         return {
           ...item,
           complete: item.notPrepared === 0,

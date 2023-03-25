@@ -26,10 +26,11 @@
       "style": {
         "navigationBarTitleText": "初始化失败"
       }
-    },{
+    },
+    {
       "path": "pages/searchPage/index",
       "style": {
-        "navigationBarTitleText": "初始化失败"
+        "navigationBarTitleText": "搜索"
       }
     },
     {
@@ -91,18 +92,18 @@
             "navigationBarTitleText": "入库申请"
           }
         },
-		{
-		  "path": "Stocktaking/immediately/index",
-		  "style": {
-		    "navigationBarTitleText": "即时盘点"
-		  }
-		},
-		{
-		  "path": "Stocktaking/immediatelyDetail/index",
-		  "style": {
-		    "navigationBarTitleText": "即时盘点"
-		  }
-		},
+        {
+          "path": "Stocktaking/immediately/index",
+          "style": {
+            "navigationBarTitleText": "即时盘点"
+          }
+        },
+        {
+          "path": "Stocktaking/immediatelyDetail/index",
+          "style": {
+            "navigationBarTitleText": "即时盘点"
+          }
+        },
         {
           "path": "InStock/InStockVoucher/index",
           "style": {
@@ -172,12 +173,12 @@
     {
       "root": "Sku",
       "pages": [
-        {
-          "path": "SkuAdd/index",
-          "style": {
-            "navigationBarTitleText": "添加物料"
-          }
-        },
+//        {
+//          "path": "SkuAdd/index",
+//          "style": {
+//            "navigationBarTitleText": "添加物料"
+//          }
+//        },
         {
           "path": "SkuDetail/index",
           "style": {

@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import {Bom} from "MES-Apis/src/Bom/promise";
+import {Bom} from "MES-Apis/lib/Bom/promise";
 import {getLocalParmas, isArray, isObject} from "../../util/Tools";
 import SkuItem from "../../components/SkuItem";
 import ShopNumber from "../../components/ShopNumber";

@@ -10,7 +10,7 @@
 import Loading from "../Loading";
 import Error from "../../pages/Error";
 import GetUserInfo from "../../util/GetUserInfo";
-import {Login} from "MES-Apis/src/Login/promise";
+import {Login} from "MES-Apis/lib/Login/promise";
 import {getLocalParmas} from "../../util/Tools";
 
 export default {

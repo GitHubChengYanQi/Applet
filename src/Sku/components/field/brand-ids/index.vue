@@ -15,7 +15,7 @@
 	///brand/list?limit=20&page=1&sorter=%7B%7D
 	import {
 		request
-	} from 'MES-Apis/uitl/Service/request';
+	} from 'MES-Apis/lib/Service/request';
 	export default {
 		name: "brand-ids",
 		data() {
@@ -36,7 +36,7 @@
 				}else{
 					return "选择"
 				}
-				
+
 			}
 		},
 		mounted() {
@@ -46,7 +46,7 @@
 			checked(val){
 				const tmpVal = [...this.tmpList,...val];
 				let tmpList= this.localdata.filter(item => {
-					return tmpVal.findIndex(i=>{						
+					return tmpVal.findIndex(i=>{
 						return i==item.value
 						})>=0;
 				});
@@ -82,8 +82,8 @@
 			async get(brandName) {
 				const _this = this;
 				_this.tmpList = [...this.checked];
-				
-				
+
+
 				const response = await request({
 					url: "/brand/list",
 					method: "POST",

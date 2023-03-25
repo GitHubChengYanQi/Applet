@@ -6,9 +6,15 @@
         scroll-y="true"
         :style="{maxHeight}"
         @scrolltolower="scrolltolower"
+        refresher-enabled="true"
+        :refresher-triggered="triggered"
+        @refresherpulling="onPulling"
+        @refresherrefresh="onRefresh"
+        @refresherrestore="onRestore"
+        @refresherabort="onAbort"
     >
       <slot></slot>
-      <Empty v-if="list.length === 0 && moreStatus !== 'loading'" :description="description || '暂无数据'" />
+      <Empty v-if="isArray(list).length === 0 && moreStatus !== 'loading'" :description="description || '暂无数据'" />
       <view v-else @click="scrolltolower">
         <uni-load-more :status="hasMore ? moreStatus : 'noMore'"></uni-load-more>
       </view>
@@ -19,6 +25,9 @@
 <script>
 
 import Empty from "../Empty";
+import {Message} from "../Message";
+import {isArray} from "../../util/Tools";
+
 export default {
   name: 'List',
   components: {Empty},
@@ -41,6 +50,8 @@ export default {
   },
   data() {
     return {
+      isArray,
+      triggered: false,
       hasMore: true,
       moreStatus: 'loading',
       loading: false,
@@ -76,40 +87,56 @@ export default {
               return array.push(items);
             });
             this.data = [...array]
-            this.$emit('listSource', array);
+            this.$emit('listSource', array, resData);
             this.page = this.page + 1
             this.hasMore = resData.length === 10
           } else {
             this.hasMore = false
             if (this.page === 1) {
-              this.$emit('listSource', []);
+              this.$emit('listSource', [], []);
             }
           }
           this.$emit('onLoading', false)
           this.moreStatus = 'more'
+          this.triggered = false
         },
         onError: () => {
           this.hasMore = false
           this.$emit('onLoading', false)
           this.moreStatus = 'more'
+          this.triggered = false
         },
       })
     },
-    submit(value, sorter, pull) {
+    async submit(value, sorter, pull) {
       this.hasMore = true
       this.page = 1
       this.data = []
       this.params = value
       this.sorter = sorter
-      !pull && this.$emit('listSource', []);
+      !pull && this.$emit('listSource', [], []);
       this.$emit('onLoading', true)
-      this.getList();
+      await this.getList();
     },
     scrolltolower() {
       if (!this.hasMore || this.moreStatus === 'loading') {
         return
       }
       this.getList()
+    },
+    onPulling(e) {
+
+    },
+    onRefresh() {
+      this.triggered = true;
+      this.submit(this.params, this.sorter, true)
+    },
+    onRestore() {
+      // this.triggered = false; // 需要重置
+      Message.successToast('刷新完成！')
+    },
+    onAbort() {
+
     }
   }
 }

@@ -39,7 +39,7 @@
 import Card from '../../components/Card/index.vue'
 import Search from "../../components/Search";
 import List from "../../components/List/indx";
-import {Bom} from "MES-Apis/src/Bom/promise";
+import {Bom} from "MES-Apis/lib/Bom/promise";
 import SkuItem from "../../components/SkuItem";
 
 export default {
