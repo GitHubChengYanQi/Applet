@@ -5,7 +5,12 @@ import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
 
 
-Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.220:8885' : process.env.VUE_APP_BASE_URL)
+Init.initBaseURL(
+    process.env.NODE_ENV === "development" ?
+        // 'http://192.168.2.100'
+        'http://192.168.2.220:8885'
+        :
+        process.env.VUE_APP_BASE_URL)
 
 
 export default {
@@ -37,7 +42,7 @@ export default {
     appInit() {
       Init.responseConfig({
         loginTimeOut: () => {
-          Message.toast('您已登录超时!\n正在重新登录...',()=>{
+          Message.toast('您已登录超时!\n正在重新登录...', () => {
             getApp().globalData.token = ''
             // this.$store.commit('userInfo/clear')
             uni.reLaunch({

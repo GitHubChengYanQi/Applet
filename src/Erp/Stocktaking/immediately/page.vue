@@ -94,7 +94,7 @@ export default {
           const result = qrCode.result || {};
           if (result.storehousePositionsId) {
             if (result.lowestLevel) {
-              this.goToStocktaking(result.storehousePositionsId,result.name,result.storehouseResult?.name)
+              this.goToStocktaking(result.storehousePositionsId, result.name, result.storehouseResult?.name)
             } else {
               Message.toast('请扫描最下级库位!');
             }
@@ -199,7 +199,7 @@ export default {
   position: absolute;
   bottom: 24px;
   left: calc(50% - 40px);
-  box-shadow: 0px -4px 10px 0px rgb(0 0 0 / 10%);
+  box-shadow: 0px -4px 10px 0px rgba(0, 0, 0, 0.1);
 }
 
 .item {

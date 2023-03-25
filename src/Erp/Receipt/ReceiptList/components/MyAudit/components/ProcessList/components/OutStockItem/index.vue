@@ -76,8 +76,8 @@ export default {
     progressChange(receipts, received, collectable, action) {
       this.received = received
       this.collectable = collectable
-      const successPercent = Number(((received / receipts.numberCount)).toFixed(2)) * 100 || 0;
-      this.percent = Number(((collectable / receipts.numberCount)).toFixed(2)) * 100 || 0;
+      const successPercent = Number(((received / receipts.numberCount) * 100).toFixed(2)) || 0;
+      this.percent = Number(((collectable / receipts.numberCount) * 100).toFixed(2)) || 0;
       this.successPercent = successPercent
       if (successPercent === 100 && action) {
         this.$emit('deleteTask')

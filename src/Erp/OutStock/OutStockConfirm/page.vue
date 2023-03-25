@@ -135,8 +135,7 @@ export default {
 
 <style lang="scss">
 .skus {
-  padding: 8px;
-  margin-bottom: 100px;
+  padding: 8px 8px 100px;
 
   .skuItem {
     display: flex;

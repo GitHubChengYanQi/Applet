@@ -1,6 +1,8 @@
 <template>
-  <view id="root">
-    <view class="safeArea">
+  <view>
+    <Empty v-if="error" type="error" description="获取物料详情失败" />
+    <Loading :skeleton="true" skeleton-type="page" v-else-if="loading" />
+    <view v-else>
       <view class="skuDetail">
         <view class="imgS">
           <view class="uni-margin-wrap">
@@ -20,7 +22,7 @@
             <view class="flexGrow">
               <view class="spuName">{{ skuDetail.spuName || '无' }}</view>
               <view class="skuName">{{ SkuResultSkuJsons({skuResult: skuDetail, sku: true}) }}</view>
-              <view class="bindPosition" v-if="bindHidden">
+              <view class="bindPosition" v-if="!!skuDetail.positionsName">
                 <view>{{ skuDetail.positionsName || '' }} / {{ skuDetail.storehouseName || '' }}</view>
               </view>
             </view>
@@ -51,17 +53,17 @@
           </view>
           <view class="otherData">
             <view class="number">
-              <view class="numberDes">库存数量({{ skuDetail.unit.unitName }})</view>
+              <view class="numberDes">库存数量({{ skuDetail.unit ? skuDetail.unit.unitName : '' }})</view>
               <view class="otherNumber">{{ skuDetail.stockNumber }}</view>
             </view>
             <view class="numberMonDes">-</view>
             <view class="number">
-              <view class="numberDes">已备数量({{ skuDetail.unit.unitName }})</view>
+              <view class="numberDes">已备数量({{ skuDetail.unit ? skuDetail.unit.unitName : '' }})</view>
               <view class="otherNumber">{{ skuDetail.lockStockDetailNumber || 0 }}</view>
             </view>
             <view class="numberMonDes">=</view>
             <view class="number">
-              <view class="numberDes">可用数量({{ skuDetail.unit.unitName }})</view>
+              <view class="numberDes">可用数量({{ skuDetail.unit ? skuDetail.unit.unitName : '' }})</view>
               <view class="span">{{ skuDetail.stockNumber - skuDetail.lockStockDetailNumber }}</view>
             </view>
           </view>
@@ -88,11 +90,15 @@
         </view>
         <view class="skuData">
           <view class="adm-space" style="width: 100%">
-            <view class="adm-space-item" v-for="(item,index) in typeSettings" :key="item.key"
-                  v-if="index <= 3 || hidden">
+            <view
+                class="adm-space-item"
+                v-for="(item,index) in typeSettings"
+                :key="item.key"
+                v-if="index <= 3 || hidden"
+            >
               <view class="flexCenter">
                 <view class="lable lables">{{ item.filedName }}</view>
-                <view class="value">{{ format(item.key) }}</view>
+                <view class="value">{{ format(item.key) || '-' }}</view>
               </view>
             </view>
           </view>
@@ -110,11 +116,15 @@
         <InkindItem></InkindItem>
       </Popup>
 
-      <Popup :show="showOperationRecord" position="bottom" @close="operation" close-on-click-overlay="true"
-             title="操作记录">
+      <Popup
+          :show="showOperationRecord"
+          position="bottom"
+          @close="operation"
+          close-on-click-overlay="true"
+          title="操作记录"
+      >
         <SkuLog></SkuLog>
       </Popup>
-
     </view>
   </view>
 </template>
@@ -123,42 +133,40 @@
 
 import Search from "@/components/Search";
 import Popup from "@/components/Popup";
-import {Sku} from "MES-Apis/src/Sku/promise";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuLog from "@/Sku/components/SkuLog/index.vue";
 import InkindItem from "@/Sku/components/InkindItem/index.vue";
 import Supply from "@/Sku/components/Supply/index.vue";
-import {request} from "MES-Apis/uitl/Service/request";
 import {SkuResultSkuJsons} from "../sku";
-import index from "vuex";
 import UQRCode from "uqrcodejs";
+import {request} from "MES-Apis/lib/Service/request";
+import {getLocalParmas, isArray} from "../../util/Tools";
+import Loading from "../../components/Loading";
+import Empty from "../../components/Empty";
 
 export default {
-  name: "index.vue",
-  components: {Supply, InkindItem, SkuLog, Popup, Search},
+  name: "SkuDetail",
+  components: {Empty, Loading, Supply, InkindItem, SkuLog, Popup, Search},
   data() {
     return {
       skuDetail: {},
-      typeSetting: {},
       typeSettings: {},
       customIndicator: 1,
       hidden: '',
-      iconhidden: false,
-      bindHidden: '',
       inkindItemHidden: false,
       show: false,
       showErWeiMa: false, //展示二维码
       showSkuDetail: false, //展示物料清单
       showOperationRecord: false, //展示操作记录
       showSkuErWeiMa: false, //展示物料详情二维码
+      loading: true,
+      error: false
     }
   },
   mounted() {
     this.get();
   },
   computed: {
-    index() {
-      return index
-    },
     total() {
       if (this.skuDetail.imgResults || '') {
         return this.skuDetail.imgResults.length
@@ -169,50 +177,42 @@ export default {
   methods: {
     SkuResultSkuJsons,
     async get() {
-      const skuId = '1573270069012979713'
-      const skuDetail = await Sku.detail(skuId);
-      console.log(skuDetail)
-      const data = skuDetail.data
-      const spuResult = data.spuResult
-      const positionsResult = data.positionsResult
-      const spuClassificationResult = spuResult.spuClassificationResult
-      const response = await this.getDetail(spuClassificationResult.spuClassificationId)
-      const {data: skuData} = response
 
-      this.typeSetting = JSON.parse(skuData.typeSetting)
+      this.loading = true
 
-      this.typeSettings = this.typeSetting.filter(item => !['images', 'drawing', 'fileId'].includes(item.key) && item.show)
+      const skuId = getLocalParmas().search.skuId
+      const skuDetail = await Sku.detail(skuId).catch(() => {
+        this.error = true
+      });
 
-
-      const positionsName = positionsResult.map(item => {
-        return item.name
+      const data = skuDetail.data || {}
+      const spuResult = data.spuResult || {}
+      const positionsResult = data.positionsResult || []
+      const spuClassificationResult = spuResult.spuClassificationResult || {}
+      const response = await this.getDetail(spuClassificationResult.spuClassificationId).catch(() => {
+        this.error = true
       })
 
-      const storehouseName = positionsResult.map(item => {
-        const storehouseResult = item.storehouseResult
-        return storehouseResult.name
-      })
+      const typeSetting = JSON.parse(response?.data?.typeSetting || '[]') || []
+
+      this.typeSettings = typeSetting.filter(item => !['images', 'drawing', 'fileId'].includes(item.key) && item.show)
 
       this.skuDetail = {
         ...skuDetail.data,
         spuName: spuResult.name,
-        positionsName,
-        storehouseName,
+        positionsName: positionsResult[0] ? positionsResult[0].name : '',
+        storehouseName: positionsResult[0] ? positionsResult[0].storehouseResult?.name : '',
       }
-
-      this.bindHidden = (positionsName.length > 0) && (storehouseName.length > 0);
-
+      this.loading = false
     },
     format(key) {
 
-      const data = this.skuDetail
-      const spuResult = this.skuDetail.spuResult
-      const spuClassificationResult = spuResult.spuClassificationResult
-      const materialResult = data.materialResult
-      const brandResult = data.brandResults
+      const data = this.skuDetail || {}
+      const spuResult = data.spuResult || {}
+      const spuClassificationResult = spuResult.spuClassificationResult || {}
+      const materialResult = data.materialResult || {}
+      const unit = data.unit || {}
 
-
-      const unit = data.unit
       switch (key) {
         case 'spuClass':
           return spuClassificationResult.name;
@@ -237,13 +237,13 @@ export default {
             emptyText: '无',
           });
         case 'materialId':
-          return materialResult.name || '-';
+          return materialResult.name;
         case 'brandIds':
-          return data.brandResults.map(item => item.brandName).join('、') || '-';
+          return isArray(data.brandResults).map(item => item.brandName).join('、');
         case 'skuSize':
-          return data.skuSize && data.skuSize.split(',').filter(item => parseInt(item)).join('×') || '-';
+          return data.skuSize && data.skuSize.split(',').filter(item => parseInt(item)).join('×');
         default:
-          return data[key] || '-';
+          return data[key];
       }
     },
     async getDetail(spuClassificationId) {

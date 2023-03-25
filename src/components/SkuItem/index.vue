@@ -120,9 +120,9 @@ export default {
       if (!this.skuResult.skuId || this.noView) {
         return
       }
-      // uni.navigateTo({
-      //   url: `/Sku/SkuDetail/index?skuId=${this.skuResult.skuId}`
-      // })
+      uni.navigateTo({
+        url: `/Sku/SkuDetail/index?skuId=${this.skuResult.skuId}`
+      })
     },
     getStockNumber() {
       const stockNumber = (this.skuResult.stockNumber || this.skuResult.stockNum || 0) - (this.skuResult.lockStockDetailNumber || 0);

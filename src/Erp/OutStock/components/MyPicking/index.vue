@@ -1,8 +1,9 @@
 <template>
   <view>
     <Loading :loading="createCodeLoading" />
-    <view class='myPicking'>
-      <view class='content'>
+    <Loading :skeleton="true" v-if="loading" />
+    <view v-else class='myPicking'>
+      <view class='header'>
         <view class='top'>
           <view class='skuNumber'>
             可领物料：
@@ -18,15 +19,17 @@
         </view>
       </view>
       <van-empty v-if="data.length === 0" />
-      <OutItem
-          v-for="(item,index) in data"
-          extraWidth='180px'
-          :action='storehouse.storehouseId'
-          :key='index'
-          :skuItem="{ ...item, skuResult:itemSkuResult(item) }"
-          :skuIndex='index'
-          @dataChange='dataChange'
-      />
+      <view class='content'>
+        <OutItem
+            v-for="(item,index) in data"
+            extraWidth='180px'
+            :action='storehouse.storehouseId'
+            :key='index'
+            :skuItem="{ ...item, skuResult:itemSkuResult(item) }"
+            :skuIndex='index'
+            @dataChange='dataChange'
+        />
+      </view>
       <div class='bottom' v-if="storehouse.storehouseId">
         <div class='all' @click="checkAll">
           <van-checkbox
@@ -259,11 +262,7 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .content {
-    flex-grow: 1;
-    overflow: auto;
-    max-height: 50vh;
-
+  .header {
     .top {
       position: sticky;
       top: 0;
@@ -278,6 +277,14 @@ export default {
         flex-grow: 1;
       }
     }
+  }
+
+  .content {
+    flex-grow: 1;
+    overflow: auto;
+    max-height: 50vh;
+
+
   }
 
   .status {
