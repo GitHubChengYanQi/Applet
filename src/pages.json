@@ -8,6 +8,7 @@
     }
   },
   "pages": [
+
     {
       "path": "pages/Home/index",
       "style": {
@@ -30,6 +31,12 @@
       "path": "pages/searchPage/index",
       "style": {
         "navigationBarTitleText": "搜索"
+      }
+    },
+    {
+      "path": "pages/MenusSetting/index",
+      "style": {
+        "navigationBarTitleText": "所有功能"
       }
     }
   ],
@@ -101,6 +108,12 @@
           "path": "InStock/InStockVoucher/index",
           "style": {
             "navigationBarTitleText": "入库凭证"
+          }
+        },
+        {
+          "path": "StockForewarn/index",
+          "style": {
+            "navigationBarTitleText": "库存预警"
           }
         }
       ]

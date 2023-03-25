@@ -68,5 +68,9 @@ export default {
 @import "@/static/font/iconfont.css";
 @import "@/static/iconfont/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
-
+.u-border-right {
+  border-right-width: 0.5px !important;
+  border-color: rgba(57, 116, 199, 0.1) !important;
+  border-right-style: solid;
+}
 </style>
