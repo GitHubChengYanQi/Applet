@@ -5,7 +5,7 @@ import "uview-ui/index.scss";
 import {getLocalParmas} from "./util/Tools";
 
 
-Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.111' : process.env.VUE_APP_BASE_URL)
+Init.initBaseURL(process.env.NODE_ENV === "development" ? 'http://192.168.2.220:8885' : process.env.VUE_APP_BASE_URL)
 
 
 export default {
@@ -63,5 +63,9 @@ export default {
 @import "@/static/font/iconfont.css";
 @import "@/static/iconfont/iconfont.css";
 @import '/wxcomponents/common/index.wxss';
-
+.u-border-right {
+  border-right-width: 0.5px !important;
+  border-color: rgba(57, 116, 199, 0.1) !important;
+  border-right-style: solid;
+}
 </style>
