@@ -1,7 +1,7 @@
 <template>
   <view>
     <Loading :skeleton="true" v-if="loading" />
-    <view class="supply" v-else>
+    <view class="supply" v-else-if="supplys.length > 0">
       <view class="title">
         供应商{{ supplys.length > 1 ? `(${supplys.length})` : '' }}
         <LinkButton style="padding-bottom: 8px;float: right;" color="#2680eb" @click="more">
@@ -41,7 +41,7 @@ export default {
       isObject
     }
   },
-  watch:{
+  watch: {
     show(show) {
       this.$store.commit('dialog/openChange', show)
     }

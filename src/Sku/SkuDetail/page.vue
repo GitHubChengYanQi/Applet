@@ -128,7 +128,7 @@
           close-on-click-overlay="true"
           title="操作记录"
       >
-        <SkuLog v-if="showOperationRecord" />
+        <SkuLog v-if="showOperationRecord" :skuId="skuId" />
       </Popup>
     </view>
   </scroll-view>

@@ -5,6 +5,7 @@
         :list="list"
         @listSource="(newList)=>list = newList"
         maxHeight="50vh"
+        :default-params="{skuId}"
     >
       <view v-for="(operation,index) in list" :key="index" class="logItem">
         <view class="flexCenter">
@@ -43,6 +44,7 @@ import {isObject, MyDate} from "../../../util/Tools";
 export default {
   name: "SkuLog",
   components: {List},
+  props: ['skuId'],
   data() {
     return {
       Sku,
