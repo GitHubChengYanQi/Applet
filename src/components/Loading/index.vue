@@ -1,7 +1,8 @@
 <template>
   <view>
     <view v-if="skeleton" class="skeletonLoading">
-      <u-loading-page v-if="skeletonType === 'page'" loading-text="loading..." loading></u-loading-page>
+      <u-loading-page v-if="skeletonType === 'page'" :loading-text="loadingText || 'loading...'"
+                      loading></u-loading-page>
       <u-loading-icon v-else mode="circle" text="loading..." :vertical="true"></u-loading-icon>
     </view>
     <view v-if="loading">
@@ -13,7 +14,7 @@
           custom-class="my-custom-class"
       >
         <view class="content">
-          <van-loading type="spinner" color="#fff" :size="50"/>
+          <van-loading type="spinner" color="#fff" :size="50" />
           加载中...
         </view>
       </van-dialog>
@@ -25,7 +26,7 @@
 
 export default {
   name: 'loading',
-  props: ['title', 'loading', 'skeleton', 'skeletonType'],
+  props: ['title', 'loading', 'skeleton', 'skeletonType', 'loadingText'],
 }
 </script>
 

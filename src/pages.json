@@ -2,13 +2,11 @@
   "easycom": {
     "autoscan": true,
     "custom": {
-      // uni-ui 规则如下配置
       "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
       "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
     }
   },
   "pages": [
-
     {
       "path": "pages/Home/index",
       "style": {
@@ -183,6 +181,12 @@
           "path": "SkuDetail/index",
           "style": {
             "navigationBarTitleText": "物料详情"
+          }
+        },
+        {
+          "path": "SkuImgs/index",
+          "style": {
+            "navigationBarTitleText": "物料图片"
           }
         },
         {

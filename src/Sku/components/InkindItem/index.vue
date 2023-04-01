@@ -15,57 +15,63 @@
         <view class='codeTitle'>{{ codeTitle }}</view>
         <view class="dialogContent">
           <view style="padding-top: 19px">
-            <canvas id="canvas" canvas-id="canvas"
-                    style="width: 187px;height: 187px;display: inline-block"></canvas>
+            <canvas
+                id="canvas"
+                canvas-id="canvas"
+                style="width: 187px;height: 187px;display: inline-block"
+            />
           </view>
         </view>
       </view>
     </van-dialog>
 
-    <view style="height: 60vh; top: 0;padding: 0 12px 12px; overflow:auto">
-      <view class="positionItem" v-for="pos in position" :key="pos.positionId">
-        <view class="positionName">
-          <view class="name">
-            {{ pos.name }}
+    <view style="padding: 0 12px 12px">
+      <List max-height="50vh" @request="Stock.stockDetailsList" :default-params="{skuId}" @listSource="listSource"
+            :list="list">
+        <view class="positionItem" v-for="(pos,index) in list" :key="index">
+          <view class="positionName">
+            <view class="name">
+              {{ pos.name }} / {{ pos.storehouseName }} ({{ positionNumber(pos) }})
+            </view>
+            <LinkButton style="padding: 0;height: fit-content;" @click="showStoreList(pos.positionId)">
+              <uni-icons :type=" pos.hidden===true ? 'bottom' : 'top' " color="#2680EB"></uni-icons>
+            </LinkButton>
           </view>
-          <LinkButton style="padding: 0;height: fit-content;" @click="showStoreList(pos.positionId)">
-            <uni-icons :type=" pos.hidden===true ? 'bottom' : 'top' " color="#2680EB"></uni-icons>
-          </LinkButton>
-        </view>
-        <view v-if="!pos.hidden">
-          <view class="inkindItem" v-for="sku in pos.skuList" :key="sku.inkindId">
-            <view class="inkindData">
-              <view class="inkindId">
-                {{ sku.title }}
-                <view class="erWeiMaClick" @click="skuErWeiMa(sku.inkindId)">
-                  <uni-icons custom-prefix="icon-font" type="icon-erweima" color="#2680EB" size="21"></uni-icons>
+          <view v-if="!pos.hidden">
+            <view class="inkindItem" v-for="(sku,skuIndex) in isArray(pos.inkindList)" :key="skuIndex">
+              <view class="inkindData">
+                <view class="inkindId">
+                  实物码：
+                  <view class="erWeiMaClick" @click="skuErWeiMa(sku.inkindId)">
+                    <uni-icons custom-prefix="icon-font" type="icon-erweima" color="#2680EB" size="21"></uni-icons>
+                  </view>
+                  <view>× {{ sku.number }}</view>
                 </view>
-                <view>× {{ sku.number }}</view>
+                <view class="brand">{{ isObject(sku.brandResult).brandName || '无品牌' }}</view>
               </view>
-              <view class="brand">{{ sku.brand }}</view>
-            </view>
-            <view class="otherData">
-              <view class="flex">
-                <view class="flexGrow">
-                  入库时间：{{ sku.time }}
+              <view class="otherData">
+                <view class="flex">
+                  <view class="flexGrow">
+                    入库时间：{{ MyDate.Show(sku.createTime) }}
+                  </view>
+                  <view>{{ isObject(sku.user).name }}</view>
                 </view>
-                <view>{{ sku.user }}</view>
               </view>
-            </view>
-            <view class="otherData" style="padding-bottom: 8px">
-              <view class="flex">
-                <view class="flexGrow">
-                  上次养护：{{ sku.maintain }}
+              <view class="otherData" style="padding-bottom: 8px">
+                <view class="flex">
+                  <view class="flexGrow">
+                    上次养护：{{
+                      isObject(sku.maintenanceLogResult).createTime ? MyDate.Show(isObject(sku.maintenanceLogResult).createTime) : '暂无'
+                    }}
+                  </view>
                 </view>
               </view>
             </view>
           </view>
         </view>
-      </view>
-      <view class="scroll">
-        --- 我是有底线的 ---
-      </view>
+      </List>
     </view>
+
   </view>
 </template>
 
@@ -73,124 +79,49 @@
 
 import LinkButton from "@/components/LinkButton";
 import UQRCode from "uqrcodejs";
+import List from "../../../components/List/indx";
+import {Stock} from "MES-Apis/lib/Stock/promise";
+import {isArray, isObject, MyDate} from "../../../util/Tools";
 
 export default {
   name: "InkindItem",
-  components: {LinkButton},
+  components: {List, LinkButton},
+  props: ['skuId'],
   data() {
     return {
       codeTitle: '是否打印实物码',
       inkindItemHidden: false,
       showSkuErWeiMa: false,
-      position: [
-        {
-          name: 'Z1-3-2 / 南坡大库 (359)',
-          positionId: 1,
-          hidden: false,
-
-          skuList: [
-            {
-              title: '实物码',
-              inkindId: 1,
-              number: 1,
-              time: '01月31日 11:18',
-              user: '宋正飞',
-              maintain: '暂无',
-              brand: '无品牌'
-            },
-            {
-              title: '实物码',
-              inkindId: 2,
-              number: 1,
-              time: '02月02日 11:18',
-              user: '孙嘉龙',
-              maintain: '暂无',
-              brand: '无品牌'
-            }
-          ]
-        },
-        {
-          name: '东1 / 车间现场库 (1)',
-          positionId: 2,
-          hidden: false,
-
-          skuList: [
-            {
-              title: '实物码',
-              inkindId: 3,
-              number: 1,
-              time: '02月03日 11:18',
-              user: '孙嘉龙',
-              maintain: '暂无',
-              brand: '无品牌'
-            },
-            {
-              title: '实物码',
-              inkindId: 4,
-              number: 1,
-              time: '03月09日 11:18',
-              user: '宋正飞',
-              maintain: '暂无',
-              brand: '浑河库存'
-            }
-          ]
-        },
-        {
-          name: '东1 / 车间现场库 (1)',
-          positionId: 3,
-          hidden: false,
-
-          skuList: [
-            {
-              title: '实物码',
-              inkindId: 3,
-              number: 1,
-              time: '02月03日 11:18',
-              user: '孙嘉龙',
-              maintain: '暂无',
-              brand: '无品牌'
-            },
-            {
-              title: '实物码',
-              inkindId: 4,
-              number: 1,
-              time: '03月09日 11:18',
-              user: '宋正飞',
-              maintain: '暂无',
-              brand: '浑河库存'
-            }
-          ]
-        },
-        {
-          name: '东1 / 车间现场库 (1)',
-          positionId: 4,
-          hidden: false,
-
-          skuList: [
-            {
-              title: '实物码',
-              inkindId: 3,
-              number: 1,
-              time: '02月03日 11:18',
-              user: '孙嘉龙',
-              maintain: '暂无',
-              brand: '无品牌'
-            },
-            {
-              title: '实物码',
-              inkindId: 4,
-              number: 1,
-              time: '03月09日 11:18',
-              user: '宋正飞',
-              maintain: '暂无',
-              brand: '浑河库存'
-            }
-          ]
-        }
-      ]
+      list: [],
+      Stock,
+      isArray,
+      isObject,
+      MyDate
     }
   },
+  mounted() {
+
+  },
   methods: {
+    listSource(list) {
+      const newData = [];
+      list.forEach(item => {
+        const newPositionIds = newData.map(item => item.positionId);
+        const newPositionIndex = newPositionIds.indexOf(item.storehousePositionsId);
+        if (newPositionIndex !== -1) {
+          const newPosition = newData[newPositionIndex];
+          newData[newPositionIndex] = {...newPosition, inkindList: [...newPosition.inkindList, item]};
+        } else {
+          newData.push({
+            positionId: item.storehousePositionsId,
+            name: isObject(item.storehousePositionsResult).name,
+            storehouseName: isObject(item.storehouseResult).name,
+            inkindList: [item],
+          });
+        }
+      });
+      this.list = newData
+    },
     showStoreList(positionId) {
       this.position.forEach(pos => {
         if (pos.positionId === positionId) {
@@ -198,6 +129,15 @@ export default {
         }
       })
       // this.position.hidden =  !this.position.hidden
+    },
+    positionNumber(item) {
+      let number = 0;
+
+      isArray(item.inkindList).forEach(item => {
+        number += item.number;
+      });
+
+      return number
     },
     skuErWeiMa(inkindId) {
 

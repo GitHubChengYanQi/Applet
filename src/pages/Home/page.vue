@@ -1,5 +1,8 @@
 <template>
   <view class="menus">
+    <view class="title">
+      常用功能
+    </view>
     <uni-grid :column="3" :square="false" @change="change">
       <uni-grid-item v-for="(item, index) in Menu" :index="index" :key="index">
         <view class="grid-item-box">
@@ -41,6 +44,11 @@ export default {
 .menus {
   margin: 12px;
   //background-color: #fff;
+
+  .title {
+    font-weight: bold;
+    padding-bottom: 4px;
+  }
 }
 
 .text {

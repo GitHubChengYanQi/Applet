@@ -1,86 +1,112 @@
 <template>
-		<van-uploader :file-list="fileList" :deletable="true" max-count="5" use-before-read @before-read="uploader"
-			@delete="doDelete">
-				<uni-icons type="paperclip" size="20" v-if="file" :color="color"></uni-icons>
-		</van-uploader>
+  <van-uploader
+      use-before-read
+      @before-read="uploader"
+  >
+    <view class="upload" :style="{width:`${size}px`,height:`${size}px`}">
+      <Loading skeleton v-if="loading" loadingText="上传中" />
+      <u-icon v-else :size="size / 2" color="#dcdee0" name="camera-fill"></u-icon>
+    </view>
+  </van-uploader>
 </template>
 
 <script>
-	import { request } from 'MES-Apis/lib/Service/request';
-	import {getLocalParmas} from "../../util/Tools";
-	export default {
-		name: 'Uploader',
-		behaviors: ['uni://form-field'],
-		props: {
-			value: Array
-		},
-		data() {
-			return {
-				fileList: [],
-				mediaId:[]
-			}
-		},
-		props:{
-			file:{
-				type:Boolean,
-				default:false
-			},
-			color:String
-		},
-		methods: {
-			getToken(fielname){
-				return request({
-					url: '/media/getToken',
-					params: {
-						type: fielname
-					}
+import {request} from 'MES-Apis/lib/Service/request';
+import {getLocalParmas} from "../../util/Tools";
+import {Message} from "../Message";
+import Loading from "../Loading";
 
-				});
-			},
-			doDelete(event) {
-				const {
-					index
-				} = event.detail;
-				console.log(index);
-				this.fileList.splice(index, 1)
-			},
-			async uploader(event) {
-				// console.log(event);
-				const _this = this;
-				const {
-					file,
-					callback
-				} = event.detail;
-				console.log(file);
-				this.fileList.push({
-					url: file.thumb,
-					status: 'uploading'
+export default {
+  name: 'Uploader',
+  components: {Loading},
+  behaviors: ['uni://form-field'],
+  props: {
+    value: Array,
+    file: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: Number,
+      default: 80
+    }
+  },
+  data() {
+    return {
+      fielname: '',
+      loading: false
+    }
+  },
+  methods: {
+    getToken(fielname) {
+      this.fielname = fielname
+      return request({
+        url: '/media/getToken',
+        params: {
+          type: fielname
+        }
+      });
+    },
+    async uploader(event) {
+      const _this = this;
+      const {
+        file,
+        callback
+      } = event.detail;
 
-				})
-				const response = await this.getToken(file.url);
-				const oss = response.data;
-				uni.uploadFile({
-					url: oss.host, //仅为示例，非真实的接口地址
-					filePath: file.url,
-					name: 'file',
-					formData: {
-						...oss
-					},
-					success: (uploadFileRes) => {
-						// console.log(uploadFileRes.data);
-						const index = _this.fileList.findIndex(function(item) {
-							return item.url == file.url
-						});
-						_this.fileList[index].status = 'done';
-						_this.mediaId.push(oss.mediaId);
-						_this.$emit("input",_this.mediaId);
-					}
-				});
-				callback(true);
-			}
-		}
-	}
+      const fileSuffix = file.url.substring(file.url.lastIndexOf('.') + 1).toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'webp'].includes(fileSuffix)) {
+        Message.toast('请上传图片!')
+        return
+      }
+      this.loading = true
+      const response = await this.getToken(file.url).catch(() => {
+        this.loading = false
+      });
+      const oss = response.data;
+      uni.uploadFile({
+        url: oss.host, //仅为示例，非真实的接口地址
+        filePath: file.url,
+        name: 'file',
+        formData: {
+          ...oss
+        },
+        success: () => {
+          this.loading = false
+          _this.$emit("onChange", {
+            id: oss.mediaId,
+            url: `${oss.host}/${oss.key}`,
+            name: this.fielname
+          });
+        },
+        fail: () => {
+          Message.errorToast('上传失败！')
+          this.loading = false
+        }
+      });
+      callback(true);
+    }
+  }
+}
 </script>
 
-<style>
+<style lang="scss">
+.upload {
+  position: relative;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background-color: #f7f8fa;
+}
 </style>

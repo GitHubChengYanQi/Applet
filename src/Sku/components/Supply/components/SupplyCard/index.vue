@@ -1,13 +1,13 @@
 <template>
   <view style="padding: 12px">
-    <view class="supplyCard" v-for="supply in supplyItem" :key="supply.supplyId">
+    <view class="supplyCard" v-for="supply in supplys" :key="supply.customerId">
       <view class="supplyHeader">
-        <view class="titles">{{ supply.customerName }}</view>
+        <view class="titles">{{ isObject(supply.customerResult).customerName }}</view>
       </view>
       <view class="supplyContent content">
-        <view class="space" v-for="brandName in supply.supplyList" :key="brandName.brandId">
+        <view class="space" v-for="brandName in isArray(supply.brandNames)" :key="brandName.brandId">
           <view class="space_item">
-            <view class="brands">{{ brandName.brandName || '无品牌' }}</view>
+            <view class="brands">{{ brandName || '无品牌' }}</view>
           </view>
         </view>
       </view>
@@ -16,64 +16,15 @@
 </template>
 
 <script>
+import {isArray, isObject} from "../../../../../util/Tools";
+
 export default {
   name: "supplyCard",
+  props: ['supplys'],
   data() {
     return {
-      supplyItem: [
-        {
-          supplyId: 1,
-          customerName: '沈阳英德尔电子有限公司',
-          supplyList: [
-            {
-              brandId: 1,
-              brandName: '浑河库存'
-            },
-          ]
-        },
-        {
-          supplyId: 2,
-          customerName: '貊mo1986电线电缆批发（淘宝网店）',
-          supplyList: [
-            {
-              brandId: 1,
-            }
-          ]
-        },
-        {
-          supplyId: 3,
-          customerName: '测试默认开户行',
-          supplyList: [
-            {
-              brandId: 1,
-              brandName: '测试默认开户行'
-            },
-            {
-              brandId: 2,
-              brandName: '浑河库存',
-            },
-            {
-              brandId: 3,
-              brandName: '道'
-            },
-            {
-              brandId: 4,
-              brandName: '超同步'
-            }
-          ]
-        },
-        {
-          supplyId: 4,
-          customerName: '成都信华光电技术有限公司',
-          supplyList: [
-            {
-              brandId: 1,
-              brandName: '成都信华'
-            }
-          ]
-        }
-
-      ]
+      isObject,
+      isArray
     }
   }
 }

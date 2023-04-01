@@ -22,7 +22,8 @@ export const Menu = [
         url: `/Erp/Receipt/ReceiptList/index?type=${ReceiptsEnums.instockOrder}`
     },
     {name: '办理入库', key: 'inStockAsk', icon: 'icon-rukuguanli2', url: '/Erp/InStock/InStockAsk/index'},
-    {name: '采购单列表', key: 'procurementOrder', icon: 'icon-caigoudanguanli', url: '/Purchase/Order/OrderList/index'},
-    {name: '创建生产计划', key: 'createProduction', icon: 'icon-shengchanjihua', url: '/Production/CreatePlan/index'},
-    {name: '即时盘点', key: 'stocktaking', icon: 'icon-pandian1', url: '/Erp/Stocktaking/immediately/index'}
+    // {name: '采购单列表', key: 'procurementOrder', icon: 'icon-caigoudanguanli', url: '/Purchase/Order/OrderList/index'},
+    // {name: '创建生产计划', key: 'createProduction', icon: 'icon-shengchanjihua', url: '/Production/CreatePlan/index'},
+    // {name: '即时盘点', key: 'stocktaking', icon: 'icon-pandian1', url: '/Erp/Stocktaking/immediately/index'},
+    // {name: '更多', key: 'all', icon: 'icon-gengduo', url: '/pages/MenusSetting/index'},
 ]

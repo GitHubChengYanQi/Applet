@@ -1,18 +1,22 @@
 <template>
-  <view>
+  <scroll-view style="height:100vh" :scroll-y="scroll">
     <Empty v-if="error" type="error" description="获取物料详情失败" />
     <Loading :skeleton="true" skeleton-type="page" v-else-if="loading" />
-    <view v-else>
+    <view v-else :style="{paddingBottom:`${safeAreaHeight}px`}">
       <view class="skuDetail">
         <view class="imgS">
           <view class="uni-margin-wrap">
             <swiper @change="change">
               <swiper-item v-for="(value,name) in skuDetail.imgResults" :key="name">
-                <image :src="value.url" @click="img(value.url)" mode="aspectFill"></image>
+                <image
+                    :src="value.url"
+                    @click="img(value.url)"
+                    mode="aspectFill"
+                />
               </swiper-item>
             </swiper>
           </view>
-          <view class="edit">
+          <view class="edit" @click="edit">
             <uni-icons type="compose" color="#ffffff" size="14"></uni-icons>
           </view>
           <view class="customIndicator">{{ customIndicator }}/{{ total }}</view>
@@ -26,26 +30,25 @@
                 <view>{{ skuDetail.positionsName || '' }} / {{ skuDetail.storehouseName || '' }}</view>
               </view>
             </view>
-            <view @click="auto()">
+            <view @click="auto">
               <uni-icons custom-prefix="icon-font" type="icon-erweima" color="#2680EB"></uni-icons>
             </view>
             <van-dialog
                 use-slot
                 :show="showErWeiMa"
-                show-cancel-button
-                cancel-button-text="取消"
-                cancel-button-color="#2680EB"
-                confirm-button-text="打印"
+                confirm-button-text="确认"
                 confirm-button-color="#2680EB"
-                @close="auto"
                 width="280px"
             >
-              <view v-if="showErWeiMa" style='text-align: center;padding-top: 12px'>
-                <view class='codeTitle'>是否打印物料码</view>
+              <view style='text-align: center;padding-top: 12px'>
+                <view class='codeTitle'>物料码</view>
                 <view class="dialogContent">
                   <view style="padding-top: 19px">
-                    <canvas id="firstCanvas" canvas-id="firstCanvas"
-                            style="width: 187px;height: 187px;display: inline-block"></canvas>
+                    <canvas
+                        id="firstCanvas"
+                        canvas-id="firstCanvas"
+                        style="width: 187px;height: 187px;display: inline-block"
+                    />
                   </view>
                 </view>
               </view>
@@ -102,18 +105,20 @@
               </view>
             </view>
           </view>
-          <van-divider dashed contentPosition="center">
-            <view class="adm-divider-content" @click="many()">
+
+          <view @click="many()">
+            <van-divider dashed contentPosition="center" customStyle="margin:0">
               <uni-icons :type=" hidden===true ? 'top' : 'bottom' "></uni-icons>
-            </view>
-          </van-divider>
+            </van-divider>
+          </view>
+
         </view>
       </view>
 
-      <Supply></Supply>
+      <Supply :skuId="skuId" />
 
       <Popup :show="showSkuDetail" position="bottom" @close="overlay" close-on-click-overlay="true" title="库存明细">
-        <InkindItem></InkindItem>
+        <InkindItem :skuId="skuId" v-if="showSkuDetail" />
       </Popup>
 
       <Popup
@@ -123,16 +128,15 @@
           close-on-click-overlay="true"
           title="操作记录"
       >
-        <SkuLog></SkuLog>
+        <SkuLog v-if="showOperationRecord" />
       </Popup>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <script>
 
 import Search from "@/components/Search";
-import Popup from "@/components/Popup";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuLog from "@/Sku/components/SkuLog/index.vue";
 import InkindItem from "@/Sku/components/InkindItem/index.vue";
@@ -143,10 +147,11 @@ import {request} from "MES-Apis/lib/Service/request";
 import {getLocalParmas, isArray} from "../../util/Tools";
 import Loading from "../../components/Loading";
 import Empty from "../../components/Empty";
+import Popup from "../../components/Popup";
 
 export default {
   name: "SkuDetail",
-  components: {Empty, Loading, Supply, InkindItem, SkuLog, Popup, Search},
+  components: {Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
   data() {
     return {
       skuDetail: {},
@@ -160,18 +165,33 @@ export default {
       showOperationRecord: false, //展示操作记录
       showSkuErWeiMa: false, //展示物料详情二维码
       loading: true,
-      error: false
+      error: false,
+      skuId: '',
+      safeAreaHeight: 0,
     }
   },
   mounted() {
+    const safeAreaHeight = this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
+    this.safeAreaHeight = safeAreaHeight < 12 ? 12 : safeAreaHeight
     this.get();
   },
   computed: {
+    scroll() {
+      return !this.$store.state.dialog.show
+    },
     total() {
       if (this.skuDetail.imgResults || '') {
         return this.skuDetail.imgResults.length
       }
       return 1
+    }
+  },
+  watch: {
+    showSkuDetail(show) {
+      this.$store.commit('dialog/openChange', show)
+    },
+    showOperationRecord(show) {
+      this.$store.commit('dialog/openChange', show)
     }
   },
   methods: {
@@ -181,6 +201,7 @@ export default {
       this.loading = true
 
       const skuId = getLocalParmas().search.skuId
+      this.skuId = skuId
       const skuDetail = await Sku.detail(skuId).catch(() => {
         this.error = true
       });
@@ -197,8 +218,13 @@ export default {
 
       this.typeSettings = typeSetting.filter(item => !['images', 'drawing', 'fileId'].includes(item.key) && item.show)
 
+      const publicInfo = this.$store.state.userInfo.publicInfo || {}
+
       this.skuDetail = {
-        ...skuDetail.data,
+        ...data,
+        imgResults: isArray(data.imgResults).length > 0 ? data.images.split(',').map((item) => {
+          return data.imgResults.find(img => img.mediaId === item)
+        }) : [{url: publicInfo.imgLogo}],
         spuName: spuResult.name,
         positionsName: positionsResult[0] ? positionsResult[0].name : '',
         storehouseName: positionsResult[0] ? positionsResult[0].storehouseResult?.name : '',
@@ -275,7 +301,7 @@ export default {
       const imgResults = _this.skuDetail.imgResults
 
       const urls = imgResults.map(item => {
-        return item.url
+        return item.url || item.thumbUrl
       })
 
       uni.previewImage({
@@ -290,7 +316,7 @@ export default {
     auto() {
       const qr = new UQRCode;
       // 设置二维码内容
-      qr.data = `4567895641231456`;
+      qr.data = this.skuId;
       // 设置二维码大小，必须与canvas设置的宽高一致
       qr.size = 187;
       // 调用制作二维码方法
@@ -314,6 +340,22 @@ export default {
     },
     operation() {
       this.showOperationRecord = !this.showOperationRecord
+    },
+    edit() {
+      const _this = this
+      uni.navigateTo({
+        url: `/Sku/SkuImgs/index?skuId=${this.skuId}`,
+        events: {
+          // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
+          refresh: function () {
+            _this.get()
+          }
+        },
+        success: function (res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('skuImgs', _this.skuDetail.imgResults)
+        }
+      })
     }
   }
 
@@ -362,6 +404,7 @@ export default {
   .uni-margin-wrap, swiper, image {
     width: 100%;
     height: 100%;
+    border-bottom: 1px solid #fff;
   }
 
   .header {

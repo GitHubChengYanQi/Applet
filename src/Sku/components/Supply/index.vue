@@ -1,19 +1,22 @@
 <template>
-  <view class="supply">
-    <view class="title">
-      供应商{{ supplyItem.length > 1 ? `(${supplyItem.length})` : '' }}
-      <LinkButton style="padding-bottom: 8px;float: right;" color="#2680eb" @click="more">
-        查看更多
-        <uni-icons type="right" color="#2680eb"></uni-icons>
-      </LinkButton>
-    </view>
-    <view class="flexCenter supplyItem" v-for="(supply,index) in supplyItem" :key="supply.supplyId" v-if="index < 2">
-      <view class="flexGrow">{{ supply.customerName }}</view>
-    </view>
+  <view>
+    <Loading :skeleton="true" v-if="loading" />
+    <view class="supply" v-else>
+      <view class="title">
+        供应商{{ supplys.length > 1 ? `(${supplys.length})` : '' }}
+        <LinkButton style="padding-bottom: 8px;float: right;" color="#2680eb" @click="more">
+          查看更多
+          <uni-icons type="right" color="#2680eb"></uni-icons>
+        </LinkButton>
+      </view>
+      <view class="flexCenter supplyItem" v-for="(supply,index) in supplys" :key="supply.customerId" v-if="index < 2">
+        <view class="flexGrow">{{ isObject(supply.customerResult).customerName }}</view>
+      </view>
 
-    <Popup :show="show" position="bottom" @close="custom" close-on-click-overlay="true" title="供应商">
-      <SupplyCard></SupplyCard>
-    </Popup>
+      <Popup :show="show" position="bottom" @close="custom" close-on-click-overlay="true" title="供应商">
+        <SupplyCard :supplys="supplys" />
+      </Popup>
+    </view>
   </view>
 </template>
 
@@ -22,34 +25,51 @@ import LinkButton from "@/components/LinkButton/index.vue";
 import Popup from "@/components/Popup/index.vue";
 import Card from "@/components/Card/index.vue";
 import SupplyCard from "@/Sku/components/Supply/components/SupplyCard/index.vue";
+import {Sku} from "MES-Apis/lib/Sku/promise";
+import Loading from "../../../components/Loading";
+import {isArray, isObject} from "../../../util/Tools";
 
 export default {
   name: "supply",
-  components: {SupplyCard, Card, Popup, LinkButton},
-  props: [],
+  components: {Loading, SupplyCard, Card, Popup, LinkButton},
+  props: ['skuId'],
   data() {
     return {
-      supplyItem: [
-        {
-          supplyId: 1,
-          customerName: '沈阳英德尔电子有限公司',
-        },
-        {
-          supplyId: 2,
-          customerName: '貊mo1986电线电缆批发（淘宝网店）',
-        }, {
-          supplyId: 3,
-          customerName: '测试默认开户行',
-        },
-        {
-          supplyId: 4,
-          customerName: '成都信华光电技术有限公司',
-        }
-      ],
+      loading: false,
+      supplys: [],
       show: false,
+      isObject
     }
   },
+  watch:{
+    show(show) {
+      this.$store.commit('dialog/openChange', show)
+    }
+  },
+  mounted() {
+    this.getSupplyList()
+  },
   methods: {
+    getSupplyList() {
+      this.loading = true
+      Sku.supplyList({data: {skuId: this.skuId}}).then((res) => {
+        const newData = [];
+        isArray(res.data).forEach(item => {
+          const customerIds = newData.map(item => item.customerId);
+          const customerIndex = customerIds.indexOf(item.customerId);
+          const brandResult = item.brandResult || {};
+          if (customerIndex === -1) {
+            newData.push({...item, brandNames: [brandResult.brandName]});
+          } else {
+            const customer = newData[customerIndex];
+            newData[customerIndex] = {...customer, brandNames: [...customer.brandNames, brandResult.brandName]};
+          }
+        });
+        this.supplys = newData
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     more() {
       this.show = true
     },

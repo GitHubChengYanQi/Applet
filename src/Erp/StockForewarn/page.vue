@@ -85,7 +85,7 @@
 <script>
 import Search from '../../components/Search'
 import LinkButton from "@/components/LinkButton";
-import {request} from "MES-Apis/uitl/Service/request";
+import {request} from "MES-Apis/lib/Service/request";
 import SkuItem from "@/components/SkuItem";
 export default {
   components:{

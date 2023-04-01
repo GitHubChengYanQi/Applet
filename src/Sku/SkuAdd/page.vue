@@ -53,7 +53,7 @@
 	import Card from '../../components/Card';
 	import {
 		request
-	} from 'MES-Apis/uitl/Service/request';
+	} from 'MES-Apis/lib/Service/request';
 	import Brandids from "../components/field/brand-ids";
 	import Batch from "../components/field/batch";
 	import Color from "../components/field/color";
