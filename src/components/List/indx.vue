@@ -81,7 +81,8 @@ export default {
 
           const resData = res.data || [];
           this.$emit('response', res);
-          if (resData.length > 0) {
+          if (resData.length
+              > 0) {
             const array = [...this.data];
             resData.map((items) => {
               return array.push(items);

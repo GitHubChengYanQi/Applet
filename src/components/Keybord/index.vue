@@ -51,6 +51,9 @@
 </template>
 
 <script>
+/**
+ * 事件：onChange 值改变后触发
+ */
 export default {
   name: 'Keybord',
   props: {
@@ -157,9 +160,10 @@ export default {
       this.numberChange(newValue);
     },
     ok() {
-      this.$emit('onConfirm')
-      this.$emit('visiblChange', false)
       this.save();
+      this.$emit('onConfirm');
+      this.$emit('visiblChange', false)
+
     },
     save() {
       const num = Number(this.showNumber());

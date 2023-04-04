@@ -147,9 +147,7 @@ export default {
           isNotproduct: 1
         }
       });
-      const {
-        data
-      } = response;
+      const {data} = response;
       this.cateGoryData = this.format(data);
       console.log(this.cateGoryData);
       // this.cateGoryData = data;
