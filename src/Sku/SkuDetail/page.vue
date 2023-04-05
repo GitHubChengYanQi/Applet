@@ -17,13 +17,14 @@
             </swiper>
           </view>
           <view class="edit" @click="edit">
-            <uni-icons type="compose" color="#ffffff" size="14"></uni-icons>
+            <uni-icons type="compose" color="#ffffff" size="20"></uni-icons>
           </view>
           <view class="customIndicator">{{ customIndicator }}/{{ total }}</view>
         </view>
         <view class="header">
           <view class="flexCenter sku">
             <view class="flexGrow">
+              <view class="standard">{{ skuDetail.standard || '无' }}</view>
               <view class="spuName">{{ skuDetail.spuName || '无' }}</view>
               <view class="skuName">{{ SkuResultSkuJsons({skuResult: skuDetail, sku: true}) }}</view>
               <view class="bindPosition" v-if="!!skuDetail.positionsName">
@@ -31,7 +32,7 @@
               </view>
             </view>
             <view @click="auto">
-              <uni-icons custom-prefix="icon-font" type="icon-erweima" color="#2680EB"></uni-icons>
+              <uni-icons size="24" custom-prefix="icon-font" type="icon-erweima" color="#2680EB"></uni-icons>
             </view>
             <van-dialog
                 use-slot
@@ -210,7 +211,7 @@ export default {
       const spuResult = data.spuResult || {}
       const positionsResult = data.positionsResult || []
       const spuClassificationResult = spuResult.spuClassificationResult || {}
-      const response = await this.getDetail(spuClassificationResult.spuClassificationId).catch(() => {
+      const response = await  Sku.skuFormLayout(spuClassificationResult.spuClassificationId).catch(() => {
         this.error = true
       })
 
@@ -271,15 +272,6 @@ export default {
         default:
           return data[key];
       }
-    },
-    async getDetail(spuClassificationId) {
-      return request({
-        url: "/spuClassification/detail",
-        method: "POST",
-        data: {
-          spuClassificationId
-        }
-      });
     },
     more() {
       this.show = true
@@ -386,10 +378,10 @@ export default {
     right: 12px;
     border-radius: 50px;
     background: rgba(0, 0, 0, 0.5);
-    height: 24px;
+    height: 30px;
     text-align: center;
-    line-height: 24px;
-    width: 24px;
+    line-height: 30px;
+    width: 30px;
     color: #FFFFFF;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -416,6 +408,7 @@ export default {
     .otherData {
       display: flex;
       padding-top: 8px;
+      margin-top: 8px;
       justify-content: space-between;
       border-top: 1px solid #F5F5F5;
 
@@ -441,20 +434,26 @@ export default {
       padding-top: 12px;
       align-items: stretch;
 
+      .standard {
+        font-weight: bold;
+        font-size: 20px;
+        color: #FA8F2B;
+      }
+
       .spuName {
         font-weight: bold;
         font-size: 20px;
+        margin: 8px 0;
       }
     }
 
     .skuName {
       font-size: 14px;
-      padding-top: 8px;
     }
 
     .bindPosition {
       font-size: 14px;
-      padding: 8px 0;
+      padding-top: 8px;
       display: flex;
     }
 

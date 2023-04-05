@@ -42,6 +42,12 @@ export const Menus = [
                 key: 'stocktaking',
                 icon: 'icon-pandian1',
                 url: '/Erp/Stocktaking/immediately/index'
+            },
+            {
+                name: '库存预警',
+                key: 'StockForewarn',
+                icon: 'icon-pandian1',
+                url: '/Erp/StockForewarn/index'
             }
         ]
     },

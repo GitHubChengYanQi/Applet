@@ -1,206 +1,211 @@
 <template>
-  <view>
+  <view class="stockForewarn">
     <view class="search">
-      <Search></Search>
+      <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="searchClick" />
     </view>
     <view class="filter">
       <view class="classify" @click="click">
-        <view class="title">{{title}}</view>
+        <view class="title">{{ title || '物料分类' }}</view>
         <view class="icon">
-          <uni-icons type="bottom" size="12" ></uni-icons>
+          <uni-icons type="bottom" size="12"></uni-icons>
         </view>
       </view>
-
+      <u-picker
+          immediateChange
+          :show="show"
+          :columns="skuClass"
+          @close="close"
+          @cancel="close"
+          @confirm="confirm"
+          closeOnClickOverlay
+      />
       <view class="classify" @click="warning">
-        <view class="title">预警状态</view>
+        <view class="title">{{ title2 || '预警状态' }}</view>
         <view class="icon">
           <uni-icons type="bottom" size="12"></uni-icons>
         </view>
       </view>
     </view>
-    <u-popup :show="show" @close="close">
-    <view class="header">
-      <link-button class="cancel" @click="close">取消</link-button>
-      <view class="choose">选择分类</view>
-      <link-button class="define">确定</link-button>
-    </view>
-      <van-cascader  :options="cateGoryData" @finish="onFinish" :closeable="false" value='checked'/>
-  </u-popup>
-    <u-picker :show="show2" :columns="columns" @cancel="close" closeOnClickOverlay keyName="text"></u-picker>
-    <view class="list">
-      <SkuItem>
-        <view slot="otherData" class="number">
-          <view>在途数量：10</view>
-          <view class="waite">待采数量：0</view>
-        </view>
-        <view slot="otherData" class="storage">
-          <view>库存下限：3</view>
-          <view class="grey">库存上限：2</view>
-        </view>
+    <u-picker
+        :show="show2"
+        :columns="columns"
+        immediateChange
+        @close="close"
+        @cancel="close"
+        @confirm="confirm2"
+        closeOnClickOverlay
+    />
 
-      </SkuItem>
-    </view>
-    <view class="list">
-      <SkuItem>
-        <view slot="otherData" class="number">
-          <view>在途数量：10</view>
-          <view class="waite">待采数量：0</view>
-        </view>
-        <view slot="otherData" class="storage">
-          <view>库存下限：3</view>
-          <view class="grey">库存上限：2</view>
-        </view>
-
-      </SkuItem>
-    </view>
-    <view class="list">
-      <SkuItem>
-        <view slot="otherData" class="number">
-          <view>在途数量：10</view>
-          <view class="waite">待采数量：0</view>
-        </view>
-        <view slot="otherData" class="storage">
-          <view>库存下限：3</view>
-          <view class="grey">库存上限：2</view>
-        </view>
-
-      </SkuItem>
-    </view>
-    <view class="list">
-      <SkuItem>
-        <view slot="otherData" class="number">
-          <view>在途数量：10</view>
-          <view class="waite">待采数量：0</view>
-        </view>
-        <view slot="otherData" class="storage">
-          <view>库存下限：3</view>
-          <view class="grey">库存上限：2</view>
-        </view>
-
-      </SkuItem>
-    </view>
+    <List
+        ref="list"
+        @request="StockForewarn.warningSku"
+        @listSource="(newList)=>list = newList"
+        :list="list"
+        max-height="calc(100vh - 100px)"
+    >
+      <view
+          v-for="(item,index) in list"
+          :key="index"
+          class="list"
+      >
+        <SkuItem :sku-result="item.skuResult">
+          <view slot="otherData" class="number">
+            <view>在途数量：{{ item.floatingCargoNumber || 0 }}</view>
+            <view class="waite">待采数量：{{ item.purchaseNumber || 0 }}</view>
+          </view>
+          <view slot="otherData" class="storage">
+            <view :class="{grey:item.number >= item.inventoryFloor}">库存下限：{{ item.inventoryFloor }}</view>
+            <view :class="{grey:item.number <= item.inventoryFloor}">库存上限：{{ item.inventoryCeiling }}</view>
+          </view>
+        </SkuItem>
+      </view>
+    </List>
   </view>
 </template>
 
 <script>
 import Search from '../../components/Search'
-import LinkButton from "@/components/LinkButton";
-import {request} from "MES-Apis/lib/Service/request";
-import SkuItem from "@/components/SkuItem";
+import Popup from "../../components/Popup";
+import {isArray} from "../../util/Tools";
+import {Sku} from "MES-Apis/lib/Sku/promise";
+import List from "../../components/List/indx";
+import {StockForewarn} from "MES-Apis/lib/StockForewarn/promise";
+import SkuItem from "../../components/SkuItem";
+
 export default {
-  components:{
-    LinkButton,
-    Search,
-    SkuItem
+  components: {
+    SkuItem,
+    List,
+    Popup,
+    Search
   },
-  data(){
-    return{
-      checked:[],
-      show:false,
-      show2:false,
-      cateGoryData:[],
-      columns:[
+  data() {
+    return {
+      eventName: 'stockForewarn',
+      searchData: {},
+      searchValue: '',
+      title: '',
+      title2: '',
+      show: false,
+      show2: false,
+      StockForewarn,
+      list: [],
+      columns: [
         [{
           text: '全部',
-          key:1
-         },
+          key: 'all'
+        },
           {
             text: '下限预警',
-            key:2
+            key: 'min'
           },
           {
             text: '上限预警',
-            key:3
+            key: 'max'
           }]
-      ]
+      ],
+      skuClass: []
     }
   },
-  computed:{
-    title(){
-      return Object.keys(this.checked).length>0?this.checked.text:"物料分类";
-    },
-  },
   mounted() {
+    const _this = this;
+    uni.$on(this.eventName, data => {
+      _this.refreshList({keyWords: data.searchValue})
+      _this.searchValue = data.searchValue
+    })
     this.getCateGory();
   },
-  methods:{
-    click(){
+  methods: {
+    refreshList(data) {
+      const newData = {...this.searchData, ...data}
+      this.searchData = newData
+      this.$refs.list.submit(newData)
+    },
+    searchClick() {
+      uni.navigateTo({
+        url: '/pages/searchPage/index?eventName=' + this.eventName + '&searchValue=' + this.searchValue
+      });
+    },
+    click() {
       this.show = true;
     },
-    close(){
+    close() {
       this.show = false;
       this.show2 = false;
     },
-    warning(){
+    confirm({value}) {
+      this.show = false;
+      this.title = value[0].key === 'all' ? '' : value[0].text
+      this.refreshList({classId: value[0].key === 'all' ? null : value[0].key})
+    },
+    confirm2({value}) {
+      console.log(value[0].key)
+      this.show2 = false;
+      this.title2 = value[0].key === 'all' ? '' : value[0].text
+      this.refreshList({forewarnStatus: value[0].key === 'all' ? null : value[0].key})
+    },
+    warning() {
       this.show2 = true;
     },
     async getCateGory() {
-      const response = await request({
-        url: "/spuClassification/treeView",
-        method: "POST",
-        data: {
-          isNotproduct: 1
-        }
-      });
-      const {
-        data
-      } = response;
-      this.cateGoryData = this.format(data);
-      console.log(this.cateGoryData);
-      // this.cateGoryData = data;
-    },
-    format(data){
-      const list=[];
-      for(var i=0;i<data.length;i++){
-        const item = data[i];
-        const obj = {
-          text:item.title,
-          value:item.key
-        }
-        if(item.children.length>0){
-          obj.children = this.format(item.children);
-        }
-        list.push(obj);
-      }
-      return list;
-    },
-    async onFinish(e) {
-      console.log(e);
-      this.show = false;
-      console.log(e.detail);
-      const { selectedOptions, value } = e.detail;
-      console.log(e.detail);
-      this.checked = selectedOptions[0];
+      this.loading = true
+      Sku.spuClassListSelect({data: {}}).then((res) => {
+        this.skuClass = [[{text: '全部', key: 'all'}, ...isArray(res.data).map(item => ({
+          text: item.label,
+          key: item.value,
+        }))]]
+      }).finally(() => {
+        this.loading = false
+      })
+
     }
   }
 }
 </script>
 
 <style lang="scss">
-.search{
+
+.stockForewarn {
   background-color: #FFFFFF;
-  padding:  0 12px;
+  height: 100vh;
 }
-.filter{
+
+.search {
+  padding: 0 12px;
+}
+
+.filter {
+  border: solid 1px #F5F5F5;
   display: flex;
-  background-color: #FFFFFF;
   font-size: 12px;
   color: #8d8d8d;
   text-align: center;
-  .classify{
+  align-items: center;
+
+  .classify {
     flex-grow: 1;
     display: flex;
-    padding:12px 8px;
-    .title{
-      flex: 1;
-    }
-    .icon{
-      width: 12px;
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      padding-left: 4px;
     }
   }
 }
 
-.header{
+.uniPicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .icon {
+    padding-left: 4px;
+  }
+}
+
+.header {
   height: 45px;
   display: flex;
   border-bottom: 1px solid #EEEEEE;
@@ -208,7 +213,7 @@ export default {
   line-height: 45px;
   padding: 0 12px;
 
-  .choose{
+  .choose {
     font-size: 18px;
     text-align: center;
     color: #333333;
@@ -216,24 +221,28 @@ export default {
   }
 }
 
-.list{
+.list {
   background-color: #FFFFFF;
   padding: 12px;
-  .number{
+
+  .number {
     font-size: 12px;
     color: #00A200;
+    margin-top: 4px;
     display: flex;
-    .waite{
-      margin-left: 5px;
-    }
+    align-items: center;
+    gap: 8px;
   }
-  .storage{
+
+  .storage {
     font-size: 12px;
     color: #ff3141;
     display: flex;
-    .grey{
+    align-items: center;
+    gap: 8px;
+
+    .grey {
       color: #9A9A9A;
-      margin-left: 5px;
     }
   }
 }

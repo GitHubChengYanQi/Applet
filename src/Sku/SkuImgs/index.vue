@@ -17,11 +17,11 @@ export default {
   components: {Page, Auth},
   onLoad(option) {
     const _this = this
-    this.skuId = option.skuId
     const eventChannel = this.getOpenerEventChannel();
     // 监听acceptDataFromOpenerPage事件，获取上一页面通过eventChannel传送到当前页面的数据
     if (typeof eventChannel.on === 'function') {
       eventChannel.on('skuImgs', function (imgs) {
+        _this.skuId = option.skuId
         _this.imgs = imgs.filter(item => item.mediaId).map(item => ({
           url: item.thumbUrl || item.url,
           id: item.mediaId,

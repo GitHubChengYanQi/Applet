@@ -1,11 +1,10 @@
 <template>
   <view>
-    <Loading skeleton skeleton-type="page" v-if="loading" />
-    <view class="stock" v-else>
+    <view class="stock">
       <view class="search">
         <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="click" />
       </view>
-      <view class="skuClass">
+      <view v-if="!loading" class="skuClass">
         <scroll-view scroll-x="true" class="scroll-view">
           <view :class="{classItem:true, choose:!checkSkuClass}" @click="clickSkuClass(null)">
             全部
@@ -24,7 +23,7 @@
         <List
             ref="skuList"
             :list="skuList"
-            max-height="calc(100vh - 120px)"
+            max-height="calc(100vh - 150px)"
             @request="Sku.listV1_1"
             @listSource="listSource"
         >
@@ -38,7 +37,6 @@
         </List>
       </view>
     </view>
-
   </view>
 
 </template>
@@ -63,7 +61,7 @@ export default {
       skuImages: [],
       skuClass: [],
       checkSkuClass: '',
-      loading: true
+      loading: false
     }
   },
   mounted() {
