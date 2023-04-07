@@ -1,30 +1,40 @@
 <template>
-	<view class="choice">
-		<uni-easyinput @input="onInput" :placeholder="'请输入'+placeholder+'(天)'" placeholder-style="color:#ccc" />
-	</view>
+  <view class="choice">
+    <ShopNumber :min="0" :value="value || 0" @onChange="onInput" />
+    天
+  </view>
 </template>
 
 <script>
-	export default{
-		behaviors: ['uni://form-field'],
-		props:{
-			placeholder:String,
-		},
-		methods: {
-			onInput(value) {
-				this.$emit('input', value)
-			}
-		}
-	}
+import ShopNumber from "../../../../components/ShopNumber";
+
+export default {
+  components: {ShopNumber},
+  behaviors: ['uni://form-field'],
+  props: {
+    placeholder: String,
+    value: {
+      type: Number,
+      default: _ => 0
+    }
+  },
+  data() {
+    return {}
+  },
+  methods: {
+    onInput(value) {
+      this.value = value
+      this.$emit('input', value)
+    }
+  }
+}
 </script>
 
 <style>
-	.choice {
-		display: flex;
-	}
-	.company{
-		position: absolute;
-		right: 10px;
-		line-height: 30px;
-	}
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 36px;
+}
 </style>

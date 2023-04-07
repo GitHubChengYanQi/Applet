@@ -3,7 +3,7 @@
   <slot></slot>
 
   <view v-if="showSidebar" class="van-index-bar__sidebar" @click.stop.prevent="onClick" @touchmove.stop.prevent="onTouchMove" @touchend.stop.prevent="onTouchStop" @touchcancel.stop.prevent="onTouchStop">
-    <view v-for="(item,index) in (indexList)" :key="item.index" class="van-index-bar__index" :style="'z-index: '+(zIndex + 1)+'; color: '+(activeAnchorIndex === index ? highlightColor : '')" :data-index="index">
+    <view v-for="(item,index) in (indexList)" :key="item.index" class="van-index-bar__index" :style="'z-index: '+(zIndex + 1)+'; Combox: '+(activeAnchorIndex === index ? highlightColor : '')" :data-index="index">
       {{ item }}
     </view>
   </view>

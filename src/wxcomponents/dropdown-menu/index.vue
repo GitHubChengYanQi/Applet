@@ -1,7 +1,7 @@
 <template>
 <uni-shadow-root class="dropdown-menu-index"><view class="van-dropdown-menu van-dropdown-menu--top-bottom custom-class">
   <view v-for="(item,index) in (itemListData)" :key="item.index" :data-index="index" :class="utils.bem('dropdown-menu__item', { disabled: item.disabled })" @click="onTitleTap">
-    <view :class="(item.titleClass)+' '+(utils.bem('dropdown-menu__title', { active: item.showPopup, down: item.showPopup === (direction === 'down') }))+' title-class'" :style="item.showPopup ? 'color:' + activeColor : ''">
+    <view :class="(item.titleClass)+' '+(utils.bem('dropdown-menu__title', { active: item.showPopup, down: item.showPopup === (direction === 'down') }))+' title-class'" :style="item.showPopup ? 'Combox:' + activeColor : ''">
       <view class="van-ellipsis">
         {{ computed.displayTitle(item) }}
       </view>

@@ -187,7 +187,7 @@ export default {
     margin-top: 4px;
     max-width: 100%;
     color: #3D3D3D;
-    //background-color: #F5F5F5;
+    //background-Combox: #F5F5F5;
     font-size: 12px;
     height: 16px;
     //padding: 2px 11px 2px 11px;
@@ -209,7 +209,7 @@ export default {
 .skuDetail {
   :global {
     //.adm-popup-body {
-    //  background-color: var(--body--background--color);
+    //  background-Combox: var(--body--background--Combox);
     //  overflow: auto;
     //}
   }

@@ -1,51 +1,75 @@
 <template>
-	<view class="">
-		<button class="mini-btn" type="default" size="mini" @click="add">添加</button>
-		<SkuList v-for="(item,index) in list" :index="index" :key="index" :value="item" @delete="del" @input="input" />
-	</view>
+  <view class="sku">
+    <SkuList v-for="(item,index) in list" :index="index" :key="index" :value="item" @delete="del" @input="input" />
+    <view class="button">
+      <u-button
+          text="添加"
+          type="primary"
+          :plain="true"
+          @click="add"
+          size="small"
+          customStyle="width:100px;margin:unset"
+      />
+    </view>
+  </view>
 
 </template>
 
 <script>
-	import SkuList from "./components/skuList"
-	export default{
-		components:{
-			SkuList
-		},
-		data() {
-			return {
-				list:[]
-			}
-		},
-		watch:{
-			list(value){
-				console.log(22,value)
-				this.$emit("input",value)
-			}
-		},
-		methods:{
-			add(){
-				const tmp = [...this.list];
-				tmp.push({
-					name:"",
-					content:"",
-					index:this.list.length
-				});
-				this.list = [...tmp];
-				this.$emit("input",tmp);
-			},
-			del(index){
-				this.list.splice(index,1)
-			},
-			input(value){
-				const tmp = [...this.list];
-				tmp.splice(value.index,1,value);
-				this.list = [...tmp];
-				this.$emit("input",tmp)
-			}
-		}
-	}
+import SkuList from "./components/skuList"
+import LinkButton from "../../../../components/LinkButton";
+
+export default {
+  components: {
+    LinkButton,
+    SkuList
+  },
+  data() {
+    return {
+      list: []
+    }
+  },
+  watch: {},
+  methods: {
+    add() {
+      const newList = [...this.list, {
+        label: "",
+        value: "",
+        index: this.list.length
+      }];
+      this.list = newList;
+      this.$emit("input", newList);
+    },
+    del(delIndex) {
+      const newList = this.list.filter((item, index) => index !== delIndex)
+      this.list = newList
+      this.$emit("input", newList);
+    },
+    input(value) {
+      const newList = this.list.map((item, index) => {
+        if (index === value.index) {
+          return value
+        } else {
+          return item
+        }
+      })
+      this.list = newList
+      this.$emit("input", newList)
+    }
+  }
+}
 </script>
 
-<style>
+<style lang="scss">
+.sku {
+  text-align: left;
+
+  .button {
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+
 </style>

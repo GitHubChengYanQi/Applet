@@ -3,6 +3,18 @@ import {ReceiptsEnums} from "../../Erp/Receipt/ReceiptsEnums";
 
 export const Menus = [
     {
+        name: '产研管理',
+        key: 'research',
+        icon: 'icon-caigoudanguanli',
+        menus: [
+            {
+                name: '物料添加',
+                key: 'skuAdd',
+                url: '/Sku/SkuAdd/index'
+            }
+        ]
+    },
+    {
         name: '仓储管理',
         key: 'erp',
         icon: 'icon-cangchuguanli',
@@ -34,7 +46,6 @@ export const Menus = [
             {
                 name: '办理入库',
                 key: 'inStockAsk',
-                icon: 'icon-rukuguanli2',
                 url: '/Erp/InStock/InStockAsk/index'
             },
             {

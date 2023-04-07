@@ -139,7 +139,6 @@ export default {
       this.refreshList({classId: value[0].key === 'all' ? null : value[0].key})
     },
     confirm2({value}) {
-      console.log(value[0].key)
       this.show2 = false;
       this.title2 = value[0].key === 'all' ? '' : value[0].text
       this.refreshList({forewarnStatus: value[0].key === 'all' ? null : value[0].key})

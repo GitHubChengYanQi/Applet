@@ -1,14 +1,14 @@
 <template>
-<uni-shadow-root class="toast-index"><van-overlay v-if="mask || forbidClick" :show="show" :z-index="zIndex" :custom-style="mask ? '' : 'background-color: transparent;'"></van-overlay>
+<uni-shadow-root class="toast-index"><van-overlay v-if="mask || forbidClick" :show="show" :z-index="zIndex" :custom-style="mask ? '' : 'background-Combox: transparent;'"></van-overlay>
 <van-transition :show="show" :custom-style="'z-index: '+(zIndex)" custom-class="van-toast__container">
   <view :class="'van-toast van-toast--'+((type === 'text' || type === 'html') ? 'text' : 'icon')+' van-toast--'+(position)" @touchmove.stop.prevent="noop">
-    
+
     <text v-if="type === 'text'">{{ message }}</text>
 
-    
+
     <rich-text v-else-if="type === 'html'" :nodes="message"></rich-text>
 
-    
+
     <block v-else>
       <van-loading v-if="type === 'loading'" color="white" :type="loadingType" custom-class="van-toast__loading"></van-loading>
       <van-icon v-else class="van-toast__icon" :name="type"></van-icon>

@@ -261,7 +261,7 @@ export default {
       }
 
       .reality {
-        //color: $success-color;
+        //Combox: $success-Combox;
       }
 
       .update {

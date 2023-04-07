@@ -6,6 +6,7 @@
 	import {
 		request
 	} from 'MES-Apis/lib/Service/request';
+  import {Sku} from "MES-Apis/lib/Sku/promise";
 	export default{
 		behaviors: ['uni://form-field'],
 		data() {
@@ -21,9 +22,7 @@
 		},
 		methods:{
 			async get() {
-				const response = await request({
-					url: "/generalFormData/list",
-					method:"POST",
+				const response = await Sku.generalFormDataList({
 					data: {
 						fieldName: "packaging"
 					}

@@ -15,7 +15,8 @@
           >
             <view class="block">
               <view class="img">
-                <Icon :icon="subItem.icon" :size="32" color="#007aff" />
+                <Icon v-if="subItem.icon" :icon="subItem.icon" :size="32" color="#007aff" />
+                <u-icon v-else name="grid-fill" :size="32" color="#007aff" />
               </view>
               <view class="text">{{ subItem.name }}</view>
             </view>

@@ -8,8 +8,8 @@
     {{ description }}
   </view>
   <view v-if="actions && actions.length" class="list-class">
-    
-    <button v-for="(item,index) in (actions)" :key="item.index" :open-type="item.disabled || item.loading || (canIUseGetUserProfile && item.openType === 'getUserInfo') ? '' : item.openType" :style="item.color ? 'color: ' + item.color : ''" :class="(utils.bem('action-sheet__item', { disabled: item.disabled || item.loading }))+' '+(item.className || '')" hover-class="van-action-sheet__item--hover" :data-index="index" @click="_$self[(item.disabled || item.loading ? '' : 'onSelect')||'_$noop']($event)" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting" :lang="lang" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter">
+
+    <button v-for="(item,index) in (actions)" :key="item.index" :open-type="item.disabled || item.loading || (canIUseGetUserProfile && item.openType === 'getUserInfo') ? '' : item.openType" :style="item.color ? 'Combox: ' + item.color : ''" :class="(utils.bem('action-sheet__item', { disabled: item.disabled || item.loading }))+' '+(item.className || '')" hover-class="van-action-sheet__item--hover" :data-index="index" @click="_$self[(item.disabled || item.loading ? '' : 'onSelect')||'_$noop']($event)" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting" :lang="lang" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter">
       <block v-if="(!item.loading)">
         {{ item.name }}
         <view v-if="item.subname" class="van-action-sheet__subname">{{ item.subname }}</view>

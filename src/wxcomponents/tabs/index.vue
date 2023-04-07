@@ -4,7 +4,7 @@
     <view :class="(utils.bem('tabs__wrap', { scrollable }))+' '+(type === 'line' && border ? 'van-hairline--top-bottom' : '')+' wrap-class'">
       <slot name="nav-left"></slot>
 
-      <scroll-view :scroll-x="scrollable" :scroll-with-animation="scrollWithAnimation" :scroll-left="scrollLeft" :class="utils.bem('tabs__scroll', [type])" :style="color ? 'border-color: ' + color : ''">
+      <scroll-view :scroll-x="scrollable" :scroll-with-animation="scrollWithAnimation" :scroll-left="scrollLeft" :class="utils.bem('tabs__scroll', [type])" :style="color ? 'border-Combox: ' + color : ''">
         <view :class="(utils.bem('tabs__nav', [type, { complete: !ellipsis }]))+' nav-class'" :style="computed.navStyle(color, type)">
           <view v-if="type === 'line'" class="van-tabs__line" :style="computed.lineStyle({ color, lineOffsetLeft, lineHeight, skipTransition, duration, lineWidth, inited })"></view>
           <view v-for="(item,index) in (tabs)" :key="item.index" :data-index="index" :class="(computed.tabClass(index === currentIndex, ellipsis))+' '+(utils.bem('tab', { active: index === currentIndex, disabled: item.disabled, complete: !ellipsis }))" :style="computed.tabStyle({ active: index === currentIndex, ellipsis, color, type, disabled: item.disabled, titleActiveColor, titleInactiveColor, swipeThreshold, scrollable })" @click="onTap">

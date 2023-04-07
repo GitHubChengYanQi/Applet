@@ -131,7 +131,7 @@ export default {
         if (this.number > 999999999) {
           return;
         }
-        if (this.decimalData().decimalLength < decimal) {
+        if (this.decimalData().decimalLength < this.decimal) {
           this.numberChange(`${this.number || ''}` + item);
         }
       } else {
@@ -145,7 +145,7 @@ export default {
     },
     dianClick() {
       if (`${this.number}`.indexOf('.') === -1) {
-        this.numberChange((number || 0) + '.');
+        this.numberChange((this.number || 0) + '.');
       }
     },
     back() {

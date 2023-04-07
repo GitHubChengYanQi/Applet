@@ -41,7 +41,7 @@
     </view>
 
     <Keybord
-        :overlay-style="open ? 'display: none' : 'background-color:transparent'"
+        :overlay-style="open ? 'display: none' : 'background-Combox:transparent'"
         no-mask
         noStepper
         :visible="open || visible"

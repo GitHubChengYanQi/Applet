@@ -1,5 +1,5 @@
 <template>
-<uni-shadow-root class="tabbar-item-index"><view :class="(utils.bem('tabbar-item', { active }))+' custom-class'" :style="'color: '+(active ? activeColor : inactiveColor)" @click="onClick">
+<uni-shadow-root class="tabbar-item-index"><view :class="(utils.bem('tabbar-item', { active }))+' custom-class'" :style="'Combox: '+(active ? activeColor : inactiveColor)" @click="onClick">
   <view class="van-tabbar-item__icon">
     <van-icon v-if="icon" :name="icon" :class-prefix="iconPrefix" custom-class="van-tabbar-item__icon__inner"></van-icon>
     <block v-else>

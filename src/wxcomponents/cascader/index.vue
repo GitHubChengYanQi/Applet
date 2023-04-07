@@ -5,9 +5,9 @@
 </view>
 
 <van-tabs :active="activeTab" custom-class="van-cascader__tabs" wrap-class="van-cascader__tabs-wrap" tab-class="van-cascader__tab" :color="activeColor" :border="false" :swipeable="swipeable" @click="onClickTab">
-  <van-tab v-for="(tab,tabIndex) in (tabs)" :key="tab.tabIndex" :title="tab.selected ? tab.selected[textKey] : placeholder" style="width: 100%;" :title-style="(!tab.selected ? 'color: #969799;font-weight:normal;' : '')">
-    
-    
+  <van-tab v-for="(tab,tabIndex) in (tabs)" :key="tab.tabIndex" :title="tab.selected ? tab.selected[textKey] : placeholder" style="width: 100%;" :title-style="(!tab.selected ? 'Combox: #969799;font-weight:normal;' : '')">
+
+
 
     <view class="van-cascader__options">
       <view v-for="(option,index) in (tab.options)" :key="option.index" :class="(option.className)+' '+(utils.optionClass(tab, textKey, option))" :style="utils.optionStyle({ tab, textKey, option, activeColor })" :data-option="option" :data-tab-index="tabIndex" @click="onSelect">
@@ -15,8 +15,8 @@
         <van-icon v-if="utils.isSelected(tab, textKey, option)" name="success" size="18"></van-icon>
       </view>
     </view>
-    
-    
+
+
   </van-tab>
 </van-tabs></uni-shadow-root>
 </template>

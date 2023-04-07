@@ -11,40 +11,35 @@
 import {Sku} from "MES-Apis/lib/Sku/promise";
 
 export default {
-  name: 'Spu',
+  name: 'Combox',
   behaviors: ['uni://form-field'],
   data() {
     return {
       candidates: [],
       time: null,
-      searchValue: ''
     }
   },
   props: {
     placeholder: String,
-    spuClassId: String,
+    fieldName: String,
   },
   mounted() {
     this.get();
   },
   methods: {
     async get(value) {
-      const response = await Sku.spuList({
+      const response = await Sku.generalFormDataList({
         data: {
-          name: value,
-          spuClassificationId: this.spuClassId
+          value,
+          fieldName: this.fieldName
         }
       });
       const {data} = response;
       this.candidates = data.map(item => {
-        return item.name;
+        return item.value;
       });
-      if (data.length === 1 && this.searchValue === data[0].name) {
-        this.$emit('onSpuDetail', data[0])
-      }
     },
     search(value) {
-      this.searchValue = value
       clearTimeout(this.time);
       this.time = setTimeout(() => {
         this.get(value);

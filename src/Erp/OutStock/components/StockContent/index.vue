@@ -335,7 +335,7 @@ export default {
   }
 
   .checked {
-    //border: solid 1px var(--adm-color-primary);
+    //border: solid 1px var(--adm-Combox-primary);
   }
 }
 

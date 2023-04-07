@@ -1,20 +1,20 @@
 <template>
 <uni-shadow-root class="steps-index"><view :class="'custom-class '+(utils.bem('steps', [direction]))">
   <view class="van-step__wrapper">
-    <view v-for="(item,index) in (steps)" :key="item.index" @click="onClick" :data-index="index" :class="(utils.bem('step', [direction, status(index, active)]))+' van-hairline'" :style="status(index, active) === 'inactive' ? 'color: ' + inactiveColor: ''">
-      <view class="van-step__title" :style="index === active ? 'color: ' + activeColor : ''">
+    <view v-for="(item,index) in (steps)" :key="item.index" @click="onClick" :data-index="index" :class="(utils.bem('step', [direction, status(index, active)]))+' van-hairline'" :style="status(index, active) === 'inactive' ? 'Combox: ' + inactiveColor: ''">
+      <view class="van-step__title" :style="index === active ? 'Combox: ' + activeColor : ''">
         <view>{{ item.text }}</view>
         <view class="desc-class">{{ item.desc }}</view>
       </view>
       <view class="van-step__circle-container">
         <block v-if="index !== active">
           <van-icon v-if="item.inactiveIcon || inactiveIcon" :color="status(index, active) === 'inactive' ? inactiveColor: activeColor" :name="item.inactiveIcon || inactiveIcon" class="van-step__icon"></van-icon>
-          <view v-else class="van-step__circle" :style="'background-color: ' + (index < active ? activeColor : inactiveColor)"></view>
+          <view v-else class="van-step__circle" :style="'background-Combox: ' + (index < active ? activeColor : inactiveColor)"></view>
         </block>
 
         <van-icon v-else :name="item.activeIcon || activeIcon" :color="activeColor" class="van-step__icon"></van-icon>
       </view>
-      <view v-if="index !== steps.length - 1" class="van-step__line" :style="'background-color: ' + (index < active ? activeColor : inactiveColor)"></view>
+      <view v-if="index !== steps.length - 1" class="van-step__line" :style="'background-Combox: ' + (index < active ? activeColor : inactiveColor)"></view>
     </view>
   </view>
 </view></uni-shadow-root>

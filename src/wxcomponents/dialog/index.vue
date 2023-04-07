@@ -11,19 +11,19 @@
   </view>
 
   <van-goods-action v-if="theme === 'round-button'" custom-class="van-dialog__footer--round-button">
-    <van-goods-action-button v-if="showCancelButton" size="large" :loading="loading.cancel" class="van-dialog__button van-hairline--right" custom-class="van-dialog__cancel" :custom-style="'color: '+(cancelButtonColor)" @click="onCancel">
+    <van-goods-action-button v-if="showCancelButton" size="large" :loading="loading.cancel" class="van-dialog__button van-hairline--right" custom-class="van-dialog__cancel" :custom-style="'Combox: '+(cancelButtonColor)" @click="onCancel">
       {{ cancelButtonText }}
     </van-goods-action-button>
-    <van-goods-action-button v-if="showConfirmButton" size="large" class="van-dialog__button" :loading="loading.confirm" custom-class="van-dialog__confirm" :custom-style="'color: '+(confirmButtonColor)" :open-type="confirmButtonOpenType" :lang="lang" :business-id="businessId" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter" @click="onConfirm" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting">
+    <van-goods-action-button v-if="showConfirmButton" size="large" class="van-dialog__button" :loading="loading.confirm" custom-class="van-dialog__confirm" :custom-style="'Combox: '+(confirmButtonColor)" :open-type="confirmButtonOpenType" :lang="lang" :business-id="businessId" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter" @click="onConfirm" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting">
       {{ confirmButtonText }}
     </van-goods-action-button>
   </van-goods-action>
 
   <view v-else-if="showCancelButton || showConfirmButton" class="van-hairline--top van-dialog__footer">
-    <van-button v-if="showCancelButton" size="large" :loading="loading.cancel" class="van-dialog__button van-hairline--right" custom-class="van-dialog__cancel" :custom-style="'color: '+(cancelButtonColor)" @click="onCancel">
+    <van-button v-if="showCancelButton" size="large" :loading="loading.cancel" class="van-dialog__button van-hairline--right" custom-class="van-dialog__cancel" :custom-style="'Combox: '+(cancelButtonColor)" @click="onCancel">
       {{ cancelButtonText }}
     </van-button>
-    <van-button v-if="showConfirmButton" size="large" class="van-dialog__button" :loading="loading.confirm" custom-class="van-dialog__confirm" :custom-style="'color: '+(confirmButtonColor)" :open-type="confirmButtonOpenType" :lang="lang" :business-id="businessId" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter" @click="onConfirm" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting">
+    <van-button v-if="showConfirmButton" size="large" class="van-dialog__button" :loading="loading.confirm" custom-class="van-dialog__confirm" :custom-style="'Combox: '+(confirmButtonColor)" :open-type="confirmButtonOpenType" :lang="lang" :business-id="businessId" :session-from="sessionFrom" :send-message-title="sendMessageTitle" :send-message-path="sendMessagePath" :send-message-img="sendMessageImg" :show-message-card="showMessageCard" :app-parameter="appParameter" @click="onConfirm" @getuserinfo="onGetUserInfo" @contact="onContact" @getphonenumber="onGetPhoneNumber" @error="onError" @launchapp="onLaunchApp" @opensetting="onOpenSetting">
       {{ confirmButtonText }}
     </van-button>
   </view>

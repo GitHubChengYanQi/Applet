@@ -6,6 +6,7 @@
 	import {
 		request
 	} from 'MES-Apis/lib/Service/request';
+  import {Sku} from "MES-Apis/lib/Sku/promise";
 	export default{
 		behaviors: ['uni://form-field'],
 		data() {
@@ -21,7 +22,7 @@
 		},
 		methods:{
 			async get() {
-				const response = await request({
+				const response = await Sku.generalFormDataList({
 					url: "/generalFormData/list",
 					method:"POST",
 					data: {
@@ -32,7 +33,6 @@
 				this.candidates = data.map(item=>{
 					return item.value;
 				});
-				console.log(this.candidates);
 			},
 			onInput(value) {
 				this.$emit('input', value)

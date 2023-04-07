@@ -2,7 +2,7 @@
 <uni-shadow-root class="dropdown-item-index"><view v-if="showWrapper" :class="(utils.bem('dropdown-item', direction))+' custom-class'" :style="wrapperStyle">
   <van-popup :show="showPopup" :custom-style="'position: absolute;'+(popupStyle)" overlay-style="position: absolute;" :overlay="overlay" :position="direction === 'down' ? 'top' : 'bottom'" :duration="transition ? duration : 0" :close-on-click-overlay="closeOnClickOverlay" @enter="onOpen" @leave="onClose" @close="toggle" @after-enter="onOpened" @after-leave="onClosed">
     <van-cell v-for="(item,index) in (options)" :key="item.value" :data-option="item" :class="utils.bem('dropdown-item__option', { active: item.value === value } )" clickable :icon="item.icon" @click.native="onOptionTap">
-      <view slot="title" class="van-dropdown-item__title item-title-class" :style="item.value === value  ? 'color:' + activeColor : ''">
+      <view slot="title" class="van-dropdown-item__title item-title-class" :style="item.value === value  ? 'Combox:' + activeColor : ''">
         {{ item.text }}
       </view>
       <van-icon v-if="item.value === value" name="success" class="van-dropdown-item__icon" :color="activeColor"></van-icon>

@@ -1,13 +1,21 @@
 <template>
-  <van-uploader
+  <u-upload
       use-before-read
-      @before-read="uploader"
+      @beforeRead="uploader"
   >
-    <view class="upload" :style="{width:`${size}px`,height:`${size}px`}">
-      <Loading skeleton v-if="loading" loadingText="上传中" />
+    <view v-if="file">
+      <u-button size="small" customStyle="width:100px">
+        <view class="uploadFile">
+          <uni-icons type="upload"></uni-icons>
+          上传
+        </view>
+      </u-button>
+    </view>
+    <view v-else class="upload" :style="{width:`${size}px`,height:`${size}px`}">
+      <u-loading-icon v-if="loading" mode="circle" :vertical="true"></u-loading-icon>
       <u-icon v-else :size="size / 2" color="#dcdee0" name="camera-fill"></u-icon>
     </view>
-  </van-uploader>
+  </u-upload>
 </template>
 
 <script>
@@ -19,7 +27,6 @@ import Loading from "../Loading";
 export default {
   name: 'Uploader',
   components: {Loading},
-  behaviors: ['uni://form-field'],
   props: {
     value: Array,
     file: {
@@ -52,15 +59,16 @@ export default {
       const {
         file,
         callback
-      } = event.detail;
+      } = event;
 
       const fileSuffix = file.url.substring(file.url.lastIndexOf('.') + 1).toLowerCase();
-      if (!['jpg', 'jpeg', 'png', 'webp'].includes(fileSuffix)) {
+      if (!this.file && !['jpg', 'jpeg', 'png', 'webp'].includes(fileSuffix)) {
         Message.toast('请上传图片!')
         return
       }
       this.loading = true
       const response = await this.getToken(file.url).catch(() => {
+        Message.errorToast('上传失败！')
         this.loading = false
       });
       const oss = response.data;
@@ -76,7 +84,8 @@ export default {
           _this.$emit("onChange", {
             id: oss.mediaId,
             url: `${oss.host}/${oss.key}`,
-            name: this.fielname
+            name: this.fielname,
+            type: fileSuffix
           });
         },
         fail: () => {
@@ -108,5 +117,11 @@ export default {
   justify-content: center;
   box-sizing: border-box;
   background-color: #f7f8fa;
+}
+
+.uploadFile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

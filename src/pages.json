@@ -28,19 +28,13 @@
     {
       "path": "pages/searchPage/index",
       "style": {
-        "navigationBarTitleText": "搜索",
-        "mp-weixin": {
-          "homeButton": true
-        }
+        "navigationBarTitleText": "搜索"
       }
     },
     {
       "path": "pages/MenusSetting/index",
       "style": {
-        "navigationBarTitleText": "所有功能",
-        "mp-weixin": {
-          "homeButton": true
-        }
+        "navigationBarTitleText": "所有功能"
       }
     }
   ],
@@ -51,109 +45,73 @@
         {
           "path": "Stock/index",
           "style": {
-            "navigationBarTitleText": "仓储中心",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "仓储中心"
           }
         },
         {
           "path": "Receipt/ReceiptList/index",
           "style": {
-            "navigationBarTitleText": "任务列表",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "任务列表"
           }
         },
         {
           "path": "Receipt/ReceiptDetail/index",
           "style": {
-            "navigationBarTitleText": "审批详情",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "审批详情"
           }
         },
         {
           "path": "OutStock/OutStockDetail/index",
           "style": {
-            "navigationBarTitleText": "出库详情",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "出库详情"
           }
         },
         {
           "path": "OutStock/OutStockAction/index",
           "style": {
-            "navigationBarTitleText": "出库操作",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "出库操作"
           }
         },
         {
           "path": "OutStock/OutStockConfirm/index",
           "style": {
-            "navigationBarTitleText": "出库确认",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "出库确认"
           }
         },
         {
           "path": "InStock/InStockAsk/index",
           "style": {
-            "navigationBarTitleText": "入库申请",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "入库申请"
           }
         },
         {
           "path": "InStock/InStockAction/index",
           "style": {
-            "navigationBarTitleText": "入库申请",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "入库申请"
           }
         },
         {
           "path": "Stocktaking/immediately/index",
           "style": {
-            "navigationBarTitleText": "即时盘点",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "即时盘点"
           }
         },
         {
           "path": "Stocktaking/immediatelyDetail/index",
           "style": {
-            "navigationBarTitleText": "即时盘点",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "即时盘点"
           }
         },
         {
           "path": "InStock/InStockVoucher/index",
           "style": {
-            "navigationBarTitleText": "入库凭证",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "入库凭证"
           }
         },
         {
           "path": "StockForewarn/index",
           "style": {
-            "navigationBarTitleText": "库存预警",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "库存预警"
           }
         }
       ]
@@ -164,28 +122,19 @@
         {
           "path": "Order/OrderList/index",
           "style": {
-            "navigationBarTitleText": "订单列表",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "订单列表"
           }
         },
         {
           "path": "Order/OrderDetail/index",
           "style": {
-            "navigationBarTitleText": "订单详情",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "订单详情"
           }
         },
         {
           "path": "Order/ConfirmArrival/index",
           "style": {
-            "navigationBarTitleText": "确认到货",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "确认到货"
           }
         }
       ]
@@ -196,37 +145,25 @@
         {
           "path": "Information/index",
           "style": {
-            "navigationBarTitleText": "选择产品信息",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "选择产品信息"
           }
         },
         {
           "path": "CreatePlan/index",
           "style": {
-            "navigationBarTitleText": "创建生产计划",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "创建生产计划"
           }
         },
         {
           "path": "BomDetailList/index",
           "style": {
-            "navigationBarTitleText": "创建生产计划",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "创建生产计划"
           }
         },
         {
           "path": "Produced/index",
           "style": {
-            "navigationBarTitleText": "待生产",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "待生产"
           }
         }
       ]
@@ -235,30 +172,27 @@
       "root": "Sku",
       "pages": [
         {
+          "path": "SkuAdd/index",
+          "style": {
+            "navigationBarTitleText": "物料添加"
+          }
+        },
+        {
           "path": "SkuDetail/index",
           "style": {
-            "navigationBarTitleText": "物料详情",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "物料详情"
           }
         },
         {
           "path": "SkuImgs/index",
           "style": {
-            "navigationBarTitleText": "物料图片",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "物料图片"
           }
         },
         {
           "path": "SkuDetailWebView/index",
           "style": {
-            "navigationBarTitleText": "物料详情",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "物料详情"
           }
         }
       ]
@@ -269,19 +203,19 @@
         {
           "path": "SelectUser/index",
           "style": {
-            "navigationBarTitleText": "企业通讯录",
-            "mp-weixin": {
-              "homeButton": true
-            }
+            "navigationBarTitleText": "企业通讯录"
           }
         }
       ]
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8",
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#0075f5",
+    "backgroundColor": "#e1ebf6",
+    "mp-weixin": {
+      "homeButton": true
+    },
     "usingComponents": {
       "van-button": "/wxcomponents/button/index",
       "van-cascader": "/wxcomponents/cascader/index",

@@ -80,7 +80,7 @@
             </view>
             <!--            <view class="action flexGrow">-->
             <!--              <view class="list">-->
-            <!--                <uni-icons type="flag" color="#2680EB" size="12"></uni-icons>-->
+            <!--                <uni-icons type="flag" Combox="#2680EB" size="12"></uni-icons>-->
             <!--                关联任务-->
             <!--              </view>-->
             <!--            </view>-->

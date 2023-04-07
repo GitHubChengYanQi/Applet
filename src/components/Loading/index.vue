@@ -1,9 +1,12 @@
 <template>
   <view>
     <view v-if="skeleton" class="skeletonLoading">
-      <u-loading-page v-if="skeletonType === 'page'" :loading-text="loadingText || 'loading...'"
-                      loading></u-loading-page>
-      <u-loading-icon v-else mode="circle" text="loading..." :vertical="true"></u-loading-icon>
+      <u-loading-page
+          v-if="skeletonType === 'page'"
+          :loading-text="loadingText || 'loading...'"
+          loading
+      />
+      <u-loading-icon v-else mode="circle" :text="loadingText || 'loading...'" :vertical="true"></u-loading-icon>
     </view>
     <view v-if="loading">
       <van-dialog
