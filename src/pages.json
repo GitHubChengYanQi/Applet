@@ -102,6 +102,12 @@
           "style": {
             "navigationBarTitleText": "入库凭证"
           }
+        },
+        {
+          "path": "InStock/CreateTask/index",
+          "style": {
+            "navigationBarTitleText": "确认到货"
+          }
         }
       ]
     },
@@ -165,6 +171,17 @@
           "path": "Produced/index",
           "style": {
             "navigationBarTitleText": "待生产"
+          }
+        }
+      ]
+    },
+    {
+      "root": "Crm",
+      "pages": [
+        {
+          "path": "Supplier/index",
+          "style": {
+            "navigationBarTitleText": "选择供应商"
           }
         }
       ]

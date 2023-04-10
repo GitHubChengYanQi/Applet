@@ -3,7 +3,7 @@
   <view :style="{width:labelWidth}" class="label">
     {{label}}
   </view>
-  <view>:</view>
+  <view class="label2">:</view>
   <view class="content"><slot></slot></view>
 </view>
 </template>
@@ -26,7 +26,7 @@ export default {
 <style scoped>
 .card-item{
   display: flex;
-  height: 20px;
+  /*min-height: 20px;*/
   line-height: 20px;
   margin-bottom: 8px;
 }
@@ -35,7 +35,11 @@ export default {
   text-align-last: justify;
   color: #9d9d9d;
 }
+.label2{
+  color: #9d9d9d;
+}
 .content{
+  flex: 1;
   margin-left: 8px;
 }
 </style>
