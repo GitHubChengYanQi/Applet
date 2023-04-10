@@ -1,7 +1,7 @@
 <template>
   <view class="back" :style="{paddingBottom:padding}">
     <view class="list" v-for="(item,index) in list" :key="index">
-      <SkuItem  :skuResult="item.skuResult"></SkuItem>
+      <SkuItem :skuResult="item.skuResult"></SkuItem>
       <view class="input">
         <span>到货数</span>
         <view class="keybord" @click="keybord(index,submitList[index].num)">×{{ submitList[index].num }}</view>
@@ -59,7 +59,8 @@ export default {
           return {
             skuId: item.skuId,
             brand: item.brandId,
-            num: item.purchaseNumber
+            num: item.purchaseNumber,
+            skuResult:item.skuResult
           }
         })
       })
@@ -82,7 +83,15 @@ export default {
       console.log(num)
     },
     submit(){
+      const _this = this;
       console.log(this.submitList)
+      uni.navigateTo({
+        url: '/Erp/InStock/CreateTask/index',
+        success: function(res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('acceptDataFromOpenerPage', _this.submitList)
+        }
+      });
     }
   }
 }
