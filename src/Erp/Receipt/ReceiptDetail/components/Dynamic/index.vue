@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import List from "../../../../../components/List/indx";
+import List from "../../../../../components/List/index";
 import {Process} from "MES-Apis/lib/Process/promise";
 import DynamicList from "./components/DynamicList";
 

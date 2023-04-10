@@ -125,6 +125,18 @@
           "style": {
             "navigationBarTitleText": "确认到货"
           }
+        },
+        {
+          "path": "Order/CreateOrder/index",
+          "style": {
+            "navigationBarTitleText": "创建采购单"
+          }
+        },
+        {
+          "path": "Manage/index",
+          "style": {
+            "navigationBarTitleText": "预购管理"
+          }
         }
       ]
     },
@@ -160,12 +172,12 @@
     {
       "root": "Sku",
       "pages": [
-//        {
-//          "path": "SkuAdd/index",
-//          "style": {
-//            "navigationBarTitleText": "添加物料"
-//          }
-//        },
+        //        {
+        //          "path": "SkuAdd/index",
+        //          "style": {
+        //            "navigationBarTitleText": "添加物料"
+        //          }
+        //        },
         {
           "path": "SkuDetail/index",
           "style": {

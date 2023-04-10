@@ -66,7 +66,7 @@
 import Card from "../../../components/Card";
 import Search from "../../../components/Search";
 import {InStock} from "MES-Apis/lib/InStock/promise";
-import List from "../../../components/List/indx";
+import List from "../../../components/List/index";
 import {timeDifference} from "../../../util/Tools";
 import Avatar from "../../../components/Avatar";
 

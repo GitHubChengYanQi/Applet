@@ -38,7 +38,7 @@
 <script>
 import Card from '../../components/Card/index.vue'
 import Search from "../../components/Search";
-import List from "../../components/List/indx";
+import List from "../../components/List/index";
 import {Bom} from "MES-Apis/lib/Bom/promise";
 import SkuItem from "../../components/SkuItem";
 

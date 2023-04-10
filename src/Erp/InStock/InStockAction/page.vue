@@ -84,7 +84,7 @@ import Empty from "../../../components/Empty";
 import BottomButton from "../../../components/BottomButton";
 import Popup from "../../../components/Popup";
 import {InStock} from "MES-Apis/lib/InStock/promise";
-import List from "../../../components/List/indx";
+import List from "../../../components/List/index";
 import SkuItem from "../../../components/SkuItem";
 import ShopNumber from "../../../components/ShopNumber";
 import Search from "../../../components/Search";

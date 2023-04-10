@@ -42,7 +42,7 @@
 <script>
 import SkuItem from '../../components/SkuItem'
 import Search from "../../components/Search";
-import List from "../../components/List/indx";
+import List from "../../components/List/index";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import {isArray} from "../../util/Tools";
 

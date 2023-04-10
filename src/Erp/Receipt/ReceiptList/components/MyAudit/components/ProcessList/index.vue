@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import List from "../../../../../../../components/List/indx";
+import List from "../../../../../../../components/List/index.vue";
 import {ReceiptsEnums} from "../../../../../ReceiptsEnums";
 import InStockItem from "./components/InStockItem";
 import OutStockItem from "./components/OutStockItem";
