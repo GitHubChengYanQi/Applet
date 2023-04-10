@@ -1,6 +1,6 @@
 <template>
   <view class="line">
-    <view class="">
+    <view class="content">
       <view class="item">
         名称:
         <uni-easyinput v-model="label" @input="onInput" placeholder="请输入名称"></uni-easyinput>
@@ -59,6 +59,10 @@ export default {
   padding-top: 10px;
   display: flex;
   align-items: center;
+
+  .content {
+    flex-grow: 1;
+  }
 
   .item {
     display: flex;

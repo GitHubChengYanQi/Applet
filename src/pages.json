@@ -194,6 +194,24 @@
           "style": {
             "navigationBarTitleText": "物料详情"
           }
+        },
+        {
+          "path": "SkuClass/SkuClassAdd/index",
+          "style": {
+            "navigationBarTitleText": "新增物料分类"
+          }
+        },
+        {
+          "path": "Unit/UnitAdd/index",
+          "style": {
+            "navigationBarTitleText": "新增单位"
+          }
+        },
+        {
+          "path": "Material/MaterialAdd/index",
+          "style": {
+            "navigationBarTitleText": "新增材质"
+          }
         }
       ]
     },

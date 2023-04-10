@@ -78,7 +78,6 @@
 </template>
 
 <script>
-import StockCheck from '../components/stockCheck/index'
 import SkuItem from "../../../components/SkuItem";
 import Keybord from "../../../components/Keybord";
 import {Stocktaking} from "MES-Apis/lib/Stocktaking/promise";
@@ -94,8 +93,7 @@ export default {
     BottomButton,
     Loading,
     Keybord,
-    SkuItem,
-    StockCheck
+    SkuItem
   },
   data() {
     return {

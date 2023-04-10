@@ -23,7 +23,8 @@ export default {
       eventChannel.on('skuImgs', function (imgs) {
         _this.skuId = option.skuId
         _this.imgs = imgs.filter(item => item.mediaId).map(item => ({
-          url: item.thumbUrl || item.url,
+          url: item.url,
+          thumbUrl: item.thumbUrl,
           id: item.mediaId,
           name: item.filedName
         }))

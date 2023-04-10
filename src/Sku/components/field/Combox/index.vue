@@ -48,6 +48,7 @@ export default {
     onInput(value) {
       this.search(value)
       this.$emit('input', value)
+      this.$emit('change', this.fieldName, value)
     }
   }
 }

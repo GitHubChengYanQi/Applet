@@ -1,32 +1,45 @@
 <template>
   <view>
-    <Loading :loading="loading" />
-    <u-notice-bar text="需要批量添加物料可在管理平台进行导入"></u-notice-bar>
-    <view class="skuAdd">
-      <uni-forms ref="form" :model="formData" :rules="rules" labelWidth="100px">
+    <Loading :skeleton="true" skeleton-type="page" v-if="refreshLoading" />
+    <view v-else>
+      <Loading :loading="loading" />
+      <u-notice-bar text="需要批量添加物料可在管理平台进行导入"></u-notice-bar>
 
-        <uni-forms-item
-            label="物料图片"
-            class="images"
-            name="images"
-        >
-          <view class="skuImgs">
-            <u--image
-                v-for="(image,index) in isArray(this.formData.imageUrls)"
-                :key="index"
-                :showLoading="true"
-                :src="image.url"
-                :width='70'
-                :height="70"
-                @click="previewImage(image)"
-            />
-            <Uploader v-if="isArray(this.formData.imageUrls).length < 3" :size="70" @onChange="imgChange" />
-          </view>
-        </uni-forms-item>
 
-        <view :class="{endItem:typeSetting.length === 0}">
+      <view class="skuAdd">
+        <uni-forms ref="form" :model="formData" :rules="rules" labelWidth="100px">
+
           <uni-forms-item
-              label="物料分类"
+              label="物料图片"
+              class="images"
+              name="images"
+          >
+            <view class="skuImgs">
+              <u--image
+                  v-for="(image,index) in isArray(formData.imageUrls)"
+                  :key="index"
+                  :showLoading="true"
+                  :src="image.url"
+                  :width='70'
+                  :height="70"
+                  @click="previewImage(image)"
+              />
+              <Uploader v-if="isArray(this.formData.imageUrls).length < 3" :size="70" @onChange="imgChange" />
+            </view>
+          </uni-forms-item>
+
+          <uni-forms-item
+              label="物料编码"
+              name="standard"
+          >
+            <Standard
+                placeholder="物料编码"
+                v-model="formData.standard"
+            />
+          </uni-forms-item>
+
+          <uni-forms-item
+              label="分类"
               class="spuClass"
               name="spuClass"
               required
@@ -35,90 +48,247 @@
               <view class="value"> {{ formData.skuClassTitle || '请选择所属分类' }}</view>
               <u-icon name="arrow-down" size="15"></u-icon>
             </view>
-            <van-popup :show="show" round position="bottom" @close="close" closeable>
-              <van-cascader :options="cateGoryData" @finish="onFinish" :closeable="false" value='checked' />
-            </van-popup>
-          </uni-forms-item>
-        </view>
-        <template
-            v-for="(item,index) in typeSetting"
-            v-if="!['spuClass','images'].includes(item.key)">
-
-          <view :class="{endItem:index === typeSetting.length-1}">
-            <uni-forms-item
-                :label="labelFormat(item)"
-                :name="item.key"
-                :key="item.key"
-                :required="['spu','unitId','batch'].includes(item.key)"
+            <Popup
+                @close="show=false"
+                :show="show"
+                position="bottom"
+                @onLeft="close"
+                left-text="取消"
+                right-text="新增"
+                @onRight="addClass"
+                title="选择分类"
+                @closeAfter="showContent = false"
+                @showBefore="showContent = true"
             >
-              <Batch v-if="item.key=='batch'" :placeholder="item.filedName" v-model="formData.batch"></Batch>
-              <Brandids
-                  v-else-if="item.key=='brandIds'"
-                  :placeholder="item.filedName"
-                  v-model="formData.brandIds"
+              <van-cascader
+                  :value="formData.spuClass"
+                  v-if="showContent"
+                  :show-header="false"
+                  :options="cateGoryData"
+                  @finish="onFinish"
               />
-              <Drawing
-                  v-else-if="item.key=='drawing'"
-                  :placeholder="item.filedName"
-                  v-model="formData.drawing"
-              />
-              <FileId v-else-if="item.key=='fileId'" :placeholder="item.filedName" v-model="formData.fileId"></FileId>
+            </Popup>
+          </uni-forms-item>
+
+
+          <uni-forms-item
+              label="产品名称"
+              name="spu"
+              required
+          >
+            <Spu
+                :spuClassId="formData.spuClass"
+                placeholder="产品名称"
+                v-model="formData.spu"
+                @onSpuDetail="onSpuDetail"
+            />
+          </uni-forms-item>
+
+          <uni-forms-item
+              label="产品码"
+              name="spuCoding"
+          >
+            <SpuCoding
+                placeholder="产品码"
+                v-model="formData.spuCoding"
+            />
+          </uni-forms-item>
+
+
+          <uni-forms-item
+              label="型号/国家标准/零件号"
+              name="skuName"
+          >
+            <Combox
+                placeholder="型号/国家标准/零件号"
+                v-model="formData.skuName"
+                field-name="skuName"
+                @change="generalFormData"
+            />
+          </uni-forms-item>
+
+          <uni-forms-item
+              label="规格"
+              name="specifications"
+          >
+            <Combox
+                placeholder="规格"
+                v-model="formData.specifications"
+                field-name="skuName"
+                @change="generalFormData"
+            />
+          </uni-forms-item>
+
+          <uni-forms-item
+              label="单位"
+              name="unitId"
+              required
+          >
+            <UnitId placeholder="单位" v-model="formData.unitId"></UnitId>
+          </uni-forms-item>
+
+          <view>
+            <uni-forms-item
+                label="二维码生成方式"
+                name="batch"
+                required
+            >
+              <Batch v-model="formData.batch"></Batch>
+            </uni-forms-item>
+          </view>
+
+
+          <view v-if="open">
+            <uni-forms-item
+                label="养护周期"
+                name="maintenancePeriod"
+            >
               <MaintenancePeriod
-                  v-else-if="item.key=='maintenancePeriod'"
-                  :placeholder="item.filedName"
+                  placeholder="养护周期"
                   v-model="formData.maintenancePeriod"
               />
-              <MaterialId v-else-if="item.key=='materialId'" :placeholder="item.filedName"
-                          v-model="formData.materialId"></MaterialId>
-              <Remarks
-                  v-else-if="item.key=='remarks'"
-                  :placeholder="item.filedName"
-                  v-model="formData.remarks"
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="规格参数"
+                name="sku"
+            >
+              <Sku placeholder="规格参数" v-model="formData.sku"></Sku>
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="品牌"
+                name="brandIds"
+            >
+              <Brandids placeholder="品牌" v-model="formData.brandIds" />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="图纸"
+                name="drawing"
+            >
+              <Drawing placeholder="图纸" v-model="formData.drawing" />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="附件"
+                name="fileId"
+            >
+              <FileId placeholder="附件" v-model="formData.fileId" />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="材质"
+                name="materialId"
+            >
+              <MaterialId
+                  placeholder="材质"
+                  v-model="formData.materialId"
               />
-              <Sku v-else-if="item.key=='sku'" :placeholder="item.filedName" v-model="formData.sku"></Sku>
-              <SkuSize
-                  v-else-if="item.key=='skuSize'"
-                  :placeholder="item.filedName"
-                  v-model="formData.skuSize"
-              />
-              <Spu
-                  :spuClassId="formData.spuClass"
-                  v-else-if="item.key=='spu'"
-                  :placeholder="item.filedName"
-                  v-model="formData.spu"
-                  @onSpuDetail="onSpuDetail"
-              />
-              <SpuCoding
-                  v-else-if="item.key=='spuCoding'"
-                  :placeholder="item.filedName"
-                  v-model="formData.spuCoding"
-              />
-              <Standard
-                  v-else-if="item.key=='standard'"
-                  :placeholder="item.filedName"
-                  v-model="formData.standard"
-              />
-              <UnitId v-else-if="item.key=='unitId'" :placeholder="item.filedName" v-model="formData.unitId"></UnitId>
-              <Weight v-else-if="item.key=='weight'" :placeholder="item.filedName" v-model="formData.weight"></Weight>
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="重量"
+                name="weight"
+            >
+              <Weight placeholder="重量" v-model="formData.weight" />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="尺寸"
+                name="skuSize"
+            >
+              <SkuSize v-model="formData.skuSize" />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="表色"
+                name="color"
+            >
               <Combox
-                  v-else
-                  :placeholder="item.filedName"
-                  v-model="formData[item.key]"
-                  :field-name="item.key"
+                  placeholder="表色"
+                  v-model="formData.color"
+                  field-name="color"
+                  @change="generalFormData"
+              />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="级别"
+                name="level"
+            >
+              <Combox
+                  placeholder="级别"
+                  v-model="formData.level"
+                  field-name="level"
+                  @change="generalFormData"
+              />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="热处理"
+                name="heatTreatment"
+            >
+              <Combox
+                  placeholder="热处理"
+                  v-model="formData.heatTreatment"
+                  field-name="heatTreatment"
+                  @change="generalFormData"
+              />
+            </uni-forms-item>
+
+
+            <uni-forms-item
+                label="包装方式"
+                name="packaging"
+            >
+              <Combox
+                  placeholder="包装方式"
+                  v-model="formData.packaging"
+                  field-name="packaging"
+                  @change="generalFormData"
+              />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="图幅"
+                name="viewFrame"
+            >
+              <Combox
+                  placeholder="图幅"
+                  v-model="formData.viewFrame"
+                  field-name="viewFrame"
+                  @change="generalFormData"
+              />
+            </uni-forms-item>
+
+            <uni-forms-item
+                label="备注"
+                name="remarks"
+            >
+              <Remarks
+                  placeholder="备注"
+                  v-model="formData.remarks"
               />
             </uni-forms-item>
           </view>
 
-        </template>
-      </uni-forms>
+        </uni-forms>
+
+        <view class="open" @click="open = !open">
+          {{ !open ? '展开完整信息' : '收起' }}
+          <u-icon :name="!open ? 'arrow-down' : 'arrow-up'" />
+        </view>
+      </view>
+
+
+      <view style="height:80px" />
+      <BottomButton
+          :loading="loading"
+          only
+          @onClick="formSubmit"
+      />
     </view>
-    <view style="height:80px" />
-    <BottomButton
-        :loading="loading"
-        only
-        @onClick="formSubmit"
-        v-if="typeSetting.length>0"
-    />
   </view>
 </template>
 
@@ -132,36 +302,29 @@ import Batch from "../components/field/batch";
 import Combox from "../components/field/Combox";
 import Drawing from "../components/field/drawing";
 import FileId from "../components/field/fileId";
-import HeatTreatment from "../components/field/heat-treatment";
-import UploadImages from "../components/field/images";
-import Level from "../components/field/level";
 import MaintenancePeriod from "../components/field/maintenance-period";
 import MaterialId from "../components/field/material-id";
-import Model from "../components/field/model";
-import NationalStandard from "../components/field/nationalStandard";
-import Packaging from "../components/field/packaging";
-import PartNo from "../components/field/partNo";
 import Remarks from "../components/field/remarks";
 import Sku from "../components/field/sku";
 import SkuSize from "../components/field/skuSize";
-import Specifications from "../components/field/specifications";
 import Spu from "../components/field/spu";
 import SpuCoding from "../components/field/spuCoding";
 import Standard from "../components/field/standard";
 import UnitId from "../components/field/unitId";
-import ViewFrame from "../components/field/viewFrame";
 import Weight from "../components/field/weight";
 import Uploader from "../../components/Uploader";
 import {Sku as SkuApis} from "MES-Apis/lib/Sku/promise";
 import Loading from "../../components/Loading";
 import BottomButton from "../../components/BottomButton";
 import {Message} from "../../components/Message";
+import Popup from "../../components/Popup";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    Popup,
     BottomButton,
     Loading,
     Uploader,
@@ -171,36 +334,35 @@ export default {
     Combox,
     Drawing,
     FileId,
-    HeatTreatment,
-    UploadImages,
-    Level,
     MaintenancePeriod,
     MaterialId,
-    Model,
-    NationalStandard,
-    Packaging,
-    PartNo,
     Remarks,
     Sku,
     SkuSize,
-    Specifications,
     Spu,
     SpuCoding,
     Standard,
     UnitId,
-    ViewFrame,
     Weight
   },
   mounted() {
-    this.getCateGory();
+    const _this = this
+    uni.$on('skuClassAddSuccess', (classId) => {
+      _this.getCateGory(classId);
+    })
+    _this.getCateGory();
   },
   data() {
     return {
       isArray,
       typeSetting: [],
       cateGoryData: [],
-      formData: {},
+      general: [],
+      formData: {batch: 1},
+      refreshLoading: false,
       show: false,
+      showContent: false,
+      open: false,
       loading: false,
       rules: {
         spuClass: {
@@ -244,22 +406,41 @@ export default {
     }
   },
   methods: {
+    generalFormData(key, value) {
+      let exits = false;
+      const newFormData = this.general.map(formDataItem => {
+        if (formDataItem.fieldName === key) {
+          exits = true;
+          return {...formDataItem, value};
+        }
+        return formDataItem;
+      });
+      if (!exits && value) {
+        newFormData.push({fieldName: key, value});
+      }
+      this.general = newFormData
+    },
     close() {
       this.show = false
     },
+    addClass() {
+      uni.navigateTo({
+        url: '/Sku/SkuClass/SkuClassAdd/index'
+      })
+    },
     async onFinish(e) {
-      this.loading = true
+      // this.loading = true
       this.show = false;
-      const {selectedOptions, value} = e.detail;
-      const response = await this.getDetail(value);
-      const {data} = response;
-      this.typeSetting = isArray(JSON.parse(data.typeSetting)).filter(item => item.show);
+      const {selectedOptions} = e.detail;
+      // const response = await this.getDetail(value);
+      // const {data} = response;
+      // this.typeSetting = isArray(JSON.parse(data.typeSetting)).filter(item => item.show);
       this.formData = {
         ...this.formData,
-        spuClass: selectedOptions[0].value,
-        skuClassTitle: selectedOptions[0].text
+        spuClass: selectedOptions[selectedOptions.length - 1].value,
+        skuClassTitle: selectedOptions[selectedOptions.length - 1].text
       }
-      this.loading = false
+      // this.loading = false
     },
     imgChange(value) {
       this.formData = {
@@ -303,27 +484,43 @@ export default {
         },
       })
     },
-    async getCateGory() {
+    async getCateGory(classId) {
       const response = await SkuApis.spuClassTreeView({data: {}});
-      const {
-        data
-      } = response;
-      this.cateGoryData = this.format(data);
+      const {data} = response;
+      const {list, currentObj} = this.format(data, classId);
+      this.cateGoryData = list
+      if (classId) {
+        this.show = false
+        this.formData = {
+          ...this.formData,
+          spuClass: currentObj.value,
+          skuClassTitle: currentObj.text
+        }
+      }
     },
-    format(data) {
+    format(data, classId) {
       const list = [];
+      let currentObj = {}
       data.forEach(item => {
         const obj = {
           text: item.title,
           value: item.key
         }
+        if (classId && item.key === classId) {
+          currentObj = obj
+        }
         if (item.children.length > 0) {
-          obj.children = this.format(item.children);
+          const {children, currentObj: childrenCurrentObj} = this.format(item.children, classId)
+          obj.children = children;
+          currentObj = childrenCurrentObj
         }
         list.push(obj);
       })
 
-      return list;
+      return {
+        list,
+        currentObj
+      };
     },
     formSubmit() {
       this.$refs.form.validate((err) => {
@@ -333,14 +530,19 @@ export default {
             type: 0,
             isHidden: true,
             spu: {name: this.formData.spu, coding: this.formData.spuCoding},
-            skuName: this.formData.nationalStandard || this.formData.model || this.formData.partNo,
-            // generalFormDataParams: formData,
+            nationalStandard: this.formData.skuName,
+            model: this.formData.skuName,
+            partNo: this.formData.skuName,
+            generalFormDataParams: this.general,
+            imageUrls: undefined,
+            skuClassTitle: undefined
           };
           this.loading = true
+          const _this = this
           SkuApis.add({data: newValue}).then((res) => {
             Message.dialog({
               only: false,
-              content: '添加成功！',
+              title: '添加成功！',
               cancelText: '继续添加',
               confirmText: '查看详情',
               onConfirm() {
@@ -350,20 +552,24 @@ export default {
                 return true
               },
               onCancel() {
-
+                _this.formData = {}
+                _this.refreshLoading = true
+                setTimeout(() => {
+                  _this.refreshLoading = false
+                }, 1000)
                 return true
               }
             })
           }).catch(() => {
             Message.dialog({
-              content: '添加失败！'
+              title: '添加失败！'
             })
           }).finally(() => {
             this.loading = false
           })
         } else {
           Message.dialog({
-            content: '请检查必填项！'
+            title: '请检查必填项！'
           })
         }
       })
@@ -384,9 +590,27 @@ export default {
 </script>
 
 <style lang="scss">
+
+.box {
+  top: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  /* 主要内容 */
+  background: rgba(0, 0, 0, .5);
+  /* 模糊大小就是靠的blur这个函数中的数值大小 */
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
 .skuAdd {
   border-radius: 8px;
-  margin: 24px 8px;
+  margin: 16px 8px;
   padding: 12px;
   background-color: #fff;
 
@@ -474,5 +698,17 @@ export default {
   line-height: 22px;
   padding-left: 5px;
   color: #ccc;
+}
+
+.open {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 16px;
+  font-size: 12px;
+  border: solid 1px #ebebeb;
+  width: fit-content;
+  margin: 16px auto auto;
+  border-radius: 50px;
 }
 </style>

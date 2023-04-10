@@ -36,6 +36,8 @@
           </view>
         </List>
       </view>
+
+      <uni-fab :popMenu="false" horizontal="right" @fabClick="fabClick"></uni-fab>
     </view>
   </view>
 
@@ -116,6 +118,11 @@ export default {
       }
       this.screenData = newScreenData
       this.$refs.skuList.submit(newScreenData)
+    },
+    fabClick(){
+      uni.navigateTo({
+        url:'/Sku/SkuAdd/index'
+      })
     }
   }
 }

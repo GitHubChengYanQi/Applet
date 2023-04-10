@@ -1,10 +1,11 @@
 <template>
-  <uni-data-checkbox :localdata="qcode" @change="change"></uni-data-checkbox>
+  <uni-data-checkbox :value="value" :localdata="qcode" @change="change"></uni-data-checkbox>
 </template>
 
 <script>
 export default {
   behaviors: ['uni://form-field'],
+  props:['value'],
   data() {
     return {
       qcode: [{

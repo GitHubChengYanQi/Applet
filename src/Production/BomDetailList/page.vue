@@ -14,7 +14,6 @@
         <Card
             :no-body="open !== item.bomId"
             no-left-border
-            style="box-shadow: 0 5px 5px 0 #e1ebf6;margin-bottom: 16px;"
             body-style="padding-top:0;margin-top:8px"
             v-for="item in boms"
             :key="item.bomId"
@@ -24,45 +23,17 @@
             <SkuItem
                 extra-width="100px"
                 :sku-result="isObject(item.skuResult)"
-            >
-              <template slot="otherData" class="user">
-                负责人：
-                <LinkButton @click="selectUser(item.bomId,item.user)">
-                  {{ item.user ? item.user.name : '请选择负责人' }}
-                </LinkButton>
-              </template>
-            </SkuItem>
+            />
           </view>
           <view slot="extra" class="extra">
-            x {{ item.number }}
-            <u-icon
-                :name="open !== item.bomId ? 'arrow-down' : 'arrow-up'"
-                color="#007aff"
-                @click="open = open === item.bomId ? null : item.bomId"
-            >
-
-            </u-icon>
+            x {{ item.number * number }}
           </view>
-          <view class="details">
-            <view class="line"></view>
-            <view
-                v-for="(detailItem,index) in isArray(item.detailList)"
-                :key="detailItem.skuId"
-                class="detail"
-            >
-              <view :class="{detailItem:true,first:index === 0,end:index === isArray(item.detailList).length - 1}">
-                <view class="skuItem">
-                  <SkuItem img-size="60" extra-width="150px" :sku-result="isObject(detailItem.skuResult)" />
-                </view>
-                <ShopNumber show :value="detailItem.number" />
-              </view>
-            </view>
-          </view>
-
         </Card>
         <BottomButton
+            :loading="submitLoading"
             only
             text="创建生产任务"
+            @onClick="submit"
         />
       </view>
 
@@ -89,6 +60,8 @@ import Card from "../../components/Card";
 import BottomButton from "../../components/BottomButton";
 import LinkButton from "../../components/LinkButton";
 import Keybord from "../../components/Keybord";
+import {Production} from "MES-Apis/lib/Production/promise";
+import {Message} from "../../components/Message";
 
 export default {
   name: 'BomDetailList',
@@ -102,23 +75,37 @@ export default {
       loading: true,
       open: null,
       number: 1,
+      submitLoading: false,
       visible: false,
     }
   },
   mounted() {
-    const current = this
-    uni.$on('selectUser', (res) => {
-      const checkUser = res.checkUsers[0]
-      current.boms = current.boms.map(item => {
-        if (item.bomId === res.id) {
-          return {...item, user: checkUser}
-        }
-        return item
-      })
-    })
     this.getBoms(1)
   },
   methods: {
+    submit() {
+      this.submitLoading = true
+      Production.createTaskByBom({
+        data: {
+          bomId: this.bomId,
+          number: this.number
+        }
+      }).then(() => {
+        Message.dialog({
+          title: '创建生产任务成功！',
+          onConfirm() {
+            uni.navigateBack()
+            return true
+          }
+        })
+      }).catch(() => {
+        Message.dialog({
+          title: '创建生产任务失败！'
+        })
+      }).finally(() => {
+        this.submitLoading = false
+      })
+    },
     getBoms(number) {
       this.loading = true
       Bom.getByBomId({
@@ -137,7 +124,6 @@ export default {
     },
     onChange(number) {
       this.number = number
-      this.getBoms(number)
     },
     selectUser(bomId, user) {
       uni.navigateTo({
@@ -157,7 +143,7 @@ export default {
 <style lang="scss">
 
 .boms {
-  background-color: #fff;
+  //background-color: #fff;
   padding-top: 51px;
 
   .header {

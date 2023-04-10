@@ -5,11 +5,13 @@
         :z-index="zIndex ||  100"
         @close="$emit('close')"
         position="bottom"
+        @after-leave="$emit('closeAfter')"
+        @before-enter="$emit('showBefore')"
     >
       <view v-if="!noTitle" class='header'>
         <span v-if="leftText" class='left'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
         {{ title || '' }}
-        <span class='right' @click="$emit('close')">
+        <span class='right' @click="!rightText && $emit('close')">
           <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
           <van-icon v-else name="cross" />
         </span>
@@ -21,6 +23,7 @@
 
 <script>
 import LinkButton from "../LinkButton";
+
 export default {
   name: 'Popup',
   components: {LinkButton},

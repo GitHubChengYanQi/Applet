@@ -65,7 +65,7 @@ export default {
 .bottom {
   padding: 12px;
   height: 60px;
-  z-index: 1;
+  z-index: 5;
   width: calc(100% - 24px);
   max-width: 640px;
   position: fixed;

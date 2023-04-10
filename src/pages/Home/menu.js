@@ -75,17 +75,17 @@ export const Menus = [
             }
         ]
     },
-    // {
-    //     name: '生产',
-    //     key: 'production',
-    //     icon: 'icon-shengchanjihua',
-    //     menus: [
-    //         {
-    //             name: '创建生产计划',
-    //             key: 'createProduction',
-    //             icon: 'icon-shengchanjihua',
-    //             url: '/Production/CreatePlan/index'
-    //         }
-    //     ]
-    // },
+    {
+        name: '生产',
+        key: 'production',
+        icon: 'icon-shengchanjihua',
+        menus: [
+            {
+                name: '创建生产计划',
+                key: 'createProduction',
+                icon: 'icon-shengchanjihua',
+                url: '/Production/CreatePlan/index'
+            }
+        ]
+    },
 ]

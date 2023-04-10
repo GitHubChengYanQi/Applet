@@ -3,18 +3,20 @@
       use-before-read
       @beforeRead="uploader"
   >
-    <view v-if="file">
-      <u-button size="small" customStyle="width:100px">
-        <view class="uploadFile">
-          <uni-icons type="upload"></uni-icons>
-          上传
-        </view>
-      </u-button>
-    </view>
-    <view v-else class="upload" :style="{width:`${size}px`,height:`${size}px`}">
-      <u-loading-icon v-if="loading" mode="circle" :vertical="true"></u-loading-icon>
-      <u-icon v-else :size="size / 2" color="#dcdee0" name="camera-fill"></u-icon>
-    </view>
+    <slot>
+      <view v-if="file">
+        <u-button size="small" customStyle="width:100px">
+          <view class="uploadFile">
+            <uni-icons type="upload"></uni-icons>
+            上传
+          </view>
+        </u-button>
+      </view>
+      <view v-else class="upload" :style="{width:`${size}px`,height:`${size}px`}">
+        <u-loading-icon v-if="loading" mode="circle" :vertical="true"></u-loading-icon>
+        <u-icon v-else :size="size / 2" color="#dcdee0" name="camera-fill"></u-icon>
+      </view>
+    </slot>
   </u-upload>
 </template>
 
