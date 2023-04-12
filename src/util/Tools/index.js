@@ -81,3 +81,8 @@ export const timeDifference = (tmpTime) => {
     }
     return ansTimeDifference;
 };
+
+export const safeAreaHeight = (_this,num) => {
+    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
+    return safeAreaHeight < (num || 0) ? (num || 0) : safeAreaHeight
+}

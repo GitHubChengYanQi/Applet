@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 2837038 */
-  src: url('~@/static/font/iconfont.woff2?t=1677221159295') format('woff2'),
-       url('~@/static/font/iconfont.woff?t=1677221159295') format('woff'),
-       url('~@/static/font/iconfont.ttf?t=1677221159295') format('truetype');
+  src: url('~@/static/font/iconfont.woff2?t=1681105840548') format('woff2'),
+       url('~@/static/font/iconfont.woff?t=1681105840548') format('woff'),
+       url('~@/static/font/iconfont.ttf?t=1681105840548') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-erweima:before {
+  content: "\e6df";
+}
+
+.icon-caigoudantongji:before {
+  content: "\e6de";
+}
+
+.icon-shenhetongguo:before {
+  content: "\e62e";
 }
 
 .icon-wuliaojiage:before {

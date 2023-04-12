@@ -83,8 +83,16 @@ export const Menus = [
             {
                 name: '创建生产计划',
                 key: 'createProduction',
-                icon: 'icon-shengchanjihua',
                 url: '/Production/CreatePlan/index'
+            }, {
+                name: '生产计划列表',
+                key: 'productionList',
+                icon: 'icon-shengchanjihua',
+                url: '/Production/ProductionList/index'
+            }, {
+                name: '生产卡片',
+                key: 'productionCard',
+                url: '/Production/ProductionCard/index'
             }
         ]
     },

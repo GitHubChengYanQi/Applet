@@ -18,7 +18,7 @@
         </view>
       </view>
       <view v-if="$slots.default && !noBody" :style="bodyStyle" :class="[bodyClassName, 'content']">
-        <slot></slot>
+        <slot name="default"></slot>
       </view>
     </view>
   </view>

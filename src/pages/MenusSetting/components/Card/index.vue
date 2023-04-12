@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "Card",
+  name: "MenuCard",
   props:['title'],
   components: {},
 data(){

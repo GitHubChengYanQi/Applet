@@ -32,7 +32,7 @@
               </view>
             </view>
             <view @click="auto">
-              <uni-icons size="24" custom-prefix="icon-font" type="icon-erweima" color="#2680EB"></uni-icons>
+              <Icon icon="icon-erweima" color="#2680EB" />
             </view>
             <van-dialog
                 use-slot
@@ -149,10 +149,11 @@ import {getLocalParmas, isArray} from "../../util/Tools";
 import Loading from "../../components/Loading";
 import Empty from "../../components/Empty";
 import Popup from "../../components/Popup";
+import Icon from "../../components/Icon";
 
 export default {
   name: "SkuDetail",
-  components: {Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
+  components: {Icon, Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
   data() {
     return {
       skuDetail: {},

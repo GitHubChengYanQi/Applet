@@ -1,7 +1,7 @@
 <template>
   <view class="white">
     <view class="content">
-      <uni-icons custom-prefix="iconfont" type="icon-pandiankuwei1" color="#007aff" size="20"></uni-icons>
+      <Icon icon="icon-pandiankuwei1" size="20" />
       <view class="text">{{ positionName }}&nbsp;/&nbsp;{{ storehouse }}</view>
     </view>
 
@@ -86,9 +86,11 @@ import Loading from "../../../components/Loading";
 import BottomButton from "../../../components/BottomButton";
 import {Message} from "../../../components/Message";
 import Empty from "../../../components/Empty";
+import Icon from "../../../components/Icon";
 
 export default {
   components: {
+    Icon,
     Empty,
     BottomButton,
     Loading,

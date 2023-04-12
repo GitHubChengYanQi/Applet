@@ -161,6 +161,30 @@
           }
         },
         {
+          "path": "ProductionList/index",
+          "style": {
+            "navigationBarTitleText": "生产计划列表"
+          }
+        },
+        {
+          "path": "ProductionDetail/index",
+          "style": {
+            "navigationBarTitleText": "生产计划详情"
+          }
+        },
+        {
+          "path": "ProductionCard/index",
+          "style": {
+            "navigationBarTitleText": "生产卡片"
+          }
+        },
+        {
+          "path": "ProductionCardDetail/index",
+          "style": {
+            "navigationBarTitleText": "生产卡片信息"
+          }
+        },
+        {
           "path": "Produced/index",
           "style": {
             "navigationBarTitleText": "待生产"

@@ -8,7 +8,7 @@
       <slot>
         <view class="content">
           <LinkButton>
-            <uni-icons custom-prefix="iconfont" type="icon-rili" size="20" color="#007AFF"></uni-icons>
+            <Icon icon="icon-rili" size="20" />
           </LinkButton>
           {{
             value[0] && value[1] ? `${MyDate.Show(value[0])} - ${MyDate.Show(value[1])}` : placeholder
@@ -40,10 +40,11 @@
 import LinkButton from "../LinkButton";
 import {MyDate} from "../../util/Tools";
 import Popup from "../Popup";
+import Icon from "../Icon";
 
 export default {
   name: 'StartEndDate',
-  components: {Popup, LinkButton},
+  components: {Icon, Popup, LinkButton},
   props: {
     value: {
       type: Array,

@@ -3,10 +3,8 @@
     <van-dialog
         use-slot
         :show="showSkuErWeiMa"
-        show-cancel-button
-        cancel-button-text="取消"
         cancel-button-color="#2680EB"
-        confirm-button-text="打印"
+        confirm-button-text="确认"
         confirm-button-color="#2680EB"
         @close="skuErWeiMa"
         width="280px"
@@ -43,7 +41,7 @@
                 <view class="inkindId">
                   实物码：
                   <view class="erWeiMaClick" @click="skuErWeiMa(sku.inkindId)">
-                    <uni-icons custom-prefix="icon-font" type="icon-erweima" color="#2680EB" size="21"></uni-icons>
+                    <Icon icon="icon-erweima" color="#2680EB" />
                   </view>
                   <view>× {{ sku.number }}</view>
                 </view>
@@ -82,14 +80,15 @@ import UQRCode from "uqrcodejs";
 import List from "../../../components/List/indx";
 import {Stock} from "MES-Apis/lib/Stock/promise";
 import {isArray, isObject, MyDate} from "../../../util/Tools";
+import Icon from "../../../components/Icon";
 
 export default {
   name: "InkindItem",
-  components: {List, LinkButton},
+  components: {Icon, List, LinkButton},
   props: ['skuId'],
   data() {
     return {
-      codeTitle: '是否打印实物码',
+      codeTitle: '实物码',
       inkindItemHidden: false,
       showSkuErWeiMa: false,
       list: [],

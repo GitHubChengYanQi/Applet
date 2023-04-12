@@ -1,6 +1,6 @@
 <template>
   <view class="linkButton">
-    <van-button type="info" custom-class="button" plain @click="$emit('click')">
+    <van-button :disabled="disabled" type="info" custom-class="button" plain @click="$emit('click')">
       <slot>{{ title }}</slot>
     </van-button>
   </view>

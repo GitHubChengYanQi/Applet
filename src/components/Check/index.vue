@@ -4,6 +4,7 @@
         :value="value"
         :disabled="disabled"
         shape="square"
+        :checked-color="color"
         @change="$emit('change')"
     >
       <slot></slot>
@@ -14,6 +15,6 @@
 <script>
 export default {
   name: 'Check',
-  props: ['value','disabled']
+  props: ['value','disabled','color']
 }
 </script>

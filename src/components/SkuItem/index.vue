@@ -13,7 +13,7 @@
             alt=''
         />
         <view v-if="!hiddenNumber" class='number'>
-          {{ getStockNumber() || 0 }}{{ unitName || skuResult.unitName || unitResult.unitName || '' }}
+          {{ getStockNumber() || 0 }} {{ unitName || skuResult.unitName || unitResult.unitName || '' }}
           <span v-if="skuResult.lockStockDetailNumber > 0" class='error'>
               <van-icon name="warn-o" />
           </span>
@@ -22,7 +22,7 @@
       <view
           @click='view'
           class='sku'
-          :style="{ height: `${skuImgSize}px`,maxWidth: `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth || '0px'})`}"
+          :style="{ height: `${skuImgSize}px`,maxWidth: maxWidth || `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth || '0px'})`}"
       >
         <Elliptsis width='100%'>
           {{ title || SkuResultSkuJsons({skuResult, spu: !oneRow}) || '' }}
@@ -86,6 +86,7 @@ export default {
     },
     extraWidth: String,
     imgSize: Number,
+    maxWidth: String,
     imgId: String,
     className: String,
     describe: String,

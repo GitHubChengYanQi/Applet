@@ -2,7 +2,7 @@
   <view>
     <scroll-view class="boms" scroll-y>
       <view class="header">
-        <Card title="生产BOM数量">
+        <Card title="生产数量">
           <template slot="extra">
             <ShopNumber action-show :value="number" @click="visible = true" />
           </template>
@@ -22,7 +22,7 @@
           <view slot="title">
             <SkuItem
                 extra-width="100px"
-                :sku-result="isObject(item.skuResult)"
+                :sku-result="skuResultFormat(item.skuResult)"
             />
           </view>
           <view slot="extra" class="extra">
@@ -47,12 +47,11 @@
     </scroll-view>
     <view style="height: 100px" />
   </view>
-
 </template>
 
 <script>
 import {Bom} from "MES-Apis/lib/Bom/promise";
-import {getLocalParmas, isArray, isObject} from "../../util/Tools";
+import {isArray, isObject} from "../../util/Tools";
 import SkuItem from "../../components/SkuItem";
 import ShopNumber from "../../components/ShopNumber";
 import Loading from "../../components/Loading";
@@ -62,6 +61,7 @@ import LinkButton from "../../components/LinkButton";
 import Keybord from "../../components/Keybord";
 import {Production} from "MES-Apis/lib/Production/promise";
 import {Message} from "../../components/Message";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 
 export default {
   name: 'BomDetailList',
@@ -77,6 +77,7 @@ export default {
       number: 1,
       submitLoading: false,
       visible: false,
+      skuImages: []
     }
   },
   mounted() {
@@ -85,10 +86,14 @@ export default {
   methods: {
     submit() {
       this.submitLoading = true
-      Production.createTaskByBom({
+      Production.productionPlanAddByBom({
         data: {
-          bomId: this.bomId,
-          number: this.number
+          "productionPlanDetailParams": [
+            {
+              "partsId": this.bomId,
+              "planNumber": this.number
+            }
+          ]
         }
       }).then(() => {
         Message.dialog({
@@ -108,19 +113,33 @@ export default {
     },
     getBoms(number) {
       this.loading = true
-      Bom.getByBomId({
+      Bom.bomGetByBomIdV2_0({
         data: {
-          partsId: this.bomId,
+          bomId: this.bomId,
           number
         }
       }).then((res) => {
-        this.boms = isArray(res.data).map(item => ({
-          ...item,
-          user: this.boms.find(bomItem => bomItem.bomId === item.bomId)?.user
-        }))
+        this.boms = isArray(res.data)
+        this.getSkuImgs(isArray(res.data))
       }).finally(() => {
         this.loading = false
       })
+    },
+    getSkuImgs(list) {
+      Sku.getMediaUrls({
+        mediaIds: list.map(item => item.skuResult?.images?.split(',')[0]),
+        option: 'image/resize,m_fill,h_74,w_74',
+      }).then((res) => {
+        this.skuImages = isArray(res?.data)
+      }).catch(() => {
+      })
+    },
+    skuResultFormat(item) {
+      const media = this.skuImages.find(mediaItem => mediaItem.mediaId === item.images?.split(',')[0]) || {}
+      return {
+        ...item,
+        thumbUrl: media.thumbUrl
+      }
     },
     onChange(number) {
       this.number = number

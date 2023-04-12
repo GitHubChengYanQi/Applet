@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "627566",
+      "name": "二维码",
+      "font_class": "erweima",
+      "unicode": "e6df",
+      "unicode_decimal": 59103
+    },
+    {
+      "icon_id": "34528575",
+      "name": "采购单统计",
+      "font_class": "caigoudantongji",
+      "unicode": "e6de",
+      "unicode_decimal": 59102
+    },
+    {
+      "icon_id": "5199431",
+      "name": "审核通过",
+      "font_class": "shenhetongguo",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    },
+    {
       "icon_id": "33745997",
       "name": "物料价格",
       "font_class": "wuliaojiage",

@@ -29,12 +29,7 @@
       </van-divider>
       <view class='scan'>
         <view class='scanStyle' @click="scan">
-          <uni-icons
-              :size="30"
-              color="#fff"
-              custom-prefix="iconfont"
-              type="icon-dibudaohang-saoma"
-          />
+          <Icon icon="icon-dibudaohang-saoma" size="30" color="#fff" />
         </view>
       </view>
       <slot name="other"></slot>
@@ -56,10 +51,11 @@
 <script>
 import Keybord from "../../../components/Keybord";
 import {Message} from "../../../components/Message";
+import Icon from "../../../components/Icon";
 
 export default {
   name: 'CodeNumber',
-  components: {Keybord},
+  components: {Icon, Keybord},
   props: {
     open: Boolean,
     codeNumber: {
@@ -142,14 +138,14 @@ export default {
       return typeof number === 'number' ? number : ''
     },
     scan() {
-      const current = this
+      const _this = this
       uni.scanCode({
         onlyFromCamera: true,
         success: function (res) {
           const code = res.result.split('code=')[1]
           if (code) {
-            current.code = code
-            current.$emit('onSuccess', code)
+            _this.code = code
+            _this.$emit('onSuccess', code)
           } else {
             Message.errorToast('请扫领料码！')
           }

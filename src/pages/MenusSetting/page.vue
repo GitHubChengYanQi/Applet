@@ -1,6 +1,6 @@
 <template>
   <view class="body">
-    <Card
+    <MenuCard
         v-for="(item,index) in Menus"
         :key="index"
         :title="item.name"
@@ -15,7 +15,7 @@
           >
             <view class="block">
               <view class="img">
-                <Icon v-if="subItem.icon" :icon="subItem.icon" :size="32" color="#007aff" />
+                <Icon v-if="subItem.icon" :icon="subItem.icon" :size="32" />
                 <u-icon v-else name="grid-fill" :size="32" color="#007aff" />
               </view>
               <view class="text">{{ subItem.name }}</view>
@@ -23,23 +23,23 @@
           </u-grid-item>
         </u-grid>
       </view>
-    </Card>
+    </MenuCard>
   </view>
 
 </template>
 
 <script>
-import Card from "./components/Card";
 import {Menus} from "../Home/menu";
 import Icon from "../../components/Icon";
 import DragAndDropSort from "./components/Sort";
+import MenuCard from "./components/Card";
 
 export default {
   name: "MenusSetting",
   components: {
+    MenuCard,
     DragAndDropSort,
-    Icon,
-    Card
+    Icon
   },
   data() {
     return {

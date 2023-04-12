@@ -142,7 +142,7 @@ export default {
       let inStockNumber = 0
 
       const data = isArray(res.data).map(item => {
-        const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        const media = isArray(skuMediaUrls.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]) || {};
         purchaseNumber += item.purchaseNumber
         inStockNumber += (item.inStockNumber || 0)
         return {

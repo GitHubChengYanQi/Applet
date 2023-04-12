@@ -1,7 +1,7 @@
 <template>
   <view class="stockForewarn">
     <view class="search">
-      <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="searchClick" />
+      <Search placeholder="请输入物料相关信息" :value="searchValue" :readonly="true" @click="searchClick" />
     </view>
     <view class="filter">
       <view class="classify" @click="click">
