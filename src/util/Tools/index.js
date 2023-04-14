@@ -82,7 +82,29 @@ export const timeDifference = (tmpTime) => {
     return ansTimeDifference;
 };
 
-export const safeAreaHeight = (_this,num) => {
+export const safeAreaHeight = (_this, num) => {
     const safeAreaHeight = _this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
     return safeAreaHeight < (num || 0) ? (num || 0) : safeAreaHeight
 }
+
+export const rateTool = (value, total, num) => {
+    if (typeof total !== "number") {
+        return value > 0 ? `${value}%` : 0;
+    }
+    if (total === 0) {
+        return 0
+    }
+    const val = (value / total) * 100
+    let rate
+    if (val > 0 && val < 1) {
+        rate = 1
+    } else if (val > 99 && val < 100) {
+        rate = 99
+    } else {
+        rate = Math.round(val)
+    }
+    if (num) {
+        return rate
+    }
+    return rate > 0 ? `${rate}%` : 0;
+};

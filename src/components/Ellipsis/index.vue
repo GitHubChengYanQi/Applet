@@ -2,7 +2,7 @@
   <view
       class='ellipsis'
       @click="$emit('onClick')"
-      :style="{maxWidth,width: width || '90%',style}"
+      :style="{maxWidth,width: width || '90%',style:viewStyle}"
   >
     <slot>{{ value }}</slot>
   </view>
@@ -14,7 +14,7 @@ export default {
   props: [
     'value',
     'width',
-    'style',
+    'viewStyle',
     'maxWidth',
   ]
 }

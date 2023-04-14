@@ -15,7 +15,6 @@
           :key="index"
           :bom="detailItem"
           @check="check"
-          @reset="reset"
           @openChange="openChange"
           :checkList="checkList"
       />
@@ -27,25 +26,33 @@
         class="bomItem"
         style="padding-bottom: 0"
     >
-      <view slot="title" class="sku" @click="check(bom)">
+      <view slot="title" class="sku" @click="()=>(complete ? bom.parentId ===0 : true) && check(bom)">
         <Check
             v-if="showCheck()"
             :value="checked()"
         />
         <view class="skuItem">
           <SkuItem
-              :maxWidth="bom.parentId === 0 ? null : '250px'"
+              :maxWidth="bom.parentId === 0 ? null : '230px'"
+              :width="bom.parentId === 0 ? null : '230px'"
               :number="bom.number"
               no-view
-              img-size="60"
+              img-size="74"
               extra-width="100px"
               :sku-result="isObject(bom.skuResult)"
-              :other-data="bom.done !== 1 ? ['版本号：'+bom.name] : []"
+              :other-data="bom.done !== 1 ? ['版本号：'+bom.version] : []"
           >
-            <view v-if="bom.done === 1" style="padding-top: 8px" slot="otherData">
+            <view v-if="bom.done === 1" style="padding-top: 4px" slot="otherData">
               <view class="action">
-                <view>操作人：<span style="font-weight: bold">ChengYanQi</span></view>
-                <view v-if="complete ? bom.parentId ===0 : true" style="color: #007aff">重新提交</view>
+                <view style="font-size: 12px">
+                  操作人：
+                  <span style="font-weight: bold">{{ bom.userResult && bom.userResult.name || '-' }}</span>
+                  <span v-if="complete ? bom.parentId ===0 : true" style="color: #007aff;padding-left: 8px">重新提交</span>
+                </view>
+                <view style="font-size: 12px;color: rgba(0,0,0,0.6)">
+                  操作时间:
+                  {{timeDifference(bom.lastTime)}}
+                </view>
               </view>
             </view>
           </SkuItem>
@@ -66,11 +73,11 @@
             haveCheckEnd:index === isArray(bom.children).length - 1 && showCheck()
           }">
             <ProductionCardBom
+                :show="show"
                 :complete="complete"
                 :defaultOpen="open"
                 :bom="detailItem"
                 @check="check"
-                @reset="reset"
                 :checkList="checkList"
             />
           </view>
@@ -84,7 +91,7 @@
 import Card from "../../../../components/Card";
 import Check from "../../../../components/Check";
 import SkuItem from "../../../../components/SkuItem";
-import {isArray, isObject} from "../../../../util/Tools";
+import {isArray, isObject, timeDifference} from "../../../../util/Tools";
 import ProductionCardBom from './index'
 import {Message} from "../../../../components/Message";
 import LinkButton from "../../../../components/LinkButton";
@@ -93,12 +100,13 @@ import UserName from "../../../../components/UserName";
 
 export default {
   name: 'ProductionCardBom',
-  props: ['bom', 'checkList', 'defaultOpen', 'complete'],
+  props: ['bom', 'checkList', 'defaultOpen', 'complete', 'show'],
   components: {UserName, LinkButton, SkuItem, Check, Card, ProductionCardBom},
   data() {
     return {
       isObject,
       isArray,
+      timeDifference,
       open: false,
       showParent: false
     }
@@ -111,7 +119,7 @@ export default {
       return isArray(this.checkList).find(item => item.productionTaskId === this.bom.productionTaskId)
     },
     showCheck() {
-      if (this.complete) {
+      if (this.complete || this.show) {
         return false
       }
       return this.bom.done !== 1 && this.childrenOk(this.bom)
@@ -128,7 +136,7 @@ export default {
       this.$emit('openChange')
     },
     childrenAction() {
-      if (this.open || this.complete) {
+      if (this.open || this.complete || this.show) {
         return true
       }
       const open = this.childrenOk(this.bom)
@@ -146,13 +154,10 @@ export default {
     openChange() {
       this.showParent = true
     },
-    reset(bom) {
-      this.$emit('reset', bom)
-    },
     check(bom) {
       if (bom.done === 1) {
         Message.dialog({
-          title: 'Bom已完成，是否重新提交？',
+          title: '任务已完成，是否重新提交？',
           only: false,
           confirmText: '重新提交',
           onConfirm() {
@@ -247,7 +252,7 @@ export default {
         width: 12px;
         height: 1px;
         background-color: #cacaca;
-        top: 49px;
+        top: 54px;
       }
     }
 
@@ -260,21 +265,21 @@ export default {
 
     .haveCheck {
       &::before {
-        top: -30px;
-        height: calc(100% + 30px);
+        top: -39px;
+        height: calc(100% + 39px);
       }
     }
 
     .end {
       &::before {
-        height: 49px;
+        height: 54px;
       }
     }
 
     .haveCheckEnd {
       &::before {
-        top: -30px;
-        height: 79px
+        top: -39px;
+        height: 94px;
       }
     }
 
@@ -288,7 +293,8 @@ export default {
 
 .action {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  //align-items: center;
+  flex-direction: column;
+  //gap: 2px;
 }
 </style>

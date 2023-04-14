@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view :class="['bottom',className]">
+    <view :class="['bottom',className]" :style="{paddingBottom:`${safeAreaHeight(this,12)}px`}">
       <van-button
           v-if="only"
           :loading='loading'
@@ -37,8 +37,15 @@
 
 <script>
 
+import {safeAreaHeight} from "../../util/Tools";
+
 export default {
   name: 'BottomButton',
+  data(){
+    return {
+      safeAreaHeight
+    }
+  },
   props: [
     'only',
     'leftLoading',
@@ -64,7 +71,7 @@ export default {
 
 .bottom {
   padding: 12px;
-  height: 60px;
+  //height: 60px;
   z-index: 5;
   width: calc(100% - 24px);
   max-width: 640px;

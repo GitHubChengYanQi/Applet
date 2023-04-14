@@ -1,6 +1,7 @@
 <template>
   <view>
-    <scroll-view class="boms" scroll-y>
+    <Empty v-if="error" type="error" description="获取BOM信息异常" />
+    <view v-else class="boms">
       <view class="header">
         <Card title="生产数量">
           <template slot="extra">
@@ -11,24 +12,16 @@
 
       <Loading :skeleton="true" v-if="loading" />
       <view v-else>
-        <Card
-            :no-body="open !== item.bomId"
-            no-left-border
-            body-style="padding-top:0;margin-top:8px"
-            v-for="item in boms"
-            :key="item.bomId"
-            class="bomItem"
+        <Card title="生产信息" style="border-bottom: solid 1px #F5F5F5" />
+        <view
+            class="productionCardBom"
+            :style="{maxHeight: `calc(100vh - 110px - ${37 + safeAreaHeight(this,8)}px)`,overflow:'auto'}"
         >
-          <view slot="title">
-            <SkuItem
-                extra-width="100px"
-                :sku-result="skuResultFormat(item.skuResult)"
-            />
-          </view>
-          <view slot="extra" class="extra">
-            x {{ item.number * number }}
-          </view>
-        </Card>
+          <ProductionCardBom
+              :bom="parentBom"
+              show
+          />
+        </view>
         <BottomButton
             :loading="submitLoading"
             only
@@ -44,14 +37,13 @@
           :min='1'
           @onChange="onChange"
       />
-    </scroll-view>
-    <view style="height: 100px" />
+    </view>
   </view>
-</template>
 
+</template>
 <script>
 import {Bom} from "MES-Apis/lib/Bom/promise";
-import {isArray, isObject} from "../../util/Tools";
+import {isArray, isObject, safeAreaHeight} from "../../util/Tools";
 import SkuItem from "../../components/SkuItem";
 import ShopNumber from "../../components/ShopNumber";
 import Loading from "../../components/Loading";
@@ -62,13 +54,16 @@ import Keybord from "../../components/Keybord";
 import {Production} from "MES-Apis/lib/Production/promise";
 import {Message} from "../../components/Message";
 import {Sku} from "MES-Apis/lib/Sku/promise";
+import ProductionCardBom from "../ProductionCardDetail/components/ProductionCardBom";
+import Empty from "../../components/Empty";
 
 export default {
   name: 'BomDetailList',
-  components: {Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
+  components: {Empty, ProductionCardBom, Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
   props: ['bomId'],
   data() {
     return {
+      safeAreaHeight,
       boms: [],
       isArray,
       isObject,
@@ -77,7 +72,8 @@ export default {
       number: 1,
       submitLoading: false,
       visible: false,
-      skuImages: []
+      error: false,
+      parentBom: {},
     }
   },
   mounted() {
@@ -118,27 +114,48 @@ export default {
           bomId: this.bomId,
           number
         }
-      }).then((res) => {
-        this.boms = isArray(res.data)
-        this.getSkuImgs(isArray(res.data))
-      }).finally(() => {
+      }).then(async (res) => {
+        const boms = isArray(res.data)
+        const newBoms = await this.getSkuImgs(boms)
+        const parentBom = newBoms.find(item => item.parentId === 0) || {}
+        this.parentBom = this.formatBoms(parentBom, newBoms)
+        this.loading = false
+      }).catch(() => {
+        this.error = false
         this.loading = false
       })
     },
-    getSkuImgs(list) {
-      Sku.getMediaUrls({
-        mediaIds: list.map(item => item.skuResult?.images?.split(',')[0]),
-        option: 'image/resize,m_fill,h_74,w_74',
-      }).then((res) => {
-        this.skuImages = isArray(res?.data)
-      }).catch(() => {
+    formatBoms(bom, boms) {
+      return {
+        ...bom,
+        children: boms.filter(item => item.parentId === bom.bomId).map(item => {
+          return this.formatBoms(item, boms)
+        })
+      }
+    },
+    async getSkuImgs(list) {
+      return new Promise((resolve, reject) => {
+        Sku.getMediaUrls({
+          mediaIds: list.map(item => item.skuResult?.images?.split(',')[0]),
+          option: 'image/resize,m_fill,h_74,w_74',
+        }).then((res) => {
+          return resolve(list.map(item => {
+            return this.skuResultFormat(item, res?.data)
+          }))
+        }).catch(() => {
+          reject()
+        })
       })
     },
-    skuResultFormat(item) {
-      const media = this.skuImages.find(mediaItem => mediaItem.mediaId === item.images?.split(',')[0]) || {}
+    skuResultFormat(item, skuImages) {
+      const skuResult = item.skuResult || {}
+      const media = skuImages.find(mediaItem => mediaItem.mediaId === skuResult.images?.split(',')[0]) || {}
       return {
         ...item,
-        thumbUrl: media.thumbUrl
+        skuResult: {
+          ...skuResult,
+          thumbUrl: media.thumbUrl
+        }
       }
     },
     onChange(number) {
@@ -163,15 +180,9 @@ export default {
 
 .boms {
   //background-color: #fff;
-  padding-top: 51px;
 
   .header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1;
     background-color: #fff;
-    box-shadow: 0 5px 5px 0 #e1ebf6;
   }
 }
 

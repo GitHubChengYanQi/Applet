@@ -8,7 +8,7 @@
           @click='view'
       >
         <image
-            :src='skuResult.thumbUrl || (isArray(skuResult.imgResults)[0] || {}).thumbUrl || publicInfo.imgLogo'
+            :src='skuResult.thumbUrl || skuImg() || publicInfo.imgLogo'
             :style="{ height: `${skuImgSize}px`, width: `${skuImgSize}px` }"
             alt=''
         />
@@ -22,9 +22,9 @@
       <view
           @click='view'
           class='sku'
-          :style="{ height: `${skuImgSize}px`,maxWidth: maxWidth || `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth || '0px'})`}"
+          :style="{ height: `${skuImgSize}px`,maxWidth: maxWidth || `calc(100vw - ${skuImgSize}px - 13px - ${extraWidth || '0px'})`,width}"
       >
-        <Elliptsis width='100%'>
+        <Elliptsis width='100%' style="height: 18px">
           {{ title || SkuResultSkuJsons({skuResult, spu: !oneRow}) || '' }}
         </Elliptsis>
         <view v-if="!oneRow" class='describe'>
@@ -34,7 +34,7 @@
         </view>
         <view v-if="!(otherData.length === 0 || !otherData.some(item => item))">
           <view
-              v-for="(item,index) in otherData"
+              v-for="(item,index) in otherData.filter(other=>other)"
               :key="index"
               class='otherData'
           >
@@ -87,6 +87,7 @@ export default {
     extraWidth: String,
     imgSize: Number,
     maxWidth: String,
+    width: String,
     imgId: String,
     className: String,
     describe: String,
@@ -114,8 +115,17 @@ export default {
     this.skuImgSize = this.imgSize || 74
   },
   methods: {
+    skuImg() {
+      if (this.skuResult && this.skuResult.images) {
+        const imgResult = isArray(this.skuResult.imgResults).find(item => item.mediaId === this.skuResult.images.split(',')[0])
+        if (imgResult) {
+          return imgResult.thumbUrl
+        }
+      }
+      return ''
+    },
     isString(item) {
-      return typeof item === 'string'
+      return item && typeof item === 'string'
     },
     view() {
       if (!this.skuResult.skuId || this.noView) {
@@ -173,7 +183,7 @@ export default {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    margin-left: 12px;
+    margin-left: 8px;
     justify-content: space-evenly;
 
     .describe {

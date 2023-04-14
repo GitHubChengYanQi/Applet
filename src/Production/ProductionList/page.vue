@@ -25,7 +25,7 @@
                     no-view
                     extra-width="100px"
                     :sku-result="format(item).skuResult"
-                    :other-data="['版本号：'+format(item).partsResult.name]"
+                    :other-data="['版本号：'+(format(item).partsResult.version || '-')]"
                 />
               </view>
 
@@ -33,17 +33,26 @@
                 x {{ format(item).planNumber }}
               </view>
             </view>
-
+            <u-divider
+                :text="`物料总数 ${item.skuCount}`"
+                lineColor="#2979ff"
+                textPosition="left"
+                :customStyle="{margin: '8px 0'}"
+            />
             <view class="progress">
               <view class="progressItem">
                 <view class="total">
                   <view class="totalItem">
                     出库中：
-                    <view class="num" style="color:#007aff">{{ outProgress(item).makingNumber }} ({{ 100 }}%)</view>
+                    <view class="num" style="color:#007aff">{{ outProgress(item).outing }}
+                      ({{ outProgress(item).outIngRate }})
+                    </view>
                   </view>
                   <view class="totalItem">
                     已出库：
-                    <view class="num" style="color:#19be6b">{{ outProgress(item).makingNumber }} ({{ 100 }}%)</view>
+                    <view class="num" style="color:#19be6b">{{ outProgress(item).outed }}
+                      ({{ outProgress(item).outedRate }})
+                    </view>
                   </view>
                 </view>
                 <view class="percentage">
@@ -53,15 +62,20 @@
                   />
                 </view>
               </view>
+              <u-divider
+                  :text="`BOM总数 ${item.bomCount}`"
+                  lineColor="#2979ff"
+                  textPosition="left"
+                  :customStyle="{margin: '8px 0'}"
+             />
               <view class="progressItem">
                 <view class="total">
                   <view class="totalItem">
-                    BOM完成：
-                    <view class="num" style="color:#007aff">{{ doneProgress(item).makingNumber }} ({{ 100 }}%)</view>
-                  </view>
-                  <view class="totalItem">
-                    计划完成：
-                    <view class="num" style="color:#19be6b">{{ doneProgress(item).makingNumber }} ({{ 100 }}%)</view>
+                    生产数：
+                    <view class="num" style="color:#19be6b">
+                      {{ doneProgress(item).doneBomCount }}
+                      ({{doneProgress(item).doneBomCountRate}})
+                    </view>
                   </view>
                 </view>
                 <view class="percentage">
@@ -98,7 +112,7 @@
                 extra-width="100px"
                 :sku-result="isObject(actionItem.skuResult)"
                 :other-data="[
-                      '版本号：'+actionItem.partsResult.name
+                      '版本号：'+(actionItem.partsResult.version || '-')
                   ]"
             />
           </view>
@@ -166,7 +180,7 @@ import SkuItem from "../../components/SkuItem";
 import LinkButton from "../../components/LinkButton";
 import UserName from "../../components/UserName";
 import Avatar from "../../components/Avatar";
-import {isObject, safeAreaHeight, timeDifference} from "../../util/Tools";
+import {isObject, rateTool, safeAreaHeight, timeDifference} from "../../util/Tools";
 import Popup from "../../components/Popup";
 import ShopNumber from "../../components/ShopNumber";
 import BottomButton from "../../components/BottomButton";
@@ -220,42 +234,55 @@ export default {
         userId: user.userId
       }
     })
+
+    uni.$on('doneProductionTask', (data) => {
+      const {doneNum, planId} = data || {}
+      this.list = _this.list.map(item => {
+        if (item.productionPlanId === planId) {
+          return {...item, doneBomCount: (item.doneBomCount || 0) + doneNum}
+        }
+        return item
+      })
+    })
   },
   methods: {
     outProgress(item) {
-      const {planNumber, makingNumber} = this.format(item)
+      const outing = item.numberCount
+      const outed = item.receivedCount
+      const total = item.skuCount
       let data = [
         {
-          number: makingNumber,
+          number: outing,
           color: '#007aff'
         },
         {
-          number: 2,
-          color: '#19be6b'
-        }
-      ]
-      return {
-        total: planNumber,
-        data,
-        makingNumber: 99999
-      }
-    },
-    doneProgress(item) {
-      let total = 50;
-      let data = [
-        {
-          number: 12,
-          color: '#007aff'
-        },
-        {
-          number: 20,
+          number: outed,
           color: '#19be6b'
         }
       ]
       return {
         total,
         data,
-        makingNumber: 99999
+        outing,
+        outed,
+        outIngRate: rateTool(outing,total),
+        outedRate: rateTool(outed,total)
+      }
+    },
+    doneProgress(item) {
+      const doneBomCount = item.doneBomCount
+      const total = item.bomCount
+      let data = [
+        {
+          number: doneBomCount,
+          color: '#19be6b'
+        }
+      ]
+      return {
+        total,
+        data,
+        doneBomCount,
+        doneBomCountRate: rateTool(doneBomCount,total),
       }
     },
     goToDetail(item) {
@@ -275,7 +302,7 @@ export default {
             data: {
               sourceId: this.actionItem.productionPlanId,
               userId: this.formData.userId,
-              partsId: this.actionItem.partsResult.partsId,
+              partsId: this.actionItem.partsResult.bomId,
               number: this.formData.number
             }
           }).then(() => {
@@ -363,7 +390,6 @@ export default {
 .progress {
 
   .progressItem {
-    padding-top: 8px;
     display: flex;
     align-items: center;
     flex-direction: column;

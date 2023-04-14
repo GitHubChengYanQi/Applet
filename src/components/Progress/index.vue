@@ -6,7 +6,7 @@
             v-for="(item,index) in progressFormat()"
             :key='index'
             class='progress'
-            :style="{ backgroundColor: item.color, width: `${item.num}%` }"
+            :style="{ backgroundColor: item.color, width: `${item.num}%` ,height:`${height || 10}px`}"
         />
       </view>
     </view>
@@ -17,9 +17,11 @@
 <script>
 
 
+import {rateTool} from "../../util/Tools";
+
 export default {
   name: 'Progress',
-  props: ['progress', 'total'],
+  props: ['progress', 'total', 'height'],
   data() {
     return {}
   },
@@ -29,11 +31,11 @@ export default {
       const array = this.progress.map(item => item).sort((a, b) => a.number - b.number)
       return [...array.map((item, index) => {
         if (index === 0) {
-          const num = Math.round(((item.number / this.total) * 100) || 0)
+          const num = rateTool(item.number, this.total, true)
           number += num
           return {num, color: item.color}
         } else {
-          const num = Math.round(((item.number - (array[index - 1]).number) / this.total) * 100) || 0
+          const num = rateTool((item.number - (array[index - 1]).number), this.total, true)
           number += num
           return {num, color: item.color}
         }
@@ -58,7 +60,6 @@ export default {
 
   .progress {
     display: inline-block;
-    padding: 4px 0;
     background-color: #D8D8D8;
   }
 }

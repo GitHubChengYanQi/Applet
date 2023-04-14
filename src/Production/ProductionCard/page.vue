@@ -78,7 +78,7 @@ export default {
           let error = true
           if (res.result) {
             const card = res.result
-            if (card.indexOf('HHKP') !== -1) {
+            if (card.indexOf('KP') !== -1) {
               error = false
               _this.goToDetail(card.replace('KP'))
             }
