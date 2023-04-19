@@ -3,7 +3,7 @@
     <view class="search">
       <Search :value="searchValue" @onChange="(value)=>searchValue = value" @onSearch="onSearch" />
     </view>
-    <view class="list">
+    <view :class="{list:list.length > 0}">
       <List
           :max-height="`calc(100vh - 58px - 8px - 60px - ${safeAreaHeight(this,8)}px)`"
           ref="list"
@@ -22,8 +22,8 @@
               {{ item.name }}
             </view>
             <view class="skuCount">
-              <Icon icon="icon-pandianwuliao" size="18"  />
-              0
+              <Icon icon="icon-pandianwuliao" size="18" />
+              {{ item.number }}
             </view>
           </view>
           <view class="coding">
@@ -109,7 +109,7 @@ export default {
     },
     positions(item) {
       uni.navigateTo({
-        url: `/Erp/Positions/index?storehouseId=${item.storehouseId}`
+        url: `/Erp/Positions/index?storehouseId=${item.storehouseId}&store=${item.name}`
       })
     },
     del(item) {

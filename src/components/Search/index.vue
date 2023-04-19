@@ -79,6 +79,7 @@ export default {
     },
     onChange(value) {
       this.$emit('onChange', value.detail)
+      this.$emit('input', value.detail)
     },
   }
 }

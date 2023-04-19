@@ -60,22 +60,25 @@ export default {
         if (token) {
           this.tokenAuth()
         } else {
-          const current = this
+          const _this = this
           uni.login({
             success: function (loginRes) {
               if (loginRes.errMsg === 'login:ok') {
                 Login.codeToSession({code: loginRes.code}, {
                   onSuccess: (token) => {
                     getApp().globalData.token = token
-                    current.tokenAuth()
+                    _this.tokenAuth()
                   },
                   onError: () => {
-                    current.authError()
+                    _this.authError()
                   }
                 })
               } else {
-                current.authError()
+                _this.authError()
               }
+            },
+            fail(res) {
+              _this.authError()
             }
           });
         }

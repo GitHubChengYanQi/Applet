@@ -17,7 +17,7 @@
       </view>
 
       <view class="action" @click="setting(position)">
-        <u-icon name="setting" color="#2680EB" size="18" />
+        <u-icon name="setting" color="#2680EB" size="20" />
       </view>
     </view>
     <view class="positions" v-if="open()">

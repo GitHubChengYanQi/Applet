@@ -3,19 +3,19 @@
     <view class="content">
       <view class="header">
         <view class="headerItem">
-          <view class="value" style="color:#13C2C2">0</view>
+          <view class="value" style="color:#13C2C2">{{ homeData.instockNumber || 0 }}</view>
           <view class="label">待入库</view>
         </view>
         <view class="headerItem">
-          <view class="value" style="color:#1890FF">0</view>
+          <view class="value" style="color:#1890FF">{{ homeData.outStockNumber || 0 }}</view>
           <view class="label">待出库</view>
         </view>
-        <view class="headerItem">
-          <view class="value" style="color:#FACC14">0</view>
+        <view class="headerItem" @click="floorStock">
+          <view class="value" style="color:#FACC14">{{ homeData.floorNumber || 0 }}</view>
           <view class="label">低库存</view>
         </view>
         <view class="headerItem" style="border: none">
-          <view class="value" style="color:#F04864">0</view>
+          <view class="value" style="color:#F04864">{{ homeData.ceilingNumber || 0 }}</view>
           <view class="label">高库存</view>
         </view>
       </view>
@@ -44,12 +44,15 @@ import Icon from "../../components/Icon";
 import {Menus} from "./menu";
 import MenuCard from "../../components/MenuCard";
 import OtherActions from "../components/OtherActions";
+import {Erp} from "MES-Apis/lib/Erp/promise";
 
 export default {
   components: {OtherActions, MenuCard, Icon},
   data() {
     return {
-      menus: []
+      menus: [],
+      homeData: {},
+      homeDataLoading: false
     }
   },
   mounted() {
@@ -67,14 +70,28 @@ export default {
       icon: 'icon-gengduo',
       url: '/Home/Menus/index'
     }]
+    this.getHomeData()
   },
   methods: {
+    getHomeData() {
+      this.homeDataLoading = true
+      Erp.homeData().then((res) => {
+        this.homeData = res.data || {}
+      }).finally(() => {
+        this.homeDataLoading = false
+      })
+    },
     click(menu) {
       if (!menu) {
         return
       }
       uni.navigateTo({
         url: menu.url
+      })
+    },
+    floorStock() {
+      uni.navigateTo({
+        url: '/Erp/StockForewarn/index?forewarnStatus=min'
       })
     }
   }

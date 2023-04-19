@@ -2,6 +2,10 @@
   <view>
     <Loading skeleton skeleton-type="page" v-if="loading" />
     <view v-else>
+      <view class="header">
+        <Icon icon="icon-cangkuguanli1" size="24" />
+        <view class="text">{{ store || '-' }}</view>
+      </view>
       <Empty description="暂无库位" v-if="positionTree.length === 0" />
       <view v-else class="allPositions" :style="{paddingBottom: `${60+safeAreaHeight(this,8)}px`}">
         <PositionItem
@@ -20,9 +24,9 @@
           text="添加库位"
           @onClick="create"
       />
-
     </view>
 
+    <Loading :loading="getPositionAuthsLoading" />
 
     <u-action-sheet
         round="10"
@@ -34,6 +38,21 @@
         @close="settingShow = false"
         @select="settingSelect"
     />
+
+    <Popup
+        :show="authShow"
+        :title="authTitle"
+        @close="authShow = false"
+        left-text="取消"
+        right-text="保存"
+        @onLeft="authShow = false"
+        @onRight="saveAuth"
+    >
+      <Loading skeleton v-if="deptTreeLoading" />
+      <view v-else class="deptTree">
+        <Tree :data="deptTree" v-model="positionAuths" />
+      </view>
+    </Popup>
   </view>
 </template>
 
@@ -47,17 +66,27 @@ import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import Tree from "../../components/Tree";
 import Empty from "../../components/Empty";
+import Popup from "../../components/Popup";
+import {System} from "MES-Apis/lib/System/promise";
+import Icon from "../../components/Icon";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Empty, Tree, BottomButton, PositionItem, Loading},
-  props: ['storehouseId'],
+  components: {Icon, Popup, Empty, Tree, BottomButton, PositionItem, Loading},
+  props: ['storehouseId', 'store'],
   data() {
     return {
+      authShow: false,
+      deptTreeLoading: false,
+      getPositionAuthsLoading: false,
+      positionId: '',
+      authTitle: '',
       safeAreaHeight,
       positionTree: [],
+      deptTree: [],
+      positionAuths: [],
       loading: true,
       opens: [],
       settingActions: [],
@@ -71,6 +100,7 @@ export default {
       _this.getPositionTree()
     })
     this.getPositionTree()
+    this.getDeptTree()
   },
   methods: {
     create() {
@@ -87,16 +117,29 @@ export default {
         this.opens = [...this.opens, position.key]
       }
     },
+    saveAuth() {
+      console.log(this.positionAuths)
+    },
+    getDeptTree() {
+      this.deptTreeLoading = true
+      System.deptTree().then((res) => {
+        this.deptTree = res.data || []
+      }).catch(() => {
+      }).finally(() => {
+        this.deptTreeLoading = false
+      })
+    },
     setting(position) {
       this.settingTitle = position.title
       this.settingShow = true
+      this.positionId = position.key
 
       let settingActions = [
-        // {
-        //   name: '设置权限',
-        //   color: '#007aff',
-        //   key: 'auth',
-        // },
+        {
+          name: '设置权限',
+          // color: '#007aff',
+          key: 'auth',
+        },
         {
           name: '编辑',
           color: '#f0ad4e',
@@ -108,27 +151,45 @@ export default {
           key: 'del'
         }
       ]
+
       if (isArray(position.children).length === 0) {
-        // settingActions = [
-        //   {
-        //     name: '绑定物料',
-        //     color: '#007aff',
-        //     key: 'bind'
-        //   },
-        //   ...settingActions
-        // ]
+        settingActions = [
+          {
+            name: '绑定物料',
+            color: '#007aff',
+            key: 'bind'
+          },
+          ...settingActions
+        ]
       }
       this.settingActions = settingActions.map(item => ({
         ...item,
         position
       }))
     },
+    getPositionAuths(positionId) {
+      this.getPositionAuthsLoading = true
+      Storehouse.positionsBindGetDeptIds({
+        params: {positionId}
+      }).then((res) => {
+        this.positionAuths = res || []
+        this.authShow = true
+      }).catch(() => {
+      }).finally(() => {
+        this.getPositionAuthsLoading = false
+      })
+    },
     settingSelect(event) {
       const _this = this
       switch (event.key) {
         case 'bind':
+          uni.navigateTo({
+            url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${event.position.key}&position=${event.position.title}&store=${this.store}`
+          })
           break;
         case 'auth':
+          this.getPositionAuths(event.position.key)
+          this.authTitle = event.position.title + ' 权限设置'
           break;
         case 'edit':
           uni.navigateTo({
@@ -192,6 +253,15 @@ export default {
 </script>
 
 <style lang="scss">
+
+.header {
+  padding: 12px;
+  border-bottom: 1px solid $body-color;
+  display: flex;
+  gap: 8px;
+  background-color: #fff;
+}
+
 .allPositions {
   padding: 12px 8px;
 }
@@ -199,4 +269,10 @@ export default {
 .u-action-sheet__header {
   border-bottom: solid 1px #d6d7d9;
 }
+
+.deptTree {
+  height: 50vh;
+  overflow: auto;
+}
+
 </style>

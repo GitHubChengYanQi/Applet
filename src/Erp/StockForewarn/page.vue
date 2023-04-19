@@ -42,6 +42,7 @@
         @listSource="(newList)=>list = newList"
         :list="list"
         max-height="calc(100vh - 100px)"
+        :default-params="{forewarnStatus:defaultForewarnStatus}"
     >
       <view
           v-for="(item,index) in list"
@@ -54,8 +55,18 @@
             <view class="waite">待采数量：{{ item.purchaseNumber || 0 }}</view>
           </view>
           <view slot="otherData" class="storage">
-            <view :class="{grey:item.number >= item.inventoryFloor}">低库存：{{ item.inventoryFloor }}</view>
-            <view :class="{grey:item.number <= item.inventoryFloor}">高库存：{{ item.inventoryCeiling }}</view>
+            <view
+                v-if="item.inventoryFloor >= 0"
+                :class="{grey:item.number >= item.inventoryFloor}"
+            >
+              低库存：{{ item.inventoryFloor }}
+            </view>
+            <view
+                v-if="item.inventoryCeiling >= 0"
+                :class="{grey:item.number <= item.inventoryCeiling}"
+            >
+              高库存：{{ item.inventoryCeiling }}
+            </view>
           </view>
         </SkuItem>
       </view>
@@ -66,13 +77,14 @@
 <script>
 import Search from '../../components/Search'
 import Popup from "../../components/Popup";
-import {isArray} from "../../util/Tools";
+import {getLocalParmas, isArray} from "../../util/Tools";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import List from "../../components/List/indx";
 import {StockForewarn} from "MES-Apis/lib/StockForewarn/promise";
 import SkuItem from "../../components/SkuItem";
 
 export default {
+  props: [],
   components: {
     SkuItem,
     List,
@@ -90,6 +102,7 @@ export default {
       show2: false,
       StockForewarn,
       list: [],
+      defaultForewarnStatus: '',
       columns: [
         [{
           text: '全部',
@@ -106,6 +119,19 @@ export default {
       ],
       skuClass: []
     }
+  },
+  created() {
+    const forewarnStatus = getLocalParmas().search.forewarnStatus
+    let title = ''
+    this.columns.map(array => {
+      array.forEach(item => {
+        if (item.key === forewarnStatus) {
+          title = item.text
+        }
+      })
+    })
+    this.title2 = title
+    this.defaultForewarnStatus = forewarnStatus
   },
   mounted() {
     const _this = this;

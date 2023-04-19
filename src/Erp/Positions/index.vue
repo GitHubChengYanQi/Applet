@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page v-if="auth && storehouseId" :storehouseId="storehouseId" />
+    <Page v-if="auth && storehouseId" :storehouseId="storehouseId" :store="store" />
     <van-dialog id="van-dialog" />
   </Auth>
 </template>
@@ -11,11 +11,13 @@ import Page from "./page";
 export default {
   onLoad(options){
     this.storehouseId = options.storehouseId
+    this.store = options.store
   },
   components: {Page, Auth},
   data() {
     return {
-      storehouseId:''
+      storehouseId:'',
+      store:''
     }
   },
   computed: {

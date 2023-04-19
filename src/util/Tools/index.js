@@ -5,7 +5,7 @@ export const getLocalParmas = () => {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1]
     const search = pages[pages.length - 1]?.options || {}
-    const urlSearch = '?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')
+    const urlSearch = Object.keys(search).length > 0 ? ('?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')) : ''
     return {
         route: '/' + currentPage.route + urlSearch,
         search: search

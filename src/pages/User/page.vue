@@ -41,7 +41,6 @@
 
 <script>
 
-
 import Icon from "../../components/Icon";
 import {Menus} from "../Home/menu";
 import Avatar from "../../components/Avatar";

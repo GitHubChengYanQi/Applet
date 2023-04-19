@@ -23,7 +23,7 @@
         <List
             ref="skuList"
             :list="skuList"
-            max-height="calc(100vh - 150px)"
+            max-height="calc(100vh - 103px)"
             @request="Sku.listV1_1"
             @listSource="listSource"
         >
