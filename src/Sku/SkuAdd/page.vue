@@ -129,7 +129,7 @@
 
           <view>
             <uni-forms-item
-                label="二维码生成方式"
+                label="二维码"
                 name="batch"
                 required
             >
@@ -623,7 +623,7 @@ export default {
   .uni-forms-item {
     margin: 0;
     padding: 12px 0;
-    border-bottom: solid 1px #ebebeb;
+    //border-bottom: solid 1px #ebebeb;
   }
 }
 

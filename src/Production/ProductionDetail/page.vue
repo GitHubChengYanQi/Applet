@@ -4,6 +4,7 @@
     <Loading :skeleton="true" skeleton-type="page" v-else-if="loading" />
     <view v-else>
       <List
+          @response="cardListInfo"
           :max-height="`calc(100vh - ${safeAreaHeight(this,8)}px)`"
           @request="Production.productionCardList"
           :default-params="{sourceId: productionPlanId}"
@@ -98,8 +99,8 @@
           >
             <view class="cardInfo">
               <view class="cardCoding">
-                <image v-if="item.status === 99" src="../../static/page-ing.png" />
-                <image v-else src="../../static/page-ok.png" />
+                <image v-if="item.status === 99" src="../../static/images/page-ing.png" />
+                <image v-else src="../../static/images/page-ok.png" />
                 <view class="status">
                   {{ item.status === 0 ? '进行中' : '已完成' }}
                 </view>
@@ -111,7 +112,7 @@
                 <view class="total">
                   <view class="num">
                     Bom总数：
-                    <view>{{ detail.bomCount / cardList.length }}</view>
+                    <view>{{ detail.bomCount / cardListLength }}</view>
                   </view>
                   <view class="num">
                     已生产：
@@ -122,7 +123,7 @@
                   <u-line-progress
                       :height="10"
                       activeColor="#f0ad4e"
-                      :percentage="rateTool((item.doneBomCount || 0),detail.bomCount / cardList.length,true)"
+                      :percentage="rateTool((item.doneBomCount || 0),detail.bomCount / cardListLength,true)"
                   />
                 </view>
               </view>
@@ -172,6 +173,7 @@ export default {
       isArray,
       Production,
       cardList: [],
+      cardListLength: 0,
       safeAreaHeight
     }
   },
@@ -186,7 +188,7 @@ export default {
           return {
             ...item,
             doneBomCount: (item.doneBomCount || 0) + doneNum,
-            status: ((item.doneBomCount || 0) + doneNum) === (_this.detail.bomCount / _this.cardList.length) ? 99 : 0
+            status: ((item.doneBomCount || 0) + doneNum) === (_this.detail.bomCount / _this.cardListLength) ? 99 : 0
           }
         }
         return item
@@ -194,6 +196,9 @@ export default {
     })
   },
   methods: {
+    cardListInfo(info) {
+      this.cardListLength = info.count
+    },
     skuImg(skuResult) {
       if (skuResult && skuResult.images) {
         const imgResult = isArray(skuResult.imgResults).find(item => item.mediaId === skuResult.images.split(',')[0])
@@ -204,9 +209,9 @@ export default {
       return ''
     },
     outProgress(item) {
-      const outing = item.numberCount
-      const outed = item.receivedCount
-      const total = item.skuCount
+      const outing = item.numberCount || 0
+      const outed = item.receivedCount || 0
+      const total = item.skuCount || 0
       let data = [
         {
           number: outing,
@@ -227,8 +232,8 @@ export default {
       }
     },
     doneProgress(item) {
-      const doneBomCount = item.doneBomCount
-      const total = item.bomCount
+      const doneBomCount = item.doneBomCount || 0
+      const total = item.bomCount || 0
       let data = [
         {
           number: doneBomCount,

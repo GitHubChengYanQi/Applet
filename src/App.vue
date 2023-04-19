@@ -66,8 +66,7 @@ export default {
 
 <style>
 /*每个页面公共css */
-@import "@/static/font/iconfont.css";
-@import "@/static/font/iconfont-weapp/iconfont-weapp-icon.css";
+@import "@/static/font/iconfont-weapp-icon.css";
 @import '/wxcomponents/common/index.wxss';
 .u-border-right {
   border-right-width: 0.5px !important;

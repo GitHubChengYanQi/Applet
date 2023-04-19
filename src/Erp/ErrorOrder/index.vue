@@ -10,7 +10,7 @@
 					<view class="details0">
 						<view class="details">
 							<view class="headPortrait3">
-								<img src="/static/logo.png" alt="" >
+								<img src="/static/images/logo.png" alt="" >
 								<view class="quantity">306台</view>
 							</view>
 							<view class="describe">

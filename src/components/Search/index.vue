@@ -1,5 +1,5 @@
 <template>
-  <view class="search" @click="$emit('click')">
+  <view :style="style" class="search" @click="$emit('click')">
     <view class="input">
       <van-search
           custom-class="searchCustomClass"
@@ -47,7 +47,8 @@ export default {
     'noSearchButton',
     'value',
     'history',
-    'width'
+    'width',
+    'style'
   ],
   data() {
     return {

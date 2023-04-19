@@ -19,7 +19,7 @@ export default {
       return {
         title: dataset.cardcoding,
         path: `/Production/ProductionCard/index?scene=${target.id}`,
-        imageUrl: dataset.skuimg || '../../static/logo2.png'
+        imageUrl: dataset.skuimg || '../../static/images/logo.png'
       }
     }
   },

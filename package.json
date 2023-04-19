@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_my4cssbadu.js --to ./src/static/font",
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --minimize",
     "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode cheng --watch --minimize",
-    "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh"
+    "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh --watch --minimize"
   },
   "dependencies": {
     "@dcloudio/uni-app": "2.0.2-3070320230222001",
@@ -30,12 +31,11 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "^0.2.72",
+    "MES-Apis": "^0.2.79",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",
     "md5": "^2.3.0",
-    "moment": "^2.29.4",
     "node-sass": "^4.14.1",
     "qs": "^6.11.0",
     "react": "^18.2.0",
@@ -64,6 +64,7 @@
     "cross-env": "7.0.3",
     "crypto-js": "^4.1.1",
     "jest": "25.5.4",
+    "mini-program-iconfont-cli": "^0.6.1",
     "mini-types": "*",
     "miniprogram-api-typings": "*",
     "postcss-comment": "^2.0.0",

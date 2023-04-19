@@ -56,6 +56,7 @@ import {Message} from "../../components/Message";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import ProductionCardBom from "../ProductionCardDetail/components/ProductionCardBom";
 import Empty from "../../components/Empty";
+import {Init} from "MES-Apis/lib/Init";
 
 export default {
   name: 'BomDetailList',
@@ -101,7 +102,7 @@ export default {
         })
       }).catch(() => {
         Message.dialog({
-          title: '创建生产任务失败！'
+          title: Init.getNewErrorMessage() || '创建生产任务失败！'
         })
       }).finally(() => {
         this.submitLoading = false

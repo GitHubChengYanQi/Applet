@@ -1,5 +1,6 @@
 <template>
   <view>
+
     <List
         ref="listRef"
         :max-height="`calc(100vh - ${safeAreaHeight(this)}px)`"
@@ -44,7 +45,8 @@
                 <view class="total">
                   <view class="totalItem">
                     出库中：
-                    <view class="num" style="color:#007aff">{{ outProgress(item).outing }}
+                    <view class="num" style="color:#007aff">
+                      {{ outProgress(item).outing }}
                       ({{ outProgress(item).outIngRate }})
                     </view>
                   </view>
@@ -67,14 +69,14 @@
                   lineColor="#2979ff"
                   textPosition="left"
                   :customStyle="{margin: '8px 0'}"
-             />
+              />
               <view class="progressItem">
                 <view class="total">
                   <view class="totalItem">
                     生产数：
                     <view class="num" style="color:#19be6b">
                       {{ doneProgress(item).doneBomCount }}
-                      ({{doneProgress(item).doneBomCountRate}})
+                      ({{ doneProgress(item).doneBomCountRate }})
                     </view>
                   </view>
                 </view>
@@ -100,7 +102,6 @@
         </Card>
       </view>
     </List>
-
 
     <Popup title="创建出库任务" :show="show" @close="show = false">
       <view class="create" :style="{
@@ -169,6 +170,7 @@
           @leftOnClick="close"
       />
     </Popup>
+
   </view>
 </template>
 
@@ -247,9 +249,9 @@ export default {
   },
   methods: {
     outProgress(item) {
-      const outing = item.numberCount
-      const outed = item.receivedCount
-      const total = item.skuCount
+      const outing = item.numberCount || 0
+      const outed = item.receivedCount || 0
+      const total = item.skuCount || 0
       let data = [
         {
           number: outing,
@@ -265,13 +267,13 @@ export default {
         data,
         outing,
         outed,
-        outIngRate: rateTool(outing,total),
-        outedRate: rateTool(outed,total)
+        outIngRate: rateTool(outing, total),
+        outedRate: rateTool(outed, total)
       }
     },
     doneProgress(item) {
-      const doneBomCount = item.doneBomCount
-      const total = item.bomCount
+      const doneBomCount = item.doneBomCount || 0
+      const total = item.bomCount || 0
       let data = [
         {
           number: doneBomCount,
@@ -282,7 +284,7 @@ export default {
         total,
         data,
         doneBomCount,
-        doneBomCountRate: rateTool(doneBomCount,total),
+        doneBomCountRate: rateTool(doneBomCount, total),
       }
     },
     goToDetail(item) {

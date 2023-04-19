@@ -17,7 +17,8 @@
         <Search />
       </view>
 
-      <view>
+      <Empty v-if="list.length === 0" description="暂无数据" />
+      <view v-else>
         <view
             v-for="(item,index) in list"
             :key="index"
@@ -57,9 +58,11 @@ import {isArray} from "../../../util/Tools";
 import LinkButton from "../../../components/LinkButton";
 import Loading from "../../../components/Loading";
 import {Message} from "../../../components/Message";
+import Empty from "../../../components/Empty";
 
 export default {
   components: {
+    Empty,
     Loading,
     LinkButton,
     Search
@@ -75,7 +78,7 @@ export default {
   mounted() {
     this.$refs.uNotify.show({
       type: 'primary ',
-      message: '请打开手机摄像头或选择库位进行盘点',
+      message: '请点击扫码按钮扫描库位码或选择库位进行盘点',
       duration: 0,
       safeAreaInsetTop: false
     })
@@ -122,7 +125,7 @@ export default {
     },
     getPositions(id) {
       Storehouse.positionsTreeView({
-        data: {id}
+        params: {ids: id}
       }, {}).then((res) => {
         this.list = isArray(res.data).map(item => ({
           name: item.title,

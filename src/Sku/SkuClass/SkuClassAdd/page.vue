@@ -235,7 +235,7 @@ export default {
 
 
 .grey {
-  color: #ccc;
+  color: #999999;
 }
 
 .grey2 {

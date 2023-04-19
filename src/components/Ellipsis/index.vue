@@ -2,7 +2,7 @@
   <view
       class='ellipsis'
       @click="$emit('onClick')"
-      :style="{maxWidth,width: width || '90%',style:viewStyle}"
+      :style="{maxWidth,width: width || '90%',viewStyle}"
   >
     <slot>{{ value }}</slot>
   </view>

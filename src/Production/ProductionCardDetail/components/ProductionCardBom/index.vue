@@ -24,7 +24,7 @@
         no-left-border
         body-style="padding-top:0;margin-top:8px;padding:0"
         class="bomItem"
-        style="padding-bottom: 0"
+        :style="{paddingBottom: !(bom.parentId === 0 && isArray(bom.children).length === 0) && 0}"
     >
       <view slot="title" class="sku" @click="()=>(complete ? bom.parentId ===0 : true) && check(bom)">
         <Check

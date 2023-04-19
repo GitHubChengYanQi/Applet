@@ -37,7 +37,7 @@
 
 <script>
 import Bouncing from "../../../../components/Bouncing";
-import outShop from '../../../../static/outShop.png'
+import outShop from '../../../../static/images/outShop.png'
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {isArray} from "../../../../util/Tools";
 import Popup from "../../../../components/Popup";

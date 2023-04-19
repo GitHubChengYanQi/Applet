@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="empty">
     <van-empty :image="type || 'default'" :description="description" />
   </view>
 </template>
@@ -14,12 +14,7 @@ export default {
 <style lang="scss">
 
 .empty {
-  text-align: center;
-
-  image {
-    width: 320px;
-    height: 320px;
-  }
+  background-color: #fff;
 }
 
 </style>

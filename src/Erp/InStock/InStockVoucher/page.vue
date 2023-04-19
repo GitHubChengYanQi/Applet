@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import moment from "moment";
+import moment from "util/Common/moment";
 import SkuItem from "../../../components/SkuItem";
 import BottomButton from "../../../components/BottomButton";
 import Empty from "../../../components/Empty";

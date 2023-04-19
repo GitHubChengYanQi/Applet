@@ -14,6 +14,12 @@
       }
     },
     {
+      "path": "pages/User/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
       "path": "pages/login/index",
       "style": {
         "navigationBarTitleText": "登录"
@@ -30,15 +36,20 @@
       "style": {
         "navigationBarTitleText": "搜索"
       }
-    },
-    {
-      "path": "pages/MenusSetting/index",
-      "style": {
-        "navigationBarTitleText": "所有功能"
-      }
     }
   ],
   "subPackages": [
+    {
+      "root": "Home",
+      "pages": [
+        {
+          "path": "Menus/index",
+          "style": {
+            "navigationBarTitleText": "所有菜单"
+          }
+        }
+      ]
+    },
     {
       "root": "Erp",
       "pages": [
@@ -46,6 +57,30 @@
           "path": "Stock/index",
           "style": {
             "navigationBarTitleText": "仓储中心"
+          }
+        },
+        {
+          "path": "StoreHouse/index",
+          "style": {
+            "navigationBarTitleText": "仓库管理"
+          }
+        },
+        {
+          "path": "StoreHouse/StoreHouseAdd/index",
+          "style": {
+            "navigationBarTitleText": "添加仓库"
+          }
+        },
+        {
+          "path": "Positions/index",
+          "style": {
+            "navigationBarTitleText": "库位管理"
+          }
+        },
+        {
+          "path": "Positions/PositionsAdd/index",
+          "style": {
+            "navigationBarTitleText": "添加库位"
           }
         },
         {
@@ -251,10 +286,30 @@
       ]
     }
   ],
+  "tabBar": {
+    "color": "#ccc",
+    "selectedColor": "#007aff",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/Home/index",
+        "iconPath": "/static/images/menus/home.png",
+        "selectedIconPath": "/static/images/menus/home-checked.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/User/index",
+        "iconPath": "/static/images/menus/my.png",
+        "selectedIconPath": "/static/images/menus/my-checked.png",
+        "text": "我的"
+      }
+    ]
+  },
   "globalStyle": {
     "navigationBarTextStyle": "white",
     "navigationBarBackgroundColor": "#0075f5",
     "backgroundColor": "#e1ebf6",
+    "enablePullDownRefresh": false,
     "mp-weixin": {
       "homeButton": true
     },

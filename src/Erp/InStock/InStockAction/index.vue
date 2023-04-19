@@ -13,13 +13,15 @@ export default {
   onLoad() {
     const current = this
     const eventChannel = this.getOpenerEventChannel();
-    eventChannel.on('selectOrder', function (order) {
-      current.order = order
-    })
+    if (typeof eventChannel.on === "function"){
+      eventChannel.on('selectOrder', function (order) {
+        current.order = order
+      })
+    }
   },
   data() {
     return {
-      order: null
+      order: {}
     }
   },
   computed: {

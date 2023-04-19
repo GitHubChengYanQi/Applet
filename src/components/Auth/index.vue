@@ -88,7 +88,7 @@ export default {
       console.log(userInfo)
       const userId = !!userInfo.userId;
       if (!userId) {
-        uni.navigateTo({
+        uni.reLaunch({
           url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
         })
       } else {

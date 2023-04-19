@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "util/Common/moment";
 
 // 获取当前地址信息
 export const getLocalParmas = () => {

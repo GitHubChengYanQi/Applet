@@ -54,8 +54,8 @@
             <view class="waite">待采数量：{{ item.purchaseNumber || 0 }}</view>
           </view>
           <view slot="otherData" class="storage">
-            <view :class="{grey:item.number >= item.inventoryFloor}">库存下限：{{ item.inventoryFloor }}</view>
-            <view :class="{grey:item.number <= item.inventoryFloor}">库存上限：{{ item.inventoryCeiling }}</view>
+            <view :class="{grey:item.number >= item.inventoryFloor}">低库存：{{ item.inventoryFloor }}</view>
+            <view :class="{grey:item.number <= item.inventoryFloor}">高库存：{{ item.inventoryCeiling }}</view>
           </view>
         </SkuItem>
       </view>
@@ -96,11 +96,11 @@ export default {
           key: 'all'
         },
           {
-            text: '下限预警',
+            text: '低库存',
             key: 'min'
           },
           {
-            text: '上限预警',
+            text: '高库存',
             key: 'max'
           }]
       ],

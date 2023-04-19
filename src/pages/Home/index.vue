@@ -1,6 +1,5 @@
 <template>
   <Auth>
-    <van-dialog id="van-dialog" />
     <Page v-if="auth" />
   </Auth>
 </template>
@@ -12,6 +11,15 @@ export default {
   components: {Page, Auth},
   data() {
     return {}
+  },
+  onShareAppMessage(res) {
+    if (res.from === 'button') {
+      return {
+        title: '浑河工业',
+        path: '/pages/Home/index',
+        imageUrl: '../../static/images/logo.png'
+      }
+    }
   },
   computed: {
     auth() {

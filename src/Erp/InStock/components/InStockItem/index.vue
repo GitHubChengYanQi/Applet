@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import moment from "moment";
+import moment from "util/Common/moment";
 import SkuItem from "../../../../components/SkuItem";
 import ShopNumber from "../../../../components/ShopNumber";
 
@@ -134,12 +134,12 @@ export default {
 
   .errLogo {
     color: $uni-color-error;
-    background: url("../../../../static/error.png");
+    background: url("../../../../static/images/error.png");
   }
 
   .infoLogo {
     color: $primary-color;
-    background: url("../../../../static/info.png");
+    background: url("../../../../static/images/info.png");
   }
 
   .logo {

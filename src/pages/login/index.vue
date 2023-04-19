@@ -1,9 +1,7 @@
 <template>
   <view class="login">
-
-    <van-dialog id="van-dialog" />
     <view class="logo">
-      <img src="../../static/logo2.png" alt="">
+      <img src="../../static/images/logo.png" alt="">
     </view>
     <view class="login2">
       <view class="text">欢迎使用浑河云</view>
@@ -56,7 +54,9 @@ export default {
     }
   },
   mounted() {
-    this.backUrl = getLocalParmas().search.backUrl.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26")
+    if (getLocalParmas().search.backUrl){
+      this.backUrl = getLocalParmas().search.backUrl.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26")
+    }
   },
   methods: {
     getphonenumber(res) {
@@ -91,7 +91,7 @@ export default {
       })
     },
     goBack(url) {
-      uni.navigateTo({
+      uni.reLaunch({
         url: (url || this.backUrl).replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
       })
     }
@@ -106,7 +106,7 @@ export default {
 }
 
 body {
-  background-image: url('@/static/login.png');
+  background-image: url('@/static/images/login.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
