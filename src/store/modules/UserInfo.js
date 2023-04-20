@@ -4,6 +4,7 @@ import {Init} from "MES-Apis/lib/Init";
 const init = {
     auth: false,
     userInfo: {},
+    tenant: {},
     publicInfo: {},
     refresh: false
 }
@@ -18,7 +19,9 @@ const actions = {
     async getUserInfo({state}) {
         if (Object.keys(state.userInfo).length === 0) {
             const userRes = await User.getUserInfo()
-            state.userInfo = userRes.data || {}
+            const userInfo = userRes.data || {}
+            state.userInfo = userInfo
+            state.tenant = {tenantId: userInfo.tenantId}
         }
     },
     async getPublicInfo({state}) {
@@ -38,7 +41,7 @@ const mutations = {
         state.refresh = payload
     },
     clear(state) {
-        Object.keys(init).forEach((key)=>{
+        Object.keys(init).forEach((key) => {
             state[key] = init[key]
         })
     },

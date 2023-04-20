@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page v-if="auth" />
+    <Page :auth="auth" />
     <van-dialog id="van-dialog" />
   </Auth>
 </template>

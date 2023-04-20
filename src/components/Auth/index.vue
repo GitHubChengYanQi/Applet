@@ -28,7 +28,11 @@ export default {
     return {
       loading: false,
       error: false,
-      height: 0
+      height: 0,
+      viewPages: [
+        '/pages/Home/index',
+        '/pages/User/index'
+      ]
     }
   },
   mounted() {
@@ -91,16 +95,31 @@ export default {
       console.log(userInfo)
       const userId = !!userInfo.userId;
       if (!userId) {
-        uni.reLaunch({
-          url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
-        })
+        if (this.viewPages.includes(getLocalParmas().route)){
+          this.notLogin()
+        }else {
+          uni.reLaunch({
+            url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
+          })
+        }
       } else {
-        await this.getSystemInfo()
-        this.authSuccess()
+        try {
+          await this.$store.dispatch('userInfo/getUserInfo')
+          await this.getSystemInfo()
+          this.authSuccess()
+        }catch (e) {
+          this.authError()
+        }
+
       }
     },
     authSuccess() {
       this.$store.commit('userInfo/authStatus', true)
+      this.$store.commit('userInfo/refresh', false)
+      this.loading = false
+    },
+    notLogin() {
+      this.$store.commit('userInfo/authStatus', false)
       this.$store.commit('userInfo/refresh', false)
       this.loading = false
     },
@@ -111,7 +130,7 @@ export default {
       this.error = true
     },
     async getSystemInfo() {
-      await this.$store.dispatch('userInfo/getUserInfo')
+
     }
   }
 }

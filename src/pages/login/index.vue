@@ -5,21 +5,9 @@
     </view>
     <view class="login2">
       <view class="text">欢迎使用浑河云</view>
-      <view v-if="!mobile">
-        <uni-forms>
-          <uni-forms-item :label-width="40" label="账号">
-            <uni-easyinput class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
-          </uni-forms-item>
-          <uni-forms-item :label-width="40" label="密码">
-            <uni-easyinput class="uni-input" type="password" name="password" v-model="password" placeholder="请输入密码" />
-          </uni-forms-item>
-          <view class="uni-btn-v">
-            <button :loading="loading" form-type="submit" type="default" @click="()=>submit()">立即登录</button>
-          </view>
-        </uni-forms>
-      </view>
-      <view v-else>
-        <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">手机号授权登录
+      <view>
+        <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">
+          手机号授权登录
         </button>
       </view>
       <view class="technology">本小程序为沈阳浑河工业有限责任公司内部办公终端，请登录后使用。</view>
@@ -40,13 +28,11 @@ export default {
       username: '',
       password: '',
       backUrl: '',
-      mobile: true,
       loading: false
     }
   },
   created() {
     const userInfo = GetUserInfo().userInfo || {};
-    this.mobile = !userInfo.mobile;
     if (userInfo.userId) {
       uni.navigateTo({
         url: '/pages/Home/index'
@@ -54,41 +40,24 @@ export default {
     }
   },
   mounted() {
-    if (getLocalParmas().search.backUrl){
+    if (getLocalParmas().search.backUrl) {
       this.backUrl = getLocalParmas().search.backUrl.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26")
     }
   },
   methods: {
     getphonenumber(res) {
-      this.loading = true
-      Login.loginByPhone({encryptedData: res.detail.encryptedData, iv: res.detail.iv}, {
-        onSuccess: (res) => {
-          getApp().globalData.token = res
-          this.mobile = false
-        }
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    submit(url) {
-      if (!this.username) {
-        return Message.errorToast('账号不能为空');
-      } else if (!this.password) {
-        return Message.errorToast('密码不能为空');
+      const _this = this
+      if (res.detail.errMsg === "getPhoneNumber:ok") {
+        this.loading = true
+        Login.loginByPhone({encryptedData: res.detail.encryptedData, iv: res.detail.iv}, {
+          onSuccess: (res) => {
+            getApp().globalData.token = res
+            _this.goBack()
+          }
+        }).finally(() => {
+          this.loading = false
+        })
       }
-      this.loading = true
-      Login.wxCpLogin({
-        username: this.username,
-        password: this.password
-      }, {
-        onSuccess: (res) => {
-          this.$store.commit('userInfo/clear')
-          getApp().globalData.token = res
-          this.goBack(url)
-        }
-      }).finally(() => {
-        this.loading = false
-      })
     },
     goBack(url) {
       uni.reLaunch({
@@ -137,7 +106,7 @@ image {
     }
 
     .text {
-      padding: 33px;
+      padding: 33px 0 16px;
       text-align: center;
       font-size: 16px;
     }
@@ -153,7 +122,7 @@ image {
       font-size: 14px;
       color: #fff;
       background-color: #2680eb;
-      margin: 27px 0 52px 0;
+      //margin: 27px 0 52px 0;
     }
 
     .forget {

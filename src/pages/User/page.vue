@@ -2,9 +2,9 @@
   <view class="home">
 
     <view class="content">
-      <view class="header">
+      <view class="header" @click="clickAvatar">
         <Avatar size="79" :src="userInfo.avatar" circular />
-        <view>
+        <view v-if="auth">
           <view class="name">
             {{ userInfo.name }}
           </view>
@@ -14,6 +14,12 @@
           <view class="dept">
             {{ isArray(userInfo.dept)[0] || '-' }}-{{ isArray(userInfo.role)[0] || '-' }}
           </view>
+        </view>
+        <view v-else class="notLogin">
+          未登录
+        </view>
+        <view>
+
         </view>
       </view>
 
@@ -26,6 +32,7 @@
             font-size="12"
             icon-size="24"
             padding="24px 0"
+            @click="click"
         />
       </view>
 
@@ -45,13 +52,12 @@ import Icon from "../../components/Icon";
 import {Menus} from "../Home/menu";
 import Avatar from "../../components/Avatar";
 import MenuCard from "../../components/MenuCard";
-import {isArray} from "../../util/Tools";
+import {getLocalParmas, isArray} from "../../util/Tools";
 import OtherActions from "../components/OtherActions";
+import {Message} from "../../components/Message";
 
 export default {
-  options: {
-    styleIsolation: 'shared'
-  },
+  props: ['auth'],
   components: {OtherActions, MenuCard, Avatar, Icon},
   data() {
     return {
@@ -60,14 +66,18 @@ export default {
       userInfo: {}
     }
   },
-  created() {
-    const userInfo = this.$store.state.userInfo.userInfo
-    let phone = userInfo.phone || '';
-    phone = "" + phone;
-    const newPhone = phone ? phone.substr(0, 3) + "****" + phone.substr(7) : '-'
-    this.userInfo = {
-      ...userInfo,
-      phone: newPhone
+  watch: {
+    auth(auth) {
+      if (auth){
+        const userInfo = this.$store.state.userInfo.userInfo
+        let phone = userInfo.phone || '';
+        phone = "" + phone;
+        const newPhone = phone ? phone.substr(0, 3) + "****" + phone.substr(7) : '-'
+        this.userInfo = {
+          ...userInfo,
+          phone: newPhone
+        }
+      }
     }
   },
   mounted() {
@@ -82,13 +92,28 @@ export default {
     this.menus = menus
   },
   methods: {
+    authority() {
+      if (!this.auth) {
+        Message.toast('请登录!')
+        return false
+      } else {
+        return true
+      }
+    },
     click(menu) {
-      if (!menu) {
+      if (!this.authority()) {
         return
       }
       uni.navigateTo({
         url: menu.url
       })
+    },
+    clickAvatar() {
+      if (!this.auth) {
+        uni.navigateTo({
+          url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
+        })
+      }
     }
   }
 }
@@ -110,6 +135,11 @@ export default {
     align-items: center;
     gap: 16px;
 
+    .notLogin {
+      font-weight: bold;
+      font-size: 22px;
+    }
+
     .name {
       font-size: 16px;
       font-weight: normal;
@@ -129,14 +159,6 @@ export default {
 
   .menuCard {
     margin-top: 32px;
-  }
-
-  .u-border-bottom {
-    border-bottom-style: dashed;
-  }
-
-  .u-border-right {
-    border-right-style: dashed;
   }
 
   .title {

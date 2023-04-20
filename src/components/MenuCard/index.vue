@@ -16,7 +16,7 @@
       >
         <view
             class="menuItem" v-if="menus[rowIndex * column + colIndex]"
-            @click="click(menus[rowIndex * column + colIndex])"
+            @click="$emit('click',menus[rowIndex * column + colIndex])"
             :style="{padding}"
         >
           <Icon
@@ -72,16 +72,7 @@ export default {
   mounted() {
 
   },
-  methods: {
-    click(menu) {
-      if (!menu) {
-        return
-      }
-      uni.navigateTo({
-        url: menu.url
-      })
-    }
-  }
+  methods: {}
 }
 </script>
 

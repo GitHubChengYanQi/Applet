@@ -29,6 +29,7 @@
             font-size="12"
             icon-size="24"
             padding="24px 0"
+            @click="click"
         />
       </view>
 
@@ -45,14 +46,23 @@ import {Menus} from "./menu";
 import MenuCard from "../../components/MenuCard";
 import OtherActions from "../components/OtherActions";
 import {Erp} from "MES-Apis/lib/Erp/promise";
+import {Message} from "../../components/Message";
 
 export default {
+  props: ['auth'],
   components: {OtherActions, MenuCard, Icon},
   data() {
     return {
       menus: [],
       homeData: {},
       homeDataLoading: false
+    }
+  },
+  watch: {
+    auth(auth) {
+      if (auth) {
+        this.getHomeData()
+      }
     }
   },
   mounted() {
@@ -70,9 +80,20 @@ export default {
       icon: 'icon-gengduo',
       url: '/Home/Menus/index'
     }]
-    this.getHomeData()
   },
   methods: {
+    authority() {
+      const tenant = this.$store.state.userInfo.tenant || {}
+      if (!this.auth) {
+        Message.toast('请登录!')
+        return false
+      } else if (!tenant.tenantId) {
+        Message.toast('请选择租户!')
+        return false
+      } else {
+        return true
+      }
+    },
     getHomeData() {
       this.homeDataLoading = true
       Erp.homeData().then((res) => {
@@ -82,14 +103,16 @@ export default {
       })
     },
     click(menu) {
-      if (!menu) {
-        return
+      if (this.authority()) {
+        uni.navigateTo({
+          url: menu.url
+        })
       }
-      uni.navigateTo({
-        url: menu.url
-      })
     },
     floorStock() {
+      if (!this.authority()) {
+        return
+      }
       uni.navigateTo({
         url: '/Erp/StockForewarn/index?forewarnStatus=min'
       })
