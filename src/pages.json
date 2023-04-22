@@ -361,8 +361,7 @@
       "homeButton": true
     },
     "usingComponents": {
-      "van-cascader": "/wxcomponents/cascader/index",
-      "van-swipe-cell": "/wxcomponents/swipe-cell/index"
+//      "van-swipe-cell": "/wxcomponents/swipe-cell/index"
     }
   }
 }

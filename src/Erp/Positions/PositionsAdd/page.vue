@@ -30,12 +30,12 @@
                 @closeAfter="showContent = false"
                 @showBefore="showContent = true"
             >
-              <van-cascader
-                  :value="formData.pid"
+              <Cascader
                   v-if="showContent"
-                  :show-header="false"
-                  :options="positionTree"
+                  :data="positionTree"
+                  :value="formData.pid"
                   @change="onChange"
+                  @close="show=false"
               />
             </Popup>
           </uni-forms-item>
@@ -68,13 +68,14 @@ import Loading from "../../../components/Loading";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../../components/Popup";
 import Modal from "../../../components/Modal";
+import Cascader from "../../../components/Cascader";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   props: ['storehouseId', 'storehousePositionsId'],
-  components: {Modal, Popup, Loading, BottomButton},
+  components: {Cascader, Modal, Popup, Loading, BottomButton},
   data() {
     return {
       showContent: false,
@@ -116,7 +117,7 @@ export default {
   mounted() {
     if (this.storehousePositionsId) {
       this.getDetail(this.storehousePositionsId)
-    }else {
+    } else {
       this.getPositionTree()
     }
   },
@@ -211,8 +212,8 @@ export default {
         data
       } = response;
       this.positionTree = [{
-        text: '顶级',
-        value: '0',
+        name: '顶级',
+        id: '0',
         children: this.format(data)
       }];
       this.refreshLoading = false
@@ -221,8 +222,8 @@ export default {
       const list = [];
       data.forEach(item => {
         const obj = {
-          text: item.title,
-          value: item.key
+          name: item.title,
+          id: item.key
         }
         if (item.children.length > 0) {
           obj.children = this.format(item.children);
@@ -232,13 +233,11 @@ export default {
 
       return list;
     },
-    async onChange(e) {
-      // this.show = false;
-      const {selectedOptions} = e.detail;
+    async onChange({id, name}) {
       this.formData = {
         ...this.formData,
-        pid: selectedOptions[selectedOptions.length - 1].value,
-        pidTitle: selectedOptions[selectedOptions.length - 1].text
+        pid: id,
+        pidTitle: name
       }
     },
   }

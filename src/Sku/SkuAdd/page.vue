@@ -60,12 +60,12 @@
                 @closeAfter="showContent = false"
                 @showBefore="showContent = true"
             >
-              <van-cascader
-                  :value="formData.spuClass"
+              <Cascader
                   v-if="showContent"
-                  :show-header="false"
-                  :options="cateGoryData"
-                  @finish="onFinish"
+                  :data="cateGoryData"
+                  :value="formData.spuClass"
+                  @change="onFinish"
+                  @close="show=false"
               />
             </Popup>
           </uni-forms-item>
@@ -322,12 +322,14 @@ import BottomButton from "../../components/BottomButton";
 import {Message} from "../../components/Message";
 import Popup from "../../components/Popup";
 import Modal from "../../components/Modal";
+import Cascader from "../../components/Cascader";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    Cascader,
     Modal,
     Popup,
     BottomButton,
@@ -433,17 +435,11 @@ export default {
         url: '/Sku/SkuClass/SkuClassAdd/index'
       })
     },
-    async onFinish(e) {
-      // this.loading = true
-      this.show = false;
-      const {selectedOptions} = e.detail;
-      // const response = await this.getDetail(value);
-      // const {data} = response;
-      // this.typeSetting = isArray(JSON.parse(data.typeSetting)).filter(item => item.show);
+    async onFinish({id, name}) {
       this.formData = {
         ...this.formData,
-        spuClass: selectedOptions[selectedOptions.length - 1].value,
-        skuClassTitle: selectedOptions[selectedOptions.length - 1].text
+        spuClass: id,
+        skuClassTitle: name
       }
       // this.loading = false
     },
@@ -498,8 +494,8 @@ export default {
         this.show = false
         this.formData = {
           ...this.formData,
-          spuClass: currentObj.value,
-          skuClassTitle: currentObj.text
+          spuClass: currentObj.id,
+          skuClassTitle: currentObj.name
         }
       }
     },
@@ -508,15 +504,15 @@ export default {
       let currentObj = {}
       data.forEach(item => {
         const obj = {
-          text: item.title,
-          value: item.key
+          name: item.title,
+          id: item.key
         }
         if (classId && item.key === classId) {
           currentObj = obj
         }
         if (item.children.length > 0) {
-          const {children, currentObj: childrenCurrentObj} = this.format(item.children, classId)
-          obj.children = children;
+          const {list, currentObj: childrenCurrentObj} = this.format(item.children, classId)
+          obj.children = list;
           currentObj = childrenCurrentObj
         }
         list.push(obj);

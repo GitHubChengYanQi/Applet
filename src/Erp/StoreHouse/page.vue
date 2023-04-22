@@ -23,7 +23,7 @@
             </view>
             <view class="skuCount">
               <Icon icon="icon-pandianwuliao" size="18" />
-              {{ item.number }}
+              {{ item.number || 0 }}
             </view>
           </view>
           <view class="coding">

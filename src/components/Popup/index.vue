@@ -33,7 +33,6 @@ export default {
     'leftText',
     'rightText',
     'getContainer',
-    'position',
     'noTitle',
   ],
   watch: {

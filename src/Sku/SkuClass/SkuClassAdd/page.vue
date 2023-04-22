@@ -14,6 +14,7 @@
               <view class="value"> {{ formData.pidTitle || '请选择所属分类' }}</view>
               <u-icon name="arrow-down" size="15"></u-icon>
             </view>
+
             <Popup
                 :show="show"
                 position="bottom"
@@ -22,12 +23,12 @@
                 @closeAfter="showContent = false"
                 @showBefore="showContent = true"
             >
-              <van-cascader
-                  :value="formData.pid"
+              <Cascader
                   v-if="showContent"
-                  :show-header="false"
-                  :options="cateGoryData"
+                  :data="cateGoryData"
+                  :value="formData.pid"
                   @change="onChange"
+                  @close="show=false"
               />
             </Popup>
           </uni-forms-item>
@@ -79,18 +80,19 @@ import BottomButton from "../../../components/BottomButton";
 import {Message} from "../../../components/Message";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
+import Cascader from "../../../components/Cascader";
 
 export default {
   name: 'SkuClassAdd',
-  components: {Modal, Loading, BottomButton, Popup},
+  components: {Cascader, Modal, Loading, BottomButton, Popup},
   data() {
     return {
       show: false,
       showContent: false,
       cateGoryDataLoading: false,
-      cateGoryData: [],
+      cateGoryData: [ ],
       formData: {
-        pid: '0'
+        // pid: '0'
       },
       refreshLoading: false,
       loading: false,
@@ -159,10 +161,7 @@ export default {
               },
               onConfirm() {
                 _this.formData = {}
-                _this.refreshLoading = true
-                setTimeout(() => {
-                  _this.refreshLoading = false
-                }, 1000)
+                _this.getCateGory()
                 return true
               }
             })
@@ -177,24 +176,24 @@ export default {
       })
     },
     async getCateGory() {
-      this.cateGoryDataLoading = true
+      this.refreshLoading = true
       const response = await Sku.spuClassTreeView({data: {}});
       const {
         data
       } = response;
       this.cateGoryData = [{
-        text: '顶级',
-        value: '0',
+        name: '顶级',
+        id: '0',
         children: this.format(data)
       }];
-      this.cateGoryDataLoading = false
+      this.refreshLoading = false
     },
     format(data) {
       const list = [];
       data.forEach(item => {
         const obj = {
-          text: item.title,
-          value: item.key
+          name: item.title,
+          id: item.key
         }
         if (item.children.length > 0) {
           obj.children = this.format(item.children);
@@ -204,13 +203,11 @@ export default {
 
       return list;
     },
-    async onChange(e) {
-      // this.show = false;
-      const {selectedOptions} = e.detail;
+    async onChange({id,name}) {
       this.formData = {
         ...this.formData,
-        pid: selectedOptions[selectedOptions.length - 1].value,
-        pidTitle: selectedOptions[selectedOptions.length - 1].text
+        pid: id,
+        pidTitle: name
       }
     },
   }
