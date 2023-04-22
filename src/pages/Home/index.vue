@@ -1,5 +1,5 @@
 <template>
-  <Auth>
+  <Auth :loginAuth="false" :tenant-auth="false">
     <Page :auth="auth" />
   </Auth>
 </template>

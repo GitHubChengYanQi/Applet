@@ -1,27 +1,26 @@
 <template>
   <view>
-    <van-dialog
-        use-slot
-        :show="showSkuErWeiMa"
-        cancel-button-color="#2680EB"
-        confirm-button-text="确认"
-        confirm-button-color="#2680EB"
-        @close="skuErWeiMa"
-        width="280px"
-    >
-      <view v-if="showSkuErWeiMa" style='text-align: center;padding-top: 12px'>
-        <view class='codeTitle'>{{ codeTitle }}</view>
-        <view class="dialogContent">
-          <view style="padding-top: 19px">
-            <canvas
-                id="canvas"
-                canvas-id="canvas"
-                style="width: 187px;height: 187px;display: inline-block"
-            />
+    <view class="codeModal">
+      <u-modal
+          :show="showSkuErWeiMa"
+          confirmColor="#2680EB"
+          @close="skuErWeiMa"
+          width="280px"
+      >
+        <view v-if="showSkuErWeiMa" style='text-align: center;padding-top: 12px'>
+          <view class='codeTitle'>{{ codeTitle }}</view>
+          <view class="dialogContent">
+            <view style="padding-top: 19px">
+              <canvas
+                  id="canvas"
+                  canvas-id="canvas"
+                  style="width: 187px;height: 187px;display: inline-block"
+              />
+            </view>
           </view>
         </view>
-      </view>
-    </van-dialog>
+      </u-modal>
+    </view>
 
     <view style="padding: 0 12px 12px">
       <List max-height="50vh" @request="Stock.stockDetailsList" :default-params="{skuId}" @listSource="listSource"
@@ -83,6 +82,9 @@ import {isArray, isObject, MyDate} from "../../../util/Tools";
 import Icon from "../../../components/Icon";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: "InkindItem",
   components: {Icon, List, LinkButton},
   props: ['skuId'],
@@ -228,5 +230,15 @@ export default {
   justify-content: center;
   align-items: center;
   font-size: 14px;
+}
+
+.codeModal {
+  .u-modal__content {
+    padding: 0 !important;
+
+    > view {
+      width: 100%;
+    }
+  }
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <view>
-    <Loading :loading="createCodeLoading" />
     <Loading :skeleton="true" v-if="loading" />
     <view v-else class='myPicking'>
       <view class='header'>
@@ -12,13 +11,15 @@
           </view>
           <view>
             <LinkButton @click="select">
-              <van-icon name="location-o" />
-              {{ storehouse.name || '全部' }} >
+              <view class="store">
+                <Icon icon="icon-cangkuguanli1" />
+                {{ storehouse.name || '全部' }} >
+              </view>
             </LinkButton>
           </view>
         </view>
       </view>
-      <van-empty v-if="data.length === 0" />
+      <Empty v-if="data.length === 0" />
       <view class='content'>
         <OutItem
             v-for="(item,index) in data"
@@ -32,24 +33,23 @@
       </view>
       <div class='bottom' v-if="storehouse.storehouseId">
         <div class='all' @click="checkAll">
-          <van-checkbox
+          <Check
               :value="data.length === checkData().checkSku.length"
-              shape="square"
           >
             {{ data.length === checkData().checkSku.length ? '取消全选' : '全选' }}
-          </van-checkbox>
+          </Check>
           <span>已选中 {{ checkData().checkSku.length }} 类</span>
         </div>
-        <van-button
-            custom-class="button"
+        <MyButton
             :disabled='checkData().checkSku.length === 0'
-            type='info'
+            type='primary'
             @click="click"
         >
           确认
-        </van-button>
+        </MyButton>
       </div>
     </view>
+    <Loading :loading="createCodeLoading" />
   </view>
 </template>
 
@@ -60,10 +60,14 @@ import OutItem from "./components";
 import Loading from "../../../../components/Loading";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import {isArray} from "@/util/Tools";
+import Icon from "../../../../components/Icon";
+import Empty from "../../../../components/Empty";
+import Check from "../../../../components/Check";
+import MyButton from "../../../../components/MyButton";
 
 export default {
   name: 'MyPicking',
-  components: {Loading, OutItem, LinkButton},
+  components: {MyButton, Check, Empty, Icon, Loading, OutItem, LinkButton},
   props: ['pickListsId'],
   data() {
     return {
@@ -333,5 +337,11 @@ export default {
   font-size: 14px !important;
   border-radius: 2px !important;
   height: fit-content !important;
+}
+
+.store {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

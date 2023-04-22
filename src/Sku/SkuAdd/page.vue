@@ -289,6 +289,9 @@
           @onClick="formSubmit"
       />
     </view>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -318,12 +321,14 @@ import Loading from "../../components/Loading";
 import BottomButton from "../../components/BottomButton";
 import {Message} from "../../components/Message";
 import Popup from "../../components/Popup";
+import Modal from "../../components/Modal";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    Modal,
     Popup,
     BottomButton,
     Loading,
@@ -540,7 +545,7 @@ export default {
           this.loading = true
           const _this = this
           SkuApis.add({data: newValue}).then((res) => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               only: false,
               title: '添加成功！',
               cancelText: '继续添加',
@@ -561,14 +566,14 @@ export default {
               }
             })
           }).catch(() => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               title: '添加失败！'
             })
           }).finally(() => {
             this.loading = false
           })
         } else {
-          Message.dialog({
+          this.$refs.modal.dialog({
             title: '请检查必填项！'
           })
         }

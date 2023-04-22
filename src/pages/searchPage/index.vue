@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <van-dialog id="van-dialog" />
+
     <Page v-if="auth && formType" :formType="formType" :searchValue="searchValue" />
   </Auth>
 </template>

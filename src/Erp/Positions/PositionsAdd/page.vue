@@ -55,6 +55,9 @@
           @onClick="save"
       />
     </view>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -64,13 +67,14 @@ import {Message} from "../../../components/Message";
 import Loading from "../../../components/Loading";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../../components/Popup";
+import Modal from "../../../components/Modal";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   props: ['storehouseId', 'storehousePositionsId'],
-  components: {Popup, Loading, BottomButton},
+  components: {Modal, Popup, Loading, BottomButton},
   data() {
     return {
       showContent: false,
@@ -148,7 +152,7 @@ export default {
               }
             }).then((res) => {
               uni.$emit('positionsAddSuccess')
-              Message.dialog({
+              this.$refs.modal.dialog({
                 title: "修改成功！",
                 onConfirm() {
                   uni.navigateBack()
@@ -156,7 +160,7 @@ export default {
                 }
               })
             }).catch(() => {
-              Message.dialog({
+              this.$refs.modal.dialog({
                 title: '修改失败！'
               })
             }).finally(() => {
@@ -175,7 +179,7 @@ export default {
             uni.$emit('positionsAddSuccess')
 
             const _this = this
-            Message.dialog({
+            this.$refs.modal.dialog({
               only: false,
               title: "添加成功！",
               confirmText: '继续添加',
@@ -191,7 +195,7 @@ export default {
               }
             })
           }).catch(() => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               title: '添加失败！'
             })
           }).finally(() => {

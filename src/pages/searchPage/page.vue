@@ -50,6 +50,9 @@
         </view>
       </view>
     </view>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -60,11 +63,12 @@ import Loading from "../../components/Loading";
 import Elliptsis from "../../components/Ellipsis";
 import Empty from "../../components/Empty";
 import {Message} from "../../components/Message";
+import Modal from "../../components/Modal";
 
 export default {
   name: "SearchPage",
   props: ['formType', 'searchValue'],
-  components: {Empty, Elliptsis, Loading, Search},
+  components: {Modal, Empty, Elliptsis, Loading, Search},
   data() {
     return {
       value: '',
@@ -93,7 +97,7 @@ export default {
     },
     delet() {
       const _this = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         title: '确定要删除全部历史记录吗？',
         content: '注意：删除之后不可恢复！',
         only: false,

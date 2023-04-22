@@ -1,7 +1,7 @@
 <template>
   <scroll-view style="height:100vh" :scroll-y="scroll">
     <view v-if="!detailData && !loading">
-      <van-empty image="error" description="获取审批详情失败!" />
+      <Empty type="error" description="获取审批详情失败!" />
     </view>
     <view v-else-if="!detailData && loading">
       <Loading :skeleton="true" skeleton-type="page" />

@@ -28,17 +28,20 @@
       </view>
     </view>
     <view v-else>
-      <van-divider contentPosition="center">
+      <Divider style="margin:16px">
         <view class='divider'>
           或
         </view>
-      </van-divider>
+      </Divider>
       <view class='scan'>
         <view class='scanStyle' @click="scan">
-          <Icon icon="icon-dibudaohang-saoma" size="30" color="#fff" />
+          <Icon icon="icon-dibudaohang-saoma-copy" size="30" />
         </view>
       </view>
     </view>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -47,10 +50,12 @@ import Icon from "../../components/Icon";
 import {Production} from "MES-Apis/lib/Production/promise";
 import Loading from "../../components/Loading";
 import {Message} from "../../components/Message";
+import Modal from "../../components/Modal";
+import Divider from "../../components/Divider";
 
 export default {
   props: ['cardId'],
-  components: {Loading, Icon},
+  components: {Divider, Modal, Loading, Icon},
   data() {
     return {
       cardList: [],
@@ -92,7 +97,7 @@ export default {
           }
 
           if (error) {
-            Message.dialog({
+            _this.$refs.modal.dialog({
               title: '请扫正确的卡片二维码！'
             })
           }

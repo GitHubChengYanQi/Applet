@@ -34,7 +34,7 @@
       </view>
 
     </view>
-
+    <Modal ref="modal" />
   </view>
 </template>
 
@@ -47,10 +47,11 @@ import Loading from "../../../components/Loading";
 import CodeNumber from "../../components/CodeNumber";
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {Message} from "../../../components/Message";
+import Modal from "../../../components/Modal";
 
 export default {
   name: 'OutStockConfirm',
-  components: {CodeNumber, Loading, BottomButton, SkuItem, ShopNumber},
+  components: {Modal, CodeNumber, Loading, BottomButton, SkuItem, ShopNumber},
   data() {
     return {
       outSkus: [],
@@ -95,7 +96,7 @@ export default {
           })
           current.$emit('outStock')
 
-          Message.dialog({
+          current.$refs.modal.dialog({
             only: false,
             title: '出库成功！',
             confirmText: '继续出库',

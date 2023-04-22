@@ -65,14 +65,18 @@ export default {
   },
   watch: {
     menus(menus) {
+      this.layout(menus)
+    }
+  },
+  created() {
+    this.layout(this.menus)
+  },
+  methods: {
+    layout(menus) {
       this.rows = new Array(Math.ceil(menus.length / this.column)).fill('')
       this.cols = new Array(this.column).fill('')
     }
-  },
-  mounted() {
-
-  },
-  methods: {}
+  }
 }
 </script>
 

@@ -67,7 +67,7 @@
                 @click="onCheckUser(user)"
             />
           </view>
-          <VantButton @click="click" :disabled="checkUsers.length === 0">确定 · {{ checkUsers.length }}</VantButton>
+          <MyButton type="primary" @click="click" :disabled="checkUsers.length === 0">确定 · {{ checkUsers.length }}</MyButton>
         </view>
       </view>
 
@@ -80,15 +80,15 @@ import Search from "../../components/Search";
 import {User} from "MES-Apis/lib/User/promise";
 import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
-import VantButton from "../../components/VantButton";
 import Empty from "../../components/Empty";
 import Avatar from "../../components/Avatar";
 import {getLocalParmas} from "../../util/Tools";
+import MyButton from "../../components/MyButton";
 
 export default {
   name: 'SelectUser',
   props: ['checdUsers'],
-  components: {Avatar, Empty, VantButton, UserName, Loading, Search},
+  components: {MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
       deptPage: [],

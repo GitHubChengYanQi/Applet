@@ -1,6 +1,12 @@
 <template>
   <view class="home">
+    <van-notice-bar
+        left-icon="volume-o"
+        text="本产品终身免费使用，升级大容量云盘 立即联系>>"
+    />
+
     <view class="content">
+
       <view class="header">
         <view class="headerItem">
           <view class="value" style="color:#13C2C2">{{ homeData.instockNumber || 0 }}</view>
@@ -20,21 +26,37 @@
         </view>
       </view>
 
-      <view class="menuCard">
-        <view class="title">常用功能</view>
-        <MenuCard
-            border="none"
-            :menus="menus"
-            :column="4"
-            font-size="12"
-            icon-size="24"
-            padding="24px 0"
-            @click="click"
-        />
+      <view v-if="false">
+        <view class="title">资产状况数据看板</view>
+
+        <view class="data">
+          <HomeData />
+        </view>
       </view>
 
-      <OtherActions />
+
+      <view style="height: 26px" />
+
+      <view class="title">常用功能</view>
+
+      <MenuCard
+          :menus="menus"
+          :column="3"
+          padding="24px 0"
+          @click="click"
+      />
+
+      <view class="footer">
+        <img class="logo" src="../../static/images/home/logo.png" height="37" width="120" />
+        <view class="slogan">
+          专注于企业数字化流程管理，高效、安全的工业互联网平台
+        </view>
+        <view class=" protocol">
+          《软件使用协议》
+        </view>
+      </view>
     </view>
+
   </view>
 </template>
 
@@ -46,13 +68,18 @@ import {Menus} from "./menu";
 import MenuCard from "../../components/MenuCard";
 import OtherActions from "../components/OtherActions";
 import {Erp} from "MES-Apis/lib/Erp/promise";
-import {Message} from "../../components/Message";
+import HomeData from "../components/HomeData";
+import Check from "../../components/Check";
+import ShopNumber from "../../components/ShopNumber";
+import Popup from "../../components/Popup";
+import MyButton from "../../components/MyButton";
 
 export default {
   props: ['auth'],
-  components: {OtherActions, MenuCard, Icon},
+  components: {MyButton, Popup, ShopNumber, Check, HomeData, OtherActions, MenuCard, Icon},
   data() {
     return {
+      show: false,
       menus: [],
       homeData: {},
       homeDataLoading: false
@@ -62,10 +89,15 @@ export default {
     auth(auth) {
       if (auth) {
         this.getHomeData()
+        this.setTitle()
       }
     }
   },
   mounted() {
+    if (this.auth) {
+      this.getHomeData()
+      this.setTitle()
+    }
     const menus = []
     Menus.forEach(item => {
       item.menus.forEach(item => {
@@ -82,17 +114,11 @@ export default {
     }]
   },
   methods: {
-    authority() {
+    setTitle() {
       const tenant = this.$store.state.userInfo.tenant || {}
-      if (!this.auth) {
-        Message.toast('请登录!')
-        return false
-      } else if (!tenant.tenantId) {
-        Message.toast('请选择租户!')
-        return false
-      } else {
-        return true
-      }
+      uni.setNavigationBarTitle({
+        title: tenant.name || '首页'
+      });
     },
     getHomeData() {
       this.homeDataLoading = true
@@ -103,11 +129,9 @@ export default {
       })
     },
     click(menu) {
-      if (this.authority()) {
-        uni.navigateTo({
-          url: menu.url
-        })
-      }
+      uni.navigateTo({
+        url: menu.url
+      })
     },
     floorStock() {
       if (!this.authority()) {
@@ -129,7 +153,7 @@ export default {
   .content {
     max-height: calc(100% - 64px);
     overflow: auto;
-    padding: 32px 12px;
+    padding: 24px 12px;
   }
 
   .header {
@@ -151,14 +175,36 @@ export default {
     }
   }
 
-  .menuCard {
-    margin-top: 32px;
+  .data {
+    margin-top: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+  }
 
-    .title {
-      font-weight: bold;
+  .title {
+    font-weight: bold;
+  }
+
+  .footer {
+    padding-top: 40px;
+    text-align: center;
+
+    .logo {
+      height: 18px;
+      width: 60px;
     }
 
+    .slogan {
+      padding-top: 10px;
+      font-size: 14px;
+      color: #3D3D3D;
+    }
 
+    .protocol {
+      font-size: 14px;
+      color: #FA8F2B;
+      padding-top: 10px;
+    }
   }
 
 }

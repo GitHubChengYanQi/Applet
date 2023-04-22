@@ -11,7 +11,7 @@ export const Menus = [
                 name: '物料添加',
                 key: 'skuAdd',
                 type: ['my'],
-                icon: 'icon-wuliaotianjia',
+                icon: 'icon-a-zujian10',
                 url: '/Sku/SkuAdd/index'
             }
         ]
@@ -24,15 +24,15 @@ export const Menus = [
             {
                 name: '仓储中心',
                 key: 'stock',
-                icon: 'icon-cangchuguanli',
-                type: ['common'],
+                icon: 'icon-a-10cangkucangchu',
+                type: ['common','my'],
                 url: '/Erp/Stock/index'
             },
             {
                 name: '仓库管理',
                 key: 'storeHouse',
                 icon: 'icon-cangkuguanli1',
-                type: ['my'],
+                // type: ['my'],
                 url: '/Erp/StoreHouse/index'
             },
             {
@@ -46,7 +46,7 @@ export const Menus = [
                 name: '出库确认',
                 key: 'outStockConfirm',
                 icon: 'icon-chukuqueren1',
-                type: ['my'],
+                // type: ['my'],
                 url: '/Erp/OutStock/OutStockConfirm/index'
             },
             {
@@ -66,14 +66,13 @@ export const Menus = [
             {
                 name: '即时盘点',
                 key: 'stocktaking',
-                type: ['common'],
                 icon: 'icon-pandian1',
                 url: '/Erp/Stocktaking/immediately/index'
             },
             {
                 name: '库存预警',
                 key: 'StockForewarn',
-                type: ['common','my'],
+                type: ['common'],
                 icon: 'icon-kucunyujing1',
                 url: '/Erp/StockForewarn/index'
             }
@@ -85,9 +84,10 @@ export const Menus = [
         icon: 'icon-caigoudanguanli',
         menus: [
             {
-                name: '采购单列表',
+                name: '采购单',
+                type: ['my'],
                 key: 'procurementOrder',
-                icon: 'icon-caigoudanguanli',
+                icon: 'icon-a-zujian5',
                 url: '/Purchase/Order/OrderList/index'
             }
         ]
@@ -100,14 +100,13 @@ export const Menus = [
             {
                 name: '创建生产计划',
                 key: 'createProduction',
-                // type: ['common'],
                 icon: 'icon-chuangjianshengchanjihuasvg',
                 url: '/Production/CreatePlan/index'
             }, {
-                name: '生产计划列表',
+                name: '生产计划',
                 key: 'productionList',
-                type: ['common'],
-                icon: 'icon-shengchanjihua',
+                type: ['my'],
+                icon: 'icon-caidan-shengchanguanli1',
                 url: '/Production/ProductionList/index'
             }, {
                 name: '生产卡片',
@@ -116,5 +115,5 @@ export const Menus = [
                 url: '/Production/ProductionCard/index'
             }
         ]
-    },
+    }
 ]

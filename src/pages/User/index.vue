@@ -1,7 +1,7 @@
 <template>
-  <Auth>
+  <Auth :loginAuth="false" :tenant-auth="false">
     <Page :auth="auth" />
-    <van-dialog id="van-dialog" />
+
   </Auth>
 </template>
 <script>

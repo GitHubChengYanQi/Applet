@@ -65,6 +65,10 @@
           @onClick="save"
       />
     </view>
+
+    <Modal ref="modal" />
+
+
   </view>
 </template>
 
@@ -74,16 +78,20 @@ import {Sku} from "MES-Apis/lib/Sku/promise";
 import BottomButton from "../../../components/BottomButton";
 import {Message} from "../../../components/Message";
 import Loading from "../../../components/Loading";
+import Modal from "../../../components/Modal";
 
 export default {
   name: 'SkuClassAdd',
-  components: {Loading, BottomButton, Popup},
+  components: {Modal, Loading, BottomButton, Popup},
   data() {
     return {
       show: false,
       showContent: false,
+      cateGoryDataLoading: false,
       cateGoryData: [],
-      formData: {},
+      formData: {
+        pid: '0'
+      },
       refreshLoading: false,
       loading: false,
       rules: {
@@ -137,10 +145,10 @@ export default {
             }
           }).then((res) => {
 
-            uni.$emit('skuClassAddSuccess',res.data)
+            uni.$emit('skuClassAddSuccess', res.data)
 
             const _this = this
-            Message.dialog({
+            this.$refs.modal.dialog({
               only: false,
               title: "添加成功！",
               confirmText: '继续添加',
@@ -159,7 +167,7 @@ export default {
               }
             })
           }).catch(() => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               title: '添加失败！'
             })
           }).finally(() => {
@@ -169,6 +177,7 @@ export default {
       })
     },
     async getCateGory() {
+      this.cateGoryDataLoading = true
       const response = await Sku.spuClassTreeView({data: {}});
       const {
         data
@@ -178,6 +187,7 @@ export default {
         value: '0',
         children: this.format(data)
       }];
+      this.cateGoryDataLoading = false
     },
     format(data) {
       const list = [];

@@ -6,7 +6,7 @@
         :position="position"
         :store="store"
     />
-    <van-dialog id="van-dialog" />
+
   </Auth>
 </template>
 <script>

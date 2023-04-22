@@ -1,7 +1,7 @@
 <template>
   <Auth>
     <Page v-if="auth && storehouseId" :storehouseId="storehouseId" :storehousePositionsId="storehousePositionsId" />
-    <van-dialog id="van-dialog" />
+
   </Auth>
 </template>
 <script>

@@ -84,6 +84,9 @@
         </view>
       </view>
     </Card>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -97,11 +100,12 @@ import {Message} from "../../../../components/Message";
 import LinkButton from "../../../../components/LinkButton";
 import {Production} from "MES-Apis/lib/Production/promise";
 import UserName from "../../../../components/UserName";
+import Modal from "../../../../components/Modal";
 
 export default {
   name: 'ProductionCardBom',
   props: ['bom', 'checkList', 'defaultOpen', 'complete', 'show'],
-  components: {UserName, LinkButton, SkuItem, Check, Card, ProductionCardBom},
+  components: {Modal, UserName, LinkButton, SkuItem, Check, Card, ProductionCardBom},
   data() {
     return {
       isObject,
@@ -156,7 +160,8 @@ export default {
     },
     check(bom) {
       if (bom.done === 1) {
-        Message.dialog({
+        const _this = this
+        this.$refs.modal.dialog({
           title: '任务已完成，是否重新提交？',
           only: false,
           confirmText: '重新提交',
@@ -167,7 +172,7 @@ export default {
                   taskIds: [bom.productionTaskId]
                 }
               }).then(() => {
-                Message.dialog({
+                _this.$refs.modal.dialog({
                   title: '提交成功！'
                 })
                 resolve(true)

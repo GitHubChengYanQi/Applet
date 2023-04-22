@@ -3,7 +3,7 @@
     <view v-if="loading">
       <Loading skeleton="" />
     </view>
-    <van-empty v-else-if="defaultData.length === 0" description="物料全部出库完成" />
+    <Empty v-else-if="defaultData.length === 0" description="物料全部出库完成" />
     <view class="onePrepare" v-else>
       <view style="padding: 0 8px">
         <Search
@@ -45,10 +45,8 @@
       </scroll-view>
     </view>
 
-    <van-popup
-        :z-index="999"
+    <u-popup
         :show="show"
-        position="bottom"
         @close="closePrepare"
     >
       <PrePare
@@ -58,7 +56,7 @@
           @onSuccess="(detail)=>onPrepare(detail)"
           @onClose="closePrepare"
       />
-    </van-popup>
+    </u-popup>
   </view>
 </template>
 
@@ -73,9 +71,10 @@ import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";
 import Slide from "../../../../../components/Slide";
 import PrePare from "../../../components/Prepare";
+import Empty from "../../../../../components/Empty";
 
 export default {
-  components: {PrePare, Slide, Loading, OutStockItem, Search},
+  components: {Empty, PrePare, Slide, Loading, OutStockItem, Search},
   props: [
     'action',
     'pickListsId',

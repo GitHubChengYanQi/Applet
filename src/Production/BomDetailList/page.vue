@@ -37,6 +37,9 @@
           :min='1'
           @onChange="onChange"
       />
+
+      <Modal ref="modal" />
+
     </view>
   </view>
 
@@ -57,10 +60,11 @@ import {Sku} from "MES-Apis/lib/Sku/promise";
 import ProductionCardBom from "../ProductionCardDetail/components/ProductionCardBom";
 import Empty from "../../components/Empty";
 import {Init} from "MES-Apis/lib/Init";
+import Modal from "../../components/Modal";
 
 export default {
   name: 'BomDetailList',
-  components: {Empty, ProductionCardBom, Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
+  components: {Modal, Empty, ProductionCardBom, Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
   props: ['bomId'],
   data() {
     return {
@@ -93,7 +97,7 @@ export default {
           ]
         }
       }).then(() => {
-        Message.dialog({
+        this.$refs.modal.dialog({
           title: '创建生产任务成功！',
           onConfirm() {
             uni.navigateBack()
@@ -101,7 +105,7 @@ export default {
           }
         })
       }).catch(() => {
-        Message.dialog({
+        this.$refs.modal.dialog({
           title: Init.getNewErrorMessage() || '创建生产任务失败！'
         })
       }).finally(() => {

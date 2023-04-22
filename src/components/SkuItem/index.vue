@@ -15,7 +15,7 @@
         <view v-if="!hiddenNumber" class='number'>
           {{ getStockNumber() || 0 }} {{ unitName || skuResult.unitName || unitResult.unitName || '' }}
           <span v-if="skuResult.lockStockDetailNumber > 0" class='error'>
-              <van-icon name="warn-o" />
+              <u-icon name="error" color="#fff" size="12" />
           </span>
         </view>
       </view>
@@ -172,8 +172,8 @@ export default {
       .error {
         margin-left: 4px;
 
-        svg {
-          font-size: 12px;
+        > view {
+          display: inline-block;
         }
       }
     }

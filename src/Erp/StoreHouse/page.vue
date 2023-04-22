@@ -53,6 +53,9 @@
         text="新建仓库"
         @onClick="create"
     />
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -64,9 +67,10 @@ import BottomButton from "../../components/BottomButton";
 import {safeAreaHeight} from "../../util/Tools";
 import {Message} from "../../components/Message";
 import {Storehouse} from "MES-Apis/lib/Storehouse";
+import Modal from "../../components/Modal";
 
 export default {
-  components: {BottomButton, Search, Icon, List},
+  components: {Modal, BottomButton, Search, Icon, List},
   data() {
     return {
       safeAreaHeight,
@@ -114,7 +118,7 @@ export default {
     },
     del(item) {
       const _this = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         title: '确定要删除仓库【' + item.name + '】吗？',
         only: false,
         onConfirm() {

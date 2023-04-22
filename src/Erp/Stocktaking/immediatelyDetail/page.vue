@@ -74,6 +74,9 @@
         :min='0'
         @onChange="onChange"
     />
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -87,9 +90,11 @@ import BottomButton from "../../../components/BottomButton";
 import {Message} from "../../../components/Message";
 import Empty from "../../../components/Empty";
 import Icon from "../../../components/Icon";
+import Modal from "../../../components/Modal";
 
 export default {
   components: {
+    Modal,
     Icon,
     Empty,
     BottomButton,
@@ -163,7 +168,7 @@ export default {
     },
     onClick() {
       const _this = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         only: false,
         title: '请确认盘点信息',
         content: `本次盘点共有${this.updateSkus.length}个物料进行修改`,
@@ -183,7 +188,7 @@ export default {
               }
             }).then(() => {
               resolve(true)
-              Message.dialog({
+              _this.$refs.modal.dialog({
                 only: false,
                 title: '盘点成功！',
                 confirmText: '返回',

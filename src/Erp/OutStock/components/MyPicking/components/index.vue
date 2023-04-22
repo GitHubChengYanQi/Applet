@@ -3,8 +3,8 @@
     <view :key='skuIndex' class='skus'>
       <view class='skuItem' @click="$emit('dataChange',skuItem.key, { checked: !itemFormat().skuChecked })">
         <view v-if="action">
-          <van-checkbox
-              :value="itemFormat().skuChecked" shape="square"
+          <Check
+              :value="itemFormat().skuChecked"
           />
         </view>
         <view class='sku'>
@@ -39,10 +39,11 @@
 import SkuItem from "../../../../../components/SkuItem";
 import OutPerogress from "../../OutProgress";
 import ShopNumber from "../../../../../components/ShopNumber";
+import Check from "../../../../../components/Check";
 
 export default {
   name: 'OutItem',
-  components: {ShopNumber, OutPerogress, SkuItem},
+  components: {Check, ShopNumber, OutPerogress, SkuItem},
   props: [
     'skuItem',
     'skuIndex',

@@ -22,21 +22,21 @@
           />
         </view>
       </view>
-      <van-divider contentPosition="center">
+      <Divider>
         <view class='divider'>
           或
         </view>
-      </van-divider>
+      </Divider>
       <view class='scan'>
         <view class='scanStyle' @click="scan">
-          <Icon icon="icon-dibudaohang-saoma" size="30" color="#fff" />
+          <Icon icon="icon-dibudaohang-saoma-copy" size="30" />
         </view>
       </view>
       <slot name="other"></slot>
     </view>
 
     <Keybord
-        :overlay-style="open ? 'display: none' : 'background-Combox:transparent'"
+        :overlay="false"
         no-mask
         noStepper
         :visible="open || visible"
@@ -52,10 +52,11 @@
 import Keybord from "../../../components/Keybord";
 import {Message} from "../../../components/Message";
 import Icon from "../../../components/Icon";
+import Divider from "../../../components/Divider";
 
 export default {
   name: 'CodeNumber',
-  components: {Icon, Keybord},
+  components: {Divider, Icon, Keybord},
   props: {
     open: Boolean,
     codeNumber: {

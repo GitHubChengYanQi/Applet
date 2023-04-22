@@ -51,6 +51,47 @@
       ]
     },
     {
+      "root": "Tenant",
+      "pages": [
+        {
+          "path": "CreateTenant/index",
+          "style": {
+            "navigationBarTitleText": "创建团队"
+          }
+        },
+        {
+          "path": "SwitchTenant/index",
+          "style": {
+            "navigationBarTitleText": "切换团队"
+          }
+        },
+        {
+          "path": "JoinTenant/index",
+          "style": {
+            "navigationBarTitleText": "加入团队"
+          }
+        },
+        {
+          "path": "TenantSet/index",
+          "style": {
+            "navigationBarTitleText": "团队设置"
+          }
+        },
+        {
+          "path": "TenantSet/JoinTenantList/index",
+          "style": {
+            "navigationBarTitleText": "待审批用户"
+          }
+        },
+        {
+          "path": "TenantSet/UserList/index",
+          "style": {
+            "navigationBarTitleText": "用户列表"
+          }
+        }
+      ]
+    },
+    {
       "root": "Erp",
       "pages": [
         {
@@ -320,34 +361,8 @@
       "homeButton": true
     },
     "usingComponents": {
-      "van-button": "/wxcomponents/button/index",
       "van-cascader": "/wxcomponents/cascader/index",
-      "van-toast": "/wxcomponents/toast/index",
-      "van-loading": "/wxcomponents/loading/index",
-      "van-overlay": "/wxcomponents/overlay/index",
-      "van-dialog": "/wxcomponents/dialog/index",
-      "van-skeleton": "/wxcomponents/skeleton/index",
-      "van-tab": "/wxcomponents/tab/index",
-      "van-tabs": "/wxcomponents/tabs/index",
-      "van-icon": "/wxcomponents/icon/index",
-      "van-divider": "/wxcomponents/divider/index",
-      "van-swipe-cell": "/wxcomponents/swipe-cell/index",
-      "van-empty": "/wxcomponents/empty/index",
-      "van-checkbox": "/wxcomponents/checkbox/index",
-      "van-checkbox-group": "/wxcomponents/checkbox-group/index",
-      "van-popup": "/wxcomponents/popup/index",
-      "van-field": "/wxcomponents/field/index",
-      "van-stepper": "/wxcomponents/van-stepper/index",
-      "van-uploader": "/wxcomponents/vant-uploader/index",
-      "van-picker": "/wxcomponents/vant-picker/index",
-      "van-search": "/wxcomponents/search/index",
-      "van-tabbar": "/wxcomponents/tabbar/index",
-      "van-tabbar-item": "/wxcomponents/tabbar-item/index",
-      "van-datetime-picker": "/wxcomponents/datetime-picker/index",
-      "van-dropdown-menu": "/wxcomponents/dropdown-menu/index",
-      "van-dropdown-item": "/wxcomponents/dropdown-item/index",
-      "van-radio": "/wxcomponents/vant-radio/index",
-      "van-radio-group": "/wxcomponents/vant-radio-group/index"
+      "van-swipe-cell": "/wxcomponents/swipe-cell/index"
     }
   }
 }

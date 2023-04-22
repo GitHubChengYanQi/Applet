@@ -1,18 +1,16 @@
 <template>
   <view :style="style" class="search" @click="$emit('click')">
     <view class="input">
-      <van-search
-          custom-class="searchCustomClass"
-          use-action-slot
+      <u-search
           :value="value"
-          :readonly="readonly"
+          :disabled="readonly"
           :placeholder="placeholder || '请输入搜索关键词'"
-          @cancel="onCancel"
           @clear="onClear"
           @focus="onFocus"
           @blur="onBlur"
           @change="onChange"
           @search="onSearch"
+          :showAction="false"
       />
     </view>
     <view v-if="!readonly">
@@ -20,7 +18,7 @@
           class="action"
           :style="{width}"
           v-if="history || ((focus || value) && !noSearchButton)"
-          @click="onSearch({detail:value})"
+          @click="onSearch(value)"
       >
         搜索
       </view>
@@ -75,11 +73,11 @@ export default {
       }, 100)
     },
     onSearch(value) {
-      this.$emit('onSearch', value.detail)
+      this.$emit('onSearch', value)
     },
     onChange(value) {
-      this.$emit('onChange', value.detail)
-      this.$emit('input', value.detail)
+      this.$emit('onChange', value)
+      this.$emit('input', value)
     },
   }
 }
@@ -90,6 +88,7 @@ export default {
 .search {
   display: flex;
   align-items: center;
+  padding: 12px 0;
 
   .input {
     flex-grow: 1;
@@ -99,7 +98,7 @@ export default {
 
 .action {
   color: $primary-color;
-  padding: 0 12px;
+  padding-left: 12px;
   font-size: 14px;
 }
 

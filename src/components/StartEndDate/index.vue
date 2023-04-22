@@ -25,12 +25,7 @@
         @close="open = false"
     >
       <view v-if="open">
-        <van-tabs color="#007aff" border line-width="30%" @change="change">
-          <van-tab title="起始时间">
-          </van-tab>
-          <van-tab title="结束时间">
-          </van-tab>
-        </van-tabs>
+        <u-tabs :list="tabs" @click="change" :scrollable="false"></u-tabs>
       </view>
     </Popup>
   </view>
@@ -67,7 +62,12 @@ export default {
       open: false,
       key: 'start',
       time: [],
-      MyDate
+      MyDate,
+      tabs: [{
+        name: '起始时间',
+      }, {
+        name: '结束时间',
+      }],
     }
   },
   mounted() {

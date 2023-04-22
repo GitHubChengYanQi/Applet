@@ -1,13 +1,26 @@
 <template>
   <view class="empty">
-    <van-empty :image="type || 'default'" :description="description" />
+    <u-empty
+        :mode="mode()"
+        :text="description || '暂无数据'"
+    />
   </view>
 </template>
 
 <script>
 export default {
   name: 'Empty',
-  props: ['type', 'description']
+  props: ['type', 'description'],
+  methods: {
+    mode() {
+      switch (this.type) {
+        case 'error':
+          return 'data'
+        default:
+          return 'list'
+      }
+    }
+  }
 }
 </script>
 
@@ -15,6 +28,7 @@ export default {
 
 .empty {
   background-color: #fff;
+  padding: 24px;
 }
 
 </style>

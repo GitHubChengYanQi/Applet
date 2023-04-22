@@ -1,15 +1,10 @@
 <template>
   <view class="">
     <view class="tab">
-      <view class="border"></view>
-      <van-tabs color="#007aff" border line-width="30%" @change="change">
-        <van-tab title="订单式生产">
-          <ByOrder v-if="current === 0" :checkedSkus="checkedSkus" @setCheckedSkus="(value)=>checkedSkus = value" />
-        </van-tab>
-        <van-tab title="计划式生产">
-          <ByPlan v-if="current === 1" :checkedSkus="checkedSkus" @setCheckedSkus="(value)=>checkedSkus = value" />
-        </van-tab>
-      </van-tabs>
+      <view class="border" ></view>
+      <u-tabs :list="tabs" @click="change" :scrollable="false"></u-tabs>
+      <ByOrder v-if="current === 0" :checkedSkus="checkedSkus" @setCheckedSkus="(value)=>checkedSkus = value" />
+      <ByPlan v-if="current === 1" :checkedSkus="checkedSkus" @setCheckedSkus="(value)=>checkedSkus = value" />
     </view>
     <view style="height: 100px"></view>
     <BottomButton
@@ -31,15 +26,21 @@ export default {
   components: {BottomButton, ByPlan, ByOrder, Check},
   data() {
     return {
-      item: ['订单式生产', '计划式生产'],
+      item: ['', ''],
       checkedSkus: [],
-      current: 0
+      current: 0,
+      tabs: [{
+        name: '订单式生产',
+        a:1
+      }, {
+        name: '计划式生产',
+      }]
     };
   },
   methods: {
-    change({detail}) {
+    change({index}) {
       this.checkedSkus = []
-      this.current = detail.index
+      this.current = index
     },
     onClick() {
       uni.navigateTo({

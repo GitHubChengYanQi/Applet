@@ -34,26 +34,26 @@
             <view @click="auto">
               <Icon icon="icon-erweima" color="#2680EB" />
             </view>
-            <van-dialog
-                use-slot
-                :show="showErWeiMa"
-                confirm-button-text="确认"
-                confirm-button-color="#2680EB"
-                width="280px"
-            >
-              <view style='text-align: center;padding-top: 12px'>
-                <view class='codeTitle'>物料码</view>
-                <view class="dialogContent">
-                  <view style="padding-top: 19px">
-                    <canvas
-                        id="firstCanvas"
-                        canvas-id="firstCanvas"
-                        style="width: 187px;height: 187px;display: inline-block"
-                    />
+            <view class="codeModal">
+              <u-modal
+                  :show="showErWeiMa"
+                  width="280px"
+                  @confirm="showErWeiMa = false"
+              >
+                <view style='text-align: center;padding-top: 12px'>
+                  <view class='codeTitle'>物料码</view>
+                  <view class="dialogContent">
+                    <view style="padding-top: 19px">
+                      <canvas
+                          id="firstCanvas"
+                          canvas-id="firstCanvas"
+                          style="width: 187px;height: 187px;display: inline-block"
+                      />
+                    </view>
                   </view>
                 </view>
-              </view>
-            </van-dialog>
+              </u-modal>
+            </view>
           </view>
           <view class="otherData">
             <view class="number">
@@ -108,9 +108,9 @@
           </view>
 
           <view @click="many()">
-            <van-divider dashed contentPosition="center" customStyle="margin:0">
+            <Divider>
               <uni-icons :type=" hidden===true ? 'top' : 'bottom' "></uni-icons>
-            </van-divider>
+            </Divider>
           </view>
 
         </view>
@@ -150,10 +150,14 @@ import Loading from "../../components/Loading";
 import Empty from "../../components/Empty";
 import Popup from "../../components/Popup";
 import Icon from "../../components/Icon";
+import Divider from "../../components/Divider";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: "SkuDetail",
-  components: {Icon, Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
+  components: {Divider, Icon, Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
   data() {
     return {
       skuDetail: {},
@@ -212,7 +216,7 @@ export default {
       const spuResult = data.spuResult || {}
       const positionsResult = data.positionsResult || []
       const spuClassificationResult = spuResult.spuClassificationResult || {}
-      const response = await  Sku.skuFormLayout(spuClassificationResult.spuClassificationId).catch(() => {
+      const response = await Sku.skuFormLayout(spuClassificationResult.spuClassificationId).catch(() => {
         this.error = true
       })
 
@@ -563,5 +567,15 @@ export default {
   font-size: 16px;
   color: rgba(0, 0, 0, 0.5);
   margin-top: -3px;
+}
+
+.codeModal {
+  .u-modal__content {
+    padding: 0 !important;
+
+    > view {
+      width: 100%;
+    }
+  }
 }
 </style>

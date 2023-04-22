@@ -37,7 +37,7 @@
       </view>
 
       <view v-if="parentBom.done !== 1" class="action" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-        <view class="allCheck" @click="allCheck">
+        <view class="allCheck">
           <view>
             <view class="total">
               已选
@@ -58,6 +58,9 @@
         </view>
       </view>
     </view>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -76,9 +79,10 @@ import {SkuResultSkuJsons} from "../../Sku/components/SkuResult_skuJsons";
 import ProductionCardBom from "./components/ProductionCardBom";
 import {Message} from "../../components/Message";
 import {Sku} from "MES-Apis/lib/Sku/promise";
+import Modal from "../../components/Modal";
 
 export default {
-  components: {ProductionCardBom, Search, MyButton, BottomButton, Check, SkuItem, Card, Empty, Loading},
+  components: {Modal, ProductionCardBom, Search, MyButton, BottomButton, Check, SkuItem, Card, Empty, Loading},
   props: ['cardId'],
   mounted() {
     this.getCardDetail()
@@ -209,7 +213,7 @@ export default {
           planId: this.detail.sourceId
         })
         const _this = this
-        Message.dialog({
+        this.$refs.modal.dialog({
           title: '提交成功！',
           only: false,
           cancelText: '返回',

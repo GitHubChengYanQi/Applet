@@ -171,6 +171,9 @@
       />
     </Popup>
 
+    <Modal ref="modal" />
+
+
   </view>
 </template>
 
@@ -188,13 +191,14 @@ import ShopNumber from "../../components/ShopNumber";
 import BottomButton from "../../components/BottomButton";
 import {Message} from "../../components/Message";
 import Progress from "../../components/Progress";
+import Modal from "../../components/Modal";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'ProductionList',
-  components: {Progress, BottomButton, ShopNumber, Popup, Avatar, UserName, LinkButton, SkuItem, Card, List},
+  components: {Modal, Progress, BottomButton, ShopNumber, Popup, Avatar, UserName, LinkButton, SkuItem, Card, List},
   data() {
     return {
       timeDifference,
@@ -308,7 +312,7 @@ export default {
               number: this.formData.number
             }
           }).then(() => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               title: '创建出库任务成功!',
               onConfirm() {
                 _this.$refs.listRef.submit()
@@ -317,7 +321,7 @@ export default {
               }
             })
           }).catch(() => {
-            Message.dialog({
+            this.$refs.modal.dialog({
               title: '创建出库任务失败!'
             })
           }).finally(() => {

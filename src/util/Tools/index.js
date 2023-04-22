@@ -6,8 +6,10 @@ export const getLocalParmas = () => {
     const currentPage = pages[pages.length - 1]
     const search = pages[pages.length - 1]?.options || {}
     const urlSearch = Object.keys(search).length > 0 ? ('?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')) : ''
+    const route = '/' + currentPage.route + urlSearch
     return {
-        route: '/' + currentPage.route + urlSearch,
+        route: route,
+        stringRoute: route.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26"),
         search: search
     }
 }
@@ -108,3 +110,7 @@ export const rateTool = (value, total, num) => {
     }
     return rate > 0 ? `${rate}%` : 0;
 };
+
+export const routeReplace = (route) => {
+    return route.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
+}

@@ -1,7 +1,7 @@
 <template>
   <Auth>
     <Page v-if="auth" :cardId="cardId" />
-    <van-dialog id="van-dialog" />
+
   </Auth>
 </template>
 

@@ -101,6 +101,8 @@
 
     <Loading :loading="submitLoading" />
 
+    <Modal ref="modal" />
+
     <BottomButton
         only=""
         text="一键入库"
@@ -127,10 +129,14 @@ import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import Elliptsis from "../../../components/Ellipsis";
+import Modal from "../../../components/Modal";
 
 export default {
   name: 'InStockAsk',
-  components: {Elliptsis, Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card},
+  components: {
+    Modal,
+    Elliptsis, Loading, Search, ShopNumber, SkuItem, List, Popup, BottomButton, Empty, LinkButton, Card
+  },
   props: ['order'],
   data() {
     return {
@@ -218,7 +224,7 @@ export default {
     },
     inStock() {
       const _this = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         title: '是否执行一键入库操作？',
         confirmText: '开始入库',
         only: false,
@@ -254,8 +260,8 @@ export default {
           }
         }).then((res) => {
           resolve(true)
-          Message.dialog({
-            content: '入库完成！',
+          this.$refs.modal.dialog({
+            title: '入库完成！',
             confirmText: '查看凭证',
             cancelText: '返回',
             only: false,
@@ -273,7 +279,7 @@ export default {
         }).catch(() => {
           const message = Init.getNewErrorMessage()
           if (message) {
-            Message.dialog({
+            this.$refs.modal.dialog({
                   title: message
                 }
             )

@@ -12,27 +12,32 @@ import Error from "../../pages/Error";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Login} from "MES-Apis/lib/Login/promise";
 import {getLocalParmas} from "../../util/Tools";
+import {User} from "MES-Apis/lib/User/promise";
+import MyButton from "../MyButton";
+import LinkButton from "../LinkButton";
 
 export default {
   name: 'Auth',
   props: {
-    auth: {
+    loginAuth: {
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
+    tenantAuth: {
       type: Boolean,
       default() {
         return true
       }
     }
   },
-  components: {Error, Loading},
+  components: {LinkButton, MyButton, Error, Loading},
   data() {
     return {
-      loading: false,
+      loading: true,
       error: false,
       height: 0,
-      viewPages: [
-        '/pages/Home/index',
-        '/pages/User/index'
-      ]
     }
   },
   mounted() {
@@ -54,11 +59,6 @@ export default {
       try {
         await this.$store.dispatch('userInfo/getPublicInfo')
         await this.$store.dispatch('systemInfo/getSystemInfo')
-
-        if (!this.auth) {
-          this.authSuccess()
-          return
-        }
 
         const token = GetUserInfo().token;
         if (token) {
@@ -95,19 +95,35 @@ export default {
       console.log(userInfo)
       const userId = !!userInfo.userId;
       if (!userId) {
-        if (this.viewPages.includes(getLocalParmas().route)){
+        if (!this.loginAuth) {
           this.notLogin()
-        }else {
+        } else {
           uni.reLaunch({
-            url: `/pages/login/index?backUrl=${getLocalParmas().route}`,
+            url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
           })
         }
       } else {
         try {
-          await this.$store.dispatch('userInfo/getUserInfo')
+          const userInfo = this.$store.state.userInfo.userInfo || {}
+          let tenantId = userInfo.tenantId
+          if (Object.keys(userInfo).length === 0) {
+            const userRes = await User.getUserInfo()
+            const user = userRes.data || {}
+            this.$store.commit('userInfo/setUserInfo', user)
+            tenantId = user.tenantId
+            this.$store.commit('userInfo/setTenant', {tenantId: user.tenantId, name: user.tenantName})
+          }
           await this.getSystemInfo()
           this.authSuccess()
-        }catch (e) {
+          return
+          if (tenantId || !this.tenantAuth) {
+
+          } else {
+            uni.reLaunch({
+              url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas().stringRoute}`
+            })
+          }
+        } catch (e) {
           this.authError()
         }
 

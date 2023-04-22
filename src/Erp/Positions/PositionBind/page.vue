@@ -64,6 +64,9 @@
         </view>
       </view>
     </Popup>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -81,9 +84,10 @@ import Popup from "../../../components/Popup";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import Loading from "../../../components/Loading";
 import Empty from "../../../components/Empty";
+import Modal from "../../../components/Modal";
 
 export default {
-  components: {Empty, Loading, Popup, Remove, BottomButton, Icon, SkuItem, List, Search},
+  components: {Modal, Empty, Loading, Popup, Remove, BottomButton, Icon, SkuItem, List, Search},
   props: ['storehousePositionsId', 'position', 'store'],
   data() {
     return {
@@ -129,7 +133,7 @@ export default {
     },
     remove(item) {
       const _this = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         title: '删除后不可恢复，确定删除吗？',
         only: false,
         onConfirm() {
@@ -170,7 +174,7 @@ export default {
           spuId: skuId
         }
       }).then(() => {
-        Message.dialog({
+        this.$refs.modal.dialog({
           title: '添加成功！',
           onConfirm() {
             _this.show = false
@@ -179,7 +183,7 @@ export default {
           }
         })
       }).catch(() => {
-        Message.dialog({
+        this.$refs.modal.dialog({
           title: '添加失败！'
         })
       }).finally(() => {

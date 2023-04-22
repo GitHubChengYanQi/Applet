@@ -2,7 +2,7 @@
   <Auth>
     <van-notify id="van-notify" />
 
-    <van-dialog id="van-dialog" />
+
     <Page v-if="auth" />
   </Auth>
 </template>

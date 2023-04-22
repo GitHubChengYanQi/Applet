@@ -1,23 +1,20 @@
 <template>
   <view>
-    <van-popup
+    <u-popup
         :show="show"
-        :z-index="zIndex ||  100"
         @close="$emit('close')"
-        position="bottom"
-        @after-leave="$emit('closeAfter')"
-        @before-enter="$emit('showBefore')"
+        @open="$emit('showBefore')"
     >
       <view v-if="!noTitle" class='header'>
         <span v-if="leftText" class='left'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
         {{ title || '' }}
         <span class='right' @click="!rightText && $emit('close')">
           <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
-          <van-icon v-else name="cross" />
+          <u-icon v-else name="close" />
         </span>
       </view>
       <slot></slot>
-    </van-popup>
+    </u-popup>
   </view>
 </template>
 
@@ -38,7 +35,16 @@ export default {
     'getContainer',
     'position',
     'noTitle',
-  ]
+  ],
+  watch: {
+    show(value) {
+      if (!value) {
+        setTimeout(() => {
+          this.$emit('closeAfter')
+        }, 500)
+      }
+    }
+  }
 }
 </script>
 
@@ -56,6 +62,9 @@ export default {
     position: absolute;
     right: 0;
     padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
   }
 
   .left {

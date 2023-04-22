@@ -53,6 +53,9 @@
         <Tree :data="deptTree" v-model="positionAuths" />
       </view>
     </Popup>
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -69,12 +72,13 @@ import Empty from "../../components/Empty";
 import Popup from "../../components/Popup";
 import {System} from "MES-Apis/lib/System/promise";
 import Icon from "../../components/Icon";
+import Modal from "../../components/Modal";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Icon, Popup, Empty, Tree, BottomButton, PositionItem, Loading},
+  components: {Modal, Icon, Popup, Empty, Tree, BottomButton, PositionItem, Loading},
   props: ['storehouseId', 'store'],
   data() {
     return {
@@ -197,7 +201,7 @@ export default {
           })
           break;
         case 'del':
-          Message.dialog({
+          this.$refs.modal.dialog({
             title: `确定要删除库位【` + event.position.title + '】吗？',
             only: false,
             onConfirm() {
@@ -209,7 +213,7 @@ export default {
                   Message.successToast('删除成功！')
                   resolve(true)
                 }).catch(() => {
-                  Message.dialog({
+                  _this.$refs.modal.dialog({
                     title: Init.getNewErrorMessage()
                   })
                   resolve(true)

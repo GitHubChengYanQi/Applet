@@ -16,14 +16,6 @@ const getters = {}
 
 
 const actions = {
-    async getUserInfo({state}) {
-        if (Object.keys(state.userInfo).length === 0) {
-            const userRes = await User.getUserInfo()
-            const userInfo = userRes.data || {}
-            state.userInfo = userInfo
-            state.tenant = {tenantId: userInfo.tenantId}
-        }
-    },
     async getPublicInfo({state}) {
         if (Object.keys(state.publicInfo).length === 0) {
             const publicInfo = await Init.getPublicInfo({})
@@ -36,6 +28,12 @@ const actions = {
 const mutations = {
     authStatus(state, payload) {
         state.auth = payload
+    },
+    setUserInfo(state, payload) {
+        state.userInfo = payload
+    },
+    setTenant(state, payload) {
+        state.tenant = payload
     },
     refresh(state, payload) {
         state.refresh = payload

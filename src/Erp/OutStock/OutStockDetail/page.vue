@@ -57,33 +57,31 @@
       />
     </Popup>
 
-    <van-dialog
-        use-slot
-        :show="code"
-        :show-confirm-button="false"
-        @close="onClose"
-        @cancel="onCancel"
-        show-cancel-button
-        cancel-button-text="关闭"
-        cancel-button-color="#007aff"
-        custom-class="codeDialog"
-    >
-      <view style='text-align: center;padding-top: 12px'>
-        <view class='codeTitle'>领料码</view>
-        <view style="position: relative;padding-top: 19px">
-          <view class='code'>{{ code }}</view>
-          <view class='time' v-if="code && !success">
-            失效剩余时间：
-            <Clock :seconds='600' />
-          </view>
-          <canvas id="qrcode" canvas-id="qrcode" style="width: 200px;height: 200px;display: inline-block"></canvas>
-          <view v-if="success" class='getCodeSuccess'>
-            <van-icon name="passed" size="64px" />
-            领取成功！
+    <view class="codeDialog">
+      <u-modal
+          width="300px"
+          :show="code"
+          confirmText="关闭"
+          confirmColor="#007aff"
+          @confirm="onCancel"
+      >
+        <view style='text-align: center;padding-top: 12px'>
+          <view class='codeTitle'>领料码</view>
+          <view style="position: relative;padding: 19px">
+            <view class='code'>{{ code }}</view>
+            <view class='time' v-if="code && !success">
+              失效剩余时间：
+              <Clock :seconds='600' />
+            </view>
+            <canvas id="qrcode" canvas-id="qrcode" style="width: 200px;height: 200px;display: inline-block"></canvas>
+            <view v-if="success" class='getCodeSuccess'>
+              <u-icon name="checkbox-mark" size="64px" />
+              领取成功！
+            </view>
           </view>
         </view>
-      </view>
-    </van-dialog>
+      </u-modal>
+    </view>
   </view>
 </template>
 
@@ -101,6 +99,9 @@ import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import UQRCode from 'uqrcodejs';
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   props: [
     'actionNode',
     'taskDetail',
@@ -380,22 +381,6 @@ image {
   z-index: 1;
 }
 
-.tabCheck {
-  padding-bottom: 8px;
-  color: #2680eb;
-  margin: 0 auto;
-  text-align: center;
-  font-size: 14px;
-  border-bottom: 2px solid #2680eb;
-}
-
-.tabCheck2 {
-  padding-bottom: 8px;
-  margin: auto;
-  text-align: center;
-  font-size: 14px;
-}
-
 
 .position {
   font-size: 12px;
@@ -443,13 +428,6 @@ image {
   padding: 4px 12px;
   font-size: 14px;
 }
-
-.number {
-  font-size: 14px;
-  margin: auto 10px;
-  letter-spacing: 2px;
-}
-
 .bill {
   font-size: 14px;
   padding-left: 8px;
@@ -485,10 +463,13 @@ image {
 }
 
 .codeDialog {
-  z-index: 99;
 
-  :global .adm-dialog-body {
-    padding-top: 12px;
+  .u-modal__content {
+    padding: 0 !important;
+
+    > view {
+      width: 100%;
+    }
   }
 
   .codeTitle {
