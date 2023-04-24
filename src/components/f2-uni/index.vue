@@ -60,6 +60,7 @@ export default {
         node.height = height * pixelRatio
         const config = {context, width, height, pixelRatio}
         const chart = this.onInit(F2, config)
+        console.log(chart)
         if (chart) {
           this.canvasEl = chart.get('el')
         }

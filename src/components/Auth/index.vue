@@ -113,11 +113,11 @@ export default {
             tenantId = user.tenantId
             this.$store.commit('userInfo/setTenant', {tenantId: user.tenantId, name: user.tenantName})
           }
-          await this.getSystemInfo()
-          this.authSuccess()
-          return
-          if (tenantId || !this.tenantAuth) {
 
+
+          if (tenantId || !this.tenantAuth) {
+            await this.getSystemInfo()
+            this.authSuccess()
           } else {
             uni.reLaunch({
               url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas().stringRoute}`

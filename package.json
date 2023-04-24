@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_ptv6br5ym2o.js --to ./src/static/font",
+    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_wcm2c00zr6.js --to ./src/static/font",
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --minimize",
     "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode cheng --watch --minimize",
     "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh --watch --minimize"

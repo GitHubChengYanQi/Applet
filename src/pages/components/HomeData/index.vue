@@ -1,23 +1,14 @@
 <template>
-  <view>
-    <swiper
-        class="swiper"
-        circular
-        :indicator-dots="true"
-        :autoplay="false"
-        :interval="5000"
-        :duration="500"
-        @change="change"
-    >
-      <swiper-item>
-        <f2-uni
-            :width="windowWidth - 48"
-            :height="170"
-            :onInit="onInitChart"
-        />
-        <view style="height: 10px" />
-      </swiper-item>
-    </swiper>
+  <view class="assetData">
+    <view class="total">
+      总资产：<span class="num">￥10232.00</span>
+    </view>
+    <f2-uni
+        :width="windowWidth - 48"
+        :height="170"
+        :onInit="onInitChart"
+    />
+    <view style="height: 10px" />
   </view>
 </template>
 
@@ -43,32 +34,66 @@ export default {
   methods: {
     onInitChart: (F2Constructor, config) => {
       const chart = new F2Constructor.Chart(config)
-      const data = [
-        {value: 63.4, city: 'New York', date: '2011-10-01'},
-        {value: 62.7, city: 'Alaska', date: '2011-10-01'},
-        {value: 72.2, city: 'Austin', date: '2011-10-01'},
-        {value: 58, city: 'New York', date: '2011-10-02'},
-        {value: 59.9, city: 'Alaska', date: '2011-10-02'},
-        {value: 67.7, city: 'Austin', date: '2011-10-02'},
-        {value: 53.3, city: 'New York', date: '2011-10-03'},
-        {value: 59.1, city: 'Alaska', date: '2011-10-03'},
-        {value: 69.4, city: 'Austin', date: '2011-10-03'}
-      ]
+      const map = {
+        '账户余额': '34663',
+        '库存总额': '458893',
+        '固定资产': '23622',
+        '应付欠款': '0',
+      };
+      const data = [{
+        name: '账户余额',
+        percent: 0.6,
+        a: '1'
+      }, {
+        name: '库存总额',
+        percent: 0.2,
+        a: '1'
+      }, {
+        name: '固定资产',
+        percent: 0.1,
+        a: '1'
+      }, {
+        name: '应付欠款',
+        percent: 0.1,
+        a: '1'
+      }];
       chart.source(data, {
-        date: {
-          range: [0, 1],
-          type: 'timeCat',
-          mask: 'MM-DD'
-        },
-        value: {
-          max: 300,
-          tickCount: 4
+        percent: {
+          formatter: function formatter(val) {
+            return val * 100 + '%';
+          }
         }
-      })
-      chart.area().position('date*value').color('city').adjust('stack')
-      chart.line().position('date*value').color('city').adjust('stack')
-      chart.render()
-      // 注意：需要把chart return 出来
+      });
+      chart.legend({
+        position: 'left',
+        itemFormatter: (val) => {
+          return val + '  ￥' + map[val];
+        }
+      });
+      chart.tooltip(false);
+      chart.coord('polar', {
+        transposed: true,
+        radius: 1
+      });
+      chart.axis(false);
+      chart.interval()
+          .position('a*percent')
+          .color('name', ['#F04864', '#1890FF', '#13C2C2', '#FACC14'])
+          .adjust('stack')
+          .style({
+            lineWidth: 1,
+            stroke: '#fff',
+            lineJoin: 'round',
+            lineCap: 'round'
+          })
+          .animate({
+            appear: {
+              duration: 1200,
+              easing: 'bounceOut'
+            }
+          });
+
+      chart.render();
       return chart
     },
     change({detail: {current}}) {
@@ -81,5 +106,20 @@ export default {
 <style lang="scss">
 .swiper {
   height: 180px;
+}
+
+.assetData {
+  position: relative;
+
+  .total {
+    position: absolute;
+    top: 12px;
+    left: 24px;
+    font-size: 14px;
+
+    .num {
+      color: #19be6b;
+    }
+  }
 }
 </style>

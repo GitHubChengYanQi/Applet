@@ -7,26 +7,7 @@
 
     <view class="content">
 
-      <view class="header">
-        <view class="headerItem">
-          <view class="value" style="color:#13C2C2">{{ homeData.instockNumber || 0 }}</view>
-          <view class="label">待入库</view>
-        </view>
-        <view class="headerItem">
-          <view class="value" style="color:#1890FF">{{ homeData.outStockNumber || 0 }}</view>
-          <view class="label">待出库</view>
-        </view>
-        <view class="headerItem" @click="floorStock">
-          <view class="value" style="color:#FACC14">{{ homeData.floorNumber || 0 }}</view>
-          <view class="label">低库存</view>
-        </view>
-        <view class="headerItem" style="border: none">
-          <view class="value" style="color:#F04864">{{ homeData.ceilingNumber || 0 }}</view>
-          <view class="label">高库存</view>
-        </view>
-      </view>
-
-      <view v-if="false">
+      <view>
         <view class="title">资产状况数据看板</view>
 
         <view class="data">
@@ -121,6 +102,7 @@ export default {
       });
     },
     getHomeData() {
+      return
       this.homeDataLoading = true
       Erp.homeData().then((res) => {
         this.homeData = res.data || {}

@@ -361,7 +361,7 @@
       "homeButton": true
     },
     "usingComponents": {
-//      "van-swipe-cell": "/wxcomponents/swipe-cell/index"
+      "van-swipe-cell": "/wxcomponents/swipe-cell/index"
     }
   }
 }

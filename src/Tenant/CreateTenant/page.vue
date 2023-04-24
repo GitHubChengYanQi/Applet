@@ -4,7 +4,7 @@
       快速创建我的团队
     </view>
     <view class="input">
-      <uni-easyinput focus v-model="name" placeholder="请输入团队名称" />
+      <uni-easyinput focus v-model="name" placeholder="团队名称" />
     </view>
     <MyButton type="primary" @click="create">创建团队</MyButton>
     <Modal ref="modal" />
@@ -64,9 +64,7 @@ export default {
 
 <style lang="scss">
 .createTenant {
-  padding: 12px;
-  background-color: #fff;
-  height: 100vh;
+  padding: 12px 0;
 
   .title {
     padding: 0 8px;
