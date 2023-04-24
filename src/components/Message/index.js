@@ -37,9 +37,20 @@ const errorToast = (
 
 };
 
+const loadingToast = (
+    title,
+    afterClose = () => {
+    }
+) => {
+
+    toast(title || '加载中...', afterClose, 'loading')
+
+};
+
 
 export const Message = {
     toast,
     successToast,
-    errorToast
+    errorToast,
+    loadingToast
 };

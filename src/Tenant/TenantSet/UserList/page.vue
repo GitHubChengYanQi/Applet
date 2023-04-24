@@ -7,12 +7,15 @@
         <template v-for="(item, index) in groups">
           <u-index-item>
             <u-index-anchor bgColor="#f5f5f5" :text="groups[index].title"></u-index-anchor>
-            <view class="list-cell" v-for="(cell, index) in item.items" :key="index">
-              <view class="userInfo">
+            <view class="list-cell" v-for="(cell, cellIndex) in item.items" :key="cellIndex">
+              <view class="userInfo" @click="openUserAction(cell)">
                 {{ cell.userResult ? cell.userResult.name : '-' }}
                 <view class="phone">
                   {{ cell.userResult ? cell.userResult.phone : '-' }}
                 </view>
+              </view>
+              <view v-if="cell.isAdmin === 1">
+                <u-tag text="管理员" plain />
               </view>
             </view>
           </u-index-item>
@@ -39,7 +42,17 @@
       </view>
     </view>
 
+    <u-action-sheet
+        @close="showActions = false"
+        :actions="actionList"
+        :show="showActions"
+        @select="actionSelect"
+    />
+
     <AddUser :add-user-show="addUserShow" @close="addUserShow = false" />
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -48,30 +61,42 @@ import {pinyin} from 'pinyin-pro';
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import Loading from "../../../components/Loading";
 import Empty from "../../../components/Empty";
-import {User} from "MES-Apis/lib/User/promise";
 import {safeAreaHeight} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
 import AddUser from "../components/AddUser";
+import Modal from "../../../components/Modal";
+import {Message} from "../../../components/Message";
+import {Init} from "MES-Apis/lib/Init";
 
 export default {
-  components: {AddUser, MyButton, Empty, Loading},
+  components: {Modal, AddUser, MyButton, Empty, Loading},
   data() {
     return {
       groups: [],
       loading: false,
       safeAreaHeight,
       total: 0,
-      addUserShow: false
+      actionUser: {},
+      addUserShow: false,
+      showActions: false,
+      tenant: {},
+      actionList: [
+        {
+          name: '移出团队',
+          key: 'del',
+          color: '#dd524d',
+        },
+      ]
     }
   },
   mounted() {
+    this.tenant = this.$store.state.userInfo.tenant || {}
     this.getUserList()
   },
   methods: {
     getUserList() {
       this.loading = true
-      const tenant = this.$store.state.userInfo.tenant || {}
-      Tenant.joinTenantAllList({data: {tenantId: tenant.tenantId, status: 99}}).then((res) => {
+      Tenant.joinTenantAllList({data: {tenantId: this.tenant.tenantId, status: 99}}).then((res) => {
         const users = res.data || []
         const charCodeOfA = 'A'.charCodeAt(0);
         const groups = [];
@@ -113,6 +138,44 @@ export default {
         this.loading = false
       })
 
+    },
+    openUserAction(user) {
+      if (!this.tenant.admin) {
+        return
+      }
+      this.showActions = true
+      this.actionUser = user
+    },
+    actionSelect({key}) {
+      const _this = this
+      switch (key) {
+        case 'del':
+          this.$refs.modal.dialog({
+            title: `确认要把【${_this.actionUser?.userResult?.name || '-'}】移出团队吗？`,
+            only: false,
+            confirmText: '移除团队',
+            confirmError: true,
+            onConfirm() {
+              return new Promise((resolve) => {
+                Tenant.removeTenantUser({
+                  data: {
+                    tenantBindId: _this.actionUser.tenantBindId
+                  }
+                }).then(() => {
+                  resolve(true)
+                  _this.getUserList()
+                  Message.successToast('移出成功！')
+                }).catch(() => {
+                  resolve(true)
+                  _this.$refs.modal.dialog({
+                    title: Init.getNewErrorMessage() || '移出失败！'
+                  })
+                })
+              })
+            }
+          })
+          return
+      }
     }
   }
 }
@@ -121,7 +184,7 @@ export default {
 <style lang="scss">
 .list-cell {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   box-sizing: border-box;
   width: 100%;
   padding: 10px 24px;

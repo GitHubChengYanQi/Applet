@@ -64,6 +64,9 @@ export default {
         case 0:
           this.disabled = true
           return '申请中，等待管理员审批'
+        case 50:
+          this.disabled = false
+          return '申请已被拒绝，重新发起申请'
         case 99:
           this.disabled = false
           return '已同意申请，进入团队'

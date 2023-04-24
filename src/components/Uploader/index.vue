@@ -12,10 +12,11 @@
           </view>
         </u-button>
       </view>
-      <view v-else class="upload" :style="{width:`${size}px`,height:`${size}px`}">
+      <view v-else-if="!$slots.default" class="upload" :style="{width:`${size}px`,height:`${size}px`}">
         <u-loading-icon v-if="loading" mode="circle" :vertical="true"></u-loading-icon>
         <u-icon v-else :size="size / 2" color="#dcdee0" name="camera-fill"></u-icon>
       </view>
+      <slot></slot>
     </slot>
   </u-upload>
 </template>

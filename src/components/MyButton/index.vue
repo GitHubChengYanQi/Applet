@@ -1,6 +1,7 @@
 <template>
   <view class="myButton">
     <u-button
+        :color="color"
         :type="type || 'info'"
         :loading="loading"
         :size="size"
@@ -25,6 +26,7 @@ export default {
   name: 'MyButton',
   props: {
     type: String,
+    color: String,
     loading: Boolean,
     plain: Boolean,
     disabled: Boolean,

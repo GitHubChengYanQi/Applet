@@ -111,7 +111,12 @@ export default {
             const user = userRes.data || {}
             this.$store.commit('userInfo/setUserInfo', user)
             tenantId = user.tenantId
-            this.$store.commit('userInfo/setTenant', {tenantId: user.tenantId, name: user.tenantName})
+            this.$store.commit('userInfo/setTenant', {
+              tenantId: user.tenantId,
+              name: user.tenantName,
+              logo: user.tenantLogo,
+              admin:!!user.isTenantAdmin
+            })
           }
 
 

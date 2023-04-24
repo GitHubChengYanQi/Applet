@@ -4,10 +4,12 @@
       <view class="title">
         快速创建我的团队
       </view>
-      <MyButton type="primary" @click="create">创建新的团队</MyButton>
+      <MyButton color="#FA8F2B" type="primary" @click="create">
+        <u-icon name="plus" color="#fff" />
+        创建新的团队
+      </MyButton>
     </view>
     <view class="tenants">
-      <view class="title">进入团队</view>
       <Loading skeleton v-if="loading" />
       <view v-else>
         <Empty description="暂无其他团队，请创建" v-if="list.length === 0" />
@@ -19,7 +21,8 @@
             @click="switchTenant(item)"
         >
           <view class="name">
-            <Icon icon="icon-team-fill" size="20" />
+            <Avatar size="26" circular v-if="item.logoResult.thumbUrl" :src="item.logoResult.thumbUrl" />
+            <Icon v-else icon="icon-tuanduitouxiang" size="26" />
             {{ item.name }}
           </view>
           <u-icon name="checkbox-mark" v-if="item.tenantId === currentTenantId" color="#007aff" />
@@ -45,9 +48,13 @@ import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {getLocalParmas} from "../../util/Tools";
 import Modal from "../../components/Modal";
+import Avatar from "../../components/Avatar";
 
 export default {
-  components: {Modal, Icon, Empty, Loading, MyButton},
+  options: {
+    styleIsolation: 'shared'
+  },
+  components: {Avatar, Modal, Icon, Empty, Loading, MyButton},
   data() {
     return {
       loading: false,
@@ -79,24 +86,31 @@ export default {
       if (tenant.tenantId === this.currentTenantId) {
         return
       }
-      this.switchLoading = true
-      Tenant.switchTenant({
-        data: {tenantId: tenant.tenantId}
-      }, {
-        onSuccess: (res) => {
-          this.switchLoading = false
-          Message.successToast('切换成功！', () => {
-            getApp().globalData.token = res
-            this.$store.commit('userInfo/clear')
-            uni.reLaunch({
-              url: '/pages/Home/index'
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '确认要切换企业吗？',
+        content: tenant.name,
+        only: false,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Tenant.switchTenant({
+              data: {tenantId: tenant.tenantId}
+            }, {
+              onSuccess: (res) => {
+                resolve(true)
+                getApp().globalData.token = res
+                _this.$store.commit('userInfo/clear')
+                uni.reLaunch({
+                  url: getLocalParmas().route
+                })
+              },
+              onError: () => {
+                resolve(true)
+                _this.$refs.modal.dialog({
+                  title: Init.getNewErrorMessage() || '切换失败！'
+                })
+              }
             })
-          })
-        },
-        onError: () => {
-          this.switchLoading = false
-          this.$refs.modal.dialog({
-            title: Init.getNewErrorMessage() || '切换失败！'
           })
         }
       })
@@ -107,24 +121,26 @@ export default {
 
 <style lang="scss">
 .switchTenant {
-  padding: 8px;
+  padding: 21px 12px;
 
   .header {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
+    padding: 12px;
     background-color: #fff;
-    border-radius: 4px;
+    border-radius: 8px;
 
     .title {
       flex-grow: 1;
     }
 
     .myButton {
-      width: 100%;
 
       button {
         border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
     }
 
@@ -132,26 +148,21 @@ export default {
 
   .tenants {
     background-color: #fff;
-    border-radius: 4px;
+    border-radius: 8px;
     margin-top: 12px;
-    padding: 8px 12px;
-
-    .title {
-      padding-bottom: 8px;
-      border-bottom: solid 1px $body-color;
-    }
+    padding: 0 14px;
 
     .tenant {
       display: flex;
       align-items: center;
-      padding: 8px 0;
       border-bottom: solid 1px $body-color;
 
       .name {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 14px;
         flex-grow: 1;
+        padding: 14px 0;
       }
     }
   }

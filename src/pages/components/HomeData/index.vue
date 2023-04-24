@@ -4,6 +4,7 @@
       总资产：<span class="num">￥10232.00</span>
     </view>
     <f2-uni
+        v-if="show"
         :width="windowWidth - 48"
         :height="170"
         :onInit="onInitChart"
@@ -20,12 +21,14 @@ export default {
   components: {F2Uni},
   data() {
     return {
-      current: 0
+      current: 0,
+      show: false
     }
   },
   computed: {
     windowWidth() {
       if (this.$store.state.systemInfo.systemInfo) {
+        this.show = true
         return this.$store.state.systemInfo.systemInfo.windowWidth || 0
       }
       return 0

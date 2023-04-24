@@ -1,9 +1,6 @@
 <template>
   <view class="home">
-    <van-notice-bar
-        left-icon="volume-o"
-        text="本产品终身免费使用，升级大容量云盘 立即联系>>"
-    />
+    <u-notice-bar direction="column"  :text="text"></u-notice-bar>
 
     <view class="content">
 
@@ -63,7 +60,11 @@ export default {
       show: false,
       menus: [],
       homeData: {},
-      homeDataLoading: false
+      homeDataLoading: false,
+      text:[
+          '本产品终身免费使用，升级大容量云盘 立即联系>>',
+          '企业会员可终身享用5G云空间'
+      ]
     }
   },
   watch: {
@@ -133,7 +134,7 @@ export default {
   height: 100vh;
 
   .content {
-    max-height: calc(100% - 64px);
+    max-height: calc(100% - 48px);
     overflow: auto;
     padding: 24px 12px;
   }

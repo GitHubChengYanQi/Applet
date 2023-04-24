@@ -5,10 +5,10 @@
         @close="$emit('close')"
         @open="$emit('showBefore')"
     >
-      <view v-if="!noTitle" class='header'>
-        <span v-if="leftText" class='left'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
+      <view v-if="!noTitle" class='popupHeader'>
+        <span v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
         {{ title || '' }}
-        <span class='right' @click="!rightText && $emit('close')">
+        <span class='popupRight' @click="!rightText && $emit('close')">
           <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
           <u-icon v-else name="close" />
         </span>
@@ -48,7 +48,7 @@ export default {
 </script>
 
 <style lang="scss">
-.header {
+.popupHeader {
   height: 45px;
   line-height: 45px;
   text-align: center;
@@ -56,7 +56,7 @@ export default {
   border-bottom: 1px solid #EEEEEE;
   position: relative;
 
-  .right {
+  .popupRight {
     top: 0;
     position: absolute;
     right: 0;
@@ -66,7 +66,7 @@ export default {
     align-items: center;
   }
 
-  .left {
+  .popupLeft {
     top: 0;
     position: absolute;
     left: 0;

@@ -40,7 +40,15 @@
           </view>
         </view>
       </view>
-      <view>
+      <view class="buttons">
+        <MyButton
+            :loading="submitLoading"
+            :disabled="this.checked.length === 0"
+            type="error"
+            @click="reject"
+        >
+          拒绝
+        </MyButton>
         <MyButton
             :loading="submitLoading"
             :disabled="this.checked.length === 0"
@@ -64,7 +72,6 @@ import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import Check from "../../../components/Check";
 import {safeAreaHeight, timeDifference} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
-import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../../components/Modal";
 
@@ -118,6 +125,34 @@ export default {
             }).catch(() => {
               _this.$refs.modal.dialog({
                 title: Init.getNewErrorMessage() || '通过失败！'
+              })
+            })
+          })
+        }
+      })
+    },
+    reject() {
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '确定拒绝' + this.checked.length + '个用户的申请吗',
+        only: false,
+        confirmText: '拒绝',
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Tenant.rejectJoinTenant({
+              data: {
+                tenantBindIds: _this.checked
+              }
+            }).then(() => {
+              _this.onSearch()
+              _this.$refs.modal.dialog({
+                title: '拒绝成功！'
+              })
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '拒绝失败！'
               })
             })
           })
@@ -183,6 +218,12 @@ export default {
         font-size: 20px;
       }
     }
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 </style>

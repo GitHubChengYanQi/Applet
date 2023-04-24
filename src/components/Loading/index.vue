@@ -16,6 +16,7 @@
           color="#fff"
           bg-color="rgba(0, 0, 0, 0.3)"
           loading
+          :loading-text="loadingText || 'loading...'"
       />
     </view>
   </view>

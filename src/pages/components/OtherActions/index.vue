@@ -127,6 +127,7 @@ export default {
     }
 
     .actionName {
+      min-width: 70px;
       //padding-top: 12px;
     }
   }

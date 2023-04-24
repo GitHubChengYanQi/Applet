@@ -1,6 +1,5 @@
 <template>
   <view class="home">
-
     <view class="content">
       <view class="header">
         <view class="user">

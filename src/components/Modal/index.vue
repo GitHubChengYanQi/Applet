@@ -20,7 +20,7 @@
           <view class="confirm" v-if="confirmLoading">
             <u-loading-icon mode="circle" />
           </view>
-          <view class="confirm" v-else @click="onConfirm">
+          <view :class="{confirm:true,error:confirmError}" v-else @click="onConfirm">
             {{ confirmText }}
           </view>
         </view>
@@ -43,6 +43,7 @@ export default {
       title: '',
       content: '',
       confirmText: '',
+      confirmError: '',
       cancelText: '',
       onCancel: () => {
       },
@@ -59,13 +60,15 @@ export default {
              cancelText = '取消',
              onCancel,
              onConfirm,
+             confirmError,
              only = true,
            }) {
-      setTimeout(()=>{
+      setTimeout(() => {
         this.show = true
-      },0)
+      }, 0)
       this.title = title
       this.content = content
+      this.confirmError = confirmError
       this.confirmText = confirmText
       this.cancelText = cancelText
       this.onCancel = async () => {
@@ -112,6 +115,10 @@ export default {
       color: $primary-color;
     }
 
+    .error {
+      color: $uni-color-error;
+    }
+
     .cancel {
 
     }
@@ -126,6 +133,10 @@ export default {
   .u-modal__button-group--confirm-button {
     border-top: 1px solid rgb(214, 215, 217);
     padding: 0;
+  }
+
+  .u-modal__content {
+    text-align: center;
   }
 }
 

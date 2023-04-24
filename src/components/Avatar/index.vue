@@ -5,9 +5,7 @@
       :size="size"
       :shape="circular ? 'circle' : 'square'"
       @click="$emit('click')"
-  >
-
-  </u-avatar>
+  />
 </template>
 
 <script>

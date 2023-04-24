@@ -1,12 +1,31 @@
 <template>
   <view class="createTenant">
-    <view class="title">
-      快速创建我的团队
+    <view class="logo">
+      <view class="logoTitle">
+        头像/企业logo
+      </view>
+      <view class="uploadLogo">
+        <Uploader @onChange="uploadLogo">
+          <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
+          <Icon icon="icon-tuanduitouxiang" size="26" v-else />
+        </Uploader>
+        <u-icon name="arrow-right" size="12" color="#929293" />
+      </view>
     </view>
-    <view class="input">
-      <uni-easyinput focus v-model="name" placeholder="团队名称" />
+    <view class="name">
+      <u--input
+          placeholder="团队名称"
+          focus
+          border="none"
+          v-model="name"
+      />
     </view>
-    <MyButton type="primary" @click="create">创建团队</MyButton>
+    <view class="button">
+      <MyButton @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</MyButton>
+    </view>
+
+    <Loading :loading="loading" :loading-text="edit ? '保存数据中...' : '创建数据中...'" />
+
     <Modal ref="modal" />
   </view>
 </template>
@@ -18,23 +37,49 @@ import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {getLocalParmas, routeReplace} from "../../util/Tools";
 import Modal from "../../components/Modal";
+import Icon from "../../components/Icon";
+import Uploader from "../../components/Uploader";
+import Avatar from "../../components/Avatar";
+import Loading from "../../components/Loading";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Modal, MyButton},
+  components: {Loading, Avatar, Uploader, Icon, Modal, MyButton},
   data() {
     return {
       name: '',
-      loading: false
+      loading: false,
+      logo: {},
+      edit: false,
+      tenantId: ''
+    }
+  },
+  mounted() {
+    if (getLocalParmas().search.type === 'update') {
+      uni.setNavigationBarTitle({
+        title: '更改团队信息'
+      });
+      this.edit = true
+      const tenant = this.$store.state.userInfo.tenant || {}
+      this.name = tenant.name
+      this.tenantId = tenant.tenantId
+      this.logo = {
+        id: tenant.logo.mediaId,
+        url: tenant.logo.thumbUrl
+      }
     }
   },
   methods: {
     create() {
+      if (!this.name) {
+        Message.toast('请输入团队名称！')
+        return
+      }
       this.loading = true
       Tenant.createTenant({
-        data: {name: this.name}
+        data: {name: this.name, logo: this.logo.id}
       }, {
         onSuccess: (res) => {
           this.loading = false
@@ -52,11 +97,39 @@ export default {
         }
       })
     },
+    editTenant() {
+      if (!this.name) {
+        Message.toast('请输入团队名称！')
+        return
+      }
+      this.loading = true
+      Tenant.editTenant({
+        data: {tenantId: this.tenantId, name: this.name, logo: this.logo.id}
+      }, {
+        onSuccess: (res) => {
+          this.loading = false
+          Message.successToast('保存成功!', () => {
+            getApp().globalData.token = res
+            this.$store.commit('userInfo/clear')
+            this.goBack()
+          })
+        },
+        onError: () => {
+          this.loading = false
+          this.$refs.modal.dialog({
+            title: Init.getNewErrorMessage() || '保存失败！',
+          })
+        }
+      })
+    },
     goBack() {
       const backUrl = getLocalParmas().search.backUrl
       uni.reLaunch({
         url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
       })
+    },
+    uploadLogo(value) {
+      this.logo = value
     }
   }
 }
@@ -64,25 +137,57 @@ export default {
 
 <style lang="scss">
 .createTenant {
-  padding: 12px 0;
+
 
   .title {
     padding: 0 8px;
     font-weight: bold;
   }
 
-  .input {
-    padding: 12px 0;
-  }
+  .logo {
+    margin: 19px 12px 0;
+    padding: 13px 14px;
+    border-radius: 8px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
 
-  .myButton {
-    width: 100%;
+    .logoTitle {
+      flex-grow: 1;
+      font-size: 14px;
+      color: #3D3D3D;
+      height: 24px;
+      line-height: 24px;
+    }
 
-    button {
-      width: 100% !important;
-      border-radius: 50px;
-      padding: 8px 0;
+    .uploadLogo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
   }
+
+  .name {
+    margin: 15px 12px;
+    padding: 13px 14px;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+
+  .button {
+    margin-top: 30px;
+
+    .myButton {
+      width: calc(100% - 24px);
+      padding: 0 12px;
+
+      button {
+        width: 100% !important;
+        border-radius: 50px;
+        padding: 8px 0;
+      }
+    }
+  }
+
 }
 </style>
