@@ -1,13 +1,11 @@
 <template>
   <u-avatar
-      :text="text"
-      :src="src"
+      :text="text || ''"
+      :src="src || ''"
       :size="size"
       :shape="circular ? 'circle' : 'square'"
       @click="$emit('click')"
-  >
-
-  </u-avatar>
+  />
 </template>
 
 <script>

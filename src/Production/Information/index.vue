@@ -11,11 +11,11 @@
 				<Search></Search>
 					<u-collapse accordion>
 						<u-collapse-item title="历史计划">
-							
-							
+
+
 						</u-collapse-item>
 						<u-collapse-item title="历史订单">
-							
+
 						</u-collapse-item>
 					</u-collapse>
 			</view>
@@ -24,7 +24,7 @@
 		<Search></Search>
 		<view class="uni-list">
 			<view class="headPortrait3">
-			  <image src="../../static/3.png" alt="" />
+			  <image src="../../static/images/3.png" alt="" />
 			  <view class="quantity">10件</view>
 			</view>
 			<view class="describe">
@@ -41,7 +41,7 @@
 			<view class="box">
 				<view class="uni-list">
 					<view class="headPortrait3">
-					  <image src="../../static/3.png" alt="" />
+					  <image src="../../static/images/3.png" alt="" />
 					  <view class="quantity">10件</view>
 					</view>
 					<view class="describe">
@@ -69,7 +69,7 @@
 					<ShopNumber value="0" @onChange="num=>onChange(num,item.id)" v-model="item.value"></ShopNumber>
 				</view>
 			</view>
-			
+
 			</view>
 			<BottomButton rightText="添加"></BottomButton>
 		</u-popup>
@@ -106,7 +106,7 @@
 					}
 				]
 			}
-		  }, 
+		  },
 		  methods:{
 			close() {
 				this.show1 = false

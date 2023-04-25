@@ -1,8 +1,9 @@
 <template>
   <view>
-    <scroll-view class="boms" scroll-y>
+    <Empty v-if="error" type="error" description="获取BOM信息异常" />
+    <view v-else class="boms">
       <view class="header">
-        <Card title="生产BOM数量">
+        <Card title="生产数量">
           <template slot="extra">
             <ShopNumber action-show :value="number" @click="visible = true" />
           </template>
@@ -11,58 +12,21 @@
 
       <Loading :skeleton="true" v-if="loading" />
       <view v-else>
-        <Card
-            :no-body="open !== item.bomId"
-            no-left-border
-            style="box-shadow: 0 5px 5px 0 #e1ebf6;margin-bottom: 16px;"
-            body-style="padding-top:0;margin-top:8px"
-            v-for="item in boms"
-            :key="item.bomId"
-            class="bomItem"
+        <Card title="生产信息" style="border-bottom: solid 1px #F5F5F5" />
+        <view
+            class="productionCardBom"
+            :style="{maxHeight: `calc(100vh - 110px - ${37 + safeAreaHeight(this,8)}px)`,overflow:'auto'}"
         >
-          <view slot="title">
-            <SkuItem
-                extra-width="100px"
-                :sku-result="isObject(item.skuResult)"
-            >
-              <template slot="otherData" class="user">
-                负责人：
-                <LinkButton @click="selectUser(item.bomId,item.user)">
-                  {{ item.user ? item.user.name : '请选择负责人' }}
-                </LinkButton>
-              </template>
-            </SkuItem>
-          </view>
-          <view slot="extra" class="extra">
-            x {{ item.number }}
-            <u-icon
-                :name="open !== item.bomId ? 'arrow-down' : 'arrow-up'"
-                color="#007aff"
-                @click="open = open === item.bomId ? null : item.bomId"
-            >
-
-            </u-icon>
-          </view>
-          <view class="details">
-            <view class="line"></view>
-            <view
-                v-for="(detailItem,index) in isArray(item.detailList)"
-                :key="detailItem.skuId"
-                class="detail"
-            >
-              <view :class="{detailItem:true,first:index === 0,end:index === isArray(item.detailList).length - 1}">
-                <view class="skuItem">
-                  <SkuItem img-size="60" extra-width="150px" :sku-result="isObject(detailItem.skuResult)" />
-                </view>
-                <ShopNumber show :value="detailItem.number" />
-              </view>
-            </view>
-          </view>
-
-        </Card>
+          <ProductionCardBom
+              :bom="parentBom"
+              show
+          />
+        </view>
         <BottomButton
+            :loading="submitLoading"
             only
             text="创建生产任务"
+            @onClick="submit"
         />
       </view>
 
@@ -73,15 +37,16 @@
           :min='1'
           @onChange="onChange"
       />
-    </scroll-view>
-    <view style="height: 100px" />
+
+      <Modal ref="modal" />
+
+    </view>
   </view>
 
 </template>
-
 <script>
 import {Bom} from "MES-Apis/lib/Bom/promise";
-import {getLocalParmas, isArray, isObject} from "../../util/Tools";
+import {isArray, isObject, safeAreaHeight} from "../../util/Tools";
 import SkuItem from "../../components/SkuItem";
 import ShopNumber from "../../components/ShopNumber";
 import Loading from "../../components/Loading";
@@ -89,55 +54,117 @@ import Card from "../../components/Card";
 import BottomButton from "../../components/BottomButton";
 import LinkButton from "../../components/LinkButton";
 import Keybord from "../../components/Keybord";
+import {Production} from "MES-Apis/lib/Production/promise";
+import {Message} from "../../components/Message";
+import {Sku} from "MES-Apis/lib/Sku/promise";
+import ProductionCardBom from "../ProductionCardDetail/components/ProductionCardBom";
+import Empty from "../../components/Empty";
+import {Init} from "MES-Apis/lib/Init";
+import Modal from "../../components/Modal";
 
 export default {
   name: 'BomDetailList',
-  components: {Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
+  components: {Modal, Empty, ProductionCardBom, Keybord, LinkButton, BottomButton, Card, Loading, ShopNumber, SkuItem},
   props: ['bomId'],
   data() {
     return {
+      safeAreaHeight,
       boms: [],
       isArray,
       isObject,
       loading: true,
       open: null,
       number: 1,
+      submitLoading: false,
       visible: false,
+      error: false,
+      parentBom: {},
     }
   },
   mounted() {
-    const current = this
-    uni.$on('selectUser', (res) => {
-      const checkUser = res.checkUsers[0]
-      current.boms = current.boms.map(item => {
-        if (item.bomId === res.id) {
-          return {...item, user: checkUser}
-        }
-        return item
-      })
-    })
     this.getBoms(1)
   },
   methods: {
+    submit() {
+      this.submitLoading = true
+      Production.productionPlanAddByBom({
+        data: {
+          "productionPlanDetailParams": [
+            {
+              "partsId": this.bomId,
+              "planNumber": this.number
+            }
+          ]
+        }
+      }).then(() => {
+        this.$refs.modal.dialog({
+          title: '创建生产任务成功！',
+          onConfirm() {
+            uni.navigateBack()
+            return true
+          }
+        })
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: Init.getNewErrorMessage() || '创建生产任务失败！'
+        })
+      }).finally(() => {
+        this.submitLoading = false
+      })
+    },
     getBoms(number) {
       this.loading = true
-      Bom.getByBomId({
+      Bom.bomGetByBomIdV2_0({
         data: {
-          partsId: this.bomId,
+          bomId: this.bomId,
           number
         }
-      }).then((res) => {
-        this.boms = isArray(res.data).map(item => ({
-          ...item,
-          user: this.boms.find(bomItem => bomItem.bomId === item.bomId)?.user
-        }))
-      }).finally(() => {
+      }).then(async (res) => {
+        const boms = isArray(res.data)
+        const newBoms = await this.getSkuImgs(boms)
+        const parentBom = newBoms.find(item => item.parentId === 0) || {}
+        this.parentBom = this.formatBoms(parentBom, newBoms)
+        this.loading = false
+      }).catch(() => {
+        this.error = false
         this.loading = false
       })
     },
+    formatBoms(bom, boms) {
+      return {
+        ...bom,
+        children: boms.filter(item => item.parentId === bom.bomId).map(item => {
+          return this.formatBoms(item, boms)
+        })
+      }
+    },
+    async getSkuImgs(list) {
+      return new Promise((resolve, reject) => {
+        Sku.getMediaUrls({
+          mediaIds: list.map(item => item.skuResult?.images?.split(',')[0]),
+          option: 'image/resize,m_fill,h_74,w_74',
+        }).then((res) => {
+          return resolve(list.map(item => {
+            return this.skuResultFormat(item, res?.data)
+          }))
+        }).catch(() => {
+          reject()
+        })
+      })
+    },
+    skuResultFormat(item, skuImages) {
+      const skuResult = item.skuResult || {}
+      const media = skuImages.find(mediaItem => mediaItem.mediaId === skuResult.images?.split(',')[0]) || {}
+      return {
+        ...item,
+        skuResult: {
+          ...skuResult,
+          thumbUrl: media.thumbUrl
+        }
+      }
+    },
     onChange(number) {
       this.number = number
-      this.getBoms(number)
     },
     selectUser(bomId, user) {
       uni.navigateTo({
@@ -157,16 +184,10 @@ export default {
 <style lang="scss">
 
 .boms {
-  background-color: #fff;
-  padding-top: 51px;
+  //background-color: #fff;
 
   .header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1;
     background-color: #fff;
-    box-shadow: 0 5px 5px 0 #e1ebf6;
   }
 }
 

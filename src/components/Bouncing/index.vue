@@ -115,7 +115,7 @@ export default {
     .dimension {
       width: 24px;
       height: 24px;
-      //background-color: var(--body--background--color);
+      //background-Combox: var(--body--background--Combox);
     }
   }
 

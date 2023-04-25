@@ -1,5 +1,5 @@
 <template>
-  <scroll-view style="height:calc(100vh - 130px)" :scroll-y="scroll">
+  <scroll-view :style="{maxHeight:`calc(100vh - 60px - ${safeAreaHeight(this,8)}px)`}" :scroll-y="scroll">
     <view class='batchPrepare'>
       <view class='box'>
         <view>
@@ -30,14 +30,12 @@
         </view>
       </view>
       <view class="tabs">
-        <van-tabs swipeable border color="#007aff" :active="type" @change="onChange">
-          <van-tab
-              v-for="(typeItem,typeIndex) in types"
-              :key="typeIndex"
-              :title="typeItem.title"
-              :name="typeItem.name"
-          />
-        </van-tabs>
+        <u-tabs
+            :current="types.findIndex(item=>item.key === type)"
+            :list="types"
+            @click="onChange"
+            :scrollable="false"
+        />
       </view>
 
       <view class="box">
@@ -90,13 +88,16 @@
         </view>
       </view>
     </view>
-    <view class="bottom"></view>
+
     <BottomButton
         v-if="action"
         :only="true"
         text='一键备料'
         @onClick='onClick'
     />
+
+    <Modal ref="modal" />
+
   </scroll-view>
 </template>
 
@@ -104,19 +105,20 @@
 import {SkuResultSkuJsons} from "../../../../../Sku/sku";
 import Loading from "../../../../../components/Loading";
 import {getOutType} from "../../../outStock";
-import {isArray, MyDate} from "../../../../../util/Tools";
+import {isArray, MyDate, safeAreaHeight} from "../../../../../util/Tools";
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {outPickListFormatSort} from "../../index";
 import BottomButton from "../../../../../components/BottomButton";
-import {Message} from "../../../../../components/Message";
 import Empty from "../../../../../components/Empty";
 import {Sku} from "MES-Apis/lib/Sku/promise";
+import Modal from "../../../../../components/Modal";
 
 export default {
-  components: {Empty, BottomButton, Loading},
+  components: {Modal, Empty, BottomButton, Loading},
   props: ['detail', 'pickListsId', 'detail', 'action', 'taskId', 'theme', 'shopRef'],
   data() {
     return {
+      safeAreaHeight,
       countNumber: 0,
       data: [],
       SkuResultSkuJsons,
@@ -126,10 +128,10 @@ export default {
       loading: false,
       type: 'notPrepared',
       types: [
-        {title: '全部', name: 'all'},
-        {title: '未备', name: 'notPrepared'},
-        {title: '已备', name: 'perpare'},
-        {title: '已领', name: 'received'}
+        {name: '全部', key: 'all'},
+        {name: '未备', key: 'notPrepared'},
+        {name: '已备', key: 'perpare'},
+        {name: '已领', key: 'received'}
       ]
     }
   },
@@ -171,7 +173,7 @@ export default {
       })
       this.countNumber = countNumber
       const data = array.map(item => {
-        const media = isArray(skuMediaUrls?.data).find(mediaItem=>  mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
+        const media = isArray(skuMediaUrls?.data).find(mediaItem => mediaItem.mediaId === item.skuResult?.images?.split(',')[0]);
         return {
           ...item,
           complete: item.notPrepared === 0,
@@ -181,11 +183,11 @@ export default {
       })
       this.data = data
       this.type = this.types.find(item => {
-        if (item.name !== 'all') {
-          return this.total(item.name, data).num
+        if (item.key !== 'all') {
+          return this.total(item.key, data).num
         }
         return false
-      })?.name || 'all'
+      })?.key || 'all'
       this.loading = false
       return {
         received: receivedTotal,
@@ -194,7 +196,7 @@ export default {
     },
     onClick() {
       this.$store.commit('dialog/openChange', true)
-      Message.dialog({
+      this.$refs.modal.dialog({
         content: '该操作会按照申请数量进行备料，库存不足按照库存数量备料。',
         confirmText: '开始备料',
         only: false,
@@ -218,11 +220,12 @@ export default {
     async autoPick(res) {
 
       const all = this.data.filter(item => item.notPrepared > 0).length;
+      const _this = this
       this.$store.dispatch('bouncing/jump', {
         name: 'outStockShop',
         number: all - res.length,
         after: async () => {
-          Message.dialog({
+          _this.$refs.modal.dialog({
             title: '备料成功',
             content: `已备${all - res.length}个,库存不足${res.length}个`,
             only: true,
@@ -244,8 +247,8 @@ export default {
         received: detailInfo.received
       })
     },
-    onChange({detail: {name}}) {
-      this.type = name
+    onChange({key}) {
+      this.type = key
     },
     skuNumberShow(item, type) {
       switch (type || this.type) {
@@ -289,7 +292,7 @@ export default {
       if (this.type === 'all') {
         return '申请数量'
       } else {
-        return this.types.find(item => item.name === this.type).title + '数量'
+        return this.types.find(item => item.key === this.type).name + '数量'
       }
     },
   }
@@ -302,6 +305,7 @@ export default {
   position: sticky;
   top: 0;
   z-index: 1;
+  background-color: #fff;
 }
 
 .batchPrepare {
@@ -367,7 +371,7 @@ export default {
 }
 
 .bottom {
-  margin-bottom: 70px;
+  //margin-bottom: 70px;
 }
 
 .img {

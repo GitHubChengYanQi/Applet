@@ -1,22 +1,20 @@
 <template>
   <view>
-    <van-popup
-        :overlay-style="overlayStyle"
+    <u-popup
+        :overlay="overlay"
         :show="visible"
-        :z-index="999"
         @close="$emit('visiblChange',false)"
-        position="bottom"
     >
       <view class='content'>
         <view v-if="!noStepper" class='calculation'>
           <button :disabled="Number(showNumber() || 0) <= min" @click="jianClick">
-            <van-icon name="minus" />
+            <u-icon name="minus" />
           </button>
           <view class='value'>
             {{ showNumber() }}<span v-if="!defaultNumber" class='line'>|</span>
           </view>
           <button :disabled="Number(showNumber() || 0) >= max" @click="jiaClick">
-            <van-icon name="plus" />
+            <u-icon name="plus" />
           </button>
         </view>
         <view class='numberKeyboard'>
@@ -35,7 +33,7 @@
           <view class='actions'>
             <view class='numberButton'>
               <button @click="back">
-                <van-icon name="arrow-left" />
+                <u-icon name="arrow-left" size="24" />
               </button>
             </view>
             <view :class="['numberButton', 'ok']">
@@ -46,7 +44,7 @@
           </view>
         </view>
       </view>
-    </van-popup>
+    </u-popup>
   </view>
 </template>
 
@@ -57,7 +55,10 @@
 export default {
   name: 'Keybord',
   props: {
-    overlayStyle: String,
+    overlay: {
+      type: Boolean,
+      default: () => true
+    },
     noMask: Boolean,
     popupClassName: String,
     noStepper: Boolean,
@@ -134,7 +135,7 @@ export default {
         if (this.number > 999999999) {
           return;
         }
-        if (this.decimalData().decimalLength < decimal) {
+        if (this.decimalData().decimalLength < this.decimal) {
           this.numberChange(`${this.number || ''}` + item);
         }
       } else {
@@ -148,7 +149,7 @@ export default {
     },
     dianClick() {
       if (`${this.number}`.indexOf('.') === -1) {
-        this.numberChange((number || 0) + '.');
+        this.numberChange((this.number || 0) + '.');
       }
     },
     back() {
@@ -211,6 +212,9 @@ export default {
       font-size: 24px;
       height: 45px;
       line-height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -258,6 +262,9 @@ export default {
         border: none;
         box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.3);
         font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 

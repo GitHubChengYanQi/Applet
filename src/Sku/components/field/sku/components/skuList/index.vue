@@ -1,66 +1,79 @@
 <template>
-	<view class="line">
-		<view class="">
-			<uni-forms-item label="名称:">
-				<uni-combox :candidates="candidates" v-model="name2" @input="onInput"/>
-			</uni-forms-item>
-			<uni-forms-item label="内容:">
-				<uni-combox :candidates="candidates" v-model="content"  @input="onInput"/>
-			</uni-forms-item>
-		</view>
-		<view class="rubbish">
-			<uni-icons type="trash-filled" color="red" size="20" @click="del"></uni-icons>
-		</view>
-	</view>
-	
+  <view class="line">
+    <view class="content">
+      <view class="item">
+        名称:
+        <uni-easyinput v-model="label" @input="onInput" placeholder="请输入名称"></uni-easyinput>
+      </view>
+      <view class="item">
+        内容:
+        <uni-easyinput v-model="content" @input="onInput" placeholder="请输入内容"></uni-easyinput>
+      </view>
+    </view>
+    <view class="rubbish">
+      <uni-icons type="trash-filled" color="red" size="20" @click="del"></uni-icons>
+    </view>
+  </view>
+
 </template>
 
 <script>
-	export default{
-		behaviors: ['uni://form-field'],
-		data() {
-			return {
-				name2:'',
-				content:''
-			}
-		},
-		props:{
-			index:Number,
-			value:Object,
-		},
-		watch:{
-			value:function(){
-				console.log(1);
-				this.name2 = this.value.name;
-				this.content = this.value.content;
-			}
-		},
-		mounted(){
+export default {
+  behaviors: ['uni://form-field'],
+  data() {
+    return {
+      label: '',
+      content: ''
+    }
+  },
+  props: {
+    index: Number,
+    value: Object,
+  },
+  watch: {
+    value: function () {
+      this.label = this.value.label;
+      this.content = this.value.value;
+    }
+  },
+  mounted() {
 
-		},
-		methods:{
-			del(){
-				this.$emit("delete",this.index);
-			},
-			onInput(value) {
-				this.$emit('input', {
-					index:this.index,
-					name:this.name2,
-					content:this.content
-				})
-			}
-		}
-	}
+  },
+  methods: {
+    del() {
+      this.$emit("delete", this.index);
+    },
+    onInput() {
+      this.$emit('input', {
+        index: this.index,
+        label: this.label,
+        value: this.content
+      })
+    }
+  }
+}
 </script>
 
-<style>
-	.line{
-		padding-top: 10px;
-		display: flex;
-	}
-	.rubbish{
-		line-height: 90px;
-		width: 50px;
-		text-align: center;
-	}
+<style lang="scss">
+.line {
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+
+  .content {
+    flex-grow: 1;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+.rubbish {
+  width: 50px;
+  text-align: center;
+}
 </style>

@@ -1,10 +1,18 @@
 <template>
-  <uni-icons custom-prefix="iconfont" :type="icon" :size="size" :color="color"></uni-icons>
+  <view class="icon">
+    <view :class="['t-icon','t-'+icon]" :style="{width:`${size}px`,height:`${size}px`}" />
+  </view>
 </template>
 
 <script>
 export default {
   name: 'Icon',
-  props:['icon','size','color'],
+  props: ['icon', 'size'],
 }
 </script>
+
+<style lang="scss">
+.icon {
+  display: inline-block;
+}
+</style>

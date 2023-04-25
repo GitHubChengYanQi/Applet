@@ -1,74 +1,77 @@
 <template>
-  <view class="selectUser">
-    <view class="box">
-      <view class="header">
-        <view style="padding-top: 8px">
-          <uni-breadcrumb v-if="deptPage.length > 1" separator="/">
-            <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
-              <view @click="deptPageClick(route)">
-                {{ route.name }}
-              </view>
-            </uni-breadcrumb-item>
-          </uni-breadcrumb>
-        </view>
-        <Search
-            :value="searchValue"
-            @onChange="(value)=> searchValue = value"
-            @onSearch="onSearch"
-        />
-      </view>
-      <Loading :loading="loading" />
-      <view class="content">
-        <Empty v-if="users.length === 0 && depts.length === 0" description="暂无人员信息" />
-        <view v-else class="users" :style="{  height: `calc(100vh - 130px - ${safeAreaHeight}px)`}">
-          <view
-              v-for="item in users"
-              :key="item.userId"
-              class="item"
-              @click="onCheckUser(item)"
-          >
-            <view>
-              <u-radio-group
-                  @change="onCheckUser(item)"
-                  :value="checkUsers.find(checkUser=>checkUser.userId === item.userId) && 'check'"
-              >
-                <u-radio name="check" />
-              </u-radio-group>
-            </view>
-            <UserName :user="item" no-dept />
+  <view>
+    <Empty v-if="error" type="error" description="获取信息异常" />
+    <view class="selectUser">
+      <view class="box">
+        <view class="header">
+          <view style="padding-top: 8px">
+            <uni-breadcrumb v-if="deptPage.length > 1" separator="/">
+              <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
+                <view @click="deptPageClick(route)">
+                  {{ route.name }}
+                </view>
+              </uni-breadcrumb-item>
+            </uni-breadcrumb>
           </view>
-
-          <view v-if="!showAllUser">
-            <view
-                v-for="item in depts"
-                :key="item.key"
-                class="item"
-                @click="onCheckDept(item,item.children)"
-            >
-              <view class="icon">
-
-              </view>
-              {{ item.title }}
-            </view>
-          </view>
-
-        </view>
-      </view>
-      <view class="footer" :style="{paddingBottom:`${safeAreaHeight}px`}">
-        <view class="checkUsers">
-          <Avatar
-              v-for="(user,index) in checkUsers"
-              :key="index"
-              size="35"
-              :src='user.avatar'
-              :text="!user.avatar ? user.name.substring(0,1) : null"
-              @click="onCheckUser(user)"
+          <Search
+              :value="searchValue"
+              @onChange="(value)=> searchValue = value"
+              @onSearch="onSearch"
           />
         </view>
-        <VantButton @click="click" :disabled="checkUsers.length === 0">确定 · {{ checkUsers.length }}</VantButton>
-      </view>
-    </view>
+        <Loading :loading="loading" />
+        <view class="content">
+          <Empty v-if="users.length === 0 && depts.length === 0" description="暂无人员信息" />
+          <view v-else class="users" :style="{  height: `calc(100vh - 130px - ${safeAreaHeight}px)`}">
+            <view
+                v-for="item in users"
+                :key="item.userId"
+                class="item"
+                @click="onCheckUser(item)"
+            >
+              <view>
+                <u-radio-group
+                    @change="onCheckUser(item)"
+                    :value="checkUsers.find(checkUser=>checkUser.userId === item.userId) && 'check'"
+                >
+                  <u-radio name="check" />
+                </u-radio-group>
+              </view>
+              <UserName :user="item" no-dept />
+            </view>
 
+            <view v-if="!showAllUser">
+              <view
+                  v-for="item in depts"
+                  :key="item.key"
+                  class="item"
+                  @click="onCheckDept(item,item.children)"
+              >
+                <view class="icon">
+
+                </view>
+                {{ item.title }}
+              </view>
+            </view>
+
+          </view>
+        </view>
+        <view class="footer" :style="{paddingBottom:`${safeAreaHeight}px`}">
+          <view class="checkUsers">
+            <Avatar
+                v-for="(user,index) in checkUsers"
+                :key="index"
+                size="35"
+                :src='user.avatar'
+                :text="!user.avatar ? user.name.substring(0,1) : null"
+                @click="onCheckUser(user)"
+            />
+          </view>
+          <MyButton type="primary" @click="click" :disabled="checkUsers.length === 0">确定 · {{ checkUsers.length }}</MyButton>
+        </view>
+      </view>
+
+    </view>
   </view>
 </template>
 
@@ -77,15 +80,15 @@ import Search from "../../components/Search";
 import {User} from "MES-Apis/lib/User/promise";
 import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
-import VantButton from "../../components/VantButton";
 import Empty from "../../components/Empty";
 import Avatar from "../../components/Avatar";
 import {getLocalParmas} from "../../util/Tools";
+import MyButton from "../../components/MyButton";
 
 export default {
   name: 'SelectUser',
   props: ['checdUsers'],
-  components: {Avatar, Empty, VantButton, UserName, Loading, Search},
+  components: {MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
       deptPage: [],
@@ -95,6 +98,7 @@ export default {
       checkUsers: [],
       searchValue: '',
       showAllUser: false,
+      error: false,
       safeAreaHeight: 0,
     }
   },
@@ -115,6 +119,8 @@ export default {
         }
       }).then((res) => {
         this.users = res.data || []
+      }).catch(() => {
+
       })
       this.loading = false
     },
@@ -126,8 +132,12 @@ export default {
         }
       }).then((res) => {
         this.users = res.data || []
+      }).catch(() => {
+        this.error = true
       })
-      const res = await User.deptTree()
+      const res = await User.deptTree().catch(()=>{
+        this.error = true
+      })
       const newDepts = res?.data[0]?.children || []
       this.depts = newDepts
       this.deptPage = [{key: 0, name: '顶级', depts: newDepts}]

@@ -22,11 +22,14 @@
       </view>
     </view>
 
+    <Modal ref="modal" />
+
+
   </view>
 </template>
 
 <script>
-import moment from "moment";
+import moment from "util/Common/moment";
 import SkuItem from "../../../components/SkuItem";
 import BottomButton from "../../../components/BottomButton";
 import Empty from "../../../components/Empty";
@@ -36,12 +39,13 @@ import Loading from "../../../components/Loading";
 import {Message} from "../../../components/Message";
 import Bouncing from "../../../components/Bouncing";
 import Icon from "../../../components/Icon";
+import Modal from "../../../components/Modal";
 
 const md5 = require('md5');
 
 export default {
   name: 'InStockVoucher',
-  components: {Icon, Bouncing, Loading, Empty, BottomButton, SkuItem},
+  components: {Modal, Icon, Bouncing, Loading, Empty, BottomButton, SkuItem},
   props: ['taskId'],
   data() {
     return {
@@ -314,7 +318,7 @@ export default {
     },
     print() {
       const current = this
-      Message.dialog({
+      this.$refs.modal.dialog({
         only: false,
         title: '是否保存凭证？',
         onConfirm() {

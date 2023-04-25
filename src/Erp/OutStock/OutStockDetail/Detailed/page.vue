@@ -59,7 +59,7 @@
                 <!-- 右上 -->
                 <view class="overview2">
                   <view class="headPortrait3">
-                    <img src="/static/logo.png" alt="" >
+                    <img src="/static/images/logo.png" alt="" >
                     <view class="quantity">306台</view>
                   </view>
                   <view class="describe">
@@ -99,21 +99,12 @@
         </view>
       </view>
     </scroll-view>
-
-    <movable-view class="suspension" :x="x" :y="y" direction="all" @change="onChange" >
-      <uni-badge :text="8" absolute="rightTop" :offset="[0, 0]" size="small">
-        <view class="suspension2">
-          <img src="../../../../../static/xuanfu.png" alt="">
-        </view>
-      </uni-badge>
-    </movable-view>
   </movable-area>
   </view>
 </template>
 
 <script>
-import Auth from '../../../../../components/Auth';
-import Page from './page';
+
 export default{
   data(){
     return{

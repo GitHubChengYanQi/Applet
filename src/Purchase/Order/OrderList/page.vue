@@ -111,7 +111,7 @@ export default {
     display: flex;
     align-items: center;
     padding-bottom: 8px;
-    //border-bottom: solid 1px $body-color;
+    //border-bottom: solid 1px $body-Combox;
 
     .cardTitle {
       display: flex;

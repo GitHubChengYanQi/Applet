@@ -1,18 +1,17 @@
 <template>
-	<view class="">
-		<Uploader name="images" :file-list="fileList" :deletable="true" max-count="5" use-before-read
-			@before-read="uploader" @delete="doDelete" v-model="formData.images" file />
-	</view>
+  <FileUpload @input="(value)=>$emit('input',value)" />
 </template>
 
 <script>
-	import Uploader from '../../../../components/Uploader';
-	export default {
-		name:"fileId",
-		components:{
-			Uploader
-		}
-	}
+
+import FileUpload from "../../../../components/Uploader/FileUpload";
+
+export default {
+  name: "fileId",
+  components: {
+    FileUpload,
+  }
+}
 </script>
 
 <style>

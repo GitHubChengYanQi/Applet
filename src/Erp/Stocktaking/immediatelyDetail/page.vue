@@ -1,13 +1,14 @@
 <template>
   <view class="white">
     <view class="content">
-      <uni-icons custom-prefix="iconfont" type="icon-pandiankuwei1" color="#007aff" size="20"></uni-icons>
+      <Icon icon="icon-pandiankuwei1" size="20" />
       <view class="text">{{ positionName }}&nbsp;/&nbsp;{{ storehouse }}</view>
     </view>
 
     <Loading :skeleton="true" v-if="loading" />
 
     <view v-else class="positionStock">
+      <Empty v-if="skus.length === 0" description="此库位暂无物料" />
       <view
           v-for="(item,index) in skus"
           :key="index"
@@ -73,11 +74,13 @@
         :min='0'
         @onChange="onChange"
     />
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
 <script>
-import StockCheck from '../components/stockCheck/index'
 import SkuItem from "../../../components/SkuItem";
 import Keybord from "../../../components/Keybord";
 import {Stocktaking} from "MES-Apis/lib/Stocktaking/promise";
@@ -85,14 +88,19 @@ import {getLocalParmas} from "../../../util/Tools";
 import Loading from "../../../components/Loading";
 import BottomButton from "../../../components/BottomButton";
 import {Message} from "../../../components/Message";
+import Empty from "../../../components/Empty";
+import Icon from "../../../components/Icon";
+import Modal from "../../../components/Modal";
 
 export default {
   components: {
+    Modal,
+    Icon,
+    Empty,
     BottomButton,
     Loading,
     Keybord,
-    SkuItem,
-    StockCheck
+    SkuItem
   },
   data() {
     return {
@@ -159,12 +167,45 @@ export default {
       })
     },
     onClick() {
-      Message.dialog({
+      const _this = this
+      this.$refs.modal.dialog({
         only: false,
         title: '请确认盘点信息',
         content: `本次盘点共有${this.updateSkus.length}个物料进行修改`,
         onConfirm() {
-          return true
+          return new Promise((resolve) => {
+            Stocktaking.stockDetailsInventoryCorrection({
+              data: {
+                "params": _this.updateSkus.map(item => {
+                  return {
+                    "skuId": item.skuId,
+                    "customerId": item.customerId,
+                    "positionId": item.positionId,
+                    "brandId": item.brandId,
+                    "number": item.realityNumber
+                  }
+                })
+              }
+            }).then(() => {
+              resolve(true)
+              _this.$refs.modal.dialog({
+                only: false,
+                title: '盘点成功！',
+                confirmText: '返回',
+                cancelText: '继续操作',
+                onCancel() {
+                  _this.getPositionSkus()
+                  return true
+                },
+                onConfirm() {
+                  uni.navigateBack()
+                  return true
+                }
+              })
+            }).catch(() => {
+              resolve(false)
+            })
+          })
         },
         onCancel() {
           return true
@@ -225,7 +266,7 @@ export default {
       }
 
       .reality {
-        //color: $success-color;
+        //Combox: $success-Combox;
       }
 
       .update {

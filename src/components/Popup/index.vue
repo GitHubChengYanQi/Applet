@@ -1,26 +1,26 @@
 <template>
   <view>
-    <van-popup
+    <u-popup
         :show="show"
-        :z-index="zIndex ||  100"
         @close="$emit('close')"
-        position="bottom"
+        @open="$emit('showBefore')"
     >
-      <view v-if="!noTitle" class='header'>
-        <span v-if="leftText" class='left'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
+      <view v-if="!noTitle" class='popupHeader'>
+        <span v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
         {{ title || '' }}
-        <span class='right' @click="$emit('close')">
+        <span class='popupRight' @click="!rightText && $emit('close')">
           <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
-          <van-icon v-else name="cross" />
+          <u-icon v-else name="close" />
         </span>
       </view>
       <slot></slot>
-    </van-popup>
+    </u-popup>
   </view>
 </template>
 
 <script>
 import LinkButton from "../LinkButton";
+
 export default {
   name: 'Popup',
   components: {LinkButton},
@@ -33,14 +33,22 @@ export default {
     'leftText',
     'rightText',
     'getContainer',
-    'position',
     'noTitle',
-  ]
+  ],
+  watch: {
+    show(value) {
+      if (!value) {
+        setTimeout(() => {
+          this.$emit('closeAfter')
+        }, 500)
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-.header {
+.popupHeader {
   height: 45px;
   line-height: 45px;
   text-align: center;
@@ -48,14 +56,17 @@ export default {
   border-bottom: 1px solid #EEEEEE;
   position: relative;
 
-  .right {
+  .popupRight {
     top: 0;
     position: absolute;
     right: 0;
     padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
   }
 
-  .left {
+  .popupLeft {
     top: 0;
     position: absolute;
     left: 0;

@@ -1,98 +1,107 @@
 <template>
-  <view class="login">
+  <view>
+    <view class="login">
+      <view class="logo">
+        <img src="../../static/images/logo.png" alt="">
+      </view>
+      <view class="login2">
+        <view class="text">欢迎使用浑河云</view>
+        <view>
+          <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">
+            手机号授权登录
+          </button>
+        </view>
+        <view class="technology">本小程序为沈阳浑河工业有限责任公司内部办公终端，请登录后使用。</view>
+      </view>
+    </view>
 
-    <van-dialog id="van-dialog" />
-    <view class="logo">
-      <img src="../../static/logo2.png" alt="">
-    </view>
-    <view class="login2">
-      <view class="text">欢迎使用浑河云</view>
-      <view v-if="!mobile">
-        <uni-forms>
-          <uni-forms-item :label-width="40" label="账号">
-            <uni-easyinput class="uni-input" name="username" v-model="username" placeholder="请输入姓名" />
-          </uni-forms-item>
-          <uni-forms-item :label-width="40" label="密码">
-            <uni-easyinput class="uni-input" type="password" name="password" v-model="password" placeholder="请输入密码" />
-          </uni-forms-item>
-          <view class="uni-btn-v">
-            <button :loading="loading" form-type="submit" type="default" @click="()=>submit()">立即登录</button>
-          </view>
-        </uni-forms>
-      </view>
-      <view v-else>
-        <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">手机号授权登录
-        </button>
-      </view>
-      <view class="technology">本小程序为沈阳浑河工业有限责任公司内部办公终端，请登录后使用。</view>
-    </view>
+    <Modal ref="modal" />
+
+
   </view>
 </template>
 <script>
-import {getLocalParmas} from "../../util/Tools";
+import {getLocalParmas, routeReplace} from "../../util/Tools";
 import {Login} from "MES-Apis/lib/Login/promise";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Message} from "../../components/Message";
+import Icon from "../../components/Icon";
+import Modal from "../../components/Modal";
 
 
 export default {
-  components: {},
+  components: {Modal, Icon},
   data() {
     return {
       username: '',
       password: '',
-      backUrl: '',
-      mobile: true,
-      loading: false
+      loading: false,
+      isLogin: false
     }
   },
   created() {
     const userInfo = GetUserInfo().userInfo || {};
-    this.mobile = !userInfo.mobile;
     if (userInfo.userId) {
-      uni.navigateTo({
-        url: '/pages/Home/index'
-      })
+
     }
   },
   mounted() {
-    this.backUrl = getLocalParmas().search.backUrl.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26")
+
   },
   methods: {
     getphonenumber(res) {
-      this.loading = true
-      Login.loginByPhone({encryptedData: res.detail.encryptedData, iv: res.detail.iv}, {
-        onSuccess: (res) => {
-          getApp().globalData.token = res
-          this.mobile = false
-        }
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    submit(url) {
-      if (!this.username) {
-        return Message.errorToast('账号不能为空');
-      } else if (!this.password) {
-        return Message.errorToast('密码不能为空');
+      const _this = this
+      if (res.detail.errMsg === "getPhoneNumber:ok") {
+        uni.checkSession({
+          success: (checkRes) => {
+            this.loading = true
+            Login.loginByPhone({encryptedData: res.detail.encryptedData, iv: res.detail.iv}, {
+              onSuccess: (res) => {
+                getApp().globalData.token = res
+                _this.$store.commit('userInfo/clear')
+                _this.goBack()
+              },
+              onError: () => {
+                _this.loginError()
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          },
+          fail: () => {
+            uni.login({
+              success: function (loginRes) {
+                if (loginRes.errMsg === 'login:ok') {
+                  Login.codeToSession({code: loginRes.code}, {
+                    onSuccess: (token) => {
+                      getApp().globalData.token = token
+                      _this.getphonenumber()
+                    },
+                    onError: () => {
+                      _this.loginError()
+                    }
+                  })
+                } else {
+                  _this.loginError()
+                }
+              },
+              fail: () => {
+                _this.loginError()
+              }
+            });
+          },
+        })
       }
-      this.loading = true
-      Login.wxCpLogin({
-        username: this.username,
-        password: this.password
-      }, {
-        onSuccess: (res) => {
-          this.$store.commit('userInfo/clear')
-          getApp().globalData.token = res
-          this.goBack(url)
-        }
-      }).finally(() => {
-        this.loading = false
+    },
+    loginError() {
+      this.$refs.modal.dialog({
+        title: '登录失败！'
       })
     },
-    goBack(url) {
-      uni.navigateTo({
-        url: (url || this.backUrl).replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
+    goBack() {
+      const backUrl = getLocalParmas().search.backUrl
+      uni.reLaunch({
+        url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
       })
     }
   },
@@ -106,18 +115,20 @@ export default {
 }
 
 body {
-  background-image: url('@/static/login.png');
+  background-image: url('@/static/images/login.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
 
-image {
-  width: 100%;
-  height: 100%;
-}
 
 .login {
   padding: 53px 20px;
+  height: 100vh;
+
+  image {
+    width: 100%;
+    height: 100%;
+  }
 
   .logo {
     width: 87px;
@@ -137,15 +148,9 @@ image {
     }
 
     .text {
-      padding: 33px;
+      padding: 33px 0 16px;
       text-align: center;
       font-size: 16px;
-    }
-
-    .login3 {
-      display: flex;
-      padding: 16px 7px;
-      border-bottom: 1px solid #D9D9D9;
     }
 
     button {
@@ -153,23 +158,9 @@ image {
       font-size: 14px;
       color: #fff;
       background-color: #2680eb;
-      margin: 27px 0 52px 0;
+      //margin: 27px 0 52px 0;
     }
 
-    .forget {
-      font-size: 12px;
-      color: #999999;
-      text-align: center;
-    }
-
-    .forget::before, .forget::after {
-      content: '';
-      display: inline-block;
-      border-bottom: 1px solid #ACACAC;
-      width: 43px;
-      margin: 4px 16px;
-
-    }
 
     .technology {
       text-align: center;
@@ -177,26 +168,6 @@ image {
       color: #999999;
       margin-top: 39px;
       padding-bottom: 23px;
-
-      .link {
-        font-size: 12px;
-        color: #2680eb;
-      }
-    }
-
-    .uni-eye-active {
-      color: #007AFF;
-    }
-
-    .uni-icon {
-      font-family: uniicons;
-      font-size: 24px;
-      font-weight: normal;
-      font-style: normal;
-      width: 24px;
-      height: 24px;
-      line-height: 24px;
-      color: #999999;
     }
   }
 }

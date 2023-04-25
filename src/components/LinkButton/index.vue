@@ -1,8 +1,8 @@
 <template>
   <view class="linkButton">
-    <van-button type="info" custom-class="button" plain @click="$emit('click')">
+    <u-button :disabled="disabled" type="primary" custom-class="button" plain @click="$emit('click')">
       <slot>{{ title }}</slot>
-    </van-button>
+    </u-button>
   </view>
 </template>
 
@@ -17,11 +17,17 @@ export default {
 
 .linkButton {
 
-  .button {
-    padding: 0;
-    border: none;
-    height: fit-content;
-    background: transparent;
+  button {
+    padding: 0 !important;
+    border: none !important;
+    height: fit-content !important;
+    background: transparent !important;
+    width: fit-content !important;
+    margin: unset;
+
+    &::after, &::before {
+      content: none;
+    }
   }
 
 }

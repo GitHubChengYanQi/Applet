@@ -1,22 +1,23 @@
 <template>
   <view>
     <view v-if="skeleton" class="skeletonLoading">
-      <u-loading-page v-if="skeletonType === 'page'" loading-text="loading..." loading></u-loading-page>
-      <u-loading-icon v-else mode="circle" text="loading..." :vertical="true"></u-loading-icon>
+      <u-loading-page
+          v-if="skeletonType === 'page'"
+          :loading-text="loadingText || 'loading...'"
+          loading
+      />
+      <u-loading-icon v-else mode="circle" :text="loadingText || 'loading...'" :vertical="true"></u-loading-icon>
     </view>
-    <view v-if="loading">
-      <van-dialog
-          use-slot
-          show
-          :show-confirm-button="false"
-          :overlay="false"
-          custom-class="my-custom-class"
-      >
-        <view class="content">
-          <van-loading type="spinner" color="#fff" :size="50"/>
-          加载中...
-        </view>
-      </van-dialog>
+    <view v-if="loading" class="loading">
+      <u-loading-page
+          loadingMode="spinner"
+          iconSize="34"
+          loadingColor="#fff"
+          color="#fff"
+          bg-color="rgba(0, 0, 0, 0.3)"
+          loading
+          :loading-text="loadingText || 'loading...'"
+      />
     </view>
   </view>
 </template>
@@ -25,7 +26,7 @@
 
 export default {
   name: 'loading',
-  props: ['title', 'loading', 'skeleton', 'skeletonType'],
+  props: ['title', 'loading', 'skeleton', 'skeletonType', 'loadingText'],
 }
 </script>
 
@@ -50,6 +51,12 @@ export default {
 .skeletonLoading {
   padding: 24px;
   text-align: center;
+}
+
+.loading {
+  > view {
+    z-index: 9999;
+  }
 }
 
 </style>

@@ -5,17 +5,18 @@
       <LinkButton :disabled='outTypeData().noSys' @click='sys = !sys'>{{ sys ? '退出管理' : '管理' }}</LinkButton>
     </view>
     <view class='content'>
-      <van-empty v-if="data.length === 0" />
+      <Empty v-if="data.length === 0" />
       <view
           v-for="(cartItem, cartIndex) in data"
           :key='cartIndex'
       >
         <view class='skuItem' @click="()=>sys && check(checkedSkus().includes(cartItem.key),cartItem)">
           <span v-if="sys">
-          <van-checkbox :value="checkedSkus().includes(cartItem.key)" shape="square" />
+          <Check :value="checkedSkus().includes(cartItem.key)" />
           </span>
           <div class='item'>
             <SkuItem
+                no-view
                 :number='cartItem.stockNumber'
                 :skuResult='cartItem.skuResult'
                 :imgSize='60'
@@ -32,29 +33,34 @@
     </view>
     <view class='bottom'>
       <view class='all'>
-        <van-checkbox
-            v-if="sys"
-            :value="allChecked()"
-            shape="square"
-            @change="returnSkus = (allChecked() ? [] : allSkus)"
-        >
-          {{ allChecked() ? '取消全选' : '全选' }}
-          <span style="padding-left: 8px">已选中 {{ returnSkus.length }} 类</span>
-        </van-checkbox>
+        <view v-if="sys" @click="returnSkus = (allChecked() ? [] : allSkus)">
+          <Check
+              :value="allChecked()"
+          >
+            {{ allChecked() ? '取消全选' : '全选' }}
+            <span style="padding-left: 8px">已选中 {{ returnSkus.length }} 类</span>
+          </Check>
+        </view>
         <view v-else>
           {{ `领料人：${user.userName || ''}` }}
         </view>
       </view>
       <view class='buttons'>
-        <van-button custom-class="button" v-if="sys" type="danger" :disabled='returnSkus.length=== 0' @click='remove'>
+        <MyButton custom-class="button" v-if="sys" type="error" :disabled='returnSkus.length=== 0' @click='remove'>
           移出
-        </van-button>
-        <van-button custom-class="button" v-if="!sys" @click="$emit('confirm')">
+        </MyButton>
+        <MyButton custom-class="button" v-if="!sys" @click="$emit('confirm')">
           出库确认
-        </van-button>
-        <van-button :loading="sendLoading" :disabled="allSkus.length === 0" custom-class="button" v-if="!sys" type="info" @click='send'>
+        </MyButton>
+        <MyButton
+            :loading="sendLoading"
+            :disabled="allSkus.length === 0"
+            v-if="!sys"
+            type="primary"
+            @click='send'
+        >
           通知领料
-        </van-button>
+        </MyButton>
       </view>
     </view>
   </view>
@@ -65,10 +71,13 @@ import LinkButton from "../../../../components/LinkButton";
 import SkuItem from "../../../../components/SkuItem";
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {Message} from "../../../../components/Message";
+import Empty from "../../../../components/Empty";
+import Check from "../../../../components/Check";
+import MyButton from "../../../../components/MyButton";
 
 export default {
   name: 'WaitOutSku',
-  components: {SkuItem, LinkButton},
+  components: {MyButton, Check, Empty, SkuItem, LinkButton},
   props: [
     'pickListsId',
     'outType',
@@ -138,7 +147,7 @@ export default {
         onSuccess: () => {
           Message.successToast('提醒成功!');
         }
-      }).finally(()=>{
+      }).finally(() => {
         this.sendLoading = false
       })
     },

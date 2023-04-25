@@ -5,25 +5,6 @@
       <MyAudit v-if="active === 'audit'" :taskSkuId='taskSkuId' :type="type" />
       <MyAudit v-if="active === 'start'" :createUser='userId' />
     </view>
-    <van-tabbar v-if="false" :active="active" @change="({detail})=>active = detail">
-      <van-tabbar-item
-          name="create"
-      >
-        <uni-icons slot="icon" custom-prefix="iconfont" type="icon-xinshenqing"></uni-icons>
-        <uni-icons color='#1989fa' slot="icon-active" custom-prefix="iconfont" type="icon-xinshenqing"></uni-icons>
-        新申请
-      </van-tabbar-item>
-      <van-tabbar-item name="audit">
-        <uni-icons slot="icon" custom-prefix="iconfont" type="icon-shenpiguanli"></uni-icons>
-        <uni-icons color='#1989fa' slot="icon-active" custom-prefix="iconfont" type="icon-shenpiguanli"></uni-icons>
-        我审批的
-      </van-tabbar-item>
-      <van-tabbar-item name="start" icon="friends-o">
-        <uni-icons slot="icon" custom-prefix="iconfont" type="icon-wofaqide1"></uni-icons>
-        <uni-icons color='#1989fa' slot="icon-active" custom-prefix="iconfont" type="icon-wofaqide1"></uni-icons>
-        我发起的
-      </van-tabbar-item>
-    </van-tabbar>
     <BottomButton
         v-if="type === ReceiptsEnums.outstockOrder"
         text="出库确认"
@@ -40,11 +21,12 @@ import Loading from "../../../components/Loading";
 import Avatar from "../../../components/Avatar";
 import BottomButton from "../../../components/BottomButton";
 import {ReceiptsEnums} from '../ReceiptsEnums'
+import Icon from "../../../components/Icon";
 
 export default {
   props: ['receiptType'],
   name: 'ReceiptList',
-  components: {BottomButton, Avatar, Loading, MyAudit},
+  components: {Icon, BottomButton, Avatar, Loading, MyAudit},
   data() {
     return {
       active: 'audit',

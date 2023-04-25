@@ -1,42 +1,46 @@
 <template>
-  <view class="stock">
-    <view class="search">
-      <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="click" />
-    </view>
-    <view class="skuClass">
-      <scroll-view scroll-x="true" class="scroll-view">
-        <view :class="{classItem:true, choose:!checkSkuClass}" @click="clickSkuClass(null)">
-          全部
-        </view>
-        <view
-            v-for="(item,index) in skuClass"
-            :key="index"
-            :class="{classItem:true, choose:checkSkuClass === item.value}"
-            @click="clickSkuClass(item.value)"
+  <view>
+    <view class="stock">
+      <view class="search">
+        <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="click" />
+      </view>
+      <view v-if="!loading" class="skuClass">
+        <scroll-view scroll-x="true" class="scroll-view">
+          <view :class="{classItem:true, choose:!checkSkuClass}" @click="clickSkuClass(null)">
+            全部
+          </view>
+          <view
+              v-for="(item,index) in skuClass"
+              :key="index"
+              :class="{classItem:true, choose:checkSkuClass === item.value}"
+              @click="clickSkuClass(item.value)"
+          >
+            {{ item.label }}
+          </view>
+        </scroll-view>
+      </view>
+      <view class="content">
+        <List
+            ref="skuList"
+            :list="skuList"
+            max-height="calc(100vh - 103px)"
+            @request="Sku.listV1_1"
+            @listSource="listSource"
         >
-          {{ item.label }}
-        </view>
-      </scroll-view>
-    </view>
+          <view
+              v-for="(item,index) in skuList"
+              :key="index"
+              class="skuItem"
+          >
+            <SkuItem :sku-result="skuResultFormat(item)" />
+          </view>
+        </List>
+      </view>
 
-    <view class="content">
-      <List
-          ref="skuList"
-          :list="skuList"
-          max-height="calc(100vh - 120px)"
-          @request="Sku.listV1_1"
-          @listSource="listSource"
-      >
-        <view
-            v-for="(item,index) in skuList"
-            :key="index"
-            class="skuItem"
-        >
-          <SkuItem :sku-result="skuResultFormat(item)" />
-        </view>
-      </List>
+      <uni-fab :popMenu="false" horizontal="right" @fabClick="fabClick"></uni-fab>
     </view>
   </view>
+
 </template>
 
 <script>
@@ -45,10 +49,11 @@ import Search from "../../components/Search";
 import List from "../../components/List/index";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import {isArray} from "../../util/Tools";
+import Loading from "../../components/Loading";
 
 export default {
   name: 'Stock',
-  components: {List, Search, SkuItem},
+  components: {Loading, List, Search, SkuItem},
   data() {
     return {
       value: '',
@@ -57,7 +62,8 @@ export default {
       skuList: [],
       skuImages: [],
       skuClass: [],
-      checkSkuClass: ''
+      checkSkuClass: '',
+      loading: false
     }
   },
   mounted() {
@@ -70,8 +76,11 @@ export default {
   },
   methods: {
     getSkuClass() {
+      this.loading = true
       Sku.spuClassListSelect({data: {}}).then((res) => {
         this.skuClass = res.data || []
+      }).finally(() => {
+        this.loading = false
       })
     },
     skuResultFormat(item) {
@@ -109,6 +118,11 @@ export default {
       }
       this.screenData = newScreenData
       this.$refs.skuList.submit(newScreenData)
+    },
+    fabClick(){
+      uni.navigateTo({
+        url:'/Sku/SkuAdd/index'
+      })
     }
   }
 }

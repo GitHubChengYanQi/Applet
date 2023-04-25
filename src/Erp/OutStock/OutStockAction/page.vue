@@ -4,32 +4,27 @@
       <Loading :skeleton="true" skeleton-type="page" />
     </view>
     <view v-else>
-      <van-tabs color="#007aff" border line-width="30%" @change="change">
-        <van-tab title="一键备料">
-          <BatchPrepare
-              v-if="tabKey === 0"
-              ref='batchPrepareRef'
-              :detail='detail'
-              :taskId='query.taskId'
-              :action="query.action === 'true'"
-              :pickListsId='query.pickListsId'
-              :theme='query.theme'
-          />
-        </van-tab>
-        <van-tab title="单独备料">
-          <OnePrepare
-              v-if="tabKey === 1"
-              ref='onePrepareRef'
-              @closePrepare="prepare=false"
-              @openPrepare="prepare=true"
-              :positionIds='detail.positionIds'
-              :taskId='query.taskId'
-              :action="query.action === 'true'"
-              :pickListsId='query.pickListsId'
-              :theme='query.theme'
-          />
-        </van-tab>
-      </van-tabs>
+      <u-tabs :list="tabs" @click="change" :scrollable="false"></u-tabs>
+      <BatchPrepare
+          v-if="tabKey === 0"
+          ref='batchPrepareRef'
+          :detail='detail'
+          :taskId='query.taskId'
+          :action="query.action === 'true'"
+          :pickListsId='query.pickListsId'
+          :theme='query.theme'
+      />
+      <OnePrepare
+          v-if="tabKey === 1"
+          ref='onePrepareRef'
+          @closePrepare="prepare=false"
+          @openPrepare="prepare=true"
+          :positionIds='detail.positionIds'
+          :taskId='query.taskId'
+          :action="query.action === 'true'"
+          :pickListsId='query.pickListsId'
+          :theme='query.theme'
+      />
 
       <OutStockShop
           ref="outStockShopRef"
@@ -62,6 +57,11 @@ export default {
       loading: true,
       tabKey: 0,
       prepare: false,
+      tabs: [{
+        name: '一键备料',
+      }, {
+        name: '单独备料',
+      }],
     }
   },
   mounted() {
@@ -85,8 +85,8 @@ export default {
         },
       })
     },
-    change(tab) {
-      this.tabKey = tab.detail ? tab.detail.index : tab.index
+    change({index}) {
+      this.tabKey = index
     },
     refresh(refresh) {
       this.$refs.batchPrepareRef?.refresh();

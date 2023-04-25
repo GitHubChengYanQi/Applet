@@ -6,12 +6,6 @@
         scroll-y="true"
         :style="{maxHeight}"
         @scrolltolower="scrolltolower"
-        refresher-enabled="true"
-        :refresher-triggered="triggered"
-        @refresherpulling="onPulling"
-        @refresherrefresh="onRefresh"
-        @refresherrestore="onRestore"
-        @refresherabort="onAbort"
     >
       <slot></slot>
       <Empty v-if="isArray(list).length === 0 && moreStatus !== 'loading'" :description="description || '暂无数据'" />
@@ -78,7 +72,6 @@ export default {
         },
       }, {
         onSuccess: (res) => {
-
           const resData = res.data || [];
           this.$emit('response', res);
           if (resData.length
@@ -125,20 +118,6 @@ export default {
       }
       this.getList()
     },
-    onPulling(e) {
-
-    },
-    onRefresh() {
-      this.triggered = true;
-      this.submit(this.params, this.sorter, true)
-    },
-    onRestore() {
-      // this.triggered = false; // 需要重置
-      Message.successToast('刷新完成！')
-    },
-    onAbort() {
-
-    }
   }
 }
 </script>

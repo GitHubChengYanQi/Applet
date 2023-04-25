@@ -45,6 +45,9 @@
         rightText='确定'
         @rightOnClick='save'
     />
+
+    <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -55,10 +58,11 @@ import StockContent from "../StockContent";
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {Message} from "../../../../components/Message";
 import Loading from "../../../../components/Loading";
+import Modal from "../../../../components/Modal";
 
 export default {
   name: 'PrePare',
-  components: {Loading, StockContent, BottomButton, SkuItem},
+  components: {Modal, Loading, StockContent, BottomButton, SkuItem},
   props: [
     'pickId',
     'skuItem',
@@ -114,9 +118,9 @@ export default {
       OutStock.cartAdd({productionPickListsCartParams: this.outStockSkus, taskId: this.taskId, warning}, {
         onSuccess: (res) => {
           if (res.errCode === 1001) {
-            Message.dialog({
+            current.$refs.modal.dialog({
               only: false,
-              content: '本次操作会影响其他出库单相同物料备料!',
+              title: '本次操作会影响其他出库单相同物料备料!',
               confirmText: '继续备料',
               cancelText: '取消备料',
               onConfirm: () => {

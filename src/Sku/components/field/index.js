@@ -1,6 +1,6 @@
 import batch from "./batch";
 import brandIds from "./brand-ids";
-import color from "./color";
+import color from "./Combox";
 import drawing from "./drawing";
 import fileId from "./fileId";
 import heatTreatment from "./heat-treatment";

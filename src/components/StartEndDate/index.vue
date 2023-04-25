@@ -8,7 +8,7 @@
       <slot>
         <view class="content">
           <LinkButton>
-            <uni-icons custom-prefix="iconfont" type="icon-rili" size="20" color="#007AFF"></uni-icons>
+            <Icon icon="icon-rili" size="20" />
           </LinkButton>
           {{
             value[0] && value[1] ? `${MyDate.Show(value[0])} - ${MyDate.Show(value[1])}` : placeholder
@@ -25,12 +25,7 @@
         @close="open = false"
     >
       <view v-if="open">
-        <van-tabs color="#007aff" border line-width="30%" @change="change">
-          <van-tab title="起始时间">
-          </van-tab>
-          <van-tab title="结束时间">
-          </van-tab>
-        </van-tabs>
+        <u-tabs :list="tabs" @click="change" :scrollable="false"></u-tabs>
       </view>
     </Popup>
   </view>
@@ -40,10 +35,11 @@
 import LinkButton from "../LinkButton";
 import {MyDate} from "../../util/Tools";
 import Popup from "../Popup";
+import Icon from "../Icon";
 
 export default {
   name: 'StartEndDate',
-  components: {Popup, LinkButton},
+  components: {Icon, Popup, LinkButton},
   props: {
     value: {
       type: Array,
@@ -66,7 +62,12 @@ export default {
       open: false,
       key: 'start',
       time: [],
-      MyDate
+      MyDate,
+      tabs: [{
+        name: '起始时间',
+      }, {
+        name: '结束时间',
+      }],
     }
   },
   mounted() {

@@ -1,5 +1,3 @@
-import Dialog from "../../wxcomponents/dialog/dialog";
-
 const toast = (
     title,
     afterClose = () => {
@@ -39,50 +37,20 @@ const errorToast = (
 
 };
 
-const dialog = (
-    {
-        title = '',
-        content = '',
-        confirmText = '确认',
-        cancelText = '取消',
-        onCancel,
-        onConfirm,
-        only = true,
-    }) => {
-
-    if (only) {
-        Dialog.alert({
-            zIndex: 100,
-            className: 'dialog',
-            title,
-            message: content,
-            confirmButtonText: confirmText,
-            beforeClose: () => {
-                return typeof onConfirm === 'function' ? onConfirm() : () => true
-            }
-        })
-    } else {
-        Dialog.confirm({
-            zIndex: 100,
-            title,
-            message: content,
-            confirmButtonText: confirmText,
-            cancelButtonText: cancelText,
-            beforeClose: (action) => {
-                if (action === 'confirm') {
-                    return typeof onConfirm === 'function' ? onConfirm() : () => true
-                } else {
-                    return typeof onCancel === 'function' ? onCancel() : () => true
-                }
-            }
-        });
+const loadingToast = (
+    title,
+    afterClose = () => {
     }
+) => {
+
+    toast(title || '加载中...', afterClose, 'loading')
+
 };
 
 
 export const Message = {
     toast,
-    dialog,
     successToast,
-    errorToast
+    errorToast,
+    loadingToast
 };

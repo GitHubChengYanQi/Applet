@@ -1,122 +1,119 @@
 <template>
-	<view class="">
-		<button class="mini-btn" type="default" size="mini" @click="showDrawer">{{title}}</button>
-		<uni-drawer ref="showRight" mode="right" :width="320" @change="change">
-					<uni-search-bar bgColor="#EEEEEE" @input="search" :focus="true" v-model="searchValue" @cancel='closeDrawer'></uni-search-bar>
-			<view class="brand">
-				<uni-data-checkbox v-model="checked" mode="tag" multiple :localdata="localdata"></uni-data-checkbox>
-			</view>
-		</uni-drawer>
-	</view>
+  <view class="">
+
+    <view class="button">
+      <LinkButton @click="showDrawer">
+        <Elliptsis width="200px" style="text-align: left">
+          {{ title || '请选择品牌' }}
+        </Elliptsis>
+      </LinkButton>
+    </view>
+
+    <uni-drawer ref="showRight" mode="right" :width="320">
+      <uni-search-bar
+          bgColor="#EEEEEE"
+          @input="search"
+          v-model="searchValue"
+          @cancel='closeDrawer'
+      />
+      <Loading :skeleton="true" v-if="loading" />
+      <view class="brands" v-else>
+        <u-tag
+            v-for="(item, index) in localdata" :key="index"
+            :text="item.text"
+            :plain="!checked.map(checkItem=>checkItem.value).includes(item.value)"
+            type="primary"
+            :name="index"
+            @click="checkClick(item)"
+        />
+      </view>
+    </uni-drawer>
+  </view>
 
 </template>
 
 <script>
-	///brand/list?limit=20&page=1&sorter=%7B%7D
-	import {
-		request
-	} from 'MES-Apis/lib/Service/request';
-	export default {
-		name: "brand-ids",
-		data() {
-			return {
-				searchValue: "",
-				localdata: [],
-				time: null,
-				checked:[],
-				checkedList:[],
-				tmpList:[]
-			}
-		},
-		computed:{
-			title(){
-				if(this.checkedList.length>0){
-					const list = this.checkedList.map(item=>item.text);
-					return list.join(",");
-				}else{
-					return "选择"
-				}
+import Loading from "../../../../components/Loading";
+import Elliptsis from "../../../../components/Ellipsis";
+import LinkButton from "../../../../components/LinkButton";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 
-			}
-		},
-		mounted() {
+export default {
+  name: "brand-ids",
+  components: {LinkButton, Elliptsis, Loading},
+  data() {
+    return {
+      loading: false,
+      searchValue: "",
+      localdata: [],
+      time: null,
+      checked: [],
+      title:''
+    }
+  },
+  methods: {
+    checkClick(brand) {
+      let newChecked = []
+      if (this.checked.map(checkItem=>checkItem.value).includes(brand.value)) {
+        newChecked = this.checked.filter(item => item.value !== brand.value)
+      } else {
+        newChecked = [...this.checked, brand]
+      }
+      this.$emit('input',newChecked.map(item=>item.value))
+      this.checked = newChecked
+      this.title = newChecked.map(item => item.text).join(',')
+    },
+    search(value) {
+      clearTimeout(this.time);
+      this.time = setTimeout(() => {
+        this.get(value);
+      }, 500);
+    },
+    async get(brandName) {
+      this.loading = true
+      const _this = this;
 
-		},
-		watch:{
-			checked(val){
-				const tmpVal = [...this.tmpList,...val];
-				let tmpList= this.localdata.filter(item => {
-					return tmpVal.findIndex(i=>{
-						return i==item.value
-						})>=0;
-				});
-				this.checkedList  = [...this.checkedList ,...tmpList];
-				console.log(this.checkedList)
-				console.log(val);
-				tmpList = [];
-				this.checkedList = this.checkedList.filter(item => {
-					const is = tmpVal.findIndex(i=>i==item.value)>=0;
-					const it = tmpList.findIndex(i => item.value==i.value)==-1;
-					if(is){
-						tmpList.push(item);
-					}
-					// console.log(is,it);
-					return is && it;
-				})
-			}
-		},
-		methods: {
-			change(value){
-				if(value){
-					console.log(111,this.checkedList)
-					this.checked = this.checkedList.map(item=>item.value);
-				}
-			},
-			search(value) {
-				clearTimeout(this.time);
-				this.time = setTimeout(() => {
-					this.get(value);
-				}, 500);
-
-			},
-			async get(brandName) {
-				const _this = this;
-				_this.tmpList = [...this.checked];
-
-
-				const response = await request({
-					url: "/brand/list",
-					method: "POST",
-					data: {
-						brandName
-					}
-				});
-				const {
-					data
-				} = response;
-				_this.localdata = data.map(item => {
-					return {
-						value: item.brandId,
-						text: item.brandName
-					};
-				});
-			},
-			showDrawer() {
-				this.get();
-				this.$refs.showRight.open();
-			},
-			closeDrawer() {
-				this.$refs.showRight.close();
-			}
-		}
-	}
+      const response = await Sku.brandList({
+        data: {
+          brandName
+        }
+      });
+      const {
+        data
+      } = response;
+      _this.localdata = data.map(item => {
+        return {
+          value: item.brandId,
+          text: item.brandName
+        };
+      });
+      this.loading = false
+    },
+    showDrawer() {
+      this.get();
+      this.$refs.showRight.open();
+    },
+    closeDrawer() {
+      this.$refs.showRight.close();
+    }
+  }
+}
 </script>
 
-<style>
-	.seek{
-		display: flex;
-	}
-	.brand{
-		padding: 8px 14px;
-	}
+<style lang="scss">
+.button {
+  padding-top: 8px;
+}
+
+.seek {
+  display: flex;
+}
+
+.brands {
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 </style>

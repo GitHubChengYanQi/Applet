@@ -7,8 +7,9 @@ import {getLocalParmas} from "./util/Tools";
 
 Init.initBaseURL(
     process.env.NODE_ENV === "development" ?
-        // 'http://192.168.2.100'
-        'http://192.168.2.220:8885'
+        'http://192.168.2.100'
+        // 'http://192.168.2.220:8885'
+        // 'https://api.hh.zz2025.com'
         :
         process.env.VUE_APP_BASE_URL)
 
@@ -65,8 +66,11 @@ export default {
 
 <style>
 /*每个页面公共css */
-@import "@/static/font/iconfont.css";
-@import "@/static/iconfont/iconfont.css";
-@import '/wxcomponents/common/index.wxss';
-
+@import "@/static/font/iconfont-weapp-icon.css";
+/*@import '/wxcomponents/common/index.wxss';*/
+.u-border-right {
+  border-right-width: 0.5px !important;
+  border-color: rgba(57, 116, 199, 0.1) !important;
+  border-right-style: solid;
+}
 </style>

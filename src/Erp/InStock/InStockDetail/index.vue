@@ -52,12 +52,12 @@
               </Slide>
             </view>
           </view>
-          <van-divider v-if="inStockDetails().length > 3" contentPosition="center">
+          <Divider v-if="inStockDetails().length > 3">
             <view @click="allSku = !allSku">
-              <van-icon v-if="allSku" name="arrow-up" />
-              <van-icon v-else name="arrow-down" />
+              <u-icon v-if="allSku" name="arrow-up" />
+              <u-icon v-else name="arrow-down" />
             </view>
-          </van-divider>
+          </Divider>
         </view>
       </Card>
       <Card title="供应商" :extra="order.customerResult && order.customerResult.customerName || '无'" />
@@ -114,13 +114,13 @@ import Empty from "../../../components/Empty";
 import Slide from "../../../components/Slide";
 import InStockItem from "../components/InStockItem";
 import ActionButtons from "../../Receipt/ReceiptDetail/components/ActionButtons";
-import Button from "../../../components/VantButton";
 import InstockShop from "../components/InstockShop";
 import {InStock} from "MES-Apis/lib/InStock/promise";
+import Divider from "../../../components/Divider";
 
 export default {
   name: 'InStockDetail',
-  components: {InstockShop, Button, ActionButtons, InStockItem, Slide, Empty, Search, LinkButton, Card},
+  components: {Divider, InstockShop, ActionButtons, InStockItem, Slide, Empty, Search, LinkButton, Card},
   props: [
     'actionNode',
     'taskDetail',

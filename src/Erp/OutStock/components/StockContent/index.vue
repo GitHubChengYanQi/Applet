@@ -2,14 +2,14 @@
   <view>
     <Loading v-if="loading" :skeleton="true" />
     <view v-else class='action'>
-      <van-empty v-if="brands.length === 0" description="暂无库存" />
+      <Empty v-if="brands.length === 0" description="暂无库存" />
       <view
           v-for="(item,index) in brands"
           :key="index"
           :class="['position', !item.show ? 'defaultPosition' : 'show']"
       >
         <view @click="brandClick(item,index)" class='brandName'>
-          <van-icon name="medal-o" />
+          <Icon icon="icon-pinpai" />
           {{ item.brandName }} ({{ item.num }})
         </view>
         <view v-if="item.show" class='allBrands'>
@@ -19,7 +19,7 @@
               :key='positionIndex'
           >
             <view class='positionName' @click="()=>positionClick(positionItem,positionIndex,index)">
-              <van-checkbox :value="positionItem.checked" shape="square" />
+              <Check :value="positionItem.checked" />
               <span class='name'>{{ positionItem.name }} ({{ positionItem.number }})</span>
             </view>
 
@@ -44,10 +44,13 @@ import {Message} from "../../../../components/Message";
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import Loading from "../../../../components/Loading";
 import ShopNumber from "../../../../components/ShopNumber";
+import Icon from "../../../../components/Icon";
+import Empty from "../../../../components/Empty";
+import Check from "../../../../components/Check";
 
 export default {
   name: 'StockContent',
-  components: {ShopNumber, Loading},
+  components: {Check, Empty, Icon, ShopNumber, Loading},
   props: [
     'pickId',
     'pickListsDetailId',
@@ -335,7 +338,7 @@ export default {
   }
 
   .checked {
-    //border: solid 1px var(--adm-color-primary);
+    //border: solid 1px var(--adm-Combox-primary);
   }
 }
 

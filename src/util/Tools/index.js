@@ -1,13 +1,15 @@
-import moment from "moment";
+import moment from "util/Common/moment";
 
 // 获取当前地址信息
 export const getLocalParmas = () => {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1]
     const search = pages[pages.length - 1]?.options || {}
-    const urlSearch = '?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')
+    const urlSearch = Object.keys(search).length > 0 ? ('?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')) : ''
+    const route = '/' + currentPage.route + urlSearch
     return {
-        route: '/' + currentPage.route + urlSearch,
+        route: route,
+        stringRoute: route.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26"),
         search: search
     }
 }
@@ -81,3 +83,34 @@ export const timeDifference = (tmpTime) => {
     }
     return ansTimeDifference;
 };
+
+export const safeAreaHeight = (_this, num) => {
+    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
+    return safeAreaHeight < (num || 0) ? (num || 0) : safeAreaHeight
+}
+
+export const rateTool = (value, total, num) => {
+    if (typeof total !== "number") {
+        return value > 0 ? `${value}%` : 0;
+    }
+    if (total === 0) {
+        return 0
+    }
+    const val = (value / total) * 100
+    let rate
+    if (val > 0 && val < 1) {
+        rate = 1
+    } else if (val > 99 && val < 100) {
+        rate = 99
+    } else {
+        rate = Math.round(val)
+    }
+    if (num) {
+        return rate
+    }
+    return rate > 0 ? `${rate}%` : 0;
+};
+
+export const routeReplace = (route) => {
+    return route.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
+}

@@ -1,7 +1,7 @@
 <template>
   <Auth>
 
-    <van-dialog id="van-dialog" />
+
     <Page v-if="auth" />
   </Auth>
 </template>

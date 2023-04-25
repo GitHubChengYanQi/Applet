@@ -23,8 +23,8 @@
 
 <script>
 import Bouncing from "../../../../components/Bouncing";
-import instockErrorShop from '../../../../static/instockErrorShop.png'
-import waitInstockShop from '../../../../static/waitInstockShop.png'
+import instockErrorShop from '../../../../static/images/instockErrorShop.png'
+import waitInstockShop from '../../../../static/images/waitInstockShop.png'
 
 export default {
   name: 'InstockShop',
