@@ -1,13 +1,22 @@
 <template>
   <view class="createTenant">
+    <ImageCropper
+        v-if="uploadUrl"
+        :img-url="uploadUrl"
+        @done="cropperDone"
+        @close="uploadUrl = ''"
+    />
     <view class="logo">
       <view class="logoTitle">
         头像/企业logo
       </view>
       <view class="uploadLogo">
-        <Uploader @onChange="uploadLogo">
-          <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
-          <Icon icon="icon-tuanduitouxiang" size="26" v-else />
+        <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadLogo">
+          <u-loading-icon v-if="uploadLoading" mode="circle" :vertical="true"></u-loading-icon>
+          <template v-else>
+            <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
+            <Icon icon="icon-tuanduitouxiang" size="26" v-else />
+          </template>
         </Uploader>
         <u-icon name="arrow-right" size="12" color="#929293" />
       </view>
@@ -21,7 +30,7 @@
       />
     </view>
     <view class="button">
-      <MyButton @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</MyButton>
+      <MyButton type="primary" @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</MyButton>
     </view>
 
     <Loading :loading="loading" :loading-text="edit ? '保存数据中...' : '创建数据中...'" />
@@ -41,19 +50,22 @@ import Icon from "../../components/Icon";
 import Uploader from "../../components/Uploader";
 import Avatar from "../../components/Avatar";
 import Loading from "../../components/Loading";
+import ImageCropper from "../../components/ImageCropper";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Loading, Avatar, Uploader, Icon, Modal, MyButton},
+  components: {ImageCropper, Loading, Avatar, Uploader, Icon, Modal, MyButton},
   data() {
     return {
       name: '',
       loading: false,
+      uploadUrl: '',
       logo: {},
       edit: false,
-      tenantId: ''
+      uploadLoading: false,
+      tenantId: '',
     }
   },
   mounted() {
@@ -67,11 +79,15 @@ export default {
       this.tenantId = tenant.tenantId
       this.logo = {
         id: tenant.logo.mediaId,
-        url: tenant.logo.thumbUrl
+        url: tenant.logo.url
       }
     }
   },
   methods: {
+    cropperDone(url) {
+      this.$refs.upload.uploadFile(url, {done: true})
+      this.uploadUrl = ''
+    },
     create() {
       if (!this.name) {
         Message.toast('请输入团队名称！')
@@ -128,8 +144,12 @@ export default {
         url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
       })
     },
-    uploadLogo(value) {
-      this.logo = value
+    uploadLogo(file) {
+      if (file.done) {
+        this.logo = file
+      } else {
+        this.uploadUrl = file.url
+      }
     }
   }
 }

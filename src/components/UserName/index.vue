@@ -5,7 +5,7 @@
         <Avatar :size="size || 35" :src='user.avatar' />
         <view>
           <view>{{ user.name }}</view>
-          <view class="info" v-if="!noOtherInfo">
+          <view class="info" v-if="false">
             <template v-if="!noDept">{{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} -</template>
             {{ user.role || isArray(user.roleResults)[0] && isArray(user.roleResults)[0].name || '-' }}
           </view>

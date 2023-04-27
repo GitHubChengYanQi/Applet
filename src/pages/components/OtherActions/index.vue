@@ -105,7 +105,7 @@ export default {
     line-height: unset;
     display: flex;
     align-items: center;
-    gap: 14px;
+    //gap: 14px;
     padding: 0;
 
     .actionInfo {

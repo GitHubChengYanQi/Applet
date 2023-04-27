@@ -1,10 +1,16 @@
 <template>
   <view>
     <Popup
-        title="添加用户"
+        round="15"
         :show="addUserShow"
         @close="$emit('close')"
+        no-header-border
     >
+      <template slot="title">
+        <view class="title">
+          添加用户
+        </view>
+      </template>
       <view class="addUserAction">
         <view class="addUserActionItem">
           <button class="share" open-type="share">
@@ -18,6 +24,7 @@
         <view class="addUserActionItem" @click="createCode">
           <view class="actionTitle">
             扫码加入
+            <Icon icon="icon-erweima"  size="14"/>
           </view>
           <u-icon name="arrow-right" />
         </view>
@@ -36,10 +43,11 @@ import Loading from "../../../../components/Loading";
 import {System} from "MES-Apis/lib/System/promise";
 import {Message} from "../../../../components/Message";
 import Modal from "../../../../components/Modal";
+import Icon from "../../../../components/Icon";
 
 export default {
   name: 'AddUser',
-  components: {Modal, Loading, Popup},
+  components: {Icon, Modal, Loading, Popup},
   props: ['addUserShow'],
   data() {
     return {
@@ -77,8 +85,13 @@ export default {
 </script>
 
 <style lang="scss">
+
+.title {
+  font-weight: bold;
+}
+
 .addUserAction {
-  padding: 12px;
+  padding: 25px 50px;
 
   .addUserActionItem {
     padding: 12px 0;
@@ -88,6 +101,10 @@ export default {
 
     .actionTitle {
       flex-grow: 1;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .share {

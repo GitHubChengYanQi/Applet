@@ -39,7 +39,7 @@
         :value='value'
         :min='min'
         :max='max'
-        @onChange="(num)=>$emit('onChange',num)"
+        @onChange="onChange"
     />
   </view>
 </template>
@@ -83,6 +83,10 @@ export default {
     visiblChange(visible) {
       this.$store.commit('shopNumber/openChange', visible)
       this.visible = visible
+    },
+    onChange(num) {
+      this.$emit('onChange', num)
+      this.$emit('input', num)
     }
   }
 }

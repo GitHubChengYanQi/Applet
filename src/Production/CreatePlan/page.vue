@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import Card from '../../components/Card/index.vue'
+import Card from '../../components/Card/index'
 import Search from "../../components/Search";
 import List from "../../components/List/indx";
 import {Bom} from "MES-Apis/lib/Bom/promise";

@@ -9,7 +9,6 @@
         :height="170"
         :onInit="onInitChart"
     />
-    <view style="height: 10px" />
   </view>
 </template>
 

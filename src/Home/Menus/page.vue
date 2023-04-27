@@ -1,61 +1,195 @@
 <template>
   <view class="body">
-    <MenuCard
-        v-for="(item,index) in Menus"
-        :key="index"
-        :title="item.name"
-        v-if="(item.menus || []).length > 0"
-    >
-      <view class="white" slot="content">
-        <u-grid col="3" :border="true">
-          <u-grid-item
-              v-for="(subItem,subIndex) in (item.menus || [])"
-              :key="subIndex"
-              @click="()=>click(subItem)"
-          >
-            <view class="block">
-              <view class="img">
-                <Icon :icon="subItem.icon || 'icon-danxuanweixuanzhong'" :size="32" />
-              </view>
-              <view class="text">{{ subItem.name }}</view>
-            </view>
-          </u-grid-item>
-        </u-grid>
-      </view>
-    </MenuCard>
-  </view>
+    <scroll-view :style="{maxHeight:'calc(100vh - 12px)'}" :scroll-y="scroll">
+      <view class="box">
+        <view class="header">
+          <view class="title">首页功能</view>
+          <view class="setting" @click="setting ? save() : (setting = !setting)">
+            <template v-if="setting">
+              保存
+            </template>
+            <template v-else>
+              管理
+              <u-icon name="setting" color="#007aff" size="14" />
+            </template>
+          </view>
+        </view>
 
+        <view class="homeMenusSetting">
+          <Drag
+              :disabled="!setting"
+              v-if="homeMenus.length > 0"
+              :controlsArray="homeMenus"
+              :controlsSize="{width: dropInfo.itemWidth, height: dropInfo.itemHeight}"
+              :height="`${Math.ceil(homeMenus.length / 4) * 99}px`"
+              :maxWidthCount="4"
+              @handleTouchstart="()=>scroll=false"
+              @handleTouchend="()=>scroll=true"
+              @dragEnd="dragEnd"
+              :params="{setting}"
+          >
+            <template #content="{end,item,params,colEnd}">
+              <view :class="{
+                menuItem:true,
+                endMenuItem:end || colEnd
+              }"
+              >
+                <view class="icon">
+                  <Icon
+                      :icon="item.icon || 'icon-danxuanweixuanzhong'"
+                      size="40"
+                      @click="click(item)"
+                  />
+                  <view
+                      v-show="params.setting"
+                      class="actionIcon"
+                      @click="removeMenu(item)"
+                  >
+                    <u-icon
+                        name="minus-circle-fill"
+                        color="#bdbaba"
+                        size="20"
+                    />
+                  </view>
+                </view>
+
+                <view
+                    class="menuName"
+                    style="font-size:14px"
+                    @click="click(item)"
+                >
+                  {{ item.name }}
+                </view>
+              </view>
+            </template>
+          </Drag>
+        </view>
+
+
+        <view v-if="false" class="homeMenus" @click="open=true">
+          <view class="label">
+            已收起{{ homeMenus.length }}个首页应用
+          </view>
+          <view class="menus">
+            <Icon
+                v-for="(item,index) in homeMenus"
+                :key="index"
+                :icon="item.icon"
+                size="16"
+            />
+            <u-icon name="arrow-down" color="#D8D8D8" size="14" />
+          </view>
+        </view>
+
+      </view>
+      <view
+          class="box"
+          v-for="(item,index) in routes"
+          :key="index"
+          v-if="(item.menus || []).length > 0"
+      >
+        <view class="header">
+          <view class="title">{{ item.name }}</view>
+        </view>
+        <MenuCard
+            :noActionIconMenus="homeMenus"
+            :action-icon="setting"
+            :menus="item.menus"
+            :column="4"
+            :iconSize="40"
+            :font-size="14"
+            padding="18px 0"
+            @click="click"
+            @addMenu="addMenu"
+        />
+      </view>
+    </scroll-view>
+  </view>
 </template>
 
 <script>
-import {Menus} from "../../pages/Home/menu";
+import {routes} from "../../route";
 import Icon from "../../components/Icon";
-import MenuCard from "./components/Card";
+import MenuCard from "../../components/MenuCard";
+import {Message} from "../../components/Message";
+import {User} from "MES-Apis/lib/User/promise";
+import Drag from "../../components/Drag";
 
 export default {
   name: "Menus",
   components: {
+    Drag,
     MenuCard,
     Icon
   },
   data() {
     return {
-      src: '../../static/images/创建采购单.png',
-      commonlyMenus: [{name: '11111'}, {name: '222222'}, {name: '333333'}, {name: '444444'}, {name: '555555'}],
-      expandStatus: true,
-      Menus,
+      routes,
+      setting: false,
+      open: false,
+      scroll: true,
+      saveLoading: false,
+      homeMenus: [],
+      dropInfo: {}
     }
   },
   mounted() {
+    const windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth
+
+    const homeMenus = this.$store.state.userInfo.homeMenus || []
+
+    this.dropInfo = {
+      itemHeight: 99,
+      itemWidth: (windowWidth - 24) / 4,
+    }
+    this.homeMenus = homeMenus
 
   },
   methods: {
-    expand() {
-      this.expandStatus = !this.expandStatus
-    },
     click(menu) {
       uni.navigateTo({
         url: menu.url
+      })
+    },
+    addMenu(menu) {
+      if (this.homeMenus.length >= 5) {
+        Message.toast('最多增加5个首页功能！')
+        return
+      }
+      this.homeMenus = [...this.homeMenus, menu]
+    },
+    removeMenu(menu) {
+      if (this.homeMenus.length <= 1) {
+        Message.toast('最少保留1个首页功能！')
+        return
+      }
+      this.homeMenus = this.homeMenus.filter(item => item.key !== menu.key)
+    },
+    dragEnd(menus) {
+      this.homeMenus = menus
+    },
+    save() {
+      this.saveLoading = true
+      User.homeMenusAdd({
+        data: {
+          details: this.homeMenus.map((item, index) => ({
+            name: item.name,
+            code: item.key,
+            icon: item.icon,
+            url: item.url,
+            sort: index
+          })),
+          type: 2
+        }
+      }).then(() => {
+        this.setting = false
+        this.open = false
+        this.$store.dispatch('userInfo/getHomeMenus', true)
+        Message.successToast('保存成功！')
+      }).catch(() => {
+        Message.errorToast('保存失败！')
+      }).finally(() => {
+        this.saveLoading = false
       })
     }
   }
@@ -64,64 +198,83 @@ export default {
 
 <style lang="scss">
 .body {
-  padding: 12px;
+  padding: 12px 12px 0;
 }
 
-image {
-  width: 100%;
-  height: 100%;
+.box {
+  margin-bottom: 22px;
 }
 
-.blue {
+.header {
   display: flex;
-  color: #2680EB;
-}
+  justify-content: space-between;
+  font-size: 14px;
 
-.white {
-  display: flex;
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 6px 9px -2px rgba(220, 220, 220, 0.3);
+  .title {
+    font-weight: bold;
+  }
 
-  .block {
-    justify-content: space-between;
-    padding: 14px;
-
-    .img {
-      width: 34px;
-      height: 34px;
-      margin: 4px auto;
-    }
-
-    .text {
-      font-size: 12px;
-    }
+  .setting {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #007aff;
   }
 }
 
-.white1 {
-  display: flex;
-  padding: 16px 21px;
-  background-color: #FFFFFF;
+.homeMenusSetting {
+  background-color: #fff;
   border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 6px 9px -2px rgba(220, 220, 220, 0.3);
+  margin-top: 10px;
+}
 
-  .text {
+.homeMenus {
+  padding: 18px 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+
+  .label {
+    flex-grow: 1;
     font-size: 12px;
     color: #808080;
-    text-align: left;
-    flex-grow: 1;
   }
 
-  .little {
-    width: 14px;
-    height: 14px;
+  .menus {
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
+}
+
+.menuItem {
+  text-align: center;
+  padding: 18px 0;
+  border-bottom: dashed 1px rgba(57, 116, 199, 0.1);
+  border-right: dashed 1px rgba(57, 116, 199, 0.1);
+
 
   .icon {
-    margin: auto 4px;
+    position: relative;
+    width: fit-content;
+    display: inline-block;
+
+    .actionIcon {
+      position: absolute;
+      right: -20px;
+      top: -10px;
+    }
   }
+
+
+  .menuName {
+    //padding-top: 12px;
+  }
+}
+
+.endMenuItem {
+  border-right: none;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <view class="icon">
+  <view class="icon" @click="$emit('click')">
     <view :class="['t-icon','t-'+icon]" :style="{width:`${size}px`,height:`${size}px`}" />
   </view>
 </template>

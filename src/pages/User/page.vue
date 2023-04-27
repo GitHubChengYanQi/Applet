@@ -8,9 +8,9 @@
             <template v-if="auth">
               <view class="name">
                 {{ userInfo.name }}
-                <u-icon name="arrow-right" size="9" />
+                <u-icon name="arrow-right" size="9" v-if="false" />
               </view>
-              <view class="dept">
+              <view class="dept" v-if="false">
                 {{ isArray(userInfo.dept)[0] || '' }}
                 {{ isArray(userInfo.dept)[0] && isArray(userInfo.role)[0] && '-' || '' }}
                 {{ isArray(userInfo.role)[0] || '' }}
@@ -51,7 +51,7 @@
             :column="4"
             font-size="16"
             icon-size="39"
-            padding="24px 0"
+            padding="20px 0"
             @click="click"
         />
       </view>
@@ -69,7 +69,7 @@
 <script>
 
 import Icon from "../../components/Icon";
-import {Menus} from "../Home/menu";
+import {routes} from "../../route";
 import Avatar from "../../components/Avatar";
 import MenuCard from "../../components/MenuCard";
 import {getLocalParmas, isArray} from "../../util/Tools";
@@ -80,7 +80,7 @@ export default {
   options: {
     styleIsolation: 'shared'
   },
-  props: ['auth'],
+  props: [],
   components: {MyButton, OtherActions, MenuCard, Avatar, Icon},
   data() {
     return {
@@ -90,16 +90,9 @@ export default {
       tenant: {}
     }
   },
-  watch: {
-    auth(auth) {
-      if (auth) {
-        this.init()
-      }
-    }
-  },
   mounted() {
     const menus = []
-    Menus.forEach(item => {
+    routes.forEach(item => {
       item.menus.forEach(item => {
         if (item.type && item.type.includes('my')) {
           menus.push(item)
@@ -155,6 +148,10 @@ export default {
         uni.navigateTo({
           url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
         })
+      } else {
+        uni.navigateTo({
+          url: '/User/UserInfo/index'
+        })
       }
     }
   }
@@ -163,7 +160,6 @@ export default {
 
 <style lang="scss">
 .home {
-  background-image: url("/static/images/home/home-bg.png");
   height: 100vh;
 
   .content {
@@ -186,6 +182,9 @@ export default {
         display: flex;
         align-items: center;
         gap: 8px;
+        padding: 0;
+        background-color: #fff;
+        height: 32px;
 
         .name {
           font-size: 16px;
@@ -199,6 +198,10 @@ export default {
         .dept {
           font-size: 12px;
           color: #666666;
+        }
+
+        &::after {
+          content: none;
         }
       }
 
@@ -216,7 +219,7 @@ export default {
     .tenant {
       position: relative;
       background-color: #FA8F2B;
-      padding: 10px;
+      padding: 10px 16px 10px 10px;
       display: flex;
       align-items: center;
       color: #FFFFFF;
@@ -238,20 +241,21 @@ export default {
 
       .tanantSet {
         font-size: 14px;
-        padding: 5px 10px;
+        padding: 2px 10px;
         border-radius: 50px;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        min-width: 70px;
+        min-width: 56px;
         text-align: center;
         z-index: 1;
+        font-weight: bold;
       }
 
       .image {
-        width: 50px;
-        height: 50px;
+        width: 38px;
+        height: 38px;
         position: absolute;
-        right: 0;
+        right: -3px;
       }
 
     }

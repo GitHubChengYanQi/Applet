@@ -139,9 +139,9 @@
 
 import Search from "@/components/Search";
 import {Sku} from "MES-Apis/lib/Sku/promise";
-import SkuLog from "@/Sku/components/SkuLog/index.vue";
-import InkindItem from "@/Sku/components/InkindItem/index.vue";
-import Supply from "@/Sku/components/Supply/index.vue";
+import SkuLog from "@/Sku/components/SkuLog/index";
+import InkindItem from "@/Sku/components/InkindItem/index";
+import Supply from "@/Sku/components/Supply/index";
 import {SkuResultSkuJsons} from "../sku";
 import UQRCode from "uqrcodejs";
 import {request} from "MES-Apis/lib/Service/request";

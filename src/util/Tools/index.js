@@ -114,3 +114,104 @@ export const rateTool = (value, total, num) => {
 export const routeReplace = (route) => {
     return route.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
 }
+
+export const saveImg = (url) => {
+    return new Promise((resolve) => {
+        uni.getSetting({
+
+            //获取用户的当前设置
+
+            success: res => {
+
+                if (res.authSetting['scope.writePhotosAlbum']) {
+                    //验证用户是否授权可以访问相册
+                    uni.getImageInfo({
+                        src: url,
+                        success: function (image) {
+                            uni.saveImageToPhotosAlbum({
+                                filePath: image.path,
+                                success: function () {
+                                    uni.showToast({
+                                        title: '保存成功，请在相册中查看',
+                                        icon: 'none',
+                                        duration: 2000
+                                    });
+                                    resolve(true)
+                                },
+                                fail: function (err) {
+                                    uni.hideLoading();
+                                    uni.showToast({
+                                        title: '保存失败',
+                                        icon: 'none',
+                                        duration: 2000
+                                    });
+                                    resolve(false)
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    uni.authorize({
+                        //如果没有授权，向用户发起请求
+                        scope: 'scope.writePhotosAlbum',
+                        success: () => {
+                            uni.getImageInfo({
+                                src: url,
+                                success: function (image) {
+                                    uni.saveImageToPhotosAlbum({
+                                        filePath: image.path,
+                                        success: function () {
+                                            uni.showToast({
+                                                title: '保存成功，请在相册中查看',
+                                                icon: 'none',
+                                                duration: 2000
+                                            });
+                                            resolve(true)
+                                        },
+                                        fail: function (err) {
+                                            uni.hideLoading();
+                                            uni.showToast({
+                                                title: '保存失败',
+                                                icon: 'none',
+                                                duration: 2000
+                                            });
+                                            resolve(false)
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        fail: () => {
+                            uni.showToast({
+                                title: '请打开保存相册权限!',
+                                icon: 'none',
+                                duration: 2000
+                            });
+                            resolve(false)
+                            setTimeout(() => {
+
+                                uni.openSetting({
+
+                                    //调起客户端小程序设置界面,让用户开启访问相册
+
+                                    success: res2 => {
+
+                                        // console.log(res2.authSetting)
+
+                                    }
+
+                                });
+
+                            }, 2000);
+
+                        }
+
+                    });
+
+                }
+
+            }
+
+        });
+    })
+}

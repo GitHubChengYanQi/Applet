@@ -18,10 +18,7 @@
         >
           <Check :value="checked.includes(item.tenantBindId)" />
           <view class="userInfo">
-            {{ item.userResult ? item.userResult.name : '-' }}
-            <view class="phone">
-              {{ item.userResult ? item.userResult.phone : '-' }}
-            </view>
+            <UserName :user="item.userResult" />
           </view>
           <view class="time">
             {{ timeDifference(item.createTime) }}
@@ -74,9 +71,10 @@ import {safeAreaHeight, timeDifference} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
 import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../../components/Modal";
+import UserName from "../../../components/UserName";
 
 export default {
-  components: {Modal, MyButton, Check, List, Search},
+  components: {UserName, Modal, MyButton, Check, List, Search},
   data() {
     return {
       safeAreaHeight,

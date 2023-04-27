@@ -19,12 +19,6 @@ import LinkButton from "../LinkButton";
 export default {
   name: 'Auth',
   props: {
-    loginAuth: {
-      type: Boolean,
-      default() {
-        return true
-      }
-    },
     tenantAuth: {
       type: Boolean,
       default() {
@@ -37,10 +31,10 @@ export default {
     return {
       loading: true,
       error: false,
-      height: 0,
     }
   },
   mounted() {
+
     this.authInfo()
   },
   // watch: {
@@ -95,13 +89,9 @@ export default {
       console.log(userInfo)
       const userId = !!userInfo.userId;
       if (!userId) {
-        if (!this.loginAuth) {
-          this.notLogin()
-        } else {
-          uni.reLaunch({
-            url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
-          })
-        }
+        uni.reLaunch({
+          url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
+        })
       } else {
         try {
           const userInfo = this.$store.state.userInfo.userInfo || {}
@@ -115,13 +105,12 @@ export default {
               tenantId: user.tenantId,
               name: user.tenantName,
               logo: user.tenantLogo,
-              admin:!!user.isTenantAdmin
+              admin: !!user.isTenantAdmin
             })
           }
 
-
+          await this.getSystemInfo()
           if (tenantId || !this.tenantAuth) {
-            await this.getSystemInfo()
             this.authSuccess()
           } else {
             uni.reLaunch({
@@ -139,11 +128,6 @@ export default {
       this.$store.commit('userInfo/refresh', false)
       this.loading = false
     },
-    notLogin() {
-      this.$store.commit('userInfo/authStatus', false)
-      this.$store.commit('userInfo/refresh', false)
-      this.loading = false
-    },
     authError() {
       this.$store.commit('userInfo/authStatus', false)
       this.$store.commit('userInfo/refresh', false)
@@ -151,7 +135,7 @@ export default {
       this.error = true
     },
     async getSystemInfo() {
-
+      await this.$store.dispatch('userInfo/getHomeMenus')
     }
   }
 }

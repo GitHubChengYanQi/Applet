@@ -103,75 +103,8 @@
       </view>
     </List>
 
-    <Popup title="创建出库任务" :show="show" @close="show = false">
-      <view class="create" :style="{
-        paddingBottom:`${60}px`
-      }">
-        <view class="skuContent">
-          <view class="skuItem">
-            <SkuItem
-                extra-width="100px"
-                :sku-result="isObject(actionItem.skuResult)"
-                :other-data="[
-                      '版本号：'+(actionItem.partsResult.version || '-')
-                  ]"
-            />
-          </view>
+    <CreateOutStockTask ref="createOutStockTask" @refresh="refresh" />
 
-          <view>
-            <view>
-              x {{ actionItem.number }}
-            </view>
-          </view>
-        </view>
-        <view class="form">
-          <uni-forms
-              ref="form"
-              :model="formData"
-              labelWidth="100px"
-              :rules="rules"
-          >
-
-            <uni-forms-item
-                label="Bom数量"
-                name="number"
-                required
-            >
-              <view class="forItem">
-                <ShopNumber
-                    :min="1"
-                    :value="formData.number"
-                    :max="actionItem.planNumber"
-                    @onChange="(number)=>formData.number = number"
-                />
-              </view>
-            </uni-forms-item>
-
-            <uni-forms-item
-                label="执行人"
-                name="userId"
-                required
-            >
-              <view class="forItem" @click="selectUser(formData.user)">
-                <UserName :user="formData.user" v-if="formData.userId" />
-                <LinkButton v-else>
-                  <view>请选择执行人</view>
-                </LinkButton>
-              </view>
-            </uni-forms-item>
-
-          </uni-forms>
-        </view>
-      </view>
-      <BottomButton
-          :right-loading="submitLoading"
-          right-text="创建"
-          @rightOnClick="createOutTask"
-          @leftOnClick="close"
-      />
-    </Popup>
-
-    <Modal ref="modal" />
 
 
   </view>
@@ -192,55 +125,28 @@ import BottomButton from "../../components/BottomButton";
 import {Message} from "../../components/Message";
 import Progress from "../../components/Progress";
 import Modal from "../../components/Modal";
+import CreateOutStockTask from "./components/CreateOutStockTask";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'ProductionList',
-  components: {Modal, Progress, BottomButton, ShopNumber, Popup, Avatar, UserName, LinkButton, SkuItem, Card, List},
+  components: {
+    CreateOutStockTask,
+    Modal, Progress, BottomButton, ShopNumber, Popup, Avatar, UserName, LinkButton, SkuItem, Card, List
+  },
   data() {
     return {
       timeDifference,
       Production,
       list: [],
       safeAreaHeight,
-      formData: {},
-      rules: {
-        number: {
-          rules: [
-            {
-              required: true,
-              errorMessage: '请输入数量!',
-            },
-          ]
-        },
-        userId: {
-          rules: [
-            {
-              required: true,
-              errorMessage: '请选择执行人!',
-            },
-          ]
-        },
-      },
-      show: false,
-      submitLoading: false,
-      actionItem: {},
       isObject
     }
   },
   mounted() {
     const _this = this
-    uni.$on('selectUser', (res) => {
-      const user = res.checkUsers[0] || {};
-      _this.formData = {
-        ..._this.formData,
-        user,
-        userId: user.userId
-      }
-    })
-
     uni.$on('doneProductionTask', (data) => {
       const {doneNum, planId} = data || {}
       this.list = _this.list.map(item => {
@@ -296,44 +202,8 @@ export default {
         url: `/Production/ProductionDetail/index?id=${item.productionPlanId}`
       })
     },
-    close() {
-      this.show = false
-    },
-    createOutTask() {
-      const _this = this
-      this.$refs.form.validate((err) => {
-        if (!err) {
-          _this.submitLoading = true
-          Production.createOutStockTask({
-            data: {
-              sourceId: this.actionItem.productionPlanId,
-              userId: this.formData.userId,
-              partsId: this.actionItem.partsResult.bomId,
-              number: this.formData.number
-            }
-          }).then(() => {
-            this.$refs.modal.dialog({
-              title: '创建出库任务成功!',
-              onConfirm() {
-                _this.$refs.listRef.submit()
-                _this.show = false
-                return true
-              }
-            })
-          }).catch(() => {
-            this.$refs.modal.dialog({
-              title: '创建出库任务失败!'
-            })
-          }).finally(() => {
-            _this.submitLoading = false
-          })
-        }
-      })
-    },
     create(item) {
-      this.show = true
-      this.actionItem = item
-      this.formData = {number: item.number}
+      this.$refs.createOutStockTask.create(item)
     },
     format(item) {
       const planDetailResult = item.planDetailResults[0] || {}
@@ -346,16 +216,8 @@ export default {
         number: (planDetailResult.planNumber || 0) - (planDetailResult.makingNumber || 0)
       }
     },
-    selectUser(user) {
-      uni.navigateTo({
-        url: `/User/SelectUser/index?type=radio`,
-        success: function (res) {
-          // 通过eventChannel向被打开页面传送数据
-          res.eventChannel.emit('clickDept', {
-            checkUsers: user ? [user] : [],
-          })
-        }
-      })
+    refresh({productionPlanId, number}) {
+      this.$refs.listRef.submit()
     }
   }
 }
@@ -433,20 +295,6 @@ export default {
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-}
-
-.create {
-  padding: 12px;
-
-  .form {
-    padding-top: 12px;
-  }
-
-  .forItem {
-    display: flex;
-    height: 36px;
-    align-items: center;
   }
 }
 

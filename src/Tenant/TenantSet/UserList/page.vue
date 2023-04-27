@@ -1,25 +1,26 @@
 <template>
   <view>
     <Loading skeleton-type="page" skeleton v-if="loading" />
-    <Empty v-else-if="groups.length === 0" description="暂无用户" />
     <view v-else>
-      <u-index-list :index-list="groups.map(item=>item.title)">
-        <template v-for="(item, index) in groups">
-          <u-index-item>
-            <u-index-anchor bgColor="#f5f5f5" :text="groups[index].title"></u-index-anchor>
-            <view class="list-cell" v-for="(cell, cellIndex) in item.items" :key="cellIndex">
-              <view class="userInfo" @click="openUserAction(cell)">
-                {{ cell.userResult ? cell.userResult.name : '-' }}
-                <view class="phone">
-                  {{ cell.userResult ? cell.userResult.phone : '-' }}
+      <u-index-list :index-list="groups.length === 0 ? [''] : groups.map(item=>item.title)">
+        <view class="list">
+          <Search style="padding: 0 12px" v-model="searchValue" />
+          <Empty v-if="groups.length === 0" description="暂无用户" />
+          <template v-else v-for="(item, index) in groups">
+            <u-index-item>
+              <view v-if="index !== 0" style="height: 32px;" />
+              <u-index-anchor bgColor="#fff" :text="groups[index].title"></u-index-anchor>
+              <view class="list-cell" v-for="(cell, cellIndex) in item.items" :key="cellIndex">
+                <view class="userInfo" @click="openUserAction(cell)">
+                  <UserName :user="cell.userResult" />
+                </view>
+                <view v-if="cell.isAdmin === 1">
+                  <u-tag text="管理员" plain />
                 </view>
               </view>
-              <view v-if="cell.isAdmin === 1">
-                <u-tag text="管理员" plain />
-              </view>
-            </view>
-          </u-index-item>
-        </template>
+            </u-index-item>
+          </template>
+        </view>
         <view :style="{height:`${45+safeAreaHeight(this,8)}px`}"></view>
       </u-index-list>
       <view class="action" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -61,15 +62,20 @@ import {pinyin} from 'pinyin-pro';
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import Loading from "../../../components/Loading";
 import Empty from "../../../components/Empty";
-import {safeAreaHeight} from "../../../util/Tools";
+import {queryString, safeAreaHeight} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
 import AddUser from "../components/AddUser";
 import Modal from "../../../components/Modal";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
+import UserName from "../../../components/UserName";
+import Search from "../../../components/Search";
 
 export default {
-  components: {Modal, AddUser, MyButton, Empty, Loading},
+  options: {
+    styleIsolation: 'shared'
+  },
+  components: {Search, UserName, Modal, AddUser, MyButton, Empty, Loading},
   data() {
     return {
       groups: [],
@@ -80,6 +86,8 @@ export default {
       addUserShow: false,
       showActions: false,
       tenant: {},
+      users: {},
+      searchValue: '',
       actionList: [
         {
           name: '移出团队',
@@ -93,51 +101,62 @@ export default {
     this.tenant = this.$store.state.userInfo.tenant || {}
     this.getUserList()
   },
+  watch: {
+    searchValue(searchValue) {
+      this.renderList(this.users.filter((item) => {
+        const userResult = item.userResult || {}
+        return queryString(searchValue, userResult.name)
+      }))
+    }
+  },
   methods: {
     getUserList() {
       this.loading = true
       Tenant.joinTenantAllList({data: {tenantId: this.tenant.tenantId, status: 99}}).then((res) => {
         const users = res.data || []
-        const charCodeOfA = 'A'.charCodeAt(0);
-        const groups = [];
-        this.total = users.length
-        if (users.length > 0) {
-          const useUser = []
-          Array(26).fill('').forEach((_, i) => {
-            const CharCode = String.fromCharCode(charCodeOfA + i);
-            const newUsers = users.filter((item, index) => {
-              const name = item.userResult.name || ''
-              const pys = pinyin(name, {pattern: 'first', toneType: 'none', type: 'array'});
-              const first = pys[0];
-              return first.toUpperCase() === CharCode
-            });
-            if (newUsers.length === 0) {
-              return;
-            }
-            newUsers.forEach(item => {
-              useUser.push(item)
-            })
-            groups.push({
-              title: CharCode,
-              items: newUsers,
-            });
-          });
-
-          const otherUsers = users.filter((item, index) => {
-            return !useUser.find(useItem => useItem.tenantBindId === item.tenantBindId)
-          })
-          if (otherUsers.length > 0) {
-            groups.push({
-              title: '#',
-              items: otherUsers,
-            });
-          }
-        }
-        this.groups = groups
+        this.users = users
+        this.renderList(users)
       }).finally(() => {
         this.loading = false
       })
+    },
+    renderList(users) {
+      const charCodeOfA = 'A'.charCodeAt(0);
+      const groups = [];
+      this.total = users.length
+      if (users.length > 0) {
+        const useUser = []
+        Array(26).fill('').forEach((_, i) => {
+          const CharCode = String.fromCharCode(charCodeOfA + i);
+          const newUsers = users.filter((item, index) => {
+            const name = item.userResult.name || ''
+            const pys = pinyin(name, {pattern: 'first', toneType: 'none', type: 'array'});
+            const first = pys[0];
+            return first.toUpperCase() === CharCode
+          });
+          if (newUsers.length === 0) {
+            return;
+          }
+          newUsers.forEach(item => {
+            useUser.push(item)
+          })
+          groups.push({
+            title: CharCode,
+            items: newUsers,
+          });
+        });
 
+        const otherUsers = users.filter((item, index) => {
+          return !useUser.find(useItem => useItem.tenantBindId === item.tenantBindId)
+        })
+        if (otherUsers.length > 0) {
+          groups.push({
+            title: '#',
+            items: otherUsers,
+          });
+        }
+      }
+      this.groups = groups
     },
     openUserAction(user) {
       if (!this.tenant.admin) {
@@ -182,17 +201,23 @@ export default {
 </script>
 
 <style lang="scss">
+
+.list {
+  background-color: #fff;
+}
+
 .list-cell {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  width: 100%;
-  padding: 10px 24px;
+  width: calc(100% - 15px);
+  padding: 10px 15px 10px 0;
+  margin-left: 15px;
   overflow: hidden;
   color: #323233;
   line-height: 24px;
   background-color: #fff;
-  border-bottom: solid 1px $body-color;
+  border-bottom: solid 1px #F5F5F5;
 
   .userInfo {
     flex-grow: 1;
@@ -232,5 +257,9 @@ export default {
       }
     }
   }
+}
+
+.u-index-anchor {
+  border: none;
 }
 </style>

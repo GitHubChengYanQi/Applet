@@ -36,7 +36,7 @@ export default {
       username: '',
       password: '',
       loading: false,
-      isLogin: false
+      isLogin: false,
     }
   },
   created() {

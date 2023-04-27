@@ -1,14 +1,19 @@
 <template>
   <view class="tenantSet">
-    <view class="header" @click="tenantInfo">
+    <view class="header">
       <view class="tenantIno">
-        <Avatar size="40" circular v-if="tenant.logo.thumbUrl" :src="tenant.logo.thumbUrl" />
+        <Avatar
+            size="40" circular
+            v-if="tenant.logo.url"
+            :src="tenant.logo.url"
+            @click="preview(tenant.logo.url)"
+        />
         <Icon v-else icon="icon-tuanduitouxiang" size="40" />
         <view class="name">
           {{ tenant.name }}
         </view>
       </view>
-      <view class="update" v-if="tenant.admin">
+      <view class="update" v-if="tenant.admin" @click="tenantInfo">
         <view class="updateName">更改</view>
         <u-icon name="arrow-right" size="12" color="#929293" />
       </view>
@@ -81,6 +86,12 @@ export default {
     this.tenant = this.$store.state.userInfo.tenant || {}
   },
   methods: {
+    preview(url){
+      uni.previewImage({
+        current: url,
+        urls: [url]
+      })
+    },
     gotoJoinTenantList() {
       if (!this.tenant.admin) {
         this.$refs.modal.dialog({
@@ -98,9 +109,6 @@ export default {
       })
     },
     tenantInfo() {
-      if (!this.tenant.admin) {
-        return
-      }
       uni.navigateTo({
         url: `/Tenant/CreateTenant/index?type=update&backUrl=${getLocalParmas().stringRoute}`
       })

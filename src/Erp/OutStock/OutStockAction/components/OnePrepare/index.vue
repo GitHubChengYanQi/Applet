@@ -11,7 +11,7 @@
             @onChange="(value)=> searchValue = value"
             @onSearch='search'
             :value="searchValue"
-       />
+        />
       </view>
       <scroll-view
           :scroll-y="scroll"
@@ -21,25 +21,19 @@
         <view
             v-for="(item,index) in data.filter((item, dataIndex) => dataIndex < showCount)"
             :key="item.pickListsDetailId"
+            @click="openPrepare(item)"
         >
-          <Slide
-              :swipeId="'outStockItem'+index"
-              :disabled="!action || !item.action"
-              @onLeft="openPrepare(item)"
-              @onRight="openPrepare(item)"
-          >
-            <OutStockItem
-                :item="itemFormat(item)"
-                :index='index'
-                :dataLength='data.length - 1'
-                :key={index}
-                :received='item.received || 0'
-                :collectable='item.collectable || 0'
-                :notPrepared='item.notPrepared || 0'
-                :success-percent="Number((((item.received || 0) / item.number)).toFixed(2)) * 100"
-                :percent="Number((((item.collectable || 0) / item.number)).toFixed(2)) * 100"
-            />
-          </Slide>
+          <OutStockItem
+              :item="itemFormat(item)"
+              :index='index'
+              :dataLength='data.length - 1'
+              :key={index}
+              :received='item.received || 0'
+              :collectable='item.collectable || 0'
+              :notPrepared='item.notPrepared || 0'
+              :success-percent="Number((((item.received || 0) / item.number)).toFixed(2)) * 100"
+              :percent="Number((((item.collectable || 0) / item.number)).toFixed(2)) * 100"
+          />
         </view>
         <uni-load-more :status="hasMore ? moreStatus : 'noMore'"></uni-load-more>
       </scroll-view>

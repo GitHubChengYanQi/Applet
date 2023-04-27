@@ -1,7 +1,6 @@
 <template>
-  <Auth :tenant-auth="false">
+  <Auth>
     <Page v-if="auth" />
-
   </Auth>
 </template>
 <script>

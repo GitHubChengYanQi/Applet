@@ -31,7 +31,7 @@
 <script>
 import Check from "../Check";
 import {isArray} from "../../util/Tools";
-import Tree from './index.vue'
+import Tree from './index'
 
 export default {
   name: 'Tree',

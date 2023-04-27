@@ -1,8 +1,29 @@
 <template>
   <view class="home">
-    <u-notice-bar direction="column"  :text="text"></u-notice-bar>
 
-    <view class="content">
+    <uni-nav-bar
+        background-color="#e1ebf6"
+        :height="totalHeight - 9"
+        color="#000"
+        fixed
+        class="navBar"
+        leftWidth="100%"
+    >
+      <view slot="left" class="navLeft">
+        <Avatar size="26" circular v-if="tenant.logo.url" :src="tenant.logo.url" />
+        <image v-else src="../../static/images/home/navLogo.png" />
+        {{ tenant.name || '道昕云' }}
+      </view>
+    </uni-nav-bar>
+
+    <view style="height: 9px" />
+
+    <u-notice-bar direction="column" :text="text"></u-notice-bar>
+
+    <view
+        class="content"
+        :style="{maxHeight: `calc(100% - 48px - 37px - ${totalHeight}px)`}"
+    >
 
       <view>
         <view class="title">资产状况数据看板</view>
@@ -27,7 +48,7 @@
       <view class="footer">
         <img class="logo" src="../../static/images/home/logo.png" height="37" width="120" />
         <view class="slogan">
-          专注于企业数字化流程管理，高效、安全的工业互联网平台
+          高效、安全的数字化企业管理工具
         </view>
         <view class=" protocol">
           《软件使用协议》
@@ -42,7 +63,7 @@
 
 
 import Icon from "../../components/Icon";
-import {Menus} from "./menu";
+import {routes} from "../../route";
 import MenuCard from "../../components/MenuCard";
 import OtherActions from "../components/OtherActions";
 import {Erp} from "MES-Apis/lib/Erp/promise";
@@ -51,43 +72,47 @@ import Check from "../../components/Check";
 import ShopNumber from "../../components/ShopNumber";
 import Popup from "../../components/Popup";
 import MyButton from "../../components/MyButton";
+import Avatar from "../../components/Avatar";
 
 export default {
-  props: ['auth'],
-  components: {MyButton, Popup, ShopNumber, Check, HomeData, OtherActions, MenuCard, Icon},
+  options: {
+    styleIsolation: 'shared'
+  },
+  created() {
+    uni.getSystemInfo({
+      success: res => {
+        const system = res
+        //获取胶囊信息
+        const menu = uni.getMenuButtonBoundingClientRect()
+
+        //计算组件高度
+        const statusBarHeight = system.statusBarHeight //状态栏高度
+        const navigatorHeight = (menu.top - system.statusBarHeight) * 2 + menu.height //导航栏高度
+        this.totalHeight = statusBarHeight + navigatorHeight //总高度
+      }
+    })
+  },
+  props: [],
+  components: {Avatar, MyButton, Popup, ShopNumber, Check, HomeData, OtherActions, MenuCard, Icon},
   data() {
     return {
+      totalHeight: 0,
       show: false,
       menus: [],
       homeData: {},
+      tenant: {},
+      title: '',
       homeDataLoading: false,
-      text:[
-          '本产品终身免费使用，升级大容量云盘 立即联系>>',
-          '企业会员可终身享用5G云空间'
+      text: [
+        '本产品终身免费使用，升级大容量云盘 立即联系>>',
+        '企业会员可终身享用5G云空间'
       ]
     }
   },
-  watch: {
-    auth(auth) {
-      if (auth) {
-        this.getHomeData()
-        this.setTitle()
-      }
-    }
-  },
   mounted() {
-    if (this.auth) {
-      this.getHomeData()
-      this.setTitle()
-    }
-    const menus = []
-    Menus.forEach(item => {
-      item.menus.forEach(item => {
-        if (item.type && item.type.includes('common')) {
-          menus.push(item)
-        }
-      })
-    })
+    this.getHomeData()
+    this.setTitle()
+    const menus = this.$store.state.userInfo.homeMenus || []
     this.menus = [...menus, {
       name: '更多',
       key: 'allMenus',
@@ -95,21 +120,25 @@ export default {
       url: '/Home/Menus/index'
     }]
   },
+  watch:{
+    '$store.state.userInfo.homeMenus':{
+      deep:true,
+      handler(menus){
+        this.menus = [...menus, {
+          name: '更多',
+          key: 'allMenus',
+          icon: 'icon-gengduo',
+          url: '/Home/Menus/index'
+        }]
+      }
+    }
+  },
   methods: {
     setTitle() {
-      const tenant = this.$store.state.userInfo.tenant || {}
-      uni.setNavigationBarTitle({
-        title: tenant.name || '首页'
-      });
+      this.tenant = this.$store.state.userInfo.tenant || {}
     },
     getHomeData() {
       return
-      this.homeDataLoading = true
-      Erp.homeData().then((res) => {
-        this.homeData = res.data || {}
-      }).finally(() => {
-        this.homeDataLoading = false
-      })
     },
     click(menu) {
       uni.navigateTo({
@@ -129,12 +158,35 @@ export default {
 </script>
 
 <style lang="scss">
+.navBar {
+  .uni-navbar__header {
+    padding: 0 10px 9px;
+
+    > view {
+      align-items: flex-end;
+    }
+  }
+
+  .navLeft {
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center !important;
+    gap: 8px;
+
+    image {
+      height: 26px;
+      width: 26px;
+    }
+  }
+}
+
 .home {
-  background-image: url("/static/images/home/home-bg.png");
+  //background-image: url("/static/images/home/home-bg.png");
+  //background-size: 100% 100%;
   height: 100vh;
 
   .content {
-    max-height: calc(100% - 48px);
     overflow: auto;
     padding: 24px 12px;
   }

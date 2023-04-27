@@ -138,6 +138,10 @@ export default {
   .u-modal__content {
     text-align: center;
   }
+
+  .u-transition {
+    z-index: 10076 !important;
+  }
 }
 
 </style>

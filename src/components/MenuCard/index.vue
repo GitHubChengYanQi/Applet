@@ -2,12 +2,12 @@
   <view class="menus">
     <view
         v-for="(item,rowIndex) in rows"
-        :key="index"
+        :key="rowIndex"
         :class="{row:true,endRow:rowIndex === rows.length - 1}"
     >
       <view
           v-for="(item,colIndex) in cols"
-          :key="index"
+          :key="colIndex"
           :class="{
             col:true,
             endCol:colIndex === cols.length - 1 || (rowIndex * column + colIndex) === menus.length - 1
@@ -15,17 +15,35 @@
           :style="{width:`${100 / column}%`,border}"
       >
         <view
-            class="menuItem" v-if="menus[rowIndex * column + colIndex]"
-            @click="$emit('click',menus[rowIndex * column + colIndex])"
+            class="menuItem"
+            v-if="menus[rowIndex * column + colIndex]"
             :style="{padding}"
         >
-          <Icon
-              :icon="menus[rowIndex * column + colIndex].icon || 'icon-danxuanweixuanzhong'"
-              :size="iconSize"
-          />
-          <view class="menuName" :style="{fontSize:`${fontSize}px`}">{{
-              menus[rowIndex * column + colIndex].name
-            }}
+          <view class="icon">
+            <Icon
+                :icon="menus[rowIndex * column + colIndex].icon || 'icon-danxuanweixuanzhong'"
+                :size="iconSize"
+                @click="$emit('click',menus[rowIndex * column + colIndex])"
+            />
+            <view
+                class="actionIcon"
+                v-if="actionIcon && !noActionIconMenus.find(menu=>menu.key === menus[rowIndex * column + colIndex].key)"
+                @click="$emit(actionIconType ==='remove' ? 'removeMenu' : 'addMenu',menus[rowIndex * column + colIndex])"
+            >
+              <u-icon
+                  :name="actionIconType === 'remove' ? 'minus-circle-fill' : 'plus-circle-fill'"
+                  :color="actionIconType === 'remove' ?'#bdbaba' : '#007aff'"
+                  size="20"
+              />
+            </view>
+          </view>
+
+          <view
+              class="menuName"
+              :style="{fontSize:`${fontSize}px`}"
+              @click="$emit('click',menus[rowIndex * column + colIndex])"
+          >
+            {{ menus[rowIndex * column + colIndex].name }}
           </view>
         </view>
       </view>
@@ -42,6 +60,7 @@ export default {
   components: {Icon},
   props: {
     menus: Array,
+    noActionIconMenus: Array,
     column: {
       type: Number,
       default: () => 3
@@ -55,7 +74,9 @@ export default {
       default: () => 16
     },
     border: String,
-    padding: String
+    padding: String,
+    actionIcon: Boolean,
+    actionIconType: String
   },
   data() {
     return {
@@ -98,6 +119,20 @@ export default {
       .menuItem {
         text-align: center;
         padding: 31px 0 25px;
+
+
+        .icon {
+          position: relative;
+          width: fit-content;
+          display: inline-block;
+
+          .actionIcon {
+            position: absolute;
+            right: -20px;
+            top: -10px;
+          }
+        }
+
 
         .menuName {
           //padding-top: 12px;
