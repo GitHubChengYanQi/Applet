@@ -68,6 +68,18 @@
       "root": "Tenant",
       "pages": [
         {
+          "path": "InitTenant/index",
+          "style": {
+            "navigationBarTitleText": ""
+          }
+        },
+        {
+          "path": "CodeJoinTenant/index",
+          "style": {
+            "navigationBarTitleText": "加入团队"
+          }
+        },
+        {
           "path": "CreateTenant/index",
           "style": {
             "navigationBarTitleText": "创建团队"

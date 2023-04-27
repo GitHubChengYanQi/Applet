@@ -29,9 +29,11 @@
           v-model="name"
       />
     </view>
-    <view class="button">
-      <MyButton type="primary" @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</MyButton>
+
+    <view style="padding: 12px">
+      <LoginByPhone @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</LoginByPhone>
     </view>
+
 
     <Loading :loading="loading" :loading-text="edit ? '保存数据中...' : '创建数据中...'" />
 
@@ -40,7 +42,6 @@
 </template>
 
 <script>
-import MyButton from "../../components/MyButton";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
@@ -51,12 +52,13 @@ import Uploader from "../../components/Uploader";
 import Avatar from "../../components/Avatar";
 import Loading from "../../components/Loading";
 import ImageCropper from "../../components/ImageCropper";
+import LoginByPhone from "../../components/LoginByPhone";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {ImageCropper, Loading, Avatar, Uploader, Icon, Modal, MyButton},
+  components: {LoginByPhone, ImageCropper, Loading, Avatar, Uploader, Icon, Modal},
   data() {
     return {
       name: '',
@@ -194,19 +196,13 @@ export default {
     background-color: #fff;
   }
 
-  .button {
-    margin-top: 30px;
-
-    .myButton {
-      width: calc(100% - 24px);
-      padding: 0 12px;
-
-      button {
-        width: 100% !important;
-        border-radius: 50px;
-        padding: 8px 0;
-      }
-    }
+  .loginByPhone {
+    color: #fff;
+    background-color: #3c9cff;
+    border-radius: 50px;
+    height: fit-content !important;
+    width: calc(100vw - 24px);
+    padding: 8px;
   }
 
 }

@@ -15,7 +15,7 @@
           </view>
         </view>
 
-        <view class="homeMenusSetting">
+        <view v-if="open || setting" class="homeMenusSetting">
           <Drag
               :disabled="!setting"
               v-if="homeMenus.length > 0"
@@ -67,7 +67,7 @@
         </view>
 
 
-        <view v-if="false" class="homeMenus" @click="open=true">
+        <view v-else class="homeMenus" @click="open=true">
           <view class="label">
             已收起{{ homeMenus.length }}个首页应用
           </view>

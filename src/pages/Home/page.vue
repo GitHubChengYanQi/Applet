@@ -63,10 +63,8 @@
 
 
 import Icon from "../../components/Icon";
-import {routes} from "../../route";
 import MenuCard from "../../components/MenuCard";
 import OtherActions from "../components/OtherActions";
-import {Erp} from "MES-Apis/lib/Erp/promise";
 import HomeData from "../components/HomeData";
 import Check from "../../components/Check";
 import ShopNumber from "../../components/ShopNumber";

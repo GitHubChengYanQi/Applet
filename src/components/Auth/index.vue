@@ -12,7 +12,6 @@ import Error from "../../pages/Error";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Login} from "MES-Apis/lib/Login/promise";
 import {getLocalParmas} from "../../util/Tools";
-import {User} from "MES-Apis/lib/User/promise";
 import MyButton from "../MyButton";
 import LinkButton from "../LinkButton";
 
@@ -34,19 +33,8 @@ export default {
     }
   },
   mounted() {
-
     this.authInfo()
   },
-  // watch: {
-  // '$store.state.userInfo.refresh': {
-  //   handler(value) {
-  //     if (value) {
-  //       this.authInfo()
-  //     }
-  //   },
-  //   deep: true
-  // }
-  // },
   methods: {
     async authInfo() {
       this.loading = true
@@ -87,40 +75,26 @@ export default {
     async tokenAuth() {
       const userInfo = GetUserInfo().userInfo || {};
       console.log(userInfo)
+      const tenantId = userInfo.tenantId
       const userId = !!userInfo.userId;
-      if (!userId) {
-        uni.reLaunch({
-          url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
-        })
-      } else {
+      if (tenantId || !this.tenantAuth) { // 有租户直接进入 或 不需要验证租户的页面
         try {
-          const userInfo = this.$store.state.userInfo.userInfo || {}
-          let tenantId = userInfo.tenantId
-          if (Object.keys(userInfo).length === 0) {
-            const userRes = await User.getUserInfo()
-            const user = userRes.data || {}
-            this.$store.commit('userInfo/setUserInfo', user)
-            tenantId = user.tenantId
-            this.$store.commit('userInfo/setTenant', {
-              tenantId: user.tenantId,
-              name: user.tenantName,
-              logo: user.tenantLogo,
-              admin: !!user.isTenantAdmin
-            })
+          if (userId) {
+            await this.getSystemInfo()
           }
-
-          await this.getSystemInfo()
-          if (tenantId || !this.tenantAuth) {
-            this.authSuccess()
-          } else {
-            uni.reLaunch({
-              url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas().stringRoute}`
-            })
-          }
+          this.authSuccess()
         } catch (e) {
           this.authError()
         }
-
+      } else if (tenantId === -1 && userId) {     // 有其他租户
+        this.authSuccess()
+        uni.reLaunch({
+          url: `/Tenant/SwitchTenant/index?backUrl=${getLocalParmas().stringRoute}`,
+        })
+      } else { // 没租户
+        uni.reLaunch({
+          url: `/Tenant/InitTenant/index?backUrl=${getLocalParmas().stringRoute}`,
+        })
       }
     },
     authSuccess() {
@@ -135,6 +109,7 @@ export default {
       this.error = true
     },
     async getSystemInfo() {
+      await this.$store.dispatch('userInfo/getUserInfo')
       await this.$store.dispatch('userInfo/getHomeMenus')
     }
   }

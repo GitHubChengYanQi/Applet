@@ -4,7 +4,7 @@
       <view class="logo">
         <img src="../../static/images/logo.png" alt="">
       </view>
-      <view class="login2">
+      <view class="action">
         <view class="text">欢迎使用浑河云</view>
         <view>
           <button :loading="loading" type="default" open-type="getPhoneNumber" @getphonenumber="getphonenumber">
@@ -16,7 +16,6 @@
     </view>
 
     <Modal ref="modal" />
-
 
   </view>
 </template>
@@ -99,9 +98,9 @@ export default {
       })
     },
     goBack() {
-      const backUrl = getLocalParmas().search.backUrl
+      const loginBackUrl = getLocalParmas().search.loginBackUrl
       uni.reLaunch({
-        url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
+        url: loginBackUrl ? routeReplace(loginBackUrl) : '/pages/Home/index'
       })
     }
   },
@@ -109,10 +108,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-.title {
-  margin-right: 5px;
-}
 
 body {
   background-image: url('@/static/images/login.png');
@@ -136,7 +131,7 @@ body {
     margin: auto;
   }
 
-  .login2 {
+  .action {
     padding: 0 28px;
     border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.9);

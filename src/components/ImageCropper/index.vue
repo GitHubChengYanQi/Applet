@@ -4,11 +4,24 @@
     <canvas class="pre-canvas" canvas-id="firstCanvas" :style="{ width: 100 + 'vw', height: 100 + 'vh' }"></canvas>
     <!-- img预览 -->
     <view class="preImage" :style="{ width: preImgW + 'px' }">
-      <canvas
-          canvas-id="mycanvas"
-          class="pre-i"
-          :style="{ width: preImgW + 'px', height: preImgH + 'px', transform: `translate(${x}px,${y}px)` }"
-      />
+<!--      <movable-area-->
+<!--          :scale-area="true"-->
+<!--      >-->
+<!--        <movable-view-->
+<!--            direction="all"-->
+<!--            :inertia="true"-->
+<!--            :scale-min="0.001"-->
+<!--            :scale-max="4"-->
+<!--            :scale="true"-->
+<!--            @scale="scaleChange"-->
+<!--        >-->
+          <canvas
+              canvas-id="mycanvas"
+              class="pre-i"
+              :style="{ width: preImgW + 'px', height: preImgH + 'px', transform: `translate(${x}px,${y}px)` }"
+          />
+<!--        </movable-view>-->
+<!--      </movable-area>-->
     </view>
     <!-- 工具 -->
     <view class="setting-btns">

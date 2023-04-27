@@ -1,11 +1,13 @@
 <template>
   <Auth :tenant-auth="false">
     <Page v-if="auth && tenantId" :tenantId="tenantId" />
+    <Empty v-else description="未选择要加入的企业!" />
   </Auth>
 </template>
 <script>
 import Auth from '../../components/Auth/index'
 import Page from "./page";
+import Empty from "../../components/Empty";
 
 export default {
   onLoad(option) {
@@ -17,7 +19,7 @@ export default {
     }
     this.tenantId = tenantId
   },
-  components: {Page, Auth},
+  components: {Empty, Page, Auth},
   data() {
     return {
       tenantId: ''
