@@ -28,10 +28,11 @@
               @dragEnd="dragEnd"
               :params="{setting}"
           >
-            <template #content="{end,item,params,colEnd}">
+            <template #content="{end,item,params,colEnd,endRow}">
               <view :class="{
                 menuItem:true,
-                endMenuItem:end || colEnd
+                endMenuItem:end || colEnd,
+                endRowMenuItem:endRow,
               }"
               >
                 <view class="icon">
@@ -276,5 +277,9 @@ export default {
 
 .endMenuItem {
   border-right: none;
+}
+
+.endRowMenuItem {
+  border-bottom: none;
 }
 </style>

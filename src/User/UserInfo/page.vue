@@ -13,7 +13,7 @@
           maxlength="8"
           inputAlign="right"
           border="none"
-          v-model="userInfo.name"
+          v-model="userInfo.nickName"
       />
       <u-icon name="arrow-right" />
     </view>
@@ -23,7 +23,7 @@
           maxlength="8"
           inputAlign="right"
           border="none"
-          v-model="userInfo.aaa"
+          v-model="userInfo.name"
       />
       <u-icon name="arrow-right" />
     </view>
@@ -108,9 +108,11 @@ export default {
         data: {
           userId: this.userInfo.id,
           avatar: this.userInfo.avatar,
-          name: this.userInfo.name
+          name: this.userInfo.name,
+          nickName: this.userInfo.nickName
         }
       }).then(() => {
+        this.$store.dispatch('userInfo/getUserInfo')
         Message.successToast('保存成功！')
       }).catch(() => {
         Message.errorToast('保存失败！')
@@ -158,7 +160,7 @@ export default {
           _this.userInfo = {
             ..._this.userInfo,
             avatar: userInfo.avatarUrl,
-            name: userInfo.nickName
+            nickName: userInfo.nickName
           }
         },
         fail(res) {

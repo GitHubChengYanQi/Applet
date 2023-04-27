@@ -5,19 +5,14 @@
         <view class="user">
           <view class="userInfo" @click="clickAvatar">
             <Avatar size="30" :src="userInfo.avatar" circular />
-            <template v-if="auth">
-              <view class="name">
-                {{ userInfo.name }}
-                <u-icon name="arrow-right" size="9" v-if="false" />
-              </view>
-              <view class="dept" v-if="false">
-                {{ isArray(userInfo.dept)[0] || '' }}
-                {{ isArray(userInfo.dept)[0] && isArray(userInfo.role)[0] && '-' || '' }}
-                {{ isArray(userInfo.role)[0] || '' }}
-              </view>
-            </template>
-            <view v-else class="name">
-              未登录
+            <view class="name">
+              {{ userInfo.name }}
+              <u-icon name="arrow-right" size="9" v-if="false" />
+            </view>
+            <view class="dept" v-if="false">
+              {{ isArray(userInfo.dept)[0] || '' }}
+              {{ isArray(userInfo.dept)[0] && isArray(userInfo.role)[0] && '-' || '' }}
+              {{ isArray(userInfo.role)[0] || '' }}
             </view>
           </view>
           <view class="switchTenant" @click="switchTenant">
@@ -102,6 +97,15 @@ export default {
     this.menus = menus
     this.init()
   },
+  watch: {
+    '$store.state.userInfo.userInfo': {
+      deep: true,
+      handler(userInfo) {
+        console.log(userInfo)
+        this.userInfo = userInfo
+      }
+    }
+  },
   methods: {
     tanantSet() {
       uni.navigateTo({
@@ -114,15 +118,8 @@ export default {
       })
     },
     init() {
-      const userInfo = this.$store.state.userInfo.userInfo
+      this.userInfo = this.$store.state.userInfo.userInfo
       this.tenant = this.$store.state.userInfo.tenant
-      let phone = userInfo.phone || '';
-      phone = "" + phone;
-      const newPhone = phone ? phone.substr(0, 3) + "****" + phone.substr(7) : '-'
-      this.userInfo = {
-        ...userInfo,
-        phone: newPhone
-      }
     },
     tenantMenusClick(menu) {
       switch (menu.key) {
@@ -144,15 +141,9 @@ export default {
       })
     },
     clickAvatar() {
-      if (!this.auth) {
-        uni.navigateTo({
-          url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
-        })
-      } else {
-        uni.navigateTo({
-          url: '/User/UserInfo/index'
-        })
-      }
+      uni.navigateTo({
+        url: '/User/UserInfo/index'
+      })
     }
   }
 }

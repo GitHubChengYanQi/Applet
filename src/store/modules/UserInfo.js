@@ -19,6 +19,10 @@ const getters = {}
 
 
 const actions = {
+    async getUserInfo({state}) {
+        const userRes = await User.getUserInfo()
+        state.userInfo = {...userRes.data}
+    },
     async getPublicInfo({state}) {
         if (Object.keys(state.publicInfo).length === 0) {
             const publicInfo = await Init.getPublicInfo({})

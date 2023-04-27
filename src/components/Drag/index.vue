@@ -1,17 +1,25 @@
 <template>
   <view class="drag-and-drop-sort-A" :style="{height}" :containerSize="[containerSize]">
     <template v-if="controlsPositionArray.length !== 0">
-      <view v-for="(item, index) in controlsArray" :key="index" class="_item"
-            :style="{'transition': (curretnControlsIndex === index ? 'initial' : '.3s'), 'z-index': (curretnControlsIndex === index ? 1 : 0), 'width': controlsSize.width + 'px', 'height': controlsSize.height + 'px', 'top': controlsPositionArray[index].top + 'px',  'left': controlsPositionArray[index].left + 'px'}">
-        <view @touchstart="handleTouchstart($event, index)" @touchmove="handleTouchmove" @touchend="handleTouchend"
-              :style="{'background': item}" style="width: 100%; height: 100%;">
+      <view
+          v-for="(item, index) in controlsArray"
+          :key="index"
+          class="_item"
+          :style="{'transition': (curretnControlsIndex === index ? 'initial' : '.3s'), 'z-index': (curretnControlsIndex === index ? 1 : 0), 'width': controlsSize.width + 'px', 'height': controlsSize.height + 'px', 'top': controlsPositionArray[index].top + 'px',  'left': controlsPositionArray[index].left + 'px'}"
+      >
+        <view
+            @touchstart="handleTouchstart($event, index)"
+            @touchmove="handleTouchmove"
+            @touchend="handleTouchend"
+            :style="{'background': item}" style="width: 100%; height: 100%;"
+        >
           <slot
               name="content"
               :end="index === controlsArray.length-1"
               :item="item"
               :params="params"
               :colEnd="((index+1) % maxWidthCount) === 0"
-              :endRow="index >= (controlsArray.length - maxWidthCount)"
+              :endRow="Math.floor(index / maxWidthCount) +1 === Math.ceil(controlsArray.length / maxWidthCount)"
           >
           </slot>
         </view>
