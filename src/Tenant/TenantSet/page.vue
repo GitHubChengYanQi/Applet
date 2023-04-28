@@ -3,7 +3,8 @@
     <view class="header">
       <view class="tenantIno">
         <Avatar
-            size="40" circular
+            size="40"
+            circular
             v-if="tenant.logo.url"
             :src="tenant.logo.url"
             @click="preview(tenant.logo.url)"
@@ -49,6 +50,48 @@
       </view>
     </view>
 
+    <view class="actions">
+      <view :class="['actionItem','startActionItem']" @click="addUserShow = true">
+        <view class="icon">
+          <Icon icon="icon-tianjiayonghu" size="24" />
+        </view>
+        <view class="actionName">
+          <view class="name">物料管理</view>
+          <u-icon name="arrow-right" size="12" color="#929293" />
+        </view>
+      </view>
+      <view class="actionItem" @click="gotoJoinTenantList">
+        <view class="icon">
+          <Icon icon="icon-shenpijiaru" size="24" />
+        </view>
+        <view class="actionName">
+          <view class="name">仓储管理</view>
+          <u-icon name="arrow-right" size="12" color="#929293" />
+        </view>
+      </view>
+    </view>
+
+    <view
+        v-if="false"
+        v-for="(item,index) in menus"
+        :key="index"
+        class="menu"
+    >
+      <view class="module">{{ item.name }}设置</view>
+      <view
+          v-for="menu in item.subMenus"
+          :key="menu.code"
+          class="menuItem"
+          @click="menuClick(menu)"
+      >
+        <view class="menuName">
+          <Icon :icon="menu.icon" size="20" />
+          {{ menu.name }}
+        </view>
+        <Check :disabled="!tenant.admin" />
+      </view>
+    </view>
+
     <view class="dissolution" v-if="false">
       <MyButton @click="dissolution">解散团队</MyButton>
     </view>
@@ -56,6 +99,7 @@
     <AddUser :addUserShow="addUserShow" @close="addUserShow = false" />
 
     <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -70,23 +114,36 @@ import {getLocalParmas} from "../../util/Tools";
 import Modal from "../../components/Modal";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Init} from "MES-Apis/lib/Init";
+import Check from "../../components/Check";
+import {System} from "MES-Apis/lib/System/promise";
+import {Message} from "../../components/Message";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Modal, MyButton, Avatar, AddUser, Loading, Popup, Icon},
+  components: {Check, Modal, MyButton, Avatar, AddUser, Loading, Popup, Icon},
   data() {
     return {
       tenant: {},
-      addUserShow: false
+      addUserShow: false,
+      menus: []
+    }
+  },
+  watch: {
+    '$store.state.userInfo.tenant': {
+      deep: true,
+      handler(tenant) {
+        this.tenant = tenant
+      }
     }
   },
   mounted() {
     this.tenant = this.$store.state.userInfo.tenant || {}
+    this.menus = this.$store.state.userInfo.menus || {}
   },
   methods: {
-    preview(url){
+    preview(url) {
       uni.previewImage({
         current: url,
         urls: [url]
@@ -105,7 +162,7 @@ export default {
     },
     gotoUserList() {
       uni.navigateTo({
-        url: '/Tenant/TenantSet/UserList/index'
+        url: '/User/UserList/index'
       })
     },
     tenantInfo() {
@@ -146,6 +203,36 @@ export default {
 
         }
       })
+    },
+    menuClick(menu) {
+      if (!this.tenant.admin) {
+        return
+      }
+      this.$refs.modal.dialog({
+        title: '是否开启【' + menu.name + '】?',
+        only: false,
+        onConfirm() {
+          return new Promise((resolve) => {
+            System.menuConfig({
+              data: {
+                menuId: menu.id,
+                hidden: 1
+              }
+            }).then(() => {
+              resolve(true)
+            }).catch(() => {
+              Message.errorToast('开启失败！')
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    module(code) {
+      switch (code) {
+        case 'SPU':
+          return '物料管理'
+      }
     }
   }
 }
@@ -268,6 +355,32 @@ export default {
         width: 100% !important;
         border-radius: 50px;
         padding: 8px 0;
+      }
+    }
+  }
+
+  .menu {
+    padding: 0 12px;
+    background-color: #fff;
+    border-radius: 8px;
+    margin-top: 12px;
+
+    .module {
+      padding: 12px 0;
+      font-weight: bold;
+    }
+
+    .menuItem {
+      border-top: solid 1px #E1EBF6;
+      padding: 12px 0;
+      display: flex;
+      align-items: center;
+
+      .menuName {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
     }
   }

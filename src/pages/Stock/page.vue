@@ -63,7 +63,8 @@ export default {
       skuImages: [],
       skuClass: [],
       checkSkuClass: '',
-      loading: false
+      loading: false,
+      screenData: {}
     }
   },
   mounted() {
@@ -73,11 +74,16 @@ export default {
       _this.refreshList({keyWord: data.searchValue})
       _this.value = data.searchValue
     })
+
+    uni.$on('skuAddSuccess', _ => {
+      _this.getSkuClass()
+      _this.refreshList({})
+    })
   },
   methods: {
-    getSkuClass() {
+    async getSkuClass() {
       this.loading = true
-      Sku.spuClassListSelect({data: {}}).then((res) => {
+      await Sku.spuClassListSelect({data: {}}).then((res) => {
         this.skuClass = res.data || []
       }).finally(() => {
         this.loading = false
@@ -97,15 +103,17 @@ export default {
     },
     async listSource(skuList, newSkuList) {
       this.skuList = skuList
-      await Sku.getMediaUrls({
-        mediaIds: newSkuList.map(item => item.images?.split(',')[0]),
-        option: 'image/resize,m_fill,h_74,w_74',
-      }).then((res) => {
-        isArray(res?.data).map(item => {
-          this.skuImages.push(item)
+      if (newSkuList.length > 0){
+        await Sku.getMediaUrls({
+          mediaIds: newSkuList.map(item => item.images?.split(',')[0]),
+          option: 'image/resize,m_fill,h_74,w_74',
+        }).then((res) => {
+          isArray(res?.data).map(item => {
+            this.skuImages.push(item)
+          })
+        }).catch(() => {
         })
-      }).catch(() => {
-      })
+      }
     },
     clickSkuClass(checkSkuClass) {
       this.refreshList({categoryId: checkSkuClass})
@@ -119,9 +127,15 @@ export default {
       this.screenData = newScreenData
       this.$refs.skuList.submit(newScreenData)
     },
-    fabClick(){
+    async refresh() {
+      this.screenData = {}
+      await this.$refs.skuList.submit({})
+      await this.getSkuClass()
+      this.$emit('refreshDone')
+    },
+    fabClick() {
       uni.navigateTo({
-        url:'/Sku/SkuAdd/index'
+        url: '/Sku/SkuAdd/index'
       })
     }
   }
@@ -133,6 +147,7 @@ export default {
 .stock {
   height: 100vh;
   background-color: #FFFFFF;
+  overflow-x: hidden;
 }
 
 .skuClass {

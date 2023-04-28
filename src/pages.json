@@ -17,7 +17,8 @@
     {
       "path": "pages/Stock/index",
       "style": {
-        "navigationBarTitleText": "库房"
+        "navigationBarTitleText": "库房",
+        "enablePullDownRefresh": true
       }
     },
     {
@@ -356,9 +357,9 @@
             "navigationBarTitleText": "个人信息"
           }
         },{
-          "path": "SelectUser/index",
+          "path": "UserList/index",
           "style": {
-            "navigationBarTitleText": "企业通讯录"
+            "navigationBarTitleText": "成员列表"
           }
         }
       ]

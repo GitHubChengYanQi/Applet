@@ -85,9 +85,8 @@
       </view>
       <view
           class="box"
-          v-for="(item,index) in routes"
+          v-for="(item,index) in menus"
           :key="index"
-          v-if="(item.menus || []).length > 0"
       >
         <view class="header">
           <view class="title">{{ item.name }}</view>
@@ -95,7 +94,7 @@
         <MenuCard
             :noActionIconMenus="homeMenus"
             :action-icon="setting"
-            :menus="item.menus"
+            :menus="item.subMenus"
             :column="4"
             :iconSize="40"
             :font-size="14"
@@ -109,7 +108,6 @@
 </template>
 
 <script>
-import {routes} from "../../route";
 import Icon from "../../components/Icon";
 import MenuCard from "../../components/MenuCard";
 import {Message} from "../../components/Message";
@@ -125,26 +123,39 @@ export default {
   },
   data() {
     return {
-      routes,
       setting: false,
       open: false,
       scroll: true,
       saveLoading: false,
       homeMenus: [],
-      dropInfo: {}
+      dropInfo: {},
+      menus: [],
+    }
+  },
+  watch:{
+    '$store.state.userInfo.homeMenus': {
+      deep: true,
+      handler(homeMenus) {
+        this.homeMenus = homeMenus
+      }
+    },
+    '$store.state.userInfo.menus': {
+      deep: true,
+      handler(menus) {
+        this.menus = menus
+      }
     }
   },
   mounted() {
     const windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth
 
-    const homeMenus = this.$store.state.userInfo.homeMenus || []
+    this.homeMenus = this.$store.state.userInfo.homeMenus || []
+    this.menus = this.$store.state.userInfo.menus || []
 
     this.dropInfo = {
       itemHeight: 99,
       itemWidth: (windowWidth - 24) / 4,
     }
-    this.homeMenus = homeMenus
-
   },
   methods: {
     click(menu) {
@@ -164,7 +175,7 @@ export default {
         Message.toast('最少保留1个首页功能！')
         return
       }
-      this.homeMenus = this.homeMenus.filter(item => item.key !== menu.key)
+      this.homeMenus = this.homeMenus.filter(item => item.code !== menu.code)
     },
     dragEnd(menus) {
       this.homeMenus = menus
@@ -175,7 +186,7 @@ export default {
         data: {
           details: this.homeMenus.map((item, index) => ({
             name: item.name,
-            code: item.key,
+            code: item.code,
             icon: item.icon,
             url: item.url,
             sort: index

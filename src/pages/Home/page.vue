@@ -76,20 +76,6 @@ export default {
   options: {
     styleIsolation: 'shared'
   },
-  created() {
-    uni.getSystemInfo({
-      success: res => {
-        const system = res
-        //获取胶囊信息
-        const menu = uni.getMenuButtonBoundingClientRect()
-
-        //计算组件高度
-        const statusBarHeight = system.statusBarHeight //状态栏高度
-        const navigatorHeight = (menu.top - system.statusBarHeight) * 2 + menu.height //导航栏高度
-        this.totalHeight = statusBarHeight + navigatorHeight //总高度
-      }
-    })
-  },
   props: [],
   components: {Avatar, MyButton, Popup, ShopNumber, Check, HomeData, OtherActions, MenuCard, Icon},
   data() {
@@ -109,7 +95,8 @@ export default {
   },
   mounted() {
     this.getHomeData()
-    this.setTitle()
+    this.totalHeight = this.$store.state.systemInfo.navHeight
+    this.tenant = this.$store.state.userInfo.tenant || {}
     const menus = this.$store.state.userInfo.homeMenus || []
     this.menus = [...menus, {
       name: '更多',
@@ -118,10 +105,10 @@ export default {
       url: '/Home/Menus/index'
     }]
   },
-  watch:{
-    '$store.state.userInfo.homeMenus':{
-      deep:true,
-      handler(menus){
+  watch: {
+    '$store.state.userInfo.homeMenus': {
+      deep: true,
+      handler(menus) {
         this.menus = [...menus, {
           name: '更多',
           key: 'allMenus',
@@ -129,12 +116,15 @@ export default {
           url: '/Home/Menus/index'
         }]
       }
+    },
+    '$store.state.userInfo.tenant': {
+      deep: true,
+      handler(tenant) {
+        this.tenant = tenant
+      }
     }
   },
   methods: {
-    setTitle() {
-      this.tenant = this.$store.state.userInfo.tenant || {}
-    },
     getHomeData() {
       return
     },
@@ -163,6 +153,10 @@ export default {
     > view {
       align-items: flex-end;
     }
+  }
+
+  .uni-navbar__content {
+    border: none;
   }
 
   .navLeft {

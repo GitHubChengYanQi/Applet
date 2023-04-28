@@ -28,8 +28,8 @@ export default {
 <style lang="scss">
 .error {
   background-color: #fff;
-  height: 100vh;
-  padding: 20vh 0;
+  height: 80vh;
+  padding-top: 20vh;
   text-align: center;
 }
 </style>

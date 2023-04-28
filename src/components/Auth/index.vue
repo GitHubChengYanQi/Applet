@@ -110,7 +110,6 @@ export default {
     },
     async getSystemInfo() {
       await this.$store.dispatch('userInfo/getUserInfo')
-      await this.$store.dispatch('userInfo/getHomeMenus')
     }
   }
 }

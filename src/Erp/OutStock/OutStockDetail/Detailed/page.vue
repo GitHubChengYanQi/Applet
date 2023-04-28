@@ -59,7 +59,7 @@
                 <!-- 右上 -->
                 <view class="overview2">
                   <view class="headPortrait3">
-                    <img src="/static/images/logo.png" alt="" >
+                    <img src="/static/images/tenant/logo.png" alt="" >
                     <view class="quantity">306台</view>
                   </view>
                   <view class="describe">

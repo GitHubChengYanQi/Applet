@@ -126,9 +126,9 @@ export default {
       }, {
         onSuccess: (res) => {
           this.loading = false
+          // getApp().globalData.token = res
+          this.$store.dispatch('userInfo/getUserInfo', true)
           Message.successToast('保存成功!', () => {
-            getApp().globalData.token = res
-            this.$store.commit('userInfo/clear')
             this.goBack()
           })
         },
@@ -141,6 +141,10 @@ export default {
       })
     },
     goBack() {
+      if (this.edit) {
+        uni.navigateBack()
+        return
+      }
       const backUrl = getLocalParmas().search.backUrl
       uni.reLaunch({
         url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'

@@ -1,9 +1,11 @@
 <template>
   <view class="initTenant">
+
     <view class="userInfo">
       <image src="../../static/images/tenant/logo.png" />
       道昕云
     </view>
+
     <view class="menus">
       <view class="menu">客户管理</view>
       <view class="space" />
@@ -15,6 +17,7 @@
       <view class="space" />
       <view class="menu">销售管理</view>
     </view>
+
     <view class="tip">
       您还没有团队，无法使用私有数据，请先：
     </view>
@@ -26,19 +29,15 @@
     <LoginByPhone v-if="false" disabled @click="join">
       加入团队
     </LoginByPhone>
+
     <view class="des">
       说明：请使用手机号登录创建您的私有数据仓库
     </view>
-    <Loading :loading="loading" />
+
   </view>
 </template>
 <script>
-import MyButton from "../../components/MyButton";
 import {getLocalParmas} from "../../util/Tools";
-import GetUserInfo from "../../util/GetUserInfo";
-import {Login} from "MES-Apis/lib/Login/promise";
-import {Message} from "../../components/Message";
-import Loading from "../../components/Loading";
 import LoginByPhone from "../../components/LoginByPhone";
 import Avatar from "../../components/Avatar";
 
@@ -46,11 +45,10 @@ export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Avatar, LoginByPhone, Loading, MyButton},
+  components: {Avatar, LoginByPhone},
   data() {
     return {
 
-      loading: false
     }
   },
   mounted() {

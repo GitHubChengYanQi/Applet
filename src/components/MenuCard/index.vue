@@ -27,7 +27,7 @@
             />
             <view
                 class="actionIcon"
-                v-if="actionIcon && !noActionIconMenus.find(menu=>menu.key === menus[rowIndex * column + colIndex].key)"
+                v-if="actionIcon && !noActionIconMenus.find(menu=>menu.code === menus[rowIndex * column + colIndex].code)"
                 @click="$emit(actionIconType ==='remove' ? 'removeMenu' : 'addMenu',menus[rowIndex * column + colIndex])"
             >
               <u-icon

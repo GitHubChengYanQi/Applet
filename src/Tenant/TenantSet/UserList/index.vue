@@ -20,7 +20,7 @@ export default {
       return {
         title: userInfo.name + '邀请您加入团队：' + tenant.name,
         path: `/Tenant/JoinTenant/index?tenantId=${tenant.tenantId}`,
-        imageUrl: '../../../static/images/logo.png'
+        imageUrl: '../../../static/images/tenant/logo.png'
       }
     }
   },

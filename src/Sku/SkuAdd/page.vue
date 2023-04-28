@@ -541,6 +541,7 @@ export default {
           this.loading = true
           const _this = this
           SkuApis.add({data: newValue}).then((res) => {
+            uni.$emit('skuAddSuccess')
             this.$refs.modal.dialog({
               only: false,
               title: '添加成功！',

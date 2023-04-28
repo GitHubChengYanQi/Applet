@@ -30,7 +30,7 @@ export default {
       return {
         title: '浑河工业',
         path: '/pages/Home/index',
-        imageUrl: '../../static/images/logo.png'
+        imageUrl: '../../static/images/tenant/logo.png'
       }
     }
   },

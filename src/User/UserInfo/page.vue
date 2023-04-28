@@ -156,6 +156,7 @@ export default {
       uni.getUserProfile({
         desc: '展示头像和昵称',
         success(res) {
+          console.log(res)
           const userInfo = res.userInfo || {}
           _this.userInfo = {
             ..._this.userInfo,

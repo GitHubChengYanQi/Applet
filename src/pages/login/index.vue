@@ -2,7 +2,7 @@
   <view>
     <view class="login">
       <view class="logo">
-        <img src="../../static/images/logo.png" alt="">
+        <img src="../../static/images/tenant/logo.png" alt="">
       </view>
       <view class="action">
         <view class="text">欢迎使用浑河云</view>

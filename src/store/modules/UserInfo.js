@@ -1,6 +1,5 @@
 import {User} from "MES-Apis/lib/User/promise";
 import {Init} from "MES-Apis/lib/Init";
-import {routes} from "../../route";
 import {isArray} from "../../util/Tools";
 
 const init = {
@@ -9,7 +8,9 @@ const init = {
     tenant: {},
     publicInfo: {},
     refresh: false,
-    homeMenus: []
+    homeMenus: [],
+    myMenus: [],
+    menus: []
 }
 
 const state = () => ({...init})
@@ -19,8 +20,8 @@ const getters = {}
 
 
 const actions = {
-    async getUserInfo({state}) {
-        if (Object.keys(state.userInfo).length === 0) {
+    async getUserInfo({state, dispatch}, payload) {
+        if (Object.keys(state.userInfo).length === 0 || payload) {
             const userRes = await User.getUserInfo()
             const userInfo = userRes.data || {}
             state.userInfo = userInfo
@@ -30,6 +31,8 @@ const actions = {
                 logo: userInfo.tenantLogo,
                 admin: !!userInfo.isTenantAdmin
             }
+            state.menus = isArray(userInfo.miniAppMenus).filter(item => isArray(item.subMenus).length > 0)
+            dispatch('getHomeMenus', true)
         }
     },
     async getPublicInfo({state}) {
@@ -40,25 +43,32 @@ const actions = {
     },
     async getHomeMenus({state}, payload) {
         if (Object.keys(state.homeMenus).length === 0 || payload) {
+
+            const menus = []
+            const menuCodes = []
+            state.menus.forEach(item => {
+                const subMenus = item.subMenus
+                subMenus.forEach(item => {
+                    menuCodes.push(item.code)
+                    menus.push(item)
+                })
+            })
+
+            // 我的页面菜单
+            const myMenuCodes = ['miniapp-skuAdd', 'miniapp-storeHouse']
+            state.myMenus = menus.filter(item => myMenuCodes.find(code => code === item.code))
+
+
             const res = await User.homeMenus({})
             const homeMenus = isArray(res.data && res.data.details)
             if (homeMenus.length > 0) {
-                state.homeMenus = homeMenus.map(item => ({
-                    ...item,
-                    key: item.code
-                }))
+                // 首页菜单
+                state.homeMenus = homeMenus.filter(item => menuCodes.find(code => code === item.code))
             } else {
-                const menus = []
-                routes.forEach(item => {
-                    item.menus.forEach(item => {
-                        if (item.type && item.type.includes('common')) {
-                            menus.push(item)
-                        }
-                    })
-                })
-                state.homeMenus = menus
+                // 首页默认菜单
+                const homeMenusCode = ['miniapp-outStock', 'miniapp-inStock', 'miniapp-inStockAsk', 'miniapp-stocktaking', 'miniapp-StockForewarn']
+                state.homeMenus = menus.filter(item => homeMenusCode.find(code => code === item.code))
             }
-
         }
     }
 }

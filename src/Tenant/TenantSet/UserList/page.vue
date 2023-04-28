@@ -229,6 +229,10 @@ export default {
   }
 }
 
+.u-index-anchor {
+  border: none;
+}
+
 .action {
   z-index: 1;
   display: flex;
@@ -259,7 +263,5 @@ export default {
   }
 }
 
-.u-index-anchor {
-  border: none;
-}
+
 </style>

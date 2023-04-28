@@ -101,13 +101,13 @@ export default {
         },
       })
     },
-    async submit(value, sorter, pull) {
+    async submit(value, sorter) {
       this.hasMore = true
       this.page = 1
       this.data = []
       this.params = value
       this.sorter = sorter
-      !pull && this.$emit('listSource', [], []);
+      this.$emit('listSource', [], []);
       this.$emit('onLoading', true)
       await this.getList();
     },

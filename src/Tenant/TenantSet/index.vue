@@ -8,6 +8,22 @@ import Auth from '../../components/Auth/index'
 import Page from "./page";
 
 export default {
+  onShow() {
+    // uni.navigateTo({
+    //   url: '/User/UserList/index'
+    // })
+    // uni.showModal({
+    //   title: '提示',
+    //   content: '当前页面有未保存的数据，您确定要取消吗？',
+    //   success: function (res) {
+    //     if (res.confirm) {
+    //       uni.setStorageSync('product', '');
+    //     } else if (res.cancel) {
+    //
+    //     }
+    //   }
+    // });
+  },
   components: {Page, Auth},
   data() {
     return {}
@@ -19,7 +35,7 @@ export default {
       return {
         title: userInfo.name + '邀请您加入团队：' + tenant.name,
         path: `/Tenant/JoinTenant/index?tenantId=${tenant.tenantId}`,
-        imageUrl: '../../static/images/logo.png'
+        imageUrl: '../../static/images/tenant/logo.png'
       }
     }
   },

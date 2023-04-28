@@ -86,23 +86,25 @@ export default {
     }
   },
   mounted() {
-    const menus = []
-    routes.forEach(item => {
-      item.menus.forEach(item => {
-        if (item.type && item.type.includes('my')) {
-          menus.push(item)
-        }
-      })
-    })
-    this.menus = menus
     this.init()
   },
   watch: {
     '$store.state.userInfo.userInfo': {
       deep: true,
       handler(userInfo) {
-        console.log(userInfo)
         this.userInfo = userInfo
+      }
+    },
+    '$store.state.userInfo.tenant': {
+      deep: true,
+      handler(tenant) {
+        this.tenant = tenant
+      }
+    },
+    '$store.state.userInfo.myMenus': {
+      deep: true,
+      handler(menus) {
+        this.menus = menus
       }
     }
   },
@@ -120,6 +122,7 @@ export default {
     init() {
       this.userInfo = this.$store.state.userInfo.userInfo
       this.tenant = this.$store.state.userInfo.tenant
+      this.menus = this.$store.state.userInfo.myMenus
     },
     tenantMenusClick(menu) {
       switch (menu.key) {

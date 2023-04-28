@@ -99,9 +99,15 @@ export default {
               onSuccess: (res) => {
                 resolve(true)
                 getApp().globalData.token = res
-                _this.$store.commit('userInfo/clear')
-                uni.reLaunch({
-                  url: getLocalParmas().route
+                _this.$refs.modal.dialog({
+                  title: '切换成功！点击返回首页',
+                  onConfirm() {
+                    _this.$store.commit('userInfo/clear')
+                    uni.reLaunch({
+                      url: '/pages/Home/index'
+                    })
+                    return true
+                  }
                 })
               },
               onError: () => {
