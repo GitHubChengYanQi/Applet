@@ -13,7 +13,7 @@
             :width="30"
             :height="30"
         />
-        <u-icon v-else name="file-text" color="#2979ff" size="30" />
+        <u-icon v-else name="file-text" color="#2979ff" size="30"/>
         <view class="fileName">
           <view class="name" :style="{width:nameWidth}">
             {{ file.name }}
@@ -25,7 +25,7 @@
 
       </view>
     </view>
-    <Uploader file @onChange="onChange" />
+    <Uploader v-if="!noUpload" file @onChange="onChange"/>
   </view>
 </template>
 
@@ -40,7 +40,7 @@ export default {
     Uploader,
     LinkButton
   },
-  props:['nameWidth'],
+  props: ['nameWidth', 'noUpload'],
   data() {
     return {
       files: []

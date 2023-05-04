@@ -11,6 +11,8 @@
         :show="show"
         @cancel="onCancel"
         @confirm="onConfirm"
+        @close="onClose"
+        closeOnClickOverlay="true"
     />
   </view>
 </template>
@@ -24,41 +26,39 @@ export default {
   components: {LinkButton},
   props: [
     'placeholder',
+    'value'
   ],
   data() {
     return {
       columns: [],
       show: false,
-      value: ''
     }
   },
-  mounted() {
-    this.get()
-  },
   methods: {
-    async get() {
-      const money = await this.getMoney()
-      const data = money.data
-      const name = data.map(item => item.name)
-      this.columns = [
-        name
-      ]
-
-    },
-    async getMoney() {
+    getMoney() {
       return request({
         url: "/Enum/money",
         method: 'Get',
+      }).then(res => {
+        this.columns = [
+          res.data.map(item => {
+            return item.name
+          })
+        ]
       })
     },
     onClick() {
       this.show = true
+      this.getMoney()
     },
     onCancel() {
       this.show = false
     },
     onConfirm(e) {
-      this.value = e.value[0]
+      uni.$emit('currencyChange', e.value[0])
+      this.show = false
+    },
+    onClose() {
       this.show = false
     }
   }

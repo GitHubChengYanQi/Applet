@@ -300,6 +300,12 @@
           "style": {
             "navigationBarTitleText": "选择供应商"
           }
+        },
+        {
+          "path": "Contract/index",
+          "style": {
+            "navigationBarTitleText": "选择合同模板"
+          }
         }
       ]
     },

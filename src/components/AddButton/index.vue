@@ -1,5 +1,5 @@
 <template>
-  <view :class="['add',className]">
+  <view class="add" :style="addStyle">
     <u-button :type="warning ?'warning': 'primary'"
               icon="plus"
               :disabled="disable"
@@ -20,6 +20,7 @@ export default {
     'width',
     'height',
     'className',
+    'addStyle',
     'title',
     'plain'
   ]

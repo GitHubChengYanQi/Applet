@@ -1,5 +1,6 @@
 <template>
   <view>
+    <Loading :skeleton="true" skeleton-type="page" v-if="loading"/>
     <view class="formSteps" v-if="steps.length !== 1">
       <view class="steps">
         <u-steps :current="currentStep" dot>
@@ -11,67 +12,20 @@
     </view>
 
     <view style="padding-bottom: 90px;">
-      <view v-for="(stepItem,stepIndex) in currentFiled[currentStep]" :key="stepIndex">
-        <Card :title="stepItem[0].filedName"
-              v-if="stepItem[0] && !['labelResults','templateId'].includes(stepItem[0].key)"
-              bodyStyle="padding: 0;text-align: center">
-          <template v-slot:title v-if="currentStep === 3">
-            <view style="color: red;margin-left: 4px" v-if="stepItem[0] && !['remark'].includes(stepItem[0].key)">
-              <span>*</span>
-            </view>
-          </template>
-          <template v-slot:extra>
-            <view
-                v-if="stepItem[0] && !['coding','theme','buyerId','partyAAdressId','partyAContactsId','partyAPhone','partyABankId','partyABankAccount','partyALegalPerson','partyABankNo','partyACompanyPhone','detailParams','money','currency','paymentDetail','leadTime','date','remark','payMethod'].includes(stepItem[0].key)">
-              <GeneralSelection :stepItem="stepItem[0]" />
-            </view>
-            <view
-                v-else-if="stepItem[0] && ['coding','theme','payMethod'].includes(stepItem[0].key)">
-              <DefaultInput :stepItem="stepItem[0]"/>
-            </view>
-            <view
-                v-else-if="stepItem[0] && ['buyerId','partyAAdressId','partyAContactsId','partyAPhone','partyABankId','partyABankAccount','partyALegalPerson','partyABankNo','partyACompanyPhone'].includes(stepItem[0].key)">
-              <OtherOptions :stepItem="stepItem[0]" @click="Click(stepItem[0].key)"/>
-            </view>
-            <view v-else-if="stepItem[0] && ['money'].includes(stepItem[0].key)">
-              <Money/>
-            </view>
-            <view v-else-if="stepItem[0] && ['currency'].includes(stepItem[0].key)">
-              <Currency :placeholder="`请选择${stepItem[0].filedName || ''}`"/>
-            </view>
-            <view v-else-if="stepItem[0] && ['leadTime'].includes(stepItem[0].key)">
-              <view class="flexCenter">
-                <ShopNumber number :value="value" @onChange="onChange"/>
-                <view>天</view>
-              </view>
-            </view>
-            <view v-else-if="stepItem[0] && ['date'].includes(stepItem[0].key)">
-              <MyDatePicker/>
-            </view>
-          </template>
-          <template v-slot:default
-                    v-if="stepItem[0] && ['detailParams','paymentDetail','remark'].includes(stepItem[0].key)">
-            <view v-if="stepItem[0] && ['detailParams'].includes(stepItem[0].key)"
-                  style="padding: 8px;display: inline-block">
-              <AddButton title="添加物料" size="14px" :plain="true"></AddButton>
-            </view>
-            <view v-else-if="stepItem[0] && ['paymentDetail'].includes(stepItem[0].key)"
-                  style="padding: 8px;display: inline-block">
-              <AddButton title="添加付款批次" size="14px" :plain="true"></AddButton>
-            </view>
-            <view v-else-if="stepItem[0] && ['remark'].includes(stepItem[0].key)"
-                  style="padding: 8px">
-              <view class="textArea">
-                <u--textarea border="none"
-                             v-model="textValue"
-                             :placeholder="`请输入${stepItem[0].filedName || ''}`"
-                             height="30"
-                ></u--textarea>
-              </view>
-            </view>
-          </template>
-        </Card>
-      </view>
+      <General
+          v-for="stepItem in currentFiled[currentStep]" :key="stepItem.key"
+          :stepItem="stepItem"
+          :required="stepItem[0].required"
+          :defaultValue="defaultValue"
+          :taxData="taxData"
+          :aData="aData"
+          :bData="bData"
+          @input="input"
+          @add="add"
+          @picker="picker"
+
+
+      />
     </view>
 
 
@@ -81,11 +35,239 @@
         :leftDisabled="currentStep === 0"
         @rightOnClick="rightOnClick"
         @leftOnClick="leftOnClick"
-        :rightDisabled="disabled"
         :rightText="currentStep < steps.length - 1 ? '下一步' : '保存'"
+        :rightDisabled="disable"
     />
 
+    <u-picker
+        :show="visible === 'partyBContactsId'"
+        :columns="[isArray(bData.contactsParams).map(item => {
+                return {
+                  label: item.contactsName,
+                  id: item.contactsId,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="partyBContactsIdConfirm"
+    />
 
+    <u-picker
+        :show="['partyBPhone'].includes(visible)"
+        :columns="[isArray(BContactsData.phoneParams).map(item => {
+                return {
+                  label: item.phone,
+                  id: item.phoneId
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('partyBPhoneName','partyBPhone',value)"
+    />
+
+    <u-picker
+        :show="['partyBAdressId'].includes(visible)"
+        :columns="[isArray(bData.adressParams).map(item => {
+                return {
+                  label: item.detailLocation || item.location,
+                  id: item.adressId
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange(' partyBAdressName', 'partyBAdressId', value)"
+    />
+
+    <u-picker
+        :show="['partyBBankId'].includes(visible)"
+        :columns="[ArrayDuplicate(bData.invoiceResults, 'bankId').map(item => ({
+                 id: item.bankId,
+                 label: item.bankResult.bankName,
+              }))]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('partyBBankName','partyBBankId', value)"
+    />
+
+    <u-picker
+        :show="visible === 'paperType'"
+        :columns="[[{ label: '普票', id: 0 }, { label: '专票', id: 1 }]]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('paperTypeName','paperType',value)"
+    />
+
+    <u-picker
+        :show="visible === 'rate'"
+        :columns="[taxData]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('rateName','rate',value)"
+    />
+
+    <u-picker
+        :show="visible === 'freight'"
+        :columns="[[{ label: '是', id: 1 }, { label: '否', id: 0 }]]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('freightName','freight',value)"
+    />
+
+    <u-picker
+        :show="visible === 'payPlan'"
+        :columns="[[{ label: '按时间分期付款', id: 2 },{ label: '按动作分期付款', id: 3 }]]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('payPlanName','payPlan',value)"
+    />
+
+    <u-picker
+        :show="visible === 'adressId' "
+        :columns="[isArray(aData.adressParams).map(item => {
+                return {
+                  label: item.detailLocation || item.location,
+                  id: item.adressId
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('adressName','adressId',value)"
+    />
+
+    <u-picker
+        :show="visible === 'generateContract'"
+        :columns="[[{ label: '生成合同', id: 1 }, { label: '无合同', id: 0 }, { label: '上传合同', id: 2 }]]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('generateContractName','generateContract',value)"
+    />
+
+    <u-picker
+        :show="visible === 'partyBBankAccount'"
+        :columns="[isArray(bData.invoiceResults).filter(item => item.bankId === defaultValue.partyBBankId).map(item => {
+                return {
+                  label: item.bankAccount,
+                  id: item.invoiceId,
+                  bankNo: item.bankNo,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value)=>onChange('partyBBankAccountName','partyBBankAccount', value)"
+    />
+
+    <u-picker
+        :show="['partyAContactsId'].includes(visible)"
+        :columns="[isArray(aData.contactsParams).map(item => {
+                return {
+                  label: item.contactsName,
+                  id: item.contactsId,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('partyAContactsName','partyAContactsId',value)"
+    />
+
+    <u-picker
+        :show="['partyAAdressId'].includes(visible)"
+        :columns="[isArray(aData.adressParams).map(item => {
+                return {
+                  label: item.detailLocation || item.location,
+                  id: item.adressId,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('partyAAdressName','partyAAdressId',value)"
+    />
+
+    <u-picker
+        :show="['partyAPhone'].includes(visible)"
+        :columns="[isArray(AContactsData.phoneParams).map(item => {
+                return {
+                  label: item.phone,
+                  id: item.phoneId,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('partyAPhoneName','partyAPhone',value)"
+    />
+
+    <u-picker
+        :show="['partyABankId'].includes(visible)"
+        :columns="[ArrayDuplicate(aData.invoiceResults,'bankId').map(item => {
+                return {
+                  label: item.bankResult.bankName,
+                  id: item.bankId,
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('partyABankName','partyABankId',value)"
+    />
+
+    <u-picker
+        :show="['partyABankAccount'].includes(visible)"
+        :columns="[isArray(aData.invoiceResults).filter(item => item.bankId === defaultValue.partyABankId).map(item => {
+                return {
+                  label:  item.bankAccount,
+                  id: item.invoiceId,
+                  bankNo: item.bankNo
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('partyABankAccountName','partyABankAccount',value)"
+    />
+
+    <u-picker
+        :show="visible === 'userId' "
+        :columns="[isArray(aData.contactsParams).map(item => {
+                return {
+                  label: item.contactsName,
+                  id: item.contactsId
+                }
+              })]"
+        @close="visible = ''"
+        keyName="label"
+        closeOnClickOverlay="true"
+        @cancel="visible = ''"
+        @confirm="(value) => onChange('userName','userId',value)"
+    />
   </view>
 </template>
 
@@ -93,61 +275,101 @@
 import {request} from "MES-Apis/lib/Service/request";
 import Card from "@/components/Card/index.vue";
 import BottomButton from "@/components/BottomButton/index.vue";
-import GeneralSelection from "@/components/GeneralSelection/index.vue";
-import DefaultInput from "@/components/DefaultInput/index.vue";
-import OtherOptions from "@/components/OtherOptions/index.vue";
-import AddButton from "@/components/AddButton/index.vue";
-import Money from "@/components/Money/index.vue";
-import Currency from "@/components/Currency/index.vue";
-import ShopNumber from "@/components/ShopNumber/index.vue";
-import MyDatePicker from "@/components/MyDatePicker/index.vue";
+import General from "@/components/General/index.vue";
+import {ArrayDuplicate, isArray, MathCalc} from "@/util/Tools";
+import Loading from "@/components/Loading/index.vue";
+import {Message} from "@/components/Message";
+
 
 export default {
   name: "FormLayout",
   components: {
-    MyDatePicker,
-    ShopNumber,
-    Currency,
-    Money,
-    AddButton,
-    OtherOptions,
-    DefaultInput,
-    GeneralSelection,
+    Loading,
+    General,
     BottomButton,
     Card
   },
-  props: [
-    'formType',
-    'onSave',
-    'required',
-    'onSave',
-    'data'
-  ],
   data() {
     return {
-      showCorporateName: false,
+      currentFiled: [],
       currentStep: 0,
       steps: [],
-      currentFiled: [],
-      value: '',
-      textValue: '',
-      spanTitle: true,
-      requiredFiled: []
+      require: [],
+      defaultValue: {
+        payPlan: 3,
+        payPlanName: '按动作分期付款',
+        currency: '人民币',
+        money: 0,
+        paymentDetail: []
+      },
+      taxData: {},
+      aData: {},
+      bData: {},
+      AContactsData: {},
+      BContactsData: {},
+      loading: true,
+      visible: ''
     }
   },
   mounted() {
     this.get()
   },
   methods: {
+    ArrayDuplicate,
+    isArray,
     async get() {
+      const _this = this
+      this.loading = true
       const list = await this.listByFormType('PURCHASEORDER')
       const data = list.data
-      const typeSetting = data[0].typeSetting
-      this.typeSetting = JSON.parse(typeSetting)
-      const mobile = this.typeSetting.mobile
-      this.steps = mobile.steps
+      const typeSetting = JSON.parse(data[0].typeSetting) || {}
+      const mobile = typeSetting.mobile || {}
+      this.steps = mobile.steps || []
       this.currentFiled = this.steps.map(item => item.data.map(item => item[0].data.map(item => item)))
+      const taxRateListSelect = await this.taxRateListSelect()
+      this.taxData = taxRateListSelect.data
+      _this.selfEnterpriseDetail()
 
+
+      uni.$on('supplierChange', function (item) {
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          sellerName: item.customerName,
+          sellerId: item.customerId
+        }
+        _this.SupplierDetail(_this.defaultValue.sellerId)
+      })
+
+      uni.$on('dateInput', function (e) {
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          date: e
+        }
+      })
+
+      uni.$on('currencyChange', function (e) {
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          currency: e
+        }
+      })
+
+      uni.$on('contractChange', function (item) {
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          templateName: item.name,
+        }
+      })
+      this.loading = false
+
+    },
+    onChange(key, id, e) {
+      this.defaultValue = {
+        ...this.defaultValue,
+        [key]: (e.value[0] !== undefined) && (e.value[0].label),
+        [id]: (e.value[0] !== undefined) && (e.value[0].id)
+      }
+      this.visible = ''
     },
     async listByFormType(formType) {
       return request({
@@ -158,34 +380,190 @@ export default {
         }
       })
     },
-    onClick() {
-      this.showCorporateName = true
+    selfEnterpriseDetail() {
+      const _this = this
+      return request({
+        url: "/selfEnterprise/detail",
+        method: 'post',
+        data: {}
+      }).then(async res => {
+        _this.aData = res.data
+        let info = {
+          buyerId: res.data.customerId,
+          buyerName: res.data.customerName,
+          partyAAdressId: res.data.defaultAddress,
+          partyAAdressName: res.data.address?.detailLocation || res.data.address?.location,
+          partyAContactsId: res.data.defaultContacts,
+          partyAContactsName: res.data.contact?.contactsName,
+          partyABankId: res.data.invoiceResult?.bankId,
+          partyABankName: res.data.invoiceResult?.bankResult?.bankName,
+          partyABankAccount: res.data.invoiceResult?.invoiceId,
+          partyABankAccountName: res.data.invoiceResult?.bankAccount,
+          partyABankNo: res.data.invoiceResult?.bankNo,
+        };
+        if (res.data.defaultContacts) {
+          const contactDetail = await _this.getContactsDetail(res.data.defaultContacts)
+          const contact = contactDetail.data
+          _this.AContactsData = contact
+          info = {
+            ...info,
+            partyAPhone: isArray(contact?.phoneParams)[0]?.phoneId,
+            partyAPhoneName: isArray(contact?.phoneParams)[0]?.phone,
+          };
+        }
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          ...info
+        }
+      })
     },
-    cancel() {
-      this.showCorporateName = false
+    SupplierDetail(customerId) {
+      const _this = this
+      return request({
+        url: "/supplier/detail",
+        method: 'post',
+        data: {
+          customerId
+        }
+      }).then(async res => {
+        _this.bData = res.data
+        let info = {
+          partyBAdressId: res.data.defaultAddress,
+          partyBAdressName: res.data.address?.detailLocation || res.data.address?.location,
+          partyBContactsId: res.data.defaultContacts,
+          partyBContactsName: res.data.contact?.contactsName,
+          partyBBankId: res.data.invoiceResult?.bankId,
+          partyBBankName: res.data.invoiceResult?.bankResult?.bankName,
+          partyBBankAccount: res.data.invoiceResult?.invoiceId,
+          partyBBankAccountName: res.data.invoiceResult?.bankAccount,
+          partyBBankNo: res.data.invoiceResult?.bankNo,
+        };
+        if (res.data.defaultContacts) {
+          const contactDetail = await _this.getContactsDetail(res.data.defaultContacts)
+          const contact = contactDetail.data
+          _this.BContactsData = contact
+          info = {
+            ...info,
+            partyBPhone: isArray(contact?.phoneParams)[0]?.phoneId,
+            partyBPhoneName: isArray(contact?.phoneParams)[0]?.phone,
+          };
+        }
+        _this.defaultValue = {
+          ..._this.defaultValue,
+          ...info
+        }
+      })
+    },
+    async getContactsDetail(contactsId) {
+      return request({
+        url: "/contacts/detail",
+        method: 'post',
+        data: {
+          contactsId
+        }
+      })
+    },
+    async taxRateListSelect() {
+      return request({
+        url: "/taxRate/listSelect",
+        method: 'post',
+        data: {}
+      })
+    },
+    async partyBContactsIdConfirm(e) {
+      const _this = this
+      let infoContact;
+      let contact = {};
+      if (e.value[0] !== undefined && e.value[0].id) {
+        const contactData = await _this.getContactsDetail(e.value[0].id);
+        contact = contactData.data
+
+        infoContact = {
+          partyBContactsId: e.value[0].id,
+          partyBContactsName: e.value[0].label,
+          partyBPhone: isArray(contact?.phoneParams)[0]?.phoneId,
+          partyBPhoneName: isArray(contact?.phoneParams)[0]?.phone,
+        };
+      }
+      _this.defaultValue = {
+        ..._this.defaultValue,
+        ...infoContact
+      }
+      this.visible = ''
     },
     rightOnClick() {
-      this.currentStep = this.currentStep + 1
-    },
+      const currentFiled = [];
+      isArray(this.currentFiled[this.currentStep]).map(item => {
+        item.forEach(item => {
+          currentFiled.push(item.key);
+        })
+      })
+      let value = this.defaultValue
+      if (currentFiled.find((item) => item === 'paymentDetail') && value.paymentDetail.length !== 0) {
+        let percentum = 0;
+        value.paymentDetail.map((item) => {
+          return percentum = MathCalc(percentum, item.percentum, 'jia');
+        });
+        if (percentum !== 100) {
+          Message.toast('请检查付款批次');
+          return false;
+        }
+      }
+
+      if (this.currentStep < 3) {
+        this.currentStep = this.currentStep + 1
+      }
+    }
+    ,
     leftOnClick() {
-      this.currentStep = this.currentStep - 1
-    },
-    onChange(num) {
-      this.value = num
-    },
-    Click(e) {
-      console.log(e)
+      if (this.currentStep > 0) {
+        this.currentStep = this.currentStep - 1
+      }
+    }
+    ,
+    input(e) {
+      this.defaultValue = {
+        ...this.defaultValue,
+        ...e,
+      }
+      this.defaultValue = {
+        ...this.defaultValue,
+        floatingAmount: MathCalc(this.defaultValue.totalAmount, this.defaultValue.money, 'jian'),
+        paymentDetail: isArray(this.defaultValue.paymentDetail).map((item => {
+          if (item) {
+            return {
+              ...item,
+              money: MathCalc(MathCalc(item.percentum, 100, 'chu'), this.defaultValue.totalAmount, 'cheng')
+            }
+          }
+          return item;
+        }))
+      }
+    }
+    ,
+    add(e) {
+      this.defaultValue = {
+        ...this.defaultValue,
+        ...e
+      }
+    }
+    ,
+    picker(e) {
+      this.visible = e
     }
   },
   computed: {
-    disabled() {
+    disable() {
       const requiredFiled = [];
-      this.currentFiled[this.currentStep] && this.currentFiled[this.currentStep].map(item => item.forEach(item => {
-        if (item.required) {
-          requiredFiled.push(item.key)
-        }
-      }))
-      return requiredFiled.length !== 0
+      isArray(this.currentFiled[this.currentStep]).map(item => {
+        item.forEach(item => {
+          if (item.required) {
+            requiredFiled.push(item.key);
+          }
+        })
+      })
+      const requireds = requiredFiled.filter(item => typeof this.defaultValue[item] !== 'number' && !this.defaultValue[item])
+      return requireds.length !== 0 && this.currentStep !== 1
     }
   }
 }
@@ -213,4 +591,9 @@ export default {
   text-align: left;
   line-height: 1.5;
 }
+
+.extra {
+  display: flex;
+}
+
 </style>

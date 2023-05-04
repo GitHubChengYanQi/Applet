@@ -1,80 +1,84 @@
 <template>
   <view class="back">
     <view class="popupContent">
-      <Search placeholder="请输入供应商信息"></Search>
+      <Search placeholder="请输入合同模板信息"></Search>
       <view class="content" v-for="(item,index) in list" @click="click(item)" :key="index">
-        <view class="information">{{ item.customerName }}</view>
+        <view class="information">{{ item.name }}</view>
       </view>
     </view>
   </view>
 </template>
 
 <script>
-import Search from "@/components/Search";
-import {
-  request
-} from 'MES-Apis/lib/Service/request';
+import Search from "@/components/Search/index.vue";
+import {request} from "MES-Apis/lib/Service/request";
 
 export default {
+  name: "page",
   components: {Search},
-  data(){
-    return{
-      list:[]
+  data() {
+    return {
+      list: []
     }
   },
   mounted() {
     this.get();
   },
-  methods:{
-    get(){
+  methods: {
+    get() {
       const _this = this;
       request({
-        url:"/supplier/list",
-        method:"POST",
-        data:{}
-      }).then(res=>{
-        console.log(res);
+        url: "/template/list",
+        method: "POST",
+        data: {}
+      }).then(res => {
         _this.list = res.data;
       });
     },
-    click(item){
-      uni.$emit("supplierChange", item);
+    click(item) {
+      uni.$emit("contractChange", item);
       uni.navigateBack();
     }
   }
-
-
 }
 </script>
 
 <style lang="scss">
-.back{
+
+.back {
   background-color: #FFFFFF;
 }
-.select{
+
+.select {
   display: flex;
   justify-content: space-between;
   padding: 0 12px;
-  .selectText{
+
+  .selectText {
     color: #257bde;
     line-height: 45px;
   }
-  .selectTitle{
+
+  .selectTitle {
     font-size: 18px;
     line-height: 45px;
   }
 }
-.popupContent{
+
+.popupContent {
   padding: 12px;
-  .content{
+
+  .content {
     display: flex;
     border-top: 1px solid #f5f5f5;
     border-bottom: 1px solid #f5f5f5;
-    padding:6px 0;
-    .information{
+    padding: 6px 0;
+
+    .information {
       flex: 1;
       padding-left: 12px;
     }
   }
 }
+
 </style>
