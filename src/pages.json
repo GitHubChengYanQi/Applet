@@ -331,19 +331,19 @@
         {
           "path": "SkuClass/SkuClassAdd/index",
           "style": {
-            "navigationBarTitleText": "新增物料分类"
+            "navigationBarTitleText": "物料分类"
           }
         },
         {
           "path": "Unit/UnitAdd/index",
           "style": {
-            "navigationBarTitleText": "新增单位"
+            "navigationBarTitleText": "单位"
           }
         },
         {
           "path": "Material/MaterialAdd/index",
           "style": {
-            "navigationBarTitleText": "新增材质"
+            "navigationBarTitleText": "材质"
           }
         }
       ]
@@ -356,10 +356,23 @@
           "style": {
             "navigationBarTitleText": "个人信息"
           }
-        },{
+        },
+        {
           "path": "UserList/index",
           "style": {
             "navigationBarTitleText": "成员列表"
+          }
+        },
+        {
+          "path": "UserEdit/index",
+          "style": {
+            "navigationBarTitleText": "编辑成员"
+          }
+        },
+        {
+          "path": "Position/PositionAdd/index",
+          "style": {
+            "navigationBarTitleText": "职位"
           }
         }
       ]

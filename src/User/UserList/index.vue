@@ -16,12 +16,12 @@ import {getLocalParmas} from "../../util/Tools";
 export default {
   components: {Page, Auth},
   onLoad(option) {
-    uni.enableAlertBeforeUnload({
-      message: '请您填写数据',
-      success:()=>{}
-    })
-    this.type = option.type
-    this.show = !option.type
+    // uni.enableAlertBeforeUnload({
+    //   message: '请您填写数据',
+    //   success:()=>{}
+    // })
+    this.type = option.type // 选择用户
+    this.show = !option.type // 查看用户列表
     const curren = this
     const eventChannel = curren.getOpenerEventChannel();
     if (typeof eventChannel.on === "function") {

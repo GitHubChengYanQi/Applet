@@ -70,9 +70,9 @@ import {Init} from "MES-Apis/lib/Init";
 import Tree from "../../components/Tree";
 import Empty from "../../components/Empty";
 import Popup from "../../components/Popup";
-import {System} from "MES-Apis/lib/System/promise";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
+import {Dept} from "MES-Apis/lib/Dept/promise";
 
 export default {
   options: {
@@ -126,7 +126,7 @@ export default {
     },
     getDeptTree() {
       this.deptTreeLoading = true
-      System.deptTree().then((res) => {
+      Dept.deptTree().then((res) => {
         this.deptTree = res.data || []
       }).catch(() => {
       }).finally(() => {

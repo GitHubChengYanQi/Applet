@@ -64,7 +64,7 @@ import Loading from "../../../components/Loading";
 import Empty from "../../../components/Empty";
 import {queryString, safeAreaHeight} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
-import AddUser from "../components/AddUser";
+import AddUser from "../../../components/AddUser";
 import Modal from "../../../components/Modal";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";

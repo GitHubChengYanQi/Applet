@@ -38,12 +38,12 @@
   </view>
 </template>
 <script>
-import Popup from "../../../../components/Popup";
-import Loading from "../../../../components/Loading";
+import Popup from "../Popup";
+import Loading from "../Loading";
 import {System} from "MES-Apis/lib/System/promise";
-import {Message} from "../../../../components/Message";
-import Modal from "../../../../components/Modal";
-import Icon from "../../../../components/Icon";
+import {Message} from "../Message";
+import Modal from "../Modal";
+import Icon from "../Icon";
 
 export default {
   name: 'AddUser',
