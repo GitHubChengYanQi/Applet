@@ -513,7 +513,7 @@ export default {
         value.paymentDetail.map((item) => {
           return percentum = MathCalc(percentum, item.percentum, 'jia');
         });
-        if (percentum !== 100) {
+        if (percentum !== 100 && value.floatingAmount !== 0) {
           Message.toast('请检查付款批次');
           return false;
         }

@@ -67,7 +67,7 @@
               :decimal="2"
               :value="defaultValue[stepItem[0].key]"
               @onChange="(value)=>onChange('totalAmount',value)"
-              :min="0.01"
+              :min="0"
           />
         </view>
         <view v-if="['currency'].includes(stepItem[0].key)">

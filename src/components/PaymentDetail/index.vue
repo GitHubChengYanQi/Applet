@@ -28,6 +28,7 @@
                 <ShopNumber
                     number
                     :max="100"
+                    :min="0"
                     :value="item.percentum"
                     @onChange="(e)=>change(e,index)"
 
@@ -88,6 +89,7 @@
                 <ShopNumber
                     number
                     :max="100"
+                    :min="0"
                     :value="item.percentum"
                     @onChange="(e)=>change(e,index)"
 
