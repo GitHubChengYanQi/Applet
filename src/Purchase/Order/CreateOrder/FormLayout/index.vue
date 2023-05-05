@@ -364,10 +364,18 @@ export default {
 
     },
     onChange(key, id, e) {
-      this.defaultValue = {
-        ...this.defaultValue,
-        [key]: (e.value[0] !== undefined) && (e.value[0].label),
-        [id]: (e.value[0] !== undefined) && (e.value[0].id)
+      if (e.value[0].id === undefined) {
+        this.defaultValue = {
+          ...this.defaultValue,
+          [key]: (e.value[0] !== undefined) && (e.value[0].label),
+          [id]: (e.value[0] !== undefined) && (e.value[0].value)
+        }
+      } else {
+        this.defaultValue = {
+          ...this.defaultValue,
+          [key]: (e.value[0] !== undefined) && (e.value[0].label),
+          [id]: (e.value[0] !== undefined) && (e.value[0].id)
+        }
       }
       this.visible = ''
     },
@@ -513,14 +521,12 @@ export default {
       if (this.currentStep < 3) {
         this.currentStep = this.currentStep + 1
       }
-    }
-    ,
+    },
     leftOnClick() {
       if (this.currentStep > 0) {
         this.currentStep = this.currentStep - 1
       }
-    }
-    ,
+    },
     input(e) {
       this.defaultValue = {
         ...this.defaultValue,
@@ -539,15 +545,13 @@ export default {
           return item;
         }))
       }
-    }
-    ,
+    },
     add(e) {
       this.defaultValue = {
         ...this.defaultValue,
         ...e
       }
-    }
-    ,
+    },
     picker(e) {
       this.visible = e
     }
