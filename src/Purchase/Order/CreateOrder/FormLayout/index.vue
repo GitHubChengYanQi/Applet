@@ -363,7 +363,7 @@ export default {
 
     },
     onChange(key, id, e) {
-      if (e.value[0].id === undefined) {
+      if (e.value[0] !== undefined && e.value[0].id === undefined) {
         this.defaultValue = {
           ...this.defaultValue,
           [key]: (e.value[0] !== undefined) && (e.value[0].label),
