@@ -17,7 +17,6 @@
           :stepItem="stepItem"
           :required="stepItem[0].required"
           :defaultValue="defaultValue"
-          :taxData="taxData"
           :aData="aData"
           :bData="bData"
           @input="input"

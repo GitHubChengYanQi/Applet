@@ -6,40 +6,55 @@
         bodyStyle="padding: 0;text-align: center"
     >
       <template v-slot:extra>
-        <view v-if="['sellerId'].includes(stepItem[0].key)" @click="onClick(stepItem[0].key)">
+        <view
+            v-if="['sellerId'].includes(stepItem[0].key)"
+            @click="onClick(stepItem[0].key)"
+        >
           <view v-if="defaultValue.sellerName">
             {{ defaultValue.sellerName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyBContactsId'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyBContactsId')">
+        <view
+            v-if="['partyBContactsId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyBContactsId')"
+        >
           <view v-if="defaultValue.partyBContactsName">
             {{ defaultValue.partyBContactsName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyBPhone'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'partyBPhone')">
+        <view
+            v-if="['partyBPhone'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyBPhone')"
+        >
           <view v-if="defaultValue.partyBPhoneName">
             {{ defaultValue.partyBPhoneName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyBAdressId'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyBAdressId')">
+        <view
+            v-if="['partyBAdressId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyBAdressId')"
+        >
           <view v-if="defaultValue.partyBAdressName">
             {{ defaultValue.partyBAdressName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyBBankId'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'partyBBankId')">
+        <view
+            v-if="['partyBBankId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyBBankId')"
+        >
           <view v-if="defaultValue.partyBBankName">
             {{ defaultValue.partyBBankName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyBBankAccount'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyBBankAccount')">
+        <view
+            v-if="['partyBBankAccount'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyBBankAccount')"
+        >
           <view v-if="defaultValue.partyBBankAccountName">
             {{ defaultValue.partyBBankAccountName }}
           </view>
@@ -57,26 +72,38 @@
         <view v-if="['currency'].includes(stepItem[0].key)">
           <Currency :value="defaultValue.currency" :placeholder="`请选择${stepItem[0].filedName || ''}`"/>
         </view>
-        <view v-if="['paperType'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'paperType')">
+        <view
+            v-if="['paperType'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'paperType')"
+        >
           <view v-if="defaultValue.paperTypeName">
             {{ defaultValue.paperTypeName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['rate'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'rate')">
+        <view
+            v-if="['rate'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'rate')"
+        >
           <view v-if="defaultValue.rateName">
             {{ defaultValue.rateName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['freight'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'freight')">
+        <view
+            v-if="['freight'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'freight')"
+        >
           <view v-if="defaultValue.freightName">
             {{ defaultValue.freightName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['payPlan'].includes(stepItem[0].key)">
-          <view v-if="defaultValue.payPlanName" @click="() => showVisible(visible = 'payPlan')">
+        <view
+            v-if="['payPlan'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'payPlan')"
+        >
+          <view v-if="defaultValue.payPlanName">
             {{ defaultValue.payPlanName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
@@ -105,7 +132,10 @@
             ></u--input>
           </view>
         </view>
-        <view v-if="['date'].includes(stepItem[0].key)" @click="visible = 'date'">
+        <view
+            v-if="['date'].includes(stepItem[0].key)"
+            @click="visible = 'date'"
+        >
           <view v-if="defaultValue.date">
             {{ defaultValue.date }}
           </view>
@@ -124,7 +154,8 @@
             <view>天</view>
           </view>
         </view>
-        <view v-if="stepItem[0] && ['adressId'].includes(stepItem[0].key)" @click="visible = 'adressId'">
+        <view v-if="stepItem[0] && ['adressId'].includes(stepItem[0].key)"
+              @click="() => showVisible(visible = 'adressId')">
           <view v-if="defaultValue.adressName">
             {{ defaultValue.adressName }}
           </view>
@@ -149,46 +180,64 @@
             ></u--input>
           </view>
         </view>
-        <view v-if="['templateId'].includes(stepItem[0].key)" @click="onClick(stepItem[0].key)">
+        <view
+            v-if="['templateId'].includes(stepItem[0].key)"
+            @click="onClick(stepItem[0].key)"
+        >
           <view v-if="defaultValue.templateName">
             {{ defaultValue.templateName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['buyerId'].includes(stepItem[0].key)" @click="visible = 'buyerId'">
+        <view
+            v-if="['buyerId'].includes(stepItem[0].key)"
+            @click="visible = 'buyerId'"
+        >
           <view v-if="defaultValue.buyerName">
             {{ defaultValue.buyerName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyAContactsId'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyAContactsId')">
+        <view
+            v-if="['partyAContactsId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyAContactsId')"
+        >
           <view v-if="defaultValue.partyAContactsName">
             {{ defaultValue.partyAContactsName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyAPhone'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'partyAPhone')">
+        <view
+            v-if="['partyAPhone'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyAPhone')"
+        >
           <view v-if="defaultValue.partyAPhoneName">
             {{ defaultValue.partyAPhoneName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyAAdressId'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyAAdressId')">
+        <view
+            v-if="['partyAAdressId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyAAdressId')"
+        >
           <view v-if="defaultValue.partyAAdressName">
             {{ defaultValue.partyAAdressName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyABankId'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'partyABankId')">
+        <view
+            v-if="['partyABankId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyABankId')"
+        >
           <view v-if="defaultValue.partyABankName">
             {{ defaultValue.partyABankName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['partyABankAccount'].includes(stepItem[0].key)"
-              @click="() => showVisible(visible = 'partyABankAccount')">
+        <view
+            v-if="['partyABankAccount'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'partyABankAccount')"
+        >
           <view v-if="defaultValue.partyABankAccountName">
             {{ defaultValue.partyABankAccountName }}
           </view>
@@ -247,13 +296,19 @@
             ></u--input>
           </view>
         </view>
-        <view v-if="['userId'].includes(stepItem[0].key)" @click="() => showVisible(visible = 'userId')">
+        <view
+            v-if="['userId'].includes(stepItem[0].key)"
+            @click="() => showVisible(visible = 'userId')"
+        >
           <view v-if="defaultValue.userName">
             {{ defaultValue.userName }}
           </view>
           <LinkButton v-else :title="`请选择${stepItem[0].filedName || ''}`"></LinkButton>
         </view>
-        <view v-if="['fileId'].includes(stepItem[0].key)" @click="visible = 'fileId'">
+        <view
+            v-if="['fileId'].includes(stepItem[0].key)"
+            @click="visible = 'fileId'"
+        >
           <Uploader file @onChange="change">
             <linkButton>
               <u-icon name="attach" color="#2680EB"/>
@@ -281,8 +336,12 @@
       <template v-slot:default>
         <view v-if="stepItem[0] && ['detailParams'].includes(stepItem[0].key)"
               style="padding: 8px;display: inline-block">
-          <AddButton title="添加物料" size="14px" plain="true"
-                     @click="click"></AddButton>
+          <AddButton
+              title="添加物料"
+              size="14px"
+              plain="true"
+              @click="click"
+          />
         </view>
         <view v-if="stepItem[0] && ['paymentDetail'].includes(stepItem[0].key)">
           <PaymentDetail
@@ -290,9 +349,7 @@
               :value="isArray(defaultValue.paymentDetail)"
               :payPlan="defaultValue.payPlan"
               @onChange="(paymentDetail)=> onChange('paymentDetail',paymentDetail)"
-          >
-
-          </PaymentDetail>
+          />
         </view>
         <view v-if="stepItem[0] && ['remark'].includes(stepItem[0].key)">
           <view style="text-align: left;font-size: 14px">
@@ -368,11 +425,8 @@ export default {
     'stepItem',
     'required',
     'defaultValue',
-    'taxData',
     'aData',
     'bData',
-    'AContactsData',
-    'BContactsData'
   ],
   data() {
     return {
@@ -430,10 +484,6 @@ export default {
       })
       this.visible = ''
     },
-    partyBContactsIdConfirm(e) {
-      this.$emit('partyBContactsIdConfirm', e.value[0])
-      this.visible = ''
-    },
     formatter(type, value) {
       if (type === 'year') {
         return `${value}年`
@@ -457,10 +507,6 @@ export default {
   grid-gap: 8px;
   gap: 8px;
   align-items: center;
-}
-
-.uni-forms-item {
-  margin-bottom: 0 !important;
 }
 
 .title span {
