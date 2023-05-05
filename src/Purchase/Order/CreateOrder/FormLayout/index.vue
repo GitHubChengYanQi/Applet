@@ -1,6 +1,5 @@
 <template>
   <view>
-    <Loading :skeleton="true" skeleton-type="page" v-if="loading"/>
     <view class="formSteps" v-if="steps.length !== 1">
       <view class="steps">
         <u-steps :current="currentStep" dot>
@@ -26,7 +25,6 @@
 
       />
     </view>
-
 
     <BottomButton
         rightText='下一步'
@@ -267,6 +265,8 @@
         @cancel="visible = ''"
         @confirm="(value) => onChange('userName','userId',value)"
     />
+
+    <Loading :loading="loading"/>
   </view>
 </template>
 
@@ -425,6 +425,7 @@ export default {
       })
     },
     SupplierDetail(customerId) {
+      this.loading = true
       const _this = this
       return request({
         url: "/supplier/detail",
@@ -459,6 +460,7 @@ export default {
           ..._this.defaultValue,
           ...info
         }
+        _this.loading = false
       })
     },
     async getContactsDetail(contactsId) {

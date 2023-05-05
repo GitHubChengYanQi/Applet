@@ -64,7 +64,8 @@
               style="padding: 8px;display: inline-block">
           <ShopNumber
               number
-              :value="defaultValue.totalAmount"
+              :decimal="2"
+              :value="defaultValue[stepItem[0].key]"
               @onChange="(value)=>onChange('totalAmount',value)"
               :min="0.01"
           />
@@ -150,7 +151,7 @@
         <view v-if="stepItem[0] && ['leadTime'].includes(stepItem[0].key)"
               style="padding: 8px;display: inline-block">
           <view class="flexCenter">
-            <ShopNumber number :value="defaultValue.leadTime" @onChange="(value)=>onChange('leadTime',value)"/>
+            <ShopNumber number :value="defaultValue[stepItem[0].key]" @onChange="(value)=>onChange('leadTime',value)"/>
             <view>天</view>
           </view>
         </view>
@@ -323,7 +324,7 @@
               :min="-9999"
               decimal="2"
               number
-              :value="defaultValue.floatingAmount"
+              :value="defaultValue[stepItem[0].key]"
               @onChange="(value)=>onChange('floatingAmount',value,'totalAmount',MathCalc(defaultValue.money,value,'jia'))"
           />
         </view>
