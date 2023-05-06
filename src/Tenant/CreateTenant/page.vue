@@ -1,23 +1,17 @@
 <template>
   <view class="createTenant">
-    <ImageCropper
-        v-if="uploadUrl"
-        :img-url="uploadUrl"
-        @done="cropperDone"
-        @close="uploadUrl = ''"
-    />
     <view class="logo">
       <view class="logoTitle">
         头像/企业logo
       </view>
       <view class="uploadLogo">
-        <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadLogo">
+        <button class="chooseAvatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
           <u-loading-icon v-if="uploadLoading" mode="circle" :vertical="true"></u-loading-icon>
           <template v-else>
             <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
             <Icon icon="icon-tuanduitouxiang" size="26" v-else />
           </template>
-        </Uploader>
+        </button>
         <u-icon name="arrow-right" size="12" color="#929293" />
       </view>
     </view>
@@ -33,6 +27,10 @@
     <view style="padding: 12px">
       <LoginByPhone @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</LoginByPhone>
     </view>
+
+    <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadLogo">
+      <view></view>
+    </Uploader>
 
 
     <Loading :loading="loading" :loading-text="edit ? '保存数据中...' : '创建数据中...'" />
@@ -63,7 +61,6 @@ export default {
     return {
       name: '',
       loading: false,
-      uploadUrl: '',
       logo: {},
       edit: false,
       uploadLoading: false,
@@ -86,10 +83,6 @@ export default {
     }
   },
   methods: {
-    cropperDone(url) {
-      this.$refs.upload.uploadFile(url, {done: true})
-      this.uploadUrl = ''
-    },
     create() {
       if (!this.name) {
         Message.toast('请输入团队名称！')
@@ -126,7 +119,7 @@ export default {
       }, {
         onSuccess: (res) => {
           this.loading = false
-          // getApp().globalData.token = res
+          getApp().globalData.token = res
           this.$store.dispatch('userInfo/getUserInfo', true)
           Message.successToast('保存成功!', () => {
             this.goBack()
@@ -151,11 +144,10 @@ export default {
       })
     },
     uploadLogo(file) {
-      if (file.done) {
-        this.logo = file
-      } else {
-        this.uploadUrl = file.url
-      }
+      this.logo = file
+    },
+    onChooseAvatar(res) {
+      this.$refs.upload.uploadFile(res.detail.avatarUrl)
     }
   }
 }
@@ -190,6 +182,17 @@ export default {
       display: flex;
       align-items: center;
       gap: 8px;
+
+      .chooseAvatar {
+        padding: 0;
+        background-color: transparent;
+        font-size: 16px;
+        line-height: normal;
+
+        &::after {
+          content: none;
+        }
+      }
     }
   }
 

@@ -184,7 +184,7 @@ export default {
       this.cateGoryData = [{
         name: '顶级',
         id: '0',
-        children: this.format(data)
+        children: this.format(data || [])
       }];
       this.refreshLoading = false
     },

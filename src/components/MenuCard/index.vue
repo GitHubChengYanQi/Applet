@@ -23,7 +23,7 @@
             <Icon
                 :icon="menus[rowIndex * column + colIndex].icon || 'icon-danxuanweixuanzhong'"
                 :size="iconSize"
-                @click="$emit('click',menus[rowIndex * column + colIndex])"
+                @click="click(menus[rowIndex * column + colIndex])"
             />
             <view
                 class="actionIcon"
@@ -41,7 +41,7 @@
           <view
               class="menuName"
               :style="{fontSize:`${fontSize}px`}"
-              @click="$emit('click',menus[rowIndex * column + colIndex])"
+              @click="click(menus[rowIndex * column + colIndex])"
           >
             {{ menus[rowIndex * column + colIndex].name }}
           </view>
@@ -54,6 +54,7 @@
 
 <script>
 import Icon from "../Icon";
+import {routes} from "../../route";
 
 export default {
   name: 'MenuCard',
@@ -96,6 +97,9 @@ export default {
     layout(menus) {
       this.rows = new Array(Math.ceil(menus.length / this.column)).fill('')
       this.cols = new Array(this.column).fill('')
+    },
+    click(menu) {
+      this.$emit('click', routes.find(route => route.key === menu.code) || menu)
     }
   }
 }

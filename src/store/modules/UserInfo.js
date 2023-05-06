@@ -1,6 +1,7 @@
 import {User} from "MES-Apis/lib/User/promise";
 import {Init} from "MES-Apis/lib/Init";
-import {isArray} from "../../util/Tools";
+import {base64src, isArray} from "../../util/Tools";
+import {logo} from "../../images/logo";
 
 const init = {
     auth: false,
@@ -24,15 +25,19 @@ const actions = {
         if (Object.keys(state.userInfo).length === 0 || payload) {
             const userRes = await User.getUserInfo()
             const userInfo = userRes.data || {}
-            state.userInfo = userInfo
+            const url = await base64src(logo)
+            state.userInfo = {...userInfo, avatar: userInfo.miniAppAvatar || userInfo.avatar}
             state.tenant = {
                 tenantId: userInfo.tenantId,
                 name: userInfo.tenantName,
                 logo: userInfo.tenantLogo,
-                admin: !!userInfo.isTenantAdmin
+                admin: !!userInfo.isTenantAdmin,
+                imgLogo: userInfo.tenantLogo?.url || url
             }
             state.menus = isArray(userInfo.miniAppMenus).filter(item => isArray(item.subMenus).length > 0)
-            dispatch('getHomeMenus', true)
+            if (!payload) {
+                dispatch('getHomeMenus', true)
+            }
         }
     },
     async getPublicInfo({state}) {

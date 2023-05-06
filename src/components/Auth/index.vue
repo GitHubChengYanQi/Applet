@@ -3,6 +3,8 @@
     <Loading v-if="loading" :skeleton="true" skeleton-type="page" />
     <Error v-else-if="error" />
     <slot v-else></slot>
+
+    <Guide v-if="openGuide" />
   </view>
 </template>
 
@@ -14,6 +16,7 @@ import {Login} from "MES-Apis/lib/Login/promise";
 import {getLocalParmas} from "../../util/Tools";
 import MyButton from "../MyButton";
 import LinkButton from "../LinkButton";
+import Guide from "../Guide";
 
 export default {
   name: 'Auth',
@@ -25,11 +28,22 @@ export default {
       }
     }
   },
-  components: {LinkButton, MyButton, Error, Loading},
+  components: {Guide, LinkButton, MyButton, Error, Loading},
   data() {
     return {
       loading: true,
       error: false,
+    }
+  },
+  computed: {
+    openGuide() {
+      const openGuide = this.$store.state.guide.openGuide
+      if (openGuide) {
+        uni.hideTabBar()
+      } else {
+        uni.showTabBar()
+      }
+      return openGuide
     }
   },
   mounted() {

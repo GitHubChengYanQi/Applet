@@ -22,7 +22,7 @@
           <Search style="padding: 0 12px" v-model="searchValue" placeholder="请输入成员姓名" no-search-button />
           <Empty v-if="groups.length === 0" description="暂无用户" />
           <template v-else v-for="(item, index) in groups">
-            <u-index-item>
+            <u-index-item :key="index">
               <view v-if="index !== 0" style="height: 32px;" />
               <u-index-anchor bgColor="#fff" :text="groups[index].title"></u-index-anchor>
               <view class="list-cell" v-for="(user, userIndex) in item.items" :key="userIndex">
@@ -133,8 +133,9 @@
           </Modal>
         </view>
         <view class="action">
-          <LinkButton @click="actionShow = true">更多管理</LinkButton>
+          <LinkButton :disabled="noDept" @click="actionShow = true">更多管理</LinkButton>
           <u-action-sheet
+              cancelText="取消"
               :actions="actionList"
               :show="actionShow"
               @close="actionShow = false"
@@ -148,8 +149,8 @@
               v-for="(user,index) in checkUsers"
               :key="index"
               size="35"
-              :src='user.avatar'
-              :text="!user.avatar ? user.name.substring(0,1) : null"
+              :src='user.miniAppAvatar'
+              :text="!user.miniAppAvatar ? user.name.substring(0,1) : null"
               @click="onCheckUser(user)"
           />
         </view>
@@ -161,13 +162,21 @@
 
     <AddUser :add-user-show="addUserShow" @close="addUserShow = false" />
 
+    <u-action-sheet
+        cancelText="取消"
+        :title="actionUser.name"
+        :actions="userActionList"
+        :show="userActionShow"
+        @close="userActionShow = false"
+        @select="userActionSelect"
+    />
+
     <Modal ref="modal" />
   </view>
 </template>
 
 <script>
 import Search from "../../components/Search";
-import {User} from "MES-Apis/lib/User/promise";
 import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
 import Empty from "../../components/Empty";
@@ -183,6 +192,7 @@ import {Dept} from "MES-Apis/lib/Dept/promise";
 import Modal from "../../components/Modal";
 import {Message} from "../../components/Message";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
+import {Init} from "MES-Apis/lib/Init";
 
 export default {
   options: {
@@ -209,17 +219,15 @@ export default {
       showFooter: false,
       total: 0,
       tenant: {},
+      actionUser: {},
       pageContainerShow: false,
+      userActionShow: false,
       deptName: '',
-      admin: false,
+      admin: false
     }
   },
   mounted() {
-    const tenant = this.$store.state.userInfo.tenant || {}
-    this.tenant = tenant
-    this.admin = (this.show && tenant.admin)
-    this.showFooter = this.admin || !this.show
-    this.checkUsers = [...this.checdUsers]
+    this.init()
     this.getList()
 
     const _this = this
@@ -263,6 +271,26 @@ export default {
         },
       ]
     },
+    userActionList() {
+      return [
+        {
+          name: '修改成员信息',
+          key: 'edit',
+          color: '#007aff',
+        },
+        {
+          name: '移出团队',
+          key: 'remove',
+          color: 'red'
+        },
+        {
+          name: '移交管理员',
+          key: 'admin',
+          disabled: this.actionUser.isAdmin === 1,
+          color: '#f0ad4e',
+        },
+      ]
+    },
     deptUsers() {
       if (this.deptPage.length > 0) {
         if (this.searchValue) {
@@ -277,6 +305,83 @@ export default {
     }
   },
   methods: {
+    init() {
+      const tenant = this.$store.state.userInfo.tenant || {}
+      this.tenant = tenant
+      this.admin = (this.show && tenant.admin)
+      this.showFooter = this.admin || !this.show
+      this.checkUsers = [...this.checdUsers]
+    },
+    userActionSelect({key}) {
+      const _this = this
+      switch (key) {
+        case 'edit':
+          uni.navigateTo({
+            url: '/User/UserEdit/index?userId=' + this.actionUser.userId
+          })
+          break;
+        case 'remove':
+          this.$refs.modal.dialog({
+            title: `确认要把【${_this.actionUser.name || '-'}】移出团队吗？`,
+            only: false,
+            confirmText: '移除团队',
+            confirmError: true,
+            onConfirm() {
+              return new Promise((resolve) => {
+                Tenant.removeTenantUser({
+                  data: {
+                    tenantBindId: _this.actionUser.tenantBindId
+                  }
+                }).then(() => {
+                  resolve(true)
+                  const newUsers = _this.users.filter(user => user.userId !== _this.actionUser.userId)
+                  _this.users = newUsers
+                  if (_this.noDept) {
+                    _this.renderList(newUsers)
+                  }
+                }).catch(() => {
+                  resolve(true)
+                  _this.$refs.modal.dialog({
+                    title: Init.getNewErrorMessage() || '移出失败！'
+                  })
+                })
+              })
+            }
+          })
+          break;
+        case 'admin':
+          this.$refs.modal.dialog({
+            title: `确认要移交管理员给${_this.actionUser.name || '-'}吗？`,
+            only: false,
+            onConfirm() {
+              return new Promise((resolve) => {
+                Tenant.updateTenantAdmin(_this.tenant.tenantId, _this.actionUser.userId).then(async () => {
+                  resolve(true)
+                  const newUsers = _this.users.map(user => {
+                    if (user.userId === _this.actionUser.userId) {
+                      return {...user, isAdmin: 1}
+                    } else {
+                      return {...user, isAdmin: 0}
+                    }
+                  })
+                  _this.users = newUsers
+                  if (_this.noDept) {
+                    _this.renderList(newUsers)
+                  }
+                  await _this.$store.dispatch('userInfo/getUserInfo', true)
+                  _this.init()
+                }).catch(() => {
+                  resolve(true)
+                  _this.$refs.modal.dialog({
+                    title: Init.getNewErrorMessage() || '移交失败！'
+                  })
+                })
+              })
+            }
+          })
+          break;
+      }
+    },
     actionSelect({key}) {
       const _this = this
       const thisDept = this.deptPage[this.deptPage.length - 1]
@@ -307,12 +412,6 @@ export default {
                     key: thisDept.key,
                     title: _this.deptName
                   }
-                  _this.depts = _this.depts.map(item => {
-                    if (item.key === newDept.key) {
-                      return {...item, title: newDept.title}
-                    }
-                    return item
-                  })
                   _this.deptPage = _this.deptPage.map(item => {
                     if (item.key === newDept.key) {
                       return {...item, name: newDept.title}
@@ -407,7 +506,7 @@ export default {
         this.noDept = false
         this.deptTree = res?.data || []
         this.depts = newDepts
-        this.deptPage = [{key: 0, name: this.tenant.name || '顶级', depts: newDepts}]
+        this.deptPage = [{key: 0, name: this.tenant.name || '顶级'}]
       }
     },
     onCheckUser(user) {
@@ -474,7 +573,7 @@ export default {
           const newUsers = users.filter(item => {
             const name = item.name || ''
             const pys = pinyin(name, {pattern: 'first', toneType: 'none', type: 'array'});
-            const first = pys[0];
+            const first = pys[0] || '';
             return first.toUpperCase() === CharCode
           });
           if (newUsers.length === 0) {
@@ -586,9 +685,8 @@ export default {
       return newDepts
     },
     editUser(user) {
-      uni.navigateTo({
-        url: '/User/UserEdit/index?userId=' + user.userId
-      })
+      this.actionUser = user
+      this.userActionShow = true
     }
   }
 }

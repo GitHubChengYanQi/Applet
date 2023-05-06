@@ -3,8 +3,8 @@
     <Loading :skeleton="true" skeleton-type="page" v-if="refreshLoading" />
     <view v-else>
       <Loading :loading="loading" />
-      <u-notice-bar text="需要批量添加物料可在管理平台进行导入"></u-notice-bar>
 
+      <u-notice-bar text="需要批量添加物料可在管理平台进行导入"></u-notice-bar>
 
       <view class="skuAdd">
         <uni-forms ref="form" :model="formData" :rules="rules" labelWidth="100px">
@@ -61,6 +61,7 @@
                 @showBefore="showContent = true"
             >
               <Cascader
+                  :changeOnSelect="false"
                   v-if="showContent"
                   :data="cateGoryData"
                   :value="formData.spuClass"
@@ -118,6 +119,16 @@
                 @change="generalFormData"
             />
           </uni-forms-item>
+
+<!--          <uni-forms-item-->
+<!--              label="初始库存"-->
+<!--              name="initialNumber"-->
+<!--              required-->
+<!--          >-->
+<!--           <view class="formItem">-->
+<!--             <ShopNumber :min="0" v-model="formData.initialNumber" />-->
+<!--           </view>-->
+<!--          </uni-forms-item>-->
 
           <uni-forms-item
               label="单位"
@@ -323,12 +334,15 @@ import {Message} from "../../components/Message";
 import Popup from "../../components/Popup";
 import Modal from "../../components/Modal";
 import Cascader from "../../components/Cascader";
+import ShopNumber from "../../components/ShopNumber";
+import {Init} from "MES-Apis/lib/Init";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    ShopNumber,
     Cascader,
     Modal,
     Popup,
@@ -365,7 +379,7 @@ export default {
       typeSetting: [],
       cateGoryData: [],
       general: [],
-      formData: {batch: 1},
+      formData: {batch: 1, initialNumber: 0},
       refreshLoading: false,
       show: false,
       showContent: false,
@@ -488,7 +502,7 @@ export default {
     async getCateGory(classId) {
       const response = await SkuApis.spuClassTreeView({data: {}});
       const {data} = response;
-      const {list, currentObj} = this.format(data, classId);
+      const {list, currentObj} = this.format(data || [], classId);
       this.cateGoryData = list
       if (classId) {
         this.show = false
@@ -540,7 +554,7 @@ export default {
           };
           this.loading = true
           const _this = this
-          SkuApis.add({data: newValue}).then((res) => {
+          SkuApis.addV2_0({data: newValue}).then((res) => {
             uni.$emit('skuAddSuccess')
             this.$refs.modal.dialog({
               only: false,
@@ -548,7 +562,12 @@ export default {
               cancelText: '继续添加',
               confirmText: '查看详情',
               onConfirm() {
-                uni.redirectTo({
+                _this.formData = {}
+                _this.refreshLoading = true
+                setTimeout(() => {
+                  _this.refreshLoading = false
+                }, 1000)
+                uni.navigateTo({
                   url: `/Sku/SkuDetail/index?skuId=${res.data}`
                 })
                 return true
@@ -564,7 +583,7 @@ export default {
             })
           }).catch(() => {
             this.$refs.modal.dialog({
-              title: '添加失败！'
+              title: Init.getNewErrorMessage() || '添加失败！'
             })
           }).finally(() => {
             this.loading = false
@@ -713,4 +732,11 @@ export default {
   margin: 16px auto auto;
   border-radius: 50px;
 }
+
+.formItem {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
 </style>

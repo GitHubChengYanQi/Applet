@@ -58,7 +58,7 @@
             >
               <view class='img'>
                 <image
-                    :src='item.thumbUrl || publicInfo.imgLogo'
+                    :src='item.thumbUrl || tenant.imgLogo'
                     alt=''
                 />
                 <view class='number'>
@@ -142,8 +142,8 @@ export default {
     scroll() {
       return !this.$store.state.dialog.show
     },
-    publicInfo() {
-      return this.$store.state.userInfo.publicInfo
+    tenant() {
+      return this.$store.state.userInfo.tenant
     }
   },
   methods: {

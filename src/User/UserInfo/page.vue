@@ -3,14 +3,16 @@
     <view class="info" @click="actionAvatar = true">
       <view class="label">头像</view>
       <view>
-        <Avatar size="40" :src="userInfo.avatar" />
+        <u-loading-icon v-if="uploadLoading" mode="circle" :vertical="true"></u-loading-icon>
+        <Avatar v-else size="40" :src="userInfo.avatar" />
       </view>
       <u-icon name="arrow-right" />
     </view>
     <view class="info">
       <view class="label">昵称</view>
       <u--input
-          maxlength="8"
+          type="nickname"
+          maxlength="20"
           inputAlign="right"
           border="none"
           v-model="userInfo.nickName"
@@ -20,7 +22,7 @@
     <view class="info">
       <view class="label">姓名</view>
       <u--input
-          maxlength="8"
+          maxlength="20"
           inputAlign="right"
           border="none"
           v-model="userInfo.name"
@@ -34,19 +36,9 @@
       </view>
     </view>
 
-    <button class="getWxUserInfo" @tap="getWxUserInfo">同步微信个人信息</button>
-
-
     <view class="button">
       <MyButton type="primary" @click="save">保存</MyButton>
     </view>
-
-    <ImageCropper
-        v-if="uploadUrl"
-        :img-url="uploadUrl"
-        @done="cropperDone"
-        @close="uploadUrl = ''"
-    />
 
     <Loading :loading="saveLoading" />
 
@@ -55,12 +47,9 @@
         预览
       </view>
       <view class="actionAvatar">
-        <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadAvatar">
-          <u-loading-icon v-if="uploadLoading" mode="circle" :vertical="true"></u-loading-icon>
-          <template v-else>
-            修改
-          </template>
-        </Uploader>
+        <button class="chooseAvatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+          修改
+        </button>
       </view>
       <view
           :class="{actionAvatar:true,actionAvatarDisable:!userInfo.avatar}"
@@ -70,6 +59,10 @@
         保存
       </view>
     </Popup>
+
+    <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadAvatar">
+      <view></view>
+    </Uploader>
   </view>
 </template>
 
@@ -92,9 +85,8 @@ export default {
   data() {
     return {
       actionAvatar: false,
-      userInfo: {},
-      uploadUrl: '',
       uploadLoading: false,
+      userInfo: {},
       saveLoading: false,
     }
   },
@@ -107,15 +99,19 @@ export default {
       User.updateUserInfo({
         data: {
           userId: this.userInfo.id,
-          avatar: this.userInfo.avatar,
+          avatar: this.userInfo.avatarId,
           name: this.userInfo.name,
           nickName: this.userInfo.nickName
         }
-      }).then(() => {
-        this.$store.dispatch('userInfo/getUserInfo')
-        Message.successToast('保存成功！')
-      }).catch(() => {
-        Message.errorToast('保存失败！')
+      }, {
+        onSuccess: (token) => {
+          getApp().globalData.token = token
+          this.$store.dispatch('userInfo/getUserInfo', true)
+          Message.successToast('保存成功！')
+        },
+        onError: () => {
+          Message.errorToast('保存失败！')
+        }
       }).finally(() => {
         this.saveLoading = false
       })
@@ -139,36 +135,12 @@ export default {
         urls: [this.userInfo.avatar]
       })
     },
-    cropperDone(url) {
-      this.$refs.upload.uploadFile(url, {done: true})
-      this.uploadUrl = ''
-    },
     uploadAvatar(file) {
-      if (file.done) {
-        this.userInfo.avatar = file.url
-      } else {
-        this.actionAvatar = false
-        this.uploadUrl = file.url
-      }
+      this.userInfo.avatar = file.url
+      this.userInfo.avatarId = file.id
     },
-    getWxUserInfo() {
-      const _this = this
-      uni.getUserProfile({
-        desc: '展示头像和昵称',
-        success(res) {
-          console.log(res)
-          const userInfo = res.userInfo || {}
-          _this.userInfo = {
-            ..._this.userInfo,
-            avatar: userInfo.avatarUrl,
-            nickName: userInfo.nickName
-          }
-        },
-        fail(res) {
-          Message.errorToast('获取信息失败!')
-          console.log(res)
-        }
-      })
+    onChooseAvatar(res) {
+      this.$refs.upload.uploadFile(res.detail.avatarUrl)
     }
   }
 }
@@ -225,12 +197,11 @@ export default {
   color: #cccccc;
 }
 
-.getWxUserInfo {
+.chooseAvatar {
   padding: 0;
   background-color: transparent;
-  font-size: 14px;
-  width: fit-content;
-  color: $primary-color;
+  font-size: 16px;
+  line-height: normal;
 
   &::after {
     content: none;

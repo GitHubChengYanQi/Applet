@@ -2,7 +2,7 @@
   <view class="initTenant">
 
     <view class="userInfo">
-      <image src="../../static/images/tenant/logo.png" />
+      <image :src="logo" />
       道昕云
     </view>
 
@@ -40,6 +40,7 @@
 import {getLocalParmas} from "../../util/Tools";
 import LoginByPhone from "../../components/LoginByPhone";
 import Avatar from "../../components/Avatar";
+import {logo} from "../../images/logo";
 
 export default {
   options: {
@@ -48,7 +49,7 @@ export default {
   components: {Avatar, LoginByPhone},
   data() {
     return {
-
+      logo
     }
   },
   mounted() {

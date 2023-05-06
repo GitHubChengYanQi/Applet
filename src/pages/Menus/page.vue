@@ -188,7 +188,6 @@ export default {
             name: item.name,
             code: item.code,
             icon: item.icon,
-            url: item.url,
             sort: index
           })),
           type: 2

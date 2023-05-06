@@ -92,7 +92,7 @@
           <view class="otherActions">
             <view class="createUser">
               创建人:
-              <Avatar size="24" :src="item.createUserResult.avatar" />
+              <Avatar size="24" :src="item.createUserResult.miniAppAvatar" />
               {{ item.createUserResult.name }}
             </view>
             <view>

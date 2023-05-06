@@ -25,15 +25,6 @@ export default {
       tenantId: ''
     }
   },
-  onShareAppMessage(res) {
-    if (res.from === 'button') {
-      return {
-        title: '浑河工业',
-        path: '/pages/Home/index',
-        imageUrl: '../../static/images/tenant/logo.png'
-      }
-    }
-  },
   computed: {
     auth() {
       return this.$store.state.userInfo.auth

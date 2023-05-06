@@ -34,15 +34,15 @@
           </view>
           <view class="action">
             <view class="actionItem" @click="edit(item)">
-              <u-icon name="edit-pen" color="#007aff" size="18" />
+              修改
             </view>
             <view style="color: #e1ebf6">|</view>
             <view class="actionItem" @click="positions(item)">
-              <Icon icon="icon-pandiankuwei1" size="18" />
+              库位
             </view>
             <view style="color: #e1ebf6">|</view>
-            <view class="actionItem" @click="del(item)">
-              <u-icon name="trash" color="#dd524d" size="18" />
+            <view class="actionItem remove" @click="del(item)">
+              删除
             </view>
           </view>
         </view>
@@ -202,6 +202,12 @@ export default {
       flex-grow: 1;
       display: flex;
       justify-content: center;
+      color: #007aff;
+      font-size: 14px;
+    }
+
+    .remove {
+      color: $uni-color-error;
     }
   }
 }

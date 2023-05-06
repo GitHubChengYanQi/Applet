@@ -2,7 +2,7 @@
   <view>
     <view v-if="user && user.name">
       <view class='userName'>
-        <Avatar :size="size || 35" :src='user.avatar' />
+        <Avatar :size="size || 35" :src='user.miniAppAvatar' />
         <view>
           <view>{{ user.name }}</view>
           <view class="info" v-if="false">

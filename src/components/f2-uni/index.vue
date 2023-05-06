@@ -41,6 +41,10 @@ export default {
     height: {
       type: Number,
       default: () => 0
+    },
+    padding: {
+      type: Array,
+      default: () => [0, 0, 0, 0]
     }
   },
   methods: {
@@ -58,7 +62,7 @@ export default {
         const height = this.height
         node.width = width * pixelRatio
         node.height = height * pixelRatio
-        const config = {context, width, height, pixelRatio}
+        const config = {context, width, height, pixelRatio, padding: this.padding}
         const chart = this.onInit(F2, config)
         if (chart) {
           this.canvasEl = chart.get('el')

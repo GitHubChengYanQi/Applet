@@ -3,6 +3,10 @@
     <Empty type="error" description="获取成员信息失败！" v-if="error" />
     <Loading skeleton-type="page" skeleton v-else-if="loading" />
     <template v-else>
+      <view class="avatar">
+        <Avatar :src="userInfo.miniAppAvatar" size="84" circular @click="preview" />
+      </view>
+
       <view class="box">
         <view class="item">
           <view class="label">姓名</view>
@@ -48,22 +52,14 @@
         </view>
         <view class="endItem">
           <view class="label">手机号</view>
-          <view class="value">
-            <u--input
-                v-if="!showPhone"
-                placeholder="请输入手机号"
-                border="none"
-                v-model="userInfo.phone"
-            />
-            <view v-else>
-              {{ userInfo.phone }}
-            </view>
+          <view class="value" style="color: #a9a9a9">
+            {{ userInfo.phone || '-' }}
           </view>
         </view>
       </view>
 
       <view class="box">
-        <view class="item">
+        <view class="endItem">
           <view class="label">职位</view>
           <view class="value">
             <LinkButton @click="openPosition">
@@ -71,10 +67,41 @@
             </LinkButton>
           </view>
         </view>
-        <view class="endItem">
+      </view>
+
+      <view class="box">
+        <view class="endItem" style="align-items: flex-start">
+
           <view class="label">部门</view>
           <view class="value">
-            <LinkButton @click="openDept">{{ userInfo.deptId ? userInfo.deptName : '设置部门' }}</LinkButton>
+            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>
+<!--            <view-->
+<!--                v-for="(dept,index) in isArray(userInfo.depts)"-->
+<!--                :key="index"-->
+<!--                :class="{deptItem:true,firstDeptItem:index === 0}"-->
+<!--            >-->
+<!--              <view class="deptInfo">-->
+<!--                <Icon class="icon" icon="icon-bumen1" size="30" />-->
+<!--                <view>-->
+<!--                  {{ dept.title }}-->
+<!--                </view>-->
+<!--              </view>-->
+<!--              <view class="deptAction">-->
+<!--                <u-icon-->
+<!--                    v-if="!dept.admin"-->
+<!--                    name="more-dot-fill"-->
+<!--                    color="#2979ff"-->
+<!--                    size="12"-->
+<!--                    @click="deptAction(dept)"-->
+<!--                />-->
+<!--                <template v-else>-->
+<!--                  主部门-->
+<!--                </template>-->
+<!--              </view>-->
+<!--            </view>-->
+<!--            <view :class="{openDept:isArray(userInfo.depts).length > 0}">-->
+<!--              <LinkButton @click="openDept">设置部门</LinkButton>-->
+<!--            </view>-->
           </view>
         </view>
       </view>
@@ -99,6 +126,7 @@
         <Loading skeleton v-if="deptTreeLoading" />
         <view v-else class="deptTree">
           <Tree radio :data="deptTree" v-model="dept" />
+<!--          <Tree multiple :data="deptTree" v-model="depts" />-->
         </view>
       </Popup>
 
@@ -115,6 +143,15 @@
           @cancel="positionCancel"
           @confirm="positionConfirm"
           closeOnClickOverlay
+      />
+
+      <u-action-sheet
+          description="设为主部门后，该部门将显示在成员部门的首位"
+          cancelText="取消"
+          :actions="deptActionList"
+          :show="deptActionShow"
+          @select="deptActionSelect"
+          @close="deptActionShow=false"
       />
     </template>
   </view>
@@ -133,21 +170,27 @@ import Modal from "../../components/Modal";
 import {Init} from "MES-Apis/lib/Init";
 import {Position} from "MES-Apis/lib/Position/promise";
 import {isArray} from "../../util/Tools";
+import Icon from "../../components/Icon";
+import Avatar from "../../components/Avatar";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Modal, BottomButton, Empty, LinkButton, Tree, Loading, Popup},
+  components: {Avatar, Icon, Modal, BottomButton, Empty, LinkButton, Tree, Loading, Popup},
   props: ['userId'],
   data() {
     return {
+      isArray,
       deptShow: false,
       showPhone: false,
       deptTreeLoading: false,
+      deptActionShow: false,
       userInfo: {},
+      actionDept: {},
       deptTree: [],
       positionColumns: [],
+      depts: [],
       dept: {},
       loading: true,
       error: false,
@@ -155,6 +198,10 @@ export default {
       positionPickerShow: false,
       positionLoading: false,
       positionShow: false,
+      deptActionList: [{
+        name: '设为主部门',
+        key: 'admin',
+      }],
       sex: [
         {
           name: '男',
@@ -178,6 +225,20 @@ export default {
     })
   },
   methods: {
+    preview() {
+      if (!this.userInfo.miniAppAvatar) {
+        return
+      }
+      this.actionAvatar = false
+      uni.previewImage({
+        current: this.userInfo.miniAppAvatar,
+        urls: [this.userInfo.miniAppAvatar]
+      })
+    },
+    deptAction(dept) {
+      this.deptActionShow = true
+      this.actionDept = dept
+    },
     async positionList(id) {
       this.positionLoading = true
       await Position.allList().then((res) => {
@@ -248,19 +309,56 @@ export default {
         key: this.userInfo.deptId + '',
         title: this.userInfo.deptName
       }
+      // this.depts = this.userInfo.depts
+    },
+    deptActionSelect({key}) {
+      switch (key) {
+        case 'admin':
+          this.userInfo = {
+            ...this.userInfo,
+            depts: this.userInfo.depts.map((item, index) => {
+              if (index === 0) {
+                return {...this.actionDept, admin: true}
+              } else if (this.actionDept.key === item.key) {
+                return {...this.userInfo.depts[0], admin: false}
+              } else {
+                return {...item, admin: false}
+              }
+            })
+          }
+          break;
+      }
     },
     saveDept() {
       this.deptShow = false
+      // const userInfo = this.userInfo || {}
+      // const deptAdmin = isArray(userInfo.depts).find(dept => dept.admin)
+      // const admin = deptAdmin ? this.depts.find(dept => dept.key === deptAdmin.key) : false
       this.userInfo = {
         ...this.userInfo,
         deptId: this.dept.key,
-        deptName: this.dept.title
+        deptName: this.dept.title,
+        // depts: this.depts.map((item, index) => {
+        //   if (admin) {
+        //     if (index === 0) {
+        //       return {...admin, admin: true}
+        //     } else if (admin.key === item.key) {
+        //       return {...this.depts[0], admin: false}
+        //     } else {
+        //       return {...item, admin: false}
+        //     }
+        //   } else if (index === 0) {
+        //     return {...item, admin: true}
+        //   } else {
+        //     return {...item, admin: false}
+        //   }
+        // })
       }
     },
     getDeptTree() {
       this.deptTreeLoading = true
       Dept.deptTree().then((res) => {
-        this.deptTree = res.data || []
+        this.deptTree = isArray(res.data)[0]?.children
       }).catch(() => {
       }).finally(() => {
         this.deptTreeLoading = false
@@ -304,6 +402,13 @@ export default {
 </script>
 
 <style lang="scss">
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .box {
   background-color: #fff;
   padding: 0 12px;
@@ -328,6 +433,38 @@ export default {
         height: fit-content;
         font-size: 16px !important;
         line-height: normal;
+      }
+
+      .deptItem {
+        padding: 8px 0;
+        border-bottom: solid 1px #F5F5F5;
+        display: flex;
+        align-items: center;
+
+        .deptInfo {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .icon {
+            width: 30px;
+            height: 30px;
+          }
+        }
+
+        .deptAction {
+          color: rgba(0, 0, 0, 0.3);
+          font-size: 12px;
+        }
+      }
+
+      .firstDeptItem {
+        padding-top: 0;
+      }
+
+      .openDept {
+        padding-top: 8px;
       }
     }
   }

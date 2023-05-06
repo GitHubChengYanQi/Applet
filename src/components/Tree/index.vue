@@ -10,13 +10,14 @@
         </view>
         <view v-else class="space" />
         <view class="title" @click="onCheck(item)">
-          <Check :value="radio ? value.key === item.key : value.find(id=>id === item.key)" />
+          <Check :value="radio ? value.key === item.key : value.find(valueItem=>valueItem.key === item.key)" />
           {{ item.title }}
         </view>
       </view>
       <view class="children" v-show="open(item)">
         <Tree
             :radio="radio"
+            :multiple="multiple"
             :data="isArray(item.children)"
             :tree="isChildren ? tree : data"
             @input="input"
@@ -37,7 +38,7 @@ import Tree from './index'
 export default {
   name: 'Tree',
   components: {Check, Tree},
-  props: ['data', 'value', 'tree', 'isChildren', 'radio'],
+  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple'],
   data() {
     return {
       isArray,
@@ -60,20 +61,20 @@ export default {
     },
     done(checkValue, value) {
       if (!this.isChildren) {
-        this.input([...checkValue, value.key])
+        this.input([...checkValue, value])
         return
       }
       const done = this.data.filter(item => {
         if (item.key === value.key) {
           return true
         } else {
-          return checkValue.find(id => id === item.key)
+          return checkValue.find(valueItem => valueItem.key === item.key)
         }
       }).length === this.data.length
       if (done) {
-        this.$emit('done', [...checkValue, value.key])
+        this.$emit('done', [...checkValue, value])
       } else {
-        this.input([...checkValue, value.key])
+        this.input([...checkValue, value])
       }
     },
     onCheck(value) {
@@ -83,17 +84,24 @@ export default {
         } else {
           this.input(value)
         }
-      } else {
-        if (this.value.find(item => item === value.key)) {
-          const childrenIds = []
-          this.getChildrens(value.children, childrenIds)
-          const parentIds = []
-          this.getParentIds(isArray(this.tree), value.key, [], parentIds)
-          this.input(this.value.filter(item => ![...childrenIds, ...parentIds, value.key].includes(item)))
+      } else if (this.multiple) {
+        if (this.value.find(item => item.key === value.key)) {
+          this.input(this.value.filter(item => value.key !== item.key))
         } else {
-          const childrenIds = []
-          this.getChildrens(value.children, childrenIds)
-          const checkValue = [...this.value, ...childrenIds.filter(id => !this.value.find(value => value === id))]
+          this.input([...this.value, value])
+        }
+      } else {
+        if (this.value.find(item => item.key === value.key)) {
+          const childrens = []
+          this.getChildrens(value.children, childrens)
+          const parents = []
+          this.getParents(isArray(this.tree), value.key, [], parents)
+          const ids = [...childrens, ...parents, value].map(item => item.key)
+          this.input(this.value.filter(item => !ids.includes(item.key)))
+        } else {
+          const childrens = []
+          this.getChildrens(value.children, childrens)
+          const checkValue = [...this.value, ...childrens.filter(item => !this.value.find(value => value.key === item.key))]
           this.done(checkValue, value)
         }
       }
@@ -103,22 +111,22 @@ export default {
     input(value) {
       this.$emit('input', value)
     },
-    getParentIds(data, key, ids, parentIds) {
-      if (parentIds.length > 0) {
+    getParents(data, key, items, parents) {
+      if (parents.length > 0) {
         return
       }
       isArray(data).forEach(item => {
         if (item.key === key) {
-          ids.forEach(item => parentIds.push(item))
+          items.forEach(item => parents.push(item))
           return
         }
-        this.getParentIds(item.children, key, [...ids, item.key], parentIds)
+        this.getParents(item.children, key, [...items, item], parents)
       })
     },
-    getChildrens(data, ids) {
+    getChildrens(data, childrens) {
       isArray(data).forEach(item => {
-        ids.push(item.key)
-        this.getChildrens(item.children, ids)
+        childrens.push(item)
+        this.getChildrens(item.children, childrens)
       })
     }
   }

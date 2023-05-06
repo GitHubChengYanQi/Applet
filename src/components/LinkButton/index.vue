@@ -17,13 +17,14 @@ export default {
 
 .linkButton {
 
-  button {
+  > button {
     padding: 0 !important;
     border: none !important;
     height: fit-content !important;
     background: transparent !important;
     width: fit-content !important;
     margin: unset;
+    font-size: 16px !important;
 
     &::after, &::before {
       content: none;

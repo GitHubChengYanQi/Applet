@@ -22,7 +22,7 @@
       </view>
     </view>
 
-    <view class="actionItem">
+    <view class="actionItem" @click="help">
       <Icon
           icon="icon-booklet-fill1"
           :size="24"
@@ -33,7 +33,7 @@
       </view>
     </view>
 
-    <view class="actionItem">
+    <view class="actionItem" @click="guide">
       <Icon
           icon="icon-compass-3-fill"
           :size="24"
@@ -55,7 +55,7 @@
       </view>
     </view>
 
-    <view class="actionItem">
+    <view class="actionItem" @click="openWebsite">
       <Icon
           icon="icon-computer-fill"
           :size="24"
@@ -71,11 +71,26 @@
           icon="icon-share-fill"
           :size="24"
       />
-      <view class="actionInfo">
+      <view class="actionInfo" style="border: none">
         <view class="actionName">分享好友</view>
         <view class="actionDes">感谢分享~</view>
       </view>
     </button>
+
+    <u-action-sheet
+        title="电脑端网址"
+        :show="website"
+        round="15"
+        @close="closeWebsite"
+    >
+      <view class="website">
+        打开电脑浏览器，输入网址 <span class="webUrl">{{ webUrl }}</span>
+      </view>
+
+      <view class="copy" @click="copy">
+        复制网址
+      </view>
+    </u-action-sheet>
   </view>
 </template>
 
@@ -83,8 +98,49 @@
 import Icon from "../../../components/Icon";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: 'OtherActions',
-  components: {Icon}
+  components: {Icon},
+  data() {
+    return {
+      website: false,
+      webUrl:'http://www.taosuncloud.com/'
+    }
+  },
+  methods: {
+    guide() {
+      this.$store.commit('guide/openGuide')
+    },
+    help() {
+      uni.navigateTo({
+        url: '/pages/Help/index'
+      })
+    },
+    openWebsite() {
+      const _this = this
+      uni.hideTabBar({
+        complete() {
+          _this.website = true
+        }
+      })
+    },
+    closeWebsite() {
+      this.website = false
+      setTimeout(() => {
+        uni.showTabBar()
+      }, 300)
+    },
+    copy() {
+      uni.setClipboardData({
+        data: this.webUrl,
+        success: function () {
+          console.log('success');
+        }
+      });
+    }
+  }
 }
 </script>
 
@@ -131,5 +187,28 @@ export default {
       //padding-top: 12px;
     }
   }
+
+  .website {
+    padding-top: 12px;
+    border-top: solid 1px #EEEEEE;
+    font-size: 14px;
+
+    .webUrl {
+      padding-left: 8px;
+      color: $primary-color;
+    }
+  }
+
+  .copy {
+    padding: 5px 94px;
+    border-radius: 30px;
+    background: #F0F0F0;
+    margin: 26px auto;
+    width: fit-content;
+  }
+}
+
+.u-action-sheet__header__title {
+  text-align: left !important;
 }
 </style>

@@ -1,7 +1,9 @@
 <template>
-  <view class="icon" @click="$emit('click')">
-    <view :class="['t-icon','t-'+icon]" :style="{width:`${size}px`,height:`${size}px`}" />
-  </view>
+  <view
+      :class="['icon','t-icon','t-'+icon]"
+      :style="{width:`${size}px`,height:`${size}px`}"
+      @click="$emit('click')"
+  />
 </template>
 
 <script>

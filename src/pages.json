@@ -15,6 +15,13 @@
       }
     },
     {
+      "path": "pages/Menus/index",
+      "style": {
+        "disableScroll": true,
+        "navigationBarTitleText": "更多应用"
+      }
+    },
+    {
       "path": "pages/Stock/index",
       "style": {
         "navigationBarTitleText": "库房",
@@ -34,12 +41,6 @@
       }
     },
     {
-      "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
-    {
       "path": "pages/Error/index",
       "style": {
         "navigationBarTitleText": "初始化失败"
@@ -50,21 +51,15 @@
       "style": {
         "navigationBarTitleText": "搜索"
       }
+    },
+    {
+      "path": "pages/Help/index",
+      "style": {
+        "navigationBarTitleText": "帮助中心"
+      }
     }
   ],
   "subPackages": [
-    {
-      "root": "Home",
-      "pages": [
-        {
-          "path": "Menus/index",
-          "style": {
-            "disableScroll": true,
-            "navigationBarTitleText": "更多应用"
-          }
-        }
-      ]
-    },
     {
       "root": "Tenant",
       "pages": [
@@ -108,12 +103,6 @@
           "path": "TenantSet/JoinTenantList/index",
           "style": {
             "navigationBarTitleText": "待审批用户"
-          }
-        },
-        {
-          "path": "TenantSet/UserList/index",
-          "style": {
-            "navigationBarTitleText": "用户列表"
           }
         }
       ]
@@ -305,6 +294,12 @@
       "root": "Sku",
       "pages": [
         {
+          "path": "Manage/index",
+          "style": {
+            "navigationBarTitleText": "物料管理"
+          }
+        },
+        {
           "path": "SkuAdd/index",
           "style": {
             "navigationBarTitleText": "物料添加"
@@ -329,9 +324,21 @@
           }
         },
         {
+          "path": "SkuClass/SkuClassList/index",
+          "style": {
+            "navigationBarTitleText": "分类管理"
+          }
+        },
+        {
           "path": "SkuClass/SkuClassAdd/index",
           "style": {
             "navigationBarTitleText": "物料分类"
+          }
+        },
+        {
+          "path": "Unit/UnitList/index",
+          "style": {
+            "navigationBarTitleText": "单位管理"
           }
         },
         {

@@ -85,7 +85,7 @@ export const timeDifference = (tmpTime) => {
 };
 
 export const safeAreaHeight = (_this, num) => {
-    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
+    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo?.safeAreaInsets?.bottom || 0
     return safeAreaHeight < (num || 0) ? (num || 0) : safeAreaHeight
 }
 
@@ -215,3 +215,31 @@ export const saveImg = (url) => {
         });
     })
 }
+
+const fsm = uni.getFileSystemManager();
+const FILE_BASE_NAME = 'tmp_base64src'; //自定义文件名
+
+export const base64src = async (base64data) => {
+    return new Promise((resolve, reject) => {
+        const [, format, bodyData] = /data:image\/(\w+);base64,(.*)/.exec(base64data) || [];
+        if (!format) {
+            return (new Error('ERROR_BASE64SRC_PARSE'));
+        }
+        const filePath = `${wx.env.USER_DATA_PATH}/${FILE_BASE_NAME + Date.now()}.${format}`;
+        const buffer = uni.base64ToArrayBuffer(bodyData);
+        fsm.writeFile({
+            filePath,
+            data: buffer,
+            encoding: 'binary',
+            success() {
+                resolve(filePath);
+            },
+            fail() {
+                reject()
+            },
+        });
+    })
+};
+
+
+

@@ -20,7 +20,7 @@
               <view v-if="createUser.name">
                 <AuditUsers
                     :old="old"
-                    :users="old ? [{name: createUser.name,avatar: createUser.avatar,auditStatus: 99,}] : logResults"
+                    :users="old ? [{name: createUser.name,miniAppAvatar: createUser.miniAppAvatar,auditStatus: 99,}] : logResults"
                     :step="step"
                 />
               </view>
@@ -279,7 +279,7 @@ export default {
             appointUsers.map((itemuser) => {
               return users.push({
                 name: itemuser.title,
-                avatar: itemuser.avatar,
+                miniAppAvatar: itemuser.miniAppAvatar,
                 auditStatus: status || itemuser.auditStatus,
               });
             });
@@ -289,7 +289,7 @@ export default {
                 appointUsers.map((itemuser) => {
                   return users.push({
                     name: itemuser.title,
-                    avatar: itemuser.avatar,
+                    miniAppAvatar: itemuser.miniAppAvatar,
                     auditStatus: status || itemuser.auditStatus,
                   });
                 });

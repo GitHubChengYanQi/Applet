@@ -5,7 +5,7 @@
         :title="title"
         :showCancelButton="true"
     >
-      <slot>
+      <slot v-if="show">
         <view class="content">
           {{ content }}
         </view>

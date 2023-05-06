@@ -9,9 +9,8 @@
         class="navBar"
         leftWidth="100%"
     >
-      <view slot="left" class="navLeft">
-        <Avatar size="26" circular v-if="tenant.logo.url" :src="tenant.logo.url" />
-        <image v-else src="../../static/images/home/navLogo.png" />
+      <view slot="left" class="navLeft" @click="goToTenant">
+        <Avatar size="26" circular :src="tenant.imgLogo" />
         {{ tenant.name || '道昕云' }}
       </view>
     </uni-nav-bar>
@@ -46,7 +45,7 @@
       />
 
       <view class="footer">
-        <img class="logo" src="../../static/images/home/logo.png" height="37" width="120" />
+        <img class="logo" :src="home_logo" height="37" width="120" />
         <view class="slogan">
           高效、安全的数字化企业管理工具
         </view>
@@ -71,6 +70,7 @@ import ShopNumber from "../../components/ShopNumber";
 import Popup from "../../components/Popup";
 import MyButton from "../../components/MyButton";
 import Avatar from "../../components/Avatar";
+import {home_logo} from "../../images/home/logo";
 
 export default {
   options: {
@@ -80,6 +80,7 @@ export default {
   components: {Avatar, MyButton, Popup, ShopNumber, Check, HomeData, OtherActions, MenuCard, Icon},
   data() {
     return {
+      home_logo,
       totalHeight: 0,
       show: false,
       menus: [],
@@ -94,7 +95,6 @@ export default {
     }
   },
   mounted() {
-    this.getHomeData()
     this.totalHeight = this.$store.state.systemInfo.navHeight
     this.tenant = this.$store.state.userInfo.tenant || {}
     const menus = this.$store.state.userInfo.homeMenus || []
@@ -102,7 +102,7 @@ export default {
       name: '更多',
       key: 'allMenus',
       icon: 'icon-gengduo',
-      url: '/Home/Menus/index'
+      url: '/pages/Menus/index'
     }]
   },
   watch: {
@@ -113,7 +113,7 @@ export default {
           name: '更多',
           key: 'allMenus',
           icon: 'icon-gengduo',
-          url: '/Home/Menus/index'
+          url: '/pages/Menus/index'
         }]
       }
     },
@@ -125,8 +125,10 @@ export default {
     }
   },
   methods: {
-    getHomeData() {
-      return
+    goToTenant() {
+     uni.navigateTo({
+       url:'/Tenant/TenantSet/index'
+     })
     },
     click(menu) {
       uni.navigateTo({
@@ -174,8 +176,6 @@ export default {
 }
 
 .home {
-  //background-image: url("/static/images/home/home-bg.png");
-  //background-size: 100% 100%;
   height: 100vh;
 
   .content {

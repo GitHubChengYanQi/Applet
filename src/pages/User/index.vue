@@ -12,13 +12,11 @@ export default {
   data() {
     return {}
   },
-  onShareAppMessage(res) {
-    if (res.from === 'button') {
-      return {
-        title: '浑河工业',
-        path: '/pages/Home/index',
-        imageUrl: '../../static/images/tenant/logo.png'
-      }
+  async onShareAppMessage(res) {
+    const tenant = this.$store.state.userInfo.tenant || {}
+    return {
+      title: tenant.name || '道昕云',
+      imageUrl: tenant.imgLogo
     }
   },
   computed: {

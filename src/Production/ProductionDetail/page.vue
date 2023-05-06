@@ -107,8 +107,8 @@
           >
             <view class="cardInfo">
               <view class="cardCoding">
-                <image v-if="item.status === 99" src="../../static/images/page-ing.png" />
-                <image v-else src="../../static/images/page-ok.png" />
+                <image v-if="item.status === 99" :src="production_page_ing" />
+                <image v-else :src="production_page_ok" />
                 <view class="status">
                   {{ item.status === 0 ? '进行中' : '已完成' }}
                 </view>
@@ -174,12 +174,16 @@ import LinkButton from "../../components/LinkButton";
 import {safeAreaHeight} from '../../util/Tools';
 import CreateOutStockTask from "../ProductionList/components/CreateOutStockTask";
 import Modal from "../../components/Modal";
+import {production_page_ing} from "../../images/production/page-ing";
+import {production_page_ok} from "../../images/production/page-ok";
 
 export default {
   props: ['productionPlanId'],
   components: {Modal, CreateOutStockTask, LinkButton, List, Progress, SkuItem, Loading, Empty, Card},
   data() {
     return {
+      production_page_ok,
+      production_page_ing,
       rateTool,
       loading: true,
       error: false,

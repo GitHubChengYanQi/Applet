@@ -4,9 +4,9 @@
       <view class="header">
         <view class="user">
           <view class="userInfo" @click="clickAvatar">
-            <Avatar size="30" :src="userInfo.avatar" circular />
+            <Avatar size="30" :src="userInfo.miniAppAvatar" circular />
             <view class="name">
-              {{ userInfo.name }}
+              {{ userInfo.nickName || userInfo.name }}
               <u-icon name="arrow-right" size="9" v-if="false" />
             </view>
             <view class="dept" v-if="false">
@@ -32,7 +32,7 @@
           <view class="tanantSet" @click="tanantSet">
             团队设置
           </view>
-          <img class="image" src="../../static/images/user/tenant.png" />
+          <img class="image" :src="user_tenant" />
         </view>
         <view>
 
@@ -64,12 +64,12 @@
 <script>
 
 import Icon from "../../components/Icon";
-import {routes} from "../../route";
 import Avatar from "../../components/Avatar";
 import MenuCard from "../../components/MenuCard";
 import {getLocalParmas, isArray} from "../../util/Tools";
 import OtherActions from "../components/OtherActions";
 import MyButton from "../../components/MyButton";
+import {user_tenant} from "../../images/user/tenant";
 
 export default {
   options: {
@@ -79,6 +79,7 @@ export default {
   components: {MyButton, OtherActions, MenuCard, Avatar, Icon},
   data() {
     return {
+      user_tenant,
       isArray,
       menus: [],
       userInfo: {},

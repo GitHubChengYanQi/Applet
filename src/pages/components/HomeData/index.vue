@@ -4,6 +4,7 @@
       总资产：<span class="num">￥10232.00</span>
     </view>
     <f2-uni
+        :padding="[20,0,20,(windowWidth / 2) - 48]"
         :width="windowWidth - 48"
         :height="170"
         :onInit="onInitChart"
@@ -61,6 +62,8 @@ export default {
       });
       chart.legend({
         position: 'left',
+        offsetY: 20,
+        verticalAlign: 'middle',
         itemFormatter: (val) => {
           return val + '  ￥' + map[val];
         }
@@ -108,7 +111,7 @@ export default {
 
   .total {
     position: absolute;
-    top: 12px;
+    top: 28px;
     left: 24px;
     font-size: 14px;
 

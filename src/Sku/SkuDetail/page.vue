@@ -10,7 +10,7 @@
               <swiper-item v-for="(value,name) in skuDetail.imgResults" :key="name">
                 <image
                     :src="value.url"
-                    @click="img(value.url)"
+                    @click="value.mediaId && img(value.url)"
                     mode="aspectFill"
                 />
               </swiper-item>
@@ -94,44 +94,165 @@
         </view>
         <view class="skuData">
           <view class="adm-space" style="width: 100%">
-            <view
-                class="adm-space-item"
-                v-for="(item,index) in typeSettings"
-                :key="item.key"
-                v-if="index <= 3 || hidden"
-            >
+            <view class="adm-space-item">
               <view class="flexCenter">
-                <view class="lable lables">{{ item.filedName }}</view>
-                <view class="value">{{ format(item.key) || '-' }}</view>
+                <view class="lable lables">分类</view>
+                <view class="value">{{ format('spuClass') || '-' }}</view>
               </view>
             </view>
-          </view>
 
+            <view class="adm-space-item">
+              <view class="flexCenter">
+                <view class="lable lables">单位</view>
+                <view class="value">{{ format("unitId") || '-' }}</view>
+              </view>
+            </view>
+
+
+            <template v-if="!hidden">
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">产品码</view>
+                  <view class="value">{{ format("spuCoding") || '-' }}</view>
+                </view>
+              </view>
+
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">二维码</view>
+                  <view class="value">{{ format("batch") || '-' }}</view>
+                </view>
+              </view>
+
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">养护周期</view>
+                  <view class="value">{{ format("maintenancePeriod") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">规格参数</view>
+                  <view class="value">{{ format("sku") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">品牌</view>
+                  <view class="value">{{ format("brandIds") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">图纸</view>
+                  <view class="value">{{ format("drawing") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">附件</view>
+                  <view class="value">{{ format("fileId") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">材质</view>
+                  <view class="value">{{ format("materialId") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">重量</view>
+                  <view class="value">{{ format("weight") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">尺寸</view>
+                  <view class="value">{{ format("skuSize") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">表色</view>
+                  <view class="value">{{ format("color") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">级别</view>
+                  <view class="value">{{ format("level") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">热处理</view>
+                  <view class="value">{{ format("heatTreatment") || '-' }}</view>
+                </view>
+              </view>
+
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">包装方式</view>
+                  <view class="value">{{ format("packaging") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">图幅</view>
+                  <view class="value">{{ format("viewFrame") || '-' }}</view>
+                </view>
+              </view>
+
+              <view class="adm-space-item">
+                <view class="flexCenter">
+                  <view class="lable lables">备注</view>
+                  <view class="value">{{ format("remarks") || '-' }}</view>
+                </view>
+              </view>
+
+            </template>
+          </view>
           <view @click="many()">
             <Divider>
-              <uni-icons :type=" hidden===true ? 'top' : 'bottom' "></uni-icons>
+              <uni-icons :type=" !hidden ? 'top' : 'bottom' "></uni-icons>
             </Divider>
           </view>
 
         </view>
+
       </view>
-
-      <Supply :skuId="skuId" />
-
-      <Popup :show="showSkuDetail" position="bottom" @close="overlay" close-on-click-overlay="true" title="库存明细">
-        <InkindItem :skuId="skuId" v-if="showSkuDetail" />
-      </Popup>
-
-      <Popup
-          :show="showOperationRecord"
-          position="bottom"
-          @close="operation"
-          close-on-click-overlay="true"
-          title="操作记录"
-      >
-        <SkuLog v-if="showOperationRecord" :skuId="skuId" />
-      </Popup>
     </view>
+
+    <!--    <Supply :skuId="skuId" />-->
+
+    <Popup :show="showSkuDetail" position="bottom" @close="overlay" close-on-click-overlay="true" title="库存明细">
+      <InkindItem :skuId="skuId" v-if="showSkuDetail" />
+    </Popup>
+
+    <Popup
+        :show="showOperationRecord"
+        position="bottom"
+        @close="operation"
+        close-on-click-overlay="true"
+        title="操作记录"
+    >
+      <SkuLog v-if="showOperationRecord" :skuId="skuId" />
+    </Popup>
   </scroll-view>
 </template>
 
@@ -163,7 +284,7 @@ export default {
       skuDetail: {},
       typeSettings: {},
       customIndicator: 1,
-      hidden: '',
+      hidden: true,
       inkindItemHidden: false,
       show: false,
       showErWeiMa: false, //展示二维码
@@ -215,22 +336,14 @@ export default {
       const data = skuDetail.data || {}
       const spuResult = data.spuResult || {}
       const positionsResult = data.positionsResult || []
-      const spuClassificationResult = spuResult.spuClassificationResult || {}
-      const response = await Sku.skuFormLayout(spuClassificationResult.spuClassificationId).catch(() => {
-        this.error = true
-      })
 
-      const typeSetting = JSON.parse(response?.data?.typeSetting || '[]') || []
-
-      this.typeSettings = typeSetting.filter(item => !['images', 'drawing', 'fileId'].includes(item.key) && item.show)
-
-      const publicInfo = this.$store.state.userInfo.publicInfo || {}
+      const tenant = this.$store.state.userInfo.tenant || {}
 
       this.skuDetail = {
         ...data,
         imgResults: isArray(data.imgResults).length > 0 ? data.images.split(',').map((item) => {
           return data.imgResults.find(img => img.mediaId === item)
-        }) : [{url: publicInfo.imgLogo}],
+        }) : [{url: tenant.imgLogo}],
         spuName: spuResult.name,
         positionsName: positionsResult[0] ? positionsResult[0].name : '',
         storehouseName: positionsResult[0] ? positionsResult[0].storehouseResult?.name : '',

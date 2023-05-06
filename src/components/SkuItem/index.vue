@@ -8,7 +8,7 @@
           @click='view'
       >
         <image
-            :src='skuResult.thumbUrl || skuImg() || publicInfo.imgLogo'
+            :src='skuResult.thumbUrl || skuImg() || tenant.imgLogo'
             :style="{ height: `${skuImgSize}px`, width: `${skuImgSize}px` }"
             alt=''
         />
@@ -102,7 +102,7 @@ export default {
     return {
       SkuResultSkuJsons,
       SkuFormat,
-      publicInfo: {},
+      tenant: {},
       unitResult: {},
       skuImgSize: 74,
       isArray,
@@ -111,7 +111,7 @@ export default {
   mounted() {
     const spuResult = this.skuResult.spuResult || {};
     this.unitResult = spuResult.unitResult || {}
-    this.publicInfo = this.$store.state.userInfo.publicInfo
+    this.tenant = this.$store.state.userInfo.tenant
     this.skuImgSize = this.imgSize || 74
   },
   methods: {

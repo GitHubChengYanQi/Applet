@@ -51,18 +51,18 @@
     </view>
 
     <view class="actions">
-      <view :class="['actionItem','startActionItem']" @click="addUserShow = true">
+      <view :class="['actionItem','startActionItem']" @click="skuManage">
         <view class="icon">
-          <Icon icon="icon-tianjiayonghu" size="24" />
+          <Icon icon="icon-wuliaoguanli1" size="24" />
         </view>
         <view class="actionName">
           <view class="name">物料管理</view>
           <u-icon name="arrow-right" size="12" color="#929293" />
         </view>
       </view>
-      <view class="actionItem" @click="gotoJoinTenantList">
+      <view :class="['actionItem','endActionItem']" @click="stock">
         <view class="icon">
-          <Icon icon="icon-shenpijiaru" size="24" />
+          <Icon icon="icon-cangchuguanli1" size="24" />
         </view>
         <view class="actionName">
           <view class="name">仓储管理</view>
@@ -168,6 +168,16 @@ export default {
     tenantInfo() {
       uni.navigateTo({
         url: `/Tenant/CreateTenant/index?type=update&backUrl=${getLocalParmas().stringRoute}`
+      })
+    },
+    skuManage() {
+      uni.navigateTo({
+        url: '/Sku/Manage/index'
+      })
+    },
+    stock() {
+      uni.navigateTo({
+        url: '/Erp/StoreHouse/index'
       })
     },
     dissolution() {
