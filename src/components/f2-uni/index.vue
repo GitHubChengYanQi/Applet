@@ -40,7 +40,7 @@ export default {
     },
     height: {
       type: Number,
-      default: () => 0
+      default: () => 170
     },
     padding: {
       type: Array,

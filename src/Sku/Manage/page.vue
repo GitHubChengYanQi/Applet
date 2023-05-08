@@ -36,7 +36,7 @@
       </view>
     </view>
 
-    <view class="item">
+    <view class="item" @click="brand">
       <view class="info">
         品牌管理
         <view class="des">
@@ -83,6 +83,11 @@ export default {
     unit() {
       uni.navigateTo({
         url: '/Sku/Unit/UnitList/index'
+      })
+    },
+    brand(){
+      uni.navigateTo({
+        url: '/Sku/Brand/BrandList/index'
       })
     }
   }

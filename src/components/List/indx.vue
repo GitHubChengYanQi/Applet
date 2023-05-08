@@ -35,8 +35,12 @@ export default {
     'noTips',
     'pullDisabled',
     'maxHeight',
-    'description'
+    'description',
+    'defaultLimit'
   ],
+  created() {
+    this.limit = this.defaultLimit || 10
+  },
   mounted() {
     this.sorter = this.defaultSorter
     this.params = this.defaultParams
@@ -82,7 +86,7 @@ export default {
             this.data = [...array]
             this.$emit('listSource', array, resData);
             this.page = this.page + 1
-            this.hasMore = resData.length === 10
+            this.hasMore = resData.length === this.limit
           } else {
             this.hasMore = false
             if (this.page === 1) {

@@ -7,8 +7,8 @@
       <Avatar
           size="80"
           circular
-          v-if="tenant.logo.url"
-          :src="tenant.logoResult.url"
+          v-if="tenant.logoResult && tenant.logoResult.url""
+          :src="tenant.logoResult && tenant.logoResult.url"
       />
       <Icon v-else icon="icon-tuanduitouxiang" size="80" />
       <view class="name">
@@ -115,23 +115,28 @@ export default {
           this.loading = false
         })
       })
-
     },
     join() {
       this.joinLoading = true
+      const _this = this
       Tenant.joinTenant({
         data: {
           tenantId: this.tenantId,
           deptId: this.deptId
         }
       }).then(() => {
-        this.getStatus()
         this.$refs.modal.dialog({
-          title: '申请成功！请等待管理员审批。'
+          title: '申请成功！请等待管理员审批。',
+          onConfirm(){
+            _this.getStatus()
+          }
         })
       }).catch(() => {
         this.$refs.modal.dialog({
-          title: Init.getNewErrorMessage() || '申请失败！'
+          title: Init.getNewErrorMessage() || '申请失败！',
+          onConfirm() {
+            _this.getStatus()
+          }
         })
       }).finally(() => {
         this.joinLoading = false

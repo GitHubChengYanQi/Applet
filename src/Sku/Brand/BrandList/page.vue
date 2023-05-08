@@ -1,37 +1,33 @@
 <template>
   <view>
-    <Empty v-if="error" type="error" description="获取信息异常" />
-    <Loading
-        skeleton-type="page"
-        skeleton
-        v-if="loading"
-    />
-    <view v-else class="manage" :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px)`}">
-      <Empty
-          v-if="unitList.length === 0"
-          description="暂无数据"
-      />
-      <view
-          v-for="(unit,index) in unitList"
-          :key="index"
-          class="item"
-          @click="editUnit(unit)"
+    <view class="manage" :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px)`}">
+      <List
+          @request="Sku.brandList"
+          @listSource="(newList)=>brandList = newList"
+          :list="brandList"
       >
-        <view class="itemIon">
-          <Icon icon="icon-bumen1" size="30" />
+        <view
+            v-for="(brand,index) in brandList"
+            :key="index"
+            class="item"
+            @click="editbrand(brand)"
+        >
+          <view class="itemIon">
+            <Icon icon="icon-bumen1" size="30" />
+          </view>
+          {{ brand.brandName }}
         </view>
-        {{ unit.label }}
-      </view>
+      </List>
     </view>
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
-        <LinkButton @click="addSkuClass">添加单位</LinkButton>
-        <Modal ref="addUnitModal">
+        <LinkButton @click="addSkuClass">添加品牌</LinkButton>
+        <Modal ref="addbrandModal">
           <u--input
-              placeholder="请输入单位名称"
+              placeholder="请输入品牌名称"
               clearable
-              v-model="unitName"
+              v-model="brandName"
           />
         </Modal>
       </view>
@@ -39,10 +35,10 @@
 
     <u-action-sheet
         cancelText="取消"
-        :actions="unitActionList"
-        :show="unitActionShow"
-        @close="unitActionShow = false"
-        @select="unitActionSelect"
+        :actions="brandActionList"
+        :show="brandActionShow"
+        @close="brandActionShow = false"
+        @select="brandActionSelect"
     />
 
     <Modal ref="modal" />
@@ -65,29 +61,29 @@ import Modal from "../../../components/Modal";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Sku} from "MES-Apis/lib/Sku/promise";
+import List from "../../../components/List/indx";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'SelectUser',
-  components: {Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
+  components: {List, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
-      loading: true,
-      unitList: [],
-      error: false,
-      actionUnit: {},
+      Sku,
+      brandList: [],
+      actionbrand: {},
       safeAreaHeight,
-      unitName: '',
-      unitActionShow: false,
-      unitActionList: [
+      brandName: '',
+      brandActionShow: false,
+      brandActionList: [
         {
-          name: '修改单位名',
+          name: '修改品牌名',
           key: 'edit',
         },
         {
-          name: '删除单位',
+          name: '删除品牌',
           key: 'delete',
           color: 'red'
         }
@@ -95,38 +91,35 @@ export default {
     }
   },
   mounted() {
-    this.getList()
-
-    const _this = this
 
   },
   methods: {
-    unitActionSelect({key}) {
+    brandActionSelect({key}) {
       const _this = this
-      const thisUnit = this.actionUnit
+      const thisbrand = this.actionbrand
       switch (key) {
         case 'edit':
-          _this.unitName = thisUnit.label
-          _this.$refs.addUnitModal.dialog({
-            title: '修改单位名',
+          _this.brandName = thisbrand.brandName
+          _this.$refs.addbrandModal.dialog({
+            title: '修改品牌名',
             only: false,
             confirmText: '修改',
             onConfirm() {
               return new Promise((resolve) => {
-                if (!_this.unitName) {
-                  Message.toast('请输入单位名称！')
+                if (!_this.brandName) {
+                  Message.toast('请输入品牌名称！')
                   resolve(false)
                   return
                 }
-                Sku.unitEdit({
+                Sku.brandEdit({
                   data: {
-                    unitId: thisUnit.value,
-                    unitName: _this.unitName
+                    brandId: thisbrand.brandId,
+                    brandName: _this.brandName
                   }
                 }).then(() => {
-                  _this.unitList = _this.unitList.map(item => {
-                    if (item.value === thisUnit.value) {
-                      return {...item, label: _this.unitName}
+                  _this.brandList = _this.brandList.map(item => {
+                    if (item.brandId === thisbrand.brandId) {
+                      return {...item, brandName: _this.brandName}
                     }
                     return item
                   })
@@ -144,17 +137,17 @@ export default {
         case 'delete':
           _this.$refs.modal.dialog({
             title: '删除后不可恢复，是否确认删除？',
-            content: '删除单位【' + thisUnit.label + '】',
+            content: '删除品牌【' + thisbrand.brandName + '】',
             only: false,
             confirmError: true,
             onConfirm() {
               return new Promise((resolve) => {
-                Sku.unitDelete({
+                Sku.brandDelete({
                   data: {
-                    unitId: thisUnit.value
+                    brandId: thisbrand.brandId
                   }
                 }).then(() => {
-                  _this.unitList = _this.unitList.filter(item => item.value !== thisUnit.value)
+                  _this.brandList = _this.brandList.filter(item => item.brandId !== thisbrand.brandId)
                   resolve(true)
                 }).catch(() => {
                   _this.$refs.modal.dialog({
@@ -168,34 +161,26 @@ export default {
           break
       }
     },
-    async getList() {
-      this.loading = true
-      const res = await Sku.unitListSelect({data: {}}).catch(() => {
-        this.error = true
-      })
-      this.loading = false
-      this.unitList = res.data || []
-    },
     addSkuClass() {
       const _this = this
-      _this.unitName = ''
-      _this.$refs.addUnitModal.dialog({
-        title: '添加单位',
+      _this.brandName = ''
+      _this.$refs.addbrandModal.dialog({
+        title: '添加品牌',
         only: false,
         confirmText: '添加',
         onConfirm() {
           return new Promise((resolve) => {
-            if (!_this.unitName) {
-              Message.toast('请输入单位名称！')
+            if (!_this.brandName) {
+              Message.toast('请输入品牌名称！')
               resolve(false)
               return
             }
-            Sku.unitAdd({
+            Sku.brandAdd({
               data: {
-                unitName: _this.unitName,
+                brandName: _this.brandName,
               }
             }).then((res) => {
-              _this.unitList = [{label: _this.unitName, value: res.data}, ..._this.unitList]
+              _this.brandList = [{brandName: _this.brandName, brandId: res.data}, ..._this.brandList]
               resolve(true)
             }).catch(() => {
               _this.$refs.modal.dialog({
@@ -207,9 +192,9 @@ export default {
         }
       })
     },
-    editUnit(unit) {
-      this.actionUnit = unit
-      this.unitActionShow = true
+    editbrand(brand) {
+      this.actionbrand = brand
+      this.brandActionShow = true
     }
   }
 }

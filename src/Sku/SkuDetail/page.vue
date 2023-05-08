@@ -31,29 +31,6 @@
                 <view>{{ skuDetail.positionsName || '' }} / {{ skuDetail.storehouseName || '' }}</view>
               </view>
             </view>
-            <view @click="auto">
-              <Icon icon="icon-erweima" color="#2680EB" />
-            </view>
-            <view class="codeModal">
-              <u-modal
-                  :show="showErWeiMa"
-                  width="280px"
-                  @confirm="showErWeiMa = false"
-              >
-                <view style='text-align: center;padding-top: 12px'>
-                  <view class='codeTitle'>物料码</view>
-                  <view class="dialogContent">
-                    <view style="padding-top: 19px">
-                      <canvas
-                          id="firstCanvas"
-                          canvas-id="firstCanvas"
-                          style="width: 187px;height: 187px;display: inline-block"
-                      />
-                    </view>
-                  </view>
-                </view>
-              </u-modal>
-            </view>
           </view>
           <view class="otherData">
             <view class="number">
@@ -108,14 +85,24 @@
               </view>
             </view>
 
+            <view class="adm-space-item">
+              <view class="flexCenter">
+                <view class="lable lables">材质</view>
+                <view class="value">{{ format("materialId") || '-' }}</view>
+              </view>
+            </view>
+
+            <view class="adm-space-item">
+              <view class="flexCenter">
+                <view class="lable lables">品牌</view>
+                <view class="value">{{ format("brandIds") || '-' }}</view>
+              </view>
+            </view>
+
+
+
 
             <template v-if="!hidden">
-              <view class="adm-space-item">
-                <view class="flexCenter">
-                  <view class="lable lables">产品码</view>
-                  <view class="value">{{ format("spuCoding") || '-' }}</view>
-                </view>
-              </view>
 
 
               <view class="adm-space-item">
@@ -137,34 +124,6 @@
                 <view class="flexCenter">
                   <view class="lable lables">规格参数</view>
                   <view class="value">{{ format("sku") || '-' }}</view>
-                </view>
-              </view>
-
-              <view class="adm-space-item">
-                <view class="flexCenter">
-                  <view class="lable lables">品牌</view>
-                  <view class="value">{{ format("brandIds") || '-' }}</view>
-                </view>
-              </view>
-
-              <view class="adm-space-item">
-                <view class="flexCenter">
-                  <view class="lable lables">图纸</view>
-                  <view class="value">{{ format("drawing") || '-' }}</view>
-                </view>
-              </view>
-
-              <view class="adm-space-item">
-                <view class="flexCenter">
-                  <view class="lable lables">附件</view>
-                  <view class="value">{{ format("fileId") || '-' }}</view>
-                </view>
-              </view>
-
-              <view class="adm-space-item">
-                <view class="flexCenter">
-                  <view class="lable lables">材质</view>
-                  <view class="value">{{ format("materialId") || '-' }}</view>
                 </view>
               </view>
 

@@ -74,34 +74,34 @@
 
           <view class="label">部门</view>
           <view class="value">
-            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>
-<!--            <view-->
-<!--                v-for="(dept,index) in isArray(userInfo.depts)"-->
-<!--                :key="index"-->
-<!--                :class="{deptItem:true,firstDeptItem:index === 0}"-->
-<!--            >-->
-<!--              <view class="deptInfo">-->
-<!--                <Icon class="icon" icon="icon-bumen1" size="30" />-->
-<!--                <view>-->
-<!--                  {{ dept.title }}-->
-<!--                </view>-->
-<!--              </view>-->
-<!--              <view class="deptAction">-->
-<!--                <u-icon-->
-<!--                    v-if="!dept.admin"-->
-<!--                    name="more-dot-fill"-->
-<!--                    color="#2979ff"-->
-<!--                    size="12"-->
-<!--                    @click="deptAction(dept)"-->
-<!--                />-->
-<!--                <template v-else>-->
-<!--                  主部门-->
-<!--                </template>-->
-<!--              </view>-->
-<!--            </view>-->
-<!--            <view :class="{openDept:isArray(userInfo.depts).length > 0}">-->
-<!--              <LinkButton @click="openDept">设置部门</LinkButton>-->
-<!--            </view>-->
+<!--            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>-->
+            <view
+                v-for="(dept,index) in isArray(userInfo.depts)"
+                :key="index"
+                :class="{deptItem:true,firstDeptItem:index === 0}"
+            >
+              <view class="deptInfo">
+                <Icon class="icon" icon="icon-bumen1" size="30" />
+                <view>
+                  {{ dept.title }}
+                </view>
+              </view>
+              <view class="deptAction">
+                <u-icon
+                    v-if="!dept.admin"
+                    name="more-dot-fill"
+                    color="#2979ff"
+                    size="12"
+                    @click="deptAction(dept)"
+                />
+                <template v-else>
+                  主部门
+                </template>
+              </view>
+            </view>
+            <view :class="{openDept:isArray(userInfo.depts).length > 0}">
+              <LinkButton @click="openDept">设置部门</LinkButton>
+            </view>
           </view>
         </view>
       </view>
@@ -111,6 +111,8 @@
           text="保存"
           @onClick="save"
       />
+
+      <Loading :loading="saveLoading" />
 
       <Modal ref="modal" />
 
@@ -125,8 +127,8 @@
       >
         <Loading skeleton v-if="deptTreeLoading" />
         <view v-else class="deptTree">
-          <Tree radio :data="deptTree" v-model="dept" />
-<!--          <Tree multiple :data="deptTree" v-model="depts" />-->
+<!--          <Tree radio :data="deptTree" v-model="dept" />-->
+          <Tree multiple :data="deptTree" v-model="depts" />
         </view>
       </Popup>
 
@@ -197,6 +199,7 @@ export default {
       positionIndex: 0,
       positionPickerShow: false,
       positionLoading: false,
+      saveLoading: false,
       positionShow: false,
       deptActionList: [{
         name: '设为主部门',
@@ -305,11 +308,11 @@ export default {
     },
     openDept() {
       this.deptShow = true
-      this.dept = {
-        key: this.userInfo.deptId + '',
-        title: this.userInfo.deptName
-      }
-      // this.depts = this.userInfo.depts
+      // this.dept = {
+      //   key: this.userInfo.deptId + '',
+      //   title: this.userInfo.deptName
+      // }
+      this.depts = this.userInfo.depts
     },
     deptActionSelect({key}) {
       switch (key) {
@@ -331,28 +334,28 @@ export default {
     },
     saveDept() {
       this.deptShow = false
-      // const userInfo = this.userInfo || {}
-      // const deptAdmin = isArray(userInfo.depts).find(dept => dept.admin)
-      // const admin = deptAdmin ? this.depts.find(dept => dept.key === deptAdmin.key) : false
+      const userInfo = this.userInfo || {}
+      const deptAdmin = isArray(userInfo.depts).find(dept => dept.admin)
+      const admin = deptAdmin ? this.depts.find(dept => dept.key === deptAdmin.key) : false
       this.userInfo = {
         ...this.userInfo,
-        deptId: this.dept.key,
-        deptName: this.dept.title,
-        // depts: this.depts.map((item, index) => {
-        //   if (admin) {
-        //     if (index === 0) {
-        //       return {...admin, admin: true}
-        //     } else if (admin.key === item.key) {
-        //       return {...this.depts[0], admin: false}
-        //     } else {
-        //       return {...item, admin: false}
-        //     }
-        //   } else if (index === 0) {
-        //     return {...item, admin: true}
-        //   } else {
-        //     return {...item, admin: false}
-        //   }
-        // })
+        // deptId: this.dept.key,
+        // deptName: this.dept.title,
+        depts: this.depts.map((item, index) => {
+          if (admin) {
+            if (index === 0) {
+              return {...admin, admin: true}
+            } else if (admin.key === item.key) {
+              return {...this.depts[0], admin: false}
+            } else {
+              return {...item, admin: false}
+            }
+          } else if (index === 0) {
+            return {...item, admin: true}
+          } else {
+            return {...item, admin: false}
+          }
+        })
       }
     },
     getDeptTree() {
@@ -374,11 +377,11 @@ export default {
           sex: userInfo.sex,
           phone: userInfo.phone,
           email: userInfo.email,
-          deptId: userInfo.deptId,
-          // deptList: userInfo.depts.map(item => ({
-          //   deptId: item.key,
-          //   mainDept: item.admin ? 1 : 0
-          // })),
+          // deptId: userInfo.deptId,
+          deptList: userInfo.depts.map(item => ({
+            deptId: item.key,
+            mainDept: item.admin ? 1 : 0
+          })),
           position: isArray(userInfo.positionIds).join(',')
         }
       }).then(() => {

@@ -38,10 +38,7 @@
             <view class="inkindItem" v-for="(sku,skuIndex) in isArray(pos.inkindList)" :key="skuIndex">
               <view class="inkindData">
                 <view class="inkindId">
-                  实物码：
-                  <view class="erWeiMaClick" @click="skuErWeiMa(sku.inkindId)">
-                    <Icon icon="icon-erweima" color="#2680EB" />
-                  </view>
+
                   <view>× {{ sku.number }}</view>
                 </view>
                 <view class="brand">{{ isObject(sku.brandResult).brandName || '无品牌' }}</view>

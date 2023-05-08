@@ -1,73 +1,50 @@
 <template>
   <view>
     <view class="joinTenantList">
-      <u-tabs :list="tabs" @click="tabChange" :scrollable="false"></u-tabs>
-      <Empty description="获取待审批用户列表失败！" type="error" v-if="error" />
-      <Loading skeleton v-else-if="loading" />
-      <template v-else>
-        <Search v-model="searchValue" no-search-button />
+      <Search v-model="searchValue" @onSearch="onSearch" />
+      <List
+          :default-limit="20"
+          ref="list"
+          :max-height="`calc(100vh - 60px)`"
+          @request="Tenant.joinTenantList"
+          @listSource="(newList)=>list = newList"
+          :list="list"
+          :default-params="defaultParams"
+          @response="(res)=>total = res.count"
+      >
         <view
-            :style="{height:tabKey !== 'wait' ? 'calc(100vh - 58px)' : `calc(100vh - 58px - 45px + 8px - ${safeAreaHeight(this,8)}px)`}"
+            v-for="(item,index) in list"
+            :key="index"
+            class="user"
         >
-          <Empty description="暂无数据" v-if="showList.length === 0" />
-          <view
-              v-for="(item,index) in showList"
-              :key="index"
-              class="user"
-              @click="checkUser(item.tenantBindId)"
-          >
-            <Check v-if="tabKey === 'wait'" :value="checked.includes(item.tenantBindId)" />
-            <view class="userInfo">
-              <UserName :user="item.userResult" />
+          <view class="userInfo">
+            <UserName :user="item.userResult" />
+          </view>
+          <view class="action">
+            <view class="buttons" v-if="item.status === 0">
+              <MyButton
+                  type="error"
+                  @click="reject(item)"
+              >
+                拒绝
+              </MyButton>
+              <MyButton
+                  type="primary"
+                  @click="submit(item)"
+              >
+                通过
+              </MyButton>
             </view>
-            <view class="time">
-              {{ timeDifference(item.createTime) }}
+            <view v-else-if="item.status === 50">
+              已拒绝
+            </view>
+            <view v-else>
+              已同意
             </view>
           </view>
         </view>
-        <view
-            v-if="tabKey === 'wait'"
-            class="action"
-            :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}"
-        >
-          <view class="allCheck">
-            <Check
-                v-if="list.length > 0"
-                :value="list.length === checked.length"
-                @change="allCheck"
-            >
-              {{ list.length === checked.length ? '取消全选' : '全选' }}
-            </Check>
-            <view>
-              <view class="total">
-                已选
-                <view class="num">{{ checked.length }}</view>
-                个
-              </view>
-            </view>
-          </view>
-          <view class="buttons">
-            <MyButton
-                :loading="submitLoading"
-                :disabled="this.checked.length === 0"
-                type="error"
-                @click="reject"
-            >
-              拒绝
-            </MyButton>
-            <MyButton
-                :loading="submitLoading"
-                :disabled="this.checked.length === 0"
-                type="primary"
-                @click="submit"
-            >
-              通过
-            </MyButton>
-          </view>
-        </view>
-      </template>
+      </List>
     </view>
-
 
     <Modal ref="modal" />
 
@@ -79,16 +56,17 @@ import Search from "../../../components/Search";
 import List from "../../../components/List/indx";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import Check from "../../../components/Check";
-import {queryString, safeAreaHeight, timeDifference} from "../../../util/Tools";
+import {safeAreaHeight, timeDifference} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
 import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../../components/Modal";
 import UserName from "../../../components/UserName";
-import Empty from "../../../components/Empty";
-import Loading from "../../../components/Loading";
 
 export default {
-  components: {Loading, Empty, UserName, Modal, MyButton, Check, List, Search},
+  options: {
+    styleIsolation: 'shared'
+  },
+  components: {UserName, Modal, MyButton, Check, List, Search},
   data() {
     return {
       safeAreaHeight,
@@ -98,57 +76,17 @@ export default {
       checked: [],
       searchValue: '',
       defaultParams: {},
-      error: false,
-      tabKey: 'wait',
-      loading: true,
-      tabs: [
-        {name: '待审批', key: 'wait'},
-        {name: '已通过', key: 'pass'},
-        {name: '已拒绝', key: 'reject'},
-      ]
+      total: 0
     }
   },
-  computed: {
-    showList() {
-      return this.list.filter(item => {
-        const user = item.userResult || {}
-        return queryString(this.searchValue, user.name)
-      })
+  created() {
+    this.defaultParams = {
+      tenantId: this.$store.state.userInfo.tenant.tenantId
     }
-  },
-  mounted() {
-    this.getList(0)
   },
   methods: {
-    tabChange({key}) {
-      this.searchValue = ''
-      this.tabKey = key
-      switch (key) {
-        case 'wait':
-          this.getList(0)
-          break;
-        case 'pass':
-          this.getList(99)
-          break;
-        case 'reject':
-          this.getList(50)
-          break
-      }
-    },
-    getList(status) {
-      this.loading = true
-      Tenant.joinTenantAllList({
-        data: {
-          tenantId: this.$store.state.userInfo.tenant.tenantId,
-          status
-        }
-      }).then((res) => {
-        this.list = res.data
-      }).catch(() => {
-        this.error = true
-      }).finally(() => {
-        this.loading = false
-      })
+    onSearch() {
+      this.$refs.list.submit({...this.defaultParams, keywords: this.searchValue})
     },
     checkUser(tenantBindId) {
       if (this.checked.includes(tenantBindId)) {
@@ -164,16 +102,16 @@ export default {
         this.checked = this.list.map(item => item.tenantBindId)
       }
     },
-    submit() {
+    submit(user) {
       const _this = this
       this.$refs.modal.dialog({
-        title: '确定同意' + this.checked.length + '个用户的申请吗',
+        title: '确定通过' + (user.userResult?.name || '-') + '的申请吗',
         only: false,
         onConfirm() {
           return new Promise((resolve) => {
             Tenant.agreeJoinTenant({
               data: {
-                tenantBindIds: _this.checked
+                tenantBindIds: [user.tenantBindId]
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
@@ -181,7 +119,13 @@ export default {
                 title: '通过成功！',
                 onConfirm() {
                   _this.checked = []
-                  _this.getList(0)
+                  _this.list = _this.list.map(item => {
+                    if (item.tenantBindId === user.tenantBindId) {
+                      return {...item, status: 99}
+                    } else {
+                      return item
+                    }
+                  })
                   return true
                 }
               })
@@ -196,10 +140,10 @@ export default {
         }
       })
     },
-    reject() {
+    reject(user) {
       const _this = this
       this.$refs.modal.dialog({
-        title: '确定拒绝' + this.checked.length + '个用户的申请吗',
+        title: '确定拒绝' + (user.userResult?.name || '-') + '的申请吗',
         only: false,
         confirmText: '拒绝',
         confirmError: true,
@@ -207,7 +151,7 @@ export default {
           return new Promise((resolve) => {
             Tenant.rejectJoinTenant({
               data: {
-                tenantBindIds: _this.checked
+                tenantBindIds: [user.tenantBindId]
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
@@ -215,7 +159,13 @@ export default {
                 title: '拒绝成功！',
                 onConfirm() {
                   _this.checked = []
-                  _this.getList(0)
+                  _this.list = _this.list.map(item => {
+                    if (item.tenantBindId === user.tenantBindId) {
+                      return {...item, status: 50}
+                    } else {
+                      return item
+                    }
+                  })
                   return true
                 }
               })
@@ -259,42 +209,28 @@ export default {
       font-size: 12px;
       color: #cccccc;
     }
-  }
-}
 
-.action {
-  display: flex;
-  align-items: center;
-  position: fixed;
-  bottom: 0;
-  background-color: #fff;
-  width: calc(100% - 24px);
-  padding: 8px 12px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
-  margin: 0 -8px;
+    .action {
+      color: #c7c7c7;
+      font-size: 14px;
 
-  .allCheck {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+      .buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
 
-    .total {
-      margin-top: -4px;
-
-      .num {
-        display: inline-block;
-        color: $primary-color;
-        padding: 0 4px;
-        font-size: 20px;
+        button {
+          font-size: 12px;
+          padding: 4px 8px;
+        }
       }
     }
   }
+}
 
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.total {
+  padding: 12px;
+  text-align: center;
+  color: #c7c7c7;
 }
 </style>

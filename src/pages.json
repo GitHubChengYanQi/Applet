@@ -343,6 +343,12 @@
           }
         },
         {
+          "path": "Brand/BrandList/index",
+          "style": {
+            "navigationBarTitleText": "品牌管理"
+          }
+        },
+        {
           "path": "Unit/UnitAdd/index",
           "style": {
             "navigationBarTitleText": "单位"

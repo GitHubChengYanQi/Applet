@@ -29,16 +29,6 @@
           </uni-forms-item>
 
           <uni-forms-item
-              label="物料编码"
-              name="standard"
-          >
-            <Standard
-                placeholder="物料编码"
-                v-model="formData.standard"
-            />
-          </uni-forms-item>
-
-          <uni-forms-item
               label="分类"
               class="spuClass"
               name="spuClass"
@@ -82,16 +72,6 @@
                 placeholder="产品名称"
                 v-model="formData.spu"
                 @onSpuDetail="onSpuDetail"
-            />
-          </uni-forms-item>
-
-          <uni-forms-item
-              label="产品码"
-              name="spuCoding"
-          >
-            <SpuCoding
-                placeholder="产品码"
-                v-model="formData.spuCoding"
             />
           </uni-forms-item>
 
@@ -664,6 +644,7 @@ export default {
 
   .value {
     flex-grow: 1;
+    font-size: 14px;
   }
 
   .icon {

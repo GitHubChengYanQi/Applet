@@ -144,6 +144,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('userInfo/getUserInfo',true)
     const tenant = this.$store.state.userInfo.tenant || {}
     this.tenant = tenant
     this.menus = this.$store.state.userInfo.menus || {}

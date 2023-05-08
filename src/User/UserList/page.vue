@@ -242,7 +242,10 @@ export default {
         if (item.userId === userInfo.userId) {
           return {
             ...item,
-            deptId: userInfo.deptId,
+            deptList: userInfo.depts.map(item => ({
+              deptId: item.key,
+              mainDept: item.admin ? 1 : 0
+            })),
             name: userInfo.name
           }
         } else {
@@ -301,8 +304,15 @@ export default {
         if (this.searchValue) {
           return this.users.filter(item => queryString(this.searchValue, item.name))
         }
+        if (this.deptPage.length === 1) {
+          return this.users.filter(item => {
+            const deptIds = isArray(item.deptList).filter(item => item?.deptId)
+            return deptIds.length === 0
+          })
+        }
         return this.users.filter(item => {
-          return (item.deptId + '') === (this.deptPage[this.deptPage.length - 1].key + '')
+          const deptIds = isArray(item.deptList).map(item => item?.deptId)
+          return deptIds.find(id => (id + '') === (this.deptPage[this.deptPage.length - 1].key + ''))
         })
       } else {
         return []
@@ -321,9 +331,15 @@ export default {
           const ids = [thisDeptPage.key, ...this.getDeptChildrens(thisDept.children)]
           if (this.searchValue) {
             total = this.deptUsers.length
-          } else {
+          } else if (this.deptPage.length === 1) {
             total = this.users.filter(item => {
-              return ids.find(id => id === (item.deptId + ''))
+              const deptIds = isArray(item.deptList).map(item => item?.deptId)
+              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
+            }).length + this.deptUsers.length
+          }else {
+            total = this.users.filter(item => {
+              const deptIds = isArray(item.deptList).map(item => item?.deptId)
+              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
             }).length
           }
         }
