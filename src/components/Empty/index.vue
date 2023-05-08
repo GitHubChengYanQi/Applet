@@ -1,5 +1,5 @@
 <template>
-  <view class="empty">
+  <view class="empty" :style="style">
     <u-empty
         :mode="mode()"
         :text="description || '暂无数据'"
@@ -10,7 +10,7 @@
 <script>
 export default {
   name: 'Empty',
-  props: ['type', 'description'],
+  props: ['type', 'description','style'],
   methods: {
     mode() {
       switch (this.type) {

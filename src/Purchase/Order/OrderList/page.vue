@@ -39,7 +39,7 @@
                 <Avatar
                     :circular="true"
                     style="margin-right: 4px"
-                    :src="item.user && item.user.avatar" size="18"
+                    :src="item.user && item.user.miniAppAvatar" size="18"
                 />
                 {{ item.user ? item.user.name : '无' }}
               </view>

@@ -12,14 +12,15 @@ export default {
   onLoad(option) {
     this.id = option.id
   },
-  onShareAppMessage(res) {
+  async onShareAppMessage(res) {
     if (res.from === 'button') {
+      const tenant = this.$store.state.userInfo.tenant || {}
       const target = res.target
       const dataset = target.dataset
       return {
         title: dataset.cardcoding,
         path: `/Production/ProductionCard/index?scene=${target.id}`,
-        imageUrl: dataset.skuimg || '../../static/images/logo.png'
+        imageUrl: dataset.skuimg ||   tenant.imgLogo
       }
     }
   },

@@ -1,7 +1,5 @@
 <template>
   <Auth>
-
-
     <Page
         v-if="auth"
         @outStock="outStock"

@@ -21,10 +21,10 @@
 </template>
 
 <script>
-import LinkButton from "@/components/LinkButton/index.vue";
-import Popup from "@/components/Popup/index.vue";
-import Card from "@/components/Card/index.vue";
-import SupplyCard from "@/Sku/components/Supply/components/SupplyCard/index.vue";
+import LinkButton from "@/components/LinkButton/index";
+import Popup from "@/components/Popup/index";
+import Card from "@/components/Card/index";
+import SupplyCard from "@/Sku/components/Supply/components/SupplyCard/index";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import Loading from "../../../components/Loading";
 import {isArray, isObject} from "../../../util/Tools";

@@ -46,7 +46,7 @@
                     <Avatar
                         :circular="true"
                         style="margin-right: 4px"
-                        :src="item.createUserResult && item.createUserResult.avatar" size="18"
+                        :src="item.createUserResult && item.createUserResult.miniAppAvatar" size="18"
                     />
                     {{ item.createUserResult && item.createUserResult.name }}
                   </view>

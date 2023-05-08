@@ -5,10 +5,13 @@
         头像/企业logo
       </view>
       <view class="uploadLogo">
-        <Uploader @onChange="uploadLogo">
-          <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
-          <Icon icon="icon-tuanduitouxiang" size="26" v-else />
-        </Uploader>
+        <button class="chooseAvatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+          <u-loading-icon v-if="uploadLoading" mode="circle" :vertical="true"></u-loading-icon>
+          <template v-else>
+            <Avatar :src="logo.url" size="26" v-if="logo.url" circular />
+            <Icon icon="icon-tuanduitouxiang" size="26" v-else />
+          </template>
+        </button>
         <u-icon name="arrow-right" size="12" color="#929293" />
       </view>
     </view>
@@ -20,9 +23,15 @@
           v-model="name"
       />
     </view>
-    <view class="button">
-      <MyButton @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</MyButton>
+
+    <view style="padding: 12px">
+      <LoginByPhone @click="edit ? editTenant() : create()">{{ edit ? '保存' : '创建团队' }}</LoginByPhone>
     </view>
+
+    <Uploader @loading="(val)=>uploadLoading = val" ref="upload" @onChange="uploadLogo">
+      <view></view>
+    </Uploader>
+
 
     <Loading :loading="loading" :loading-text="edit ? '保存数据中...' : '创建数据中...'" />
 
@@ -31,7 +40,6 @@
 </template>
 
 <script>
-import MyButton from "../../components/MyButton";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
@@ -41,19 +49,22 @@ import Icon from "../../components/Icon";
 import Uploader from "../../components/Uploader";
 import Avatar from "../../components/Avatar";
 import Loading from "../../components/Loading";
+import ImageCropper from "../../components/ImageCropper";
+import LoginByPhone from "../../components/LoginByPhone";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Loading, Avatar, Uploader, Icon, Modal, MyButton},
+  components: {LoginByPhone, ImageCropper, Loading, Avatar, Uploader, Icon, Modal},
   data() {
     return {
       name: '',
       loading: false,
       logo: {},
       edit: false,
-      tenantId: ''
+      uploadLoading: false,
+      tenantId: '',
     }
   },
   mounted() {
@@ -67,7 +78,7 @@ export default {
       this.tenantId = tenant.tenantId
       this.logo = {
         id: tenant.logo.mediaId,
-        url: tenant.logo.thumbUrl
+        url: tenant.logo.url
       }
     }
   },
@@ -108,9 +119,9 @@ export default {
       }, {
         onSuccess: (res) => {
           this.loading = false
+          getApp().globalData.token = res
+          this.$store.dispatch('userInfo/getUserInfo', true)
           Message.successToast('保存成功!', () => {
-            getApp().globalData.token = res
-            this.$store.commit('userInfo/clear')
             this.goBack()
           })
         },
@@ -123,13 +134,20 @@ export default {
       })
     },
     goBack() {
+      if (this.edit) {
+        uni.navigateBack()
+        return
+      }
       const backUrl = getLocalParmas().search.backUrl
       uni.reLaunch({
         url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
       })
     },
-    uploadLogo(value) {
-      this.logo = value
+    uploadLogo(file) {
+      this.logo = file
+    },
+    onChooseAvatar(res) {
+      this.$refs.upload.uploadFile(res.detail.avatarUrl)
     }
   }
 }
@@ -164,6 +182,17 @@ export default {
       display: flex;
       align-items: center;
       gap: 8px;
+
+      .chooseAvatar {
+        padding: 0;
+        background-color: transparent;
+        font-size: 16px;
+        line-height: normal;
+
+        &::after {
+          content: none;
+        }
+      }
     }
   }
 
@@ -174,19 +203,13 @@ export default {
     background-color: #fff;
   }
 
-  .button {
-    margin-top: 30px;
-
-    .myButton {
-      width: calc(100% - 24px);
-      padding: 0 12px;
-
-      button {
-        width: 100% !important;
-        border-radius: 50px;
-        padding: 8px 0;
-      }
-    }
+  .loginByPhone {
+    color: #fff;
+    background-color: #3c9cff;
+    border-radius: 50px;
+    height: fit-content !important;
+    width: calc(100vw - 24px);
+    padding: 8px;
   }
 
 }

@@ -4,18 +4,25 @@
     <Empty description="获取团队失败！" v-if="error" />
     <Loading skeleton skeleton-type="page" v-else-if="loading" />
     <view class="joinTenant" v-else>
-      <Icon icon="icon-team-fill" size="80" />
+      <Avatar
+          size="80"
+          circular
+          v-if="tenant.logo.url"
+          :src="tenant.logoResult.url"
+      />
+      <Icon v-else icon="icon-tuanduitouxiang" size="80" />
       <view class="name">
-        {{ tenant.name }}
+        {{ tenant.name || '-' }}
       </view>
-      <MyButton
+
+      <LoginByPhone
           :disabled="disabled"
           :loading="joinLoading"
-          type="primary"
           @click="()=>joinStatus=== 99 ? switchTenant() : join()"
       >
         {{ joinStatusText() }}
-      </MyButton>
+      </LoginByPhone>
+
       <view @click="reload" v-if="joinStatus === 0">
         <u-icon name="reload" size="24" color="#007aff" />
       </view>
@@ -32,26 +39,34 @@ import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import Empty from "../../components/Empty";
 import Loading from "../../components/Loading";
 import Icon from "../../components/Icon";
-import MyButton from "../../components/MyButton";
 import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../components/Modal";
+import GetUserInfo from "../../util/GetUserInfo";
+import {Login} from "MES-Apis/lib/Login/promise";
+import LoginByPhone from "../../components/LoginByPhone";
+import Avatar from "../../components/Avatar";
 
 export default {
-  components: {Modal, MyButton, Icon, Loading, Empty},
+  options: {
+    styleIsolation: 'shared'
+  },
+  components: {Avatar, LoginByPhone, Modal, Icon, Loading, Empty},
   props: ['tenantId'],
   data() {
     return {
       tenant: {},
       loading: false,
+      loginLoading: false,
       error: false,
       joinLoading: false,
       joinStatus: null,
-      disabled: false
+      disabled: false,
     }
   },
   mounted() {
-    this.getTenantDetail()
+    const userInfo = GetUserInfo().userInfo || {};
+    this.getTenantDetail(!!userInfo.userId)
   },
   methods: {
     reload() {
@@ -74,11 +89,15 @@ export default {
           return '申请加入'
       }
     },
-    async getTenantDetail() {
+    async getTenantDetail(isLogin) {
       this.loading = true
       Tenant.tenantDetail(this.tenantId).then((res) => {
         this.tenant = res.data || {}
-        this.getStatus()
+        if (isLogin) {
+          this.getStatus()
+        } else {
+          this.loading = false
+        }
       }).catch(() => {
         this.error = true
       })
@@ -151,10 +170,13 @@ export default {
   font-weight: bold;
 }
 
-.action {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 29px;
+.loginByPhone {
+  color: #fff;
+  background-color: #3c9cff;
+  border-radius: 3px;
+  height: fit-content !important;
+  width: fit-content !important;
+  padding: 4px 15px;
+  font-size: 14px;
 }
 </style>

@@ -6,7 +6,7 @@
           name="outStockShop"
           :size='32'
           :height='24'
-          :img='outShop'
+          :img='erp_outShop'
           :number='loading? undefined : allSkus.length'
           @addAfter='addAfter'
       />
@@ -37,11 +37,11 @@
 
 <script>
 import Bouncing from "../../../../components/Bouncing";
-import outShop from '../../../../static/images/outShop.png'
 import {OutStock} from "MES-Apis/lib/OutStock/promise";
 import {isArray} from "../../../../util/Tools";
 import Popup from "../../../../components/Popup";
 import WaitOutSku from "../WaitOutSku";
+import {erp_outShop} from "../../../../images/erp/outShop";
 
 export default {
   name: 'OutStockShop',
@@ -53,7 +53,7 @@ export default {
   ],
   data() {
     return {
-      outShop,
+      erp_outShop,
       loading: false,
       allSkus: [],
       user: {},

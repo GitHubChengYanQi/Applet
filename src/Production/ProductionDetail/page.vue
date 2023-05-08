@@ -28,7 +28,11 @@
         <Card title="生产信息" style="border-bottom: solid 1px #F5F5F5">
           <view class="skuItem">
             <view class="sku">
-              <SkuItem :sku-result="detail.skuResult" :other-data="['版本号：'+detail.partsResult.version]" />
+              <SkuItem
+                  extra-width="90px"
+                  :sku-result="detail.skuResult"
+                  :other-data="['版本号：'+detail.partsResult.version]"
+              />
             </view>
             <view>
               x {{ detail.planNumber }}
@@ -62,6 +66,10 @@
                     :progress="outProgress(detail).data"
                     :total="outProgress(detail).total"
                 />
+              </view>
+              <view class="actions">
+                <LinkButton :disabled="detail.noOutNumber === 0" @click="create(detail)">创建出库任务</LinkButton>
+                <LinkButton @click="goToTask(detail)">查看任务列表</LinkButton>
               </view>
             </view>
             <u-divider
@@ -99,8 +107,8 @@
           >
             <view class="cardInfo">
               <view class="cardCoding">
-                <image v-if="item.status === 99" src="../../static/images/page-ing.png" />
-                <image v-else src="../../static/images/page-ok.png" />
+                <image v-if="item.status === 99" :src="production_page_ing" />
+                <image v-else :src="production_page_ok" />
                 <view class="status">
                   {{ item.status === 0 ? '进行中' : '已完成' }}
                 </view>
@@ -144,8 +152,12 @@
             </view>
           </view>
         </Card>
+
       </List>
     </view>
+
+    <CreateOutStockTask ref="createOutStockTask" @refresh="refresh" />
+
   </view>
 </template>
 
@@ -160,12 +172,18 @@ import Progress from "../../components/Progress";
 import List from "../../components/List/index";
 import LinkButton from "../../components/LinkButton";
 import {safeAreaHeight} from '../../util/Tools';
+import CreateOutStockTask from "../ProductionList/components/CreateOutStockTask";
+import Modal from "../../components/Modal";
+import {production_page_ing} from "../../images/production/page-ing";
+import {production_page_ok} from "../../images/production/page-ok";
 
 export default {
   props: ['productionPlanId'],
-  components: {LinkButton, List, Progress, SkuItem, Loading, Empty, Card},
+  components: {Modal, CreateOutStockTask, LinkButton, List, Progress, SkuItem, Loading, Empty, Card},
   data() {
     return {
+      production_page_ok,
+      production_page_ing,
       rateTool,
       loading: true,
       error: false,
@@ -258,7 +276,8 @@ export default {
           ...res.data,
           skuResult: planDetailResults.skuResult || {},
           partsResult: planDetailResults.partsResult || {},
-          planNumber: planDetailResults.planNumber
+          planNumber: planDetailResults.planNumber,
+          noOutNumber: (planDetailResults.planNumber || 0) - (planDetailResults.makingNumber || 0)
         }
       }).catch(() => {
         this.error = true
@@ -270,7 +289,18 @@ export default {
       uni.navigateTo({
         url: `/Production/ProductionCardDetail/index?cardId=${cardId}`
       })
-    }
+    },
+    create(item) {
+      this.$refs.createOutStockTask.create({...item, number: item.noOutNumber})
+    },
+    goToTask(item) {
+      uni.navigateTo({
+        url:`/Erp/ProductionOutStockList/index?planId=${item.productionPlanId}`
+      })
+    },
+    refresh(item) {
+      this.getDetail()
+    },
   }
 }
 </script>
@@ -327,6 +357,13 @@ export default {
       }
 
     }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
   }
 
   .cardItem {

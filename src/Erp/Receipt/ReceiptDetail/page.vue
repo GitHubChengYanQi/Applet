@@ -9,7 +9,7 @@
     <view v-else>
       <Loading :loading="loading" />
       <Header
-          :avatar="user.avatar"
+          :avatar="user.miniAppAvatar"
           :coding="receipts.coding"
           :create-name="user.name"
           :create-time="detailData.createTime"

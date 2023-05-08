@@ -91,7 +91,7 @@ export const timeDifference = (tmpTime) => {
 };
 
 export const safeAreaHeight = (_this, num) => {
-    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo.safeAreaInsets.bottom
+    const safeAreaHeight = _this.$store.state.systemInfo.systemInfo?.safeAreaInsets?.bottom || 0
     return safeAreaHeight < (num || 0) ? (num || 0) : safeAreaHeight
 }
 
@@ -180,3 +180,132 @@ export const MathCalc = (a, b, type, decimal = 2) => {//加减乘除
 export const routeReplace = (route) => {
     return route.replaceAll("%3A", ":").replaceAll("%2F", "/").replaceAll("%3F", "?").replaceAll("%3D", "=").replaceAll("%26", "&")
 }
+
+export const saveImg = (url) => {
+    return new Promise((resolve) => {
+        uni.getSetting({
+
+            //获取用户的当前设置
+
+            success: res => {
+
+                if (res.authSetting['scope.writePhotosAlbum']) {
+                    //验证用户是否授权可以访问相册
+                    uni.getImageInfo({
+                        src: url,
+                        success: function (image) {
+                            uni.saveImageToPhotosAlbum({
+                                filePath: image.path,
+                                success: function () {
+                                    uni.showToast({
+                                        title: '保存成功，请在相册中查看',
+                                        icon: 'none',
+                                        duration: 2000
+                                    });
+                                    resolve(true)
+                                },
+                                fail: function (err) {
+                                    uni.hideLoading();
+                                    uni.showToast({
+                                        title: '保存失败',
+                                        icon: 'none',
+                                        duration: 2000
+                                    });
+                                    resolve(false)
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    uni.authorize({
+                        //如果没有授权，向用户发起请求
+                        scope: 'scope.writePhotosAlbum',
+                        success: () => {
+                            uni.getImageInfo({
+                                src: url,
+                                success: function (image) {
+                                    uni.saveImageToPhotosAlbum({
+                                        filePath: image.path,
+                                        success: function () {
+                                            uni.showToast({
+                                                title: '保存成功，请在相册中查看',
+                                                icon: 'none',
+                                                duration: 2000
+                                            });
+                                            resolve(true)
+                                        },
+                                        fail: function (err) {
+                                            uni.hideLoading();
+                                            uni.showToast({
+                                                title: '保存失败',
+                                                icon: 'none',
+                                                duration: 2000
+                                            });
+                                            resolve(false)
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        fail: () => {
+                            uni.showToast({
+                                title: '请打开保存相册权限!',
+                                icon: 'none',
+                                duration: 2000
+                            });
+                            resolve(false)
+                            setTimeout(() => {
+
+                                uni.openSetting({
+
+                                    //调起客户端小程序设置界面,让用户开启访问相册
+
+                                    success: res2 => {
+
+                                        // console.log(res2.authSetting)
+
+                                    }
+
+                                });
+
+                            }, 2000);
+
+                        }
+
+                    });
+
+                }
+
+            }
+
+        });
+    })
+}
+
+const fsm = uni.getFileSystemManager();
+const FILE_BASE_NAME = 'tmp_base64src'; //自定义文件名
+
+export const base64src = async (base64data) => {
+    return new Promise((resolve, reject) => {
+        const [, format, bodyData] = /data:image\/(\w+);base64,(.*)/.exec(base64data) || [];
+        if (!format) {
+            return (new Error('ERROR_BASE64SRC_PARSE'));
+        }
+        const filePath = `${wx.env.USER_DATA_PATH}/${FILE_BASE_NAME + Date.now()}.${format}`;
+        const buffer = uni.base64ToArrayBuffer(bodyData);
+        fsm.writeFile({
+            filePath,
+            data: buffer,
+            encoding: 'binary',
+            success() {
+                resolve(filePath);
+            },
+            fail() {
+                reject()
+            },
+        });
+    })
+};
+
+
+

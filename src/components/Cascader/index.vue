@@ -1,70 +1,73 @@
 <template>
-  <view class="aui-picker-main">
-    <view class="aui-picker-nav">
-      <view class="aui-picker-navitem"
-            v-if="nav.length>0"
-            v-for="(item, index) in nav"
-            :key="index"
-            :data-index="index"
-            :class="[index==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+index]"
-            :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
-            @click.stop="_changeNav($event)"
-      >{{ item.name }}
-      </view>
-      <view class="aui-picker-navitem"
-            :key="nav.length"
-            :data-index="nav.length"
-            :class="[nav.length==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+nav.length]"
-            :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
-            @click.stop="_changeNav($event)"
-      >
-        请选择
-      </view>
-      <view class="aui-picker-navborder" :style="{left: navBorderLeft+'px'}"></view>
-    </view>
-    <view class="aui-picker-content">
-      <view class="aui-picker-lists">
-        <view class="aui-picker-list"
-              v-for="(list, index) in queryItems.length + 1"
+  <view>
+    <Empty description="暂无数据" v-if="data.length === 0" />
+    <view class="aui-picker-main" v-else>
+      <view class="aui-picker-nav" v-if="!noChildren">
+        <view class="aui-picker-navitem"
+              v-if="nav.length>0"
+              v-for="(item, index) in nav"
               :key="index"
               :data-index="index"
-              :class="[index==navCurrentIndex ? 'active' : '']"
+              :class="[index==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+index]"
+              :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
+              @click.stop="_changeNav($event)"
+        >{{ item.name }}
+        </view>
+        <view class="aui-picker-navitem"
+              :key="nav.length"
+              :data-index="nav.length"
+              :class="[nav.length==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+nav.length]"
+              :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
+              @click.stop="_changeNav($event)"
         >
-          <view class="aui-picker-list-warp" v-if="index == 0">
-            <view class="aui-picker-item"
-                  v-for="(item, key) in items"
-                  v-if="item.pid===0"
-                  :key="key"
-                  :data-pindex="index"
-                  :data-index="key"
-                  :data-id="item.id"
-                  :data-pid="item.pid"
-                  :data-name="item.name"
-                  :class="{'active': result.length>index && result[index].id==item.id}"
-                  :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
-                  @click.stop="_chooseItem($event)"
-                  @touchstart="_btnTouchStart($event)"
-                  @touchmove="_btnTouchEnd($event)"
-                  @touchend="_btnTouchEnd($event)"
-            >{{ item.name }}
+          请选择
+        </view>
+        <view class="aui-picker-navborder" :style="{left: navBorderLeft+'px'}"></view>
+      </view>
+      <view class="aui-picker-content" :style="{height:noChildren ? '100%' : 'calc(100% - 50px)'}">
+        <view class="aui-picker-lists">
+          <view class="aui-picker-list"
+                v-for="(list, index) in queryItems.length + 1"
+                :key="index"
+                :data-index="index"
+                :class="[index==navCurrentIndex ? 'active' : '']"
+          >
+            <view class="aui-picker-list-warp" v-if="index == 0">
+              <view class="aui-picker-item"
+                    v-for="(item, key) in items"
+                    v-if="item.pid===0"
+                    :key="key"
+                    :data-pindex="index"
+                    :data-index="key"
+                    :data-id="item.id"
+                    :data-pid="item.pid"
+                    :data-name="item.name"
+                    :class="{'active': result.length>index && result[index].id==item.id}"
+                    :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
+                    @click.stop="_chooseItem($event)"
+                    @touchstart="_btnTouchStart($event)"
+                    @touchmove="_btnTouchEnd($event)"
+                    @touchend="_btnTouchEnd($event)"
+              >{{ item.name }}
+              </view>
             </view>
-          </view>
-          <view class="aui-picker-list-warp" v-else>
-            <view class="aui-picker-item"
-                  v-for="(item, key) in queryItems[index-1]"
-                  :key="key"
-                  :data-pindex="index"
-                  :data-index="key"
-                  :data-id="item.id"
-                  :data-pid="item.pid"
-                  :data-name="item.name"
-                  :class="{'active': result.length>index && result[index].id==item.id}"
-                  :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
-                  @click.stop="_chooseItem($event)"
-                  @touchstart="_btnTouchStart($event)"
-                  @touchmove="_btnTouchEnd($event)"
-                  @touchend="_btnTouchEnd($event)"
-            >{{ item.name }}
+            <view class="aui-picker-list-warp" v-else>
+              <view class="aui-picker-item"
+                    v-for="(item, key) in queryItems[index-1]"
+                    :key="key"
+                    :data-pindex="index"
+                    :data-index="key"
+                    :data-id="item.id"
+                    :data-pid="item.pid"
+                    :data-name="item.name"
+                    :class="{'active': result.length>index && result[index].id==item.id}"
+                    :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
+                    @click.stop="_chooseItem($event)"
+                    @touchstart="_btnTouchStart($event)"
+                    @touchmove="_btnTouchEnd($event)"
+                    @touchend="_btnTouchEnd($event)"
+              >{{ item.name }}
+              </view>
             </view>
           </view>
         </view>
@@ -74,9 +77,17 @@
 </template>
 
 <script>
+import {isArray} from "../../util/Tools";
+import Empty from "../Empty";
+
 export default {
   name: 'Cascader',
+  components: {Empty},
   props: {
+    changeOnSelect: {
+      type: Boolean,
+      default: true
+    },
     value: {
       type: String,
       default: ''
@@ -103,6 +114,7 @@ export default {
       queryItems: [],
       navCurrentIndex: 0,
       navBorderLeft: 40,
+      noChildren: false,
       result: [],
       touchConfig: {
         index: -1,
@@ -115,9 +127,10 @@ export default {
     }
   },
   created() {
-    const _this = this;
+
   },
   mounted() {
+    this.noChildren = !this.data.find(item => isArray(item.children).length > 0)
     this.open()
   },
   methods: {
@@ -137,12 +150,14 @@ export default {
       })
       this.navCurrentIndex = nav.length
       this.result = parents
-      const _el = uni.createSelectorQuery().in(this).select(".aui-picker-navitem-" + nav.length);
-      setTimeout(() => {
-        _el.boundingClientRect(data => {
-          _this.navBorderLeft = data.left + 20;
-        }).exec();
-      }, 100)
+      if (!this.noChildren) {
+        const _el = uni.createSelectorQuery().in(this).select(".aui-picker-navitem-" + nav.length);
+        setTimeout(() => {
+          _el.boundingClientRect(data => {
+            _this.navBorderLeft = data.left + 20;
+          }).exec();
+        }, 100)
+      }
     },
     getParents(arr, key) {
       let ids = []
@@ -203,7 +218,9 @@ export default {
         setTimeout(() => {
           _el.boundingClientRect(data => {
             _this.navBorderLeft = data.left + 20;
-            _this.$emit("change", {id: id, name: name, pid: pid});
+            if (_this.changeOnSelect){
+              _this.$emit("change", {id: id, name: name, pid: pid});
+            }
           }).exec();
         }, 100)
       } else { //无下级数据
@@ -372,8 +389,6 @@ export default {
 
 .aui-picker-content {
   width: 100%;
-  height: -webkit-calc(100% - 100px);
-  height: calc(100% - 100px);
 }
 
 .aui-picker-nav {

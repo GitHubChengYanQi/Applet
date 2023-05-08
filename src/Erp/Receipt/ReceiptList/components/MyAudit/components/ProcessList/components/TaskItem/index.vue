@@ -21,7 +21,7 @@
           <template v-if="isArray(users).length === 0">无</template>
           <template v-for="(item, index) in isArray(users).filter((userItem, userIndex) => userIndex < 3)">
             <span :key='index' class='userItem'>
-              <Avatar :circular="true" style="margin-right: 4px" :src="item.avatar" size="18" />
+              <Avatar :circular="true" style="margin-right: 4px" :src="item.miniAppAvatar" size="18" />
               {{ item.name }}
             </span>
           </template>

@@ -4,20 +4,15 @@
       <view class="header">
         <view class="user">
           <view class="userInfo" @click="clickAvatar">
-            <Avatar size="30" :src="userInfo.avatar" circular />
-            <template v-if="auth">
-              <view class="name">
-                {{ userInfo.name }}
-                <u-icon name="arrow-right" size="9" />
-              </view>
-              <view class="dept">
-                {{ isArray(userInfo.dept)[0] || '' }}
-                {{ isArray(userInfo.dept)[0] && isArray(userInfo.role)[0] && '-' || '' }}
-                {{ isArray(userInfo.role)[0] || '' }}
-              </view>
-            </template>
-            <view v-else class="name">
-              未登录
+            <Avatar size="30" :src="userInfo.miniAppAvatar" circular />
+            <view class="name">
+              {{ userInfo.nickName || userInfo.name }}
+              <u-icon name="arrow-right" size="9" v-if="false" />
+            </view>
+            <view class="dept" v-if="false">
+              {{ isArray(userInfo.dept)[0] || '' }}
+              {{ isArray(userInfo.dept)[0] && isArray(userInfo.role)[0] && '-' || '' }}
+              {{ isArray(userInfo.role)[0] || '' }}
             </view>
           </view>
           <view class="switchTenant" @click="switchTenant">
@@ -37,7 +32,7 @@
           <view class="tanantSet" @click="tanantSet">
             团队设置
           </view>
-          <img class="image" src="../../static/images/user/tenant.png" />
+          <img class="image" :src="user_tenant" />
         </view>
         <view>
 
@@ -51,7 +46,7 @@
             :column="4"
             font-size="16"
             icon-size="39"
-            padding="24px 0"
+            padding="20px 0"
             @click="click"
         />
       </view>
@@ -69,45 +64,50 @@
 <script>
 
 import Icon from "../../components/Icon";
-import {Menus} from "../Home/menu";
 import Avatar from "../../components/Avatar";
 import MenuCard from "../../components/MenuCard";
 import {getLocalParmas, isArray} from "../../util/Tools";
 import OtherActions from "../components/OtherActions";
 import MyButton from "../../components/MyButton";
+import {user_tenant} from "../../images/user/tenant";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  props: ['auth'],
+  props: [],
   components: {MyButton, OtherActions, MenuCard, Avatar, Icon},
   data() {
     return {
+      user_tenant,
       isArray,
       menus: [],
       userInfo: {},
       tenant: {}
     }
   },
+  mounted() {
+    this.init()
+  },
   watch: {
-    auth(auth) {
-      if (auth) {
-        this.init()
+    '$store.state.userInfo.userInfo': {
+      deep: true,
+      handler(userInfo) {
+        this.userInfo = userInfo
+      }
+    },
+    '$store.state.userInfo.tenant': {
+      deep: true,
+      handler(tenant) {
+        this.tenant = tenant
+      }
+    },
+    '$store.state.userInfo.myMenus': {
+      deep: true,
+      handler(menus) {
+        this.menus = menus
       }
     }
-  },
-  mounted() {
-    const menus = []
-    Menus.forEach(item => {
-      item.menus.forEach(item => {
-        if (item.type && item.type.includes('my')) {
-          menus.push(item)
-        }
-      })
-    })
-    this.menus = menus
-    this.init()
   },
   methods: {
     tanantSet() {
@@ -121,15 +121,9 @@ export default {
       })
     },
     init() {
-      const userInfo = this.$store.state.userInfo.userInfo
+      this.userInfo = this.$store.state.userInfo.userInfo
       this.tenant = this.$store.state.userInfo.tenant
-      let phone = userInfo.phone || '';
-      phone = "" + phone;
-      const newPhone = phone ? phone.substr(0, 3) + "****" + phone.substr(7) : '-'
-      this.userInfo = {
-        ...userInfo,
-        phone: newPhone
-      }
+      this.menus = this.$store.state.userInfo.myMenus
     },
     tenantMenusClick(menu) {
       switch (menu.key) {
@@ -151,11 +145,9 @@ export default {
       })
     },
     clickAvatar() {
-      if (!this.auth) {
-        uni.navigateTo({
-          url: `/pages/login/index?backUrl=${getLocalParmas().stringRoute}`,
-        })
-      }
+      uni.navigateTo({
+        url: '/User/UserInfo/index'
+      })
     }
   }
 }
@@ -163,7 +155,6 @@ export default {
 
 <style lang="scss">
 .home {
-  background-image: url("/static/images/home/home-bg.png");
   height: 100vh;
 
   .content {
@@ -186,6 +177,9 @@ export default {
         display: flex;
         align-items: center;
         gap: 8px;
+        padding: 0;
+        background-color: #fff;
+        height: 32px;
 
         .name {
           font-size: 16px;
@@ -199,6 +193,10 @@ export default {
         .dept {
           font-size: 12px;
           color: #666666;
+        }
+
+        &::after {
+          content: none;
         }
       }
 
@@ -216,7 +214,7 @@ export default {
     .tenant {
       position: relative;
       background-color: #FA8F2B;
-      padding: 10px;
+      padding: 10px 16px 10px 10px;
       display: flex;
       align-items: center;
       color: #FFFFFF;
@@ -238,20 +236,21 @@ export default {
 
       .tanantSet {
         font-size: 14px;
-        padding: 5px 10px;
+        padding: 2px 10px;
         border-radius: 50px;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        min-width: 70px;
+        min-width: 56px;
         text-align: center;
         z-index: 1;
+        font-weight: bold;
       }
 
       .image {
-        width: 50px;
-        height: 50px;
+        width: 38px;
+        height: 38px;
         position: absolute;
-        right: 0;
+        right: -3px;
       }
 
     }

@@ -1,13 +1,14 @@
 <template>
   <view>
     <u-popup
+        :round="round"
         :show="show"
         @close="$emit('close')"
         @open="$emit('showBefore')"
     >
-      <view v-if="!noTitle" class='popupHeader'>
+      <view v-if="!noTitle" class='popupHeader' :style="{borderBottom:!noHeaderBorder ?'1px solid #EEEEEE' : 'none'}">
         <span v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
-        {{ title || '' }}
+        <slot name="title">{{ title || '' }}</slot>
         <span class='popupRight' @click="!rightText && $emit('close')">
           <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
           <u-icon v-else name="close" />
@@ -25,6 +26,7 @@ export default {
   name: 'Popup',
   components: {LinkButton},
   props: [
+    'round',
     'zIndex',
     'show',
     'title',
@@ -34,6 +36,7 @@ export default {
     'rightText',
     'getContainer',
     'noTitle',
+    'noHeaderBorder',
   ],
   watch: {
     show(value) {
@@ -53,7 +56,6 @@ export default {
   line-height: 45px;
   text-align: center;
   font-size: 18px;
-  border-bottom: 1px solid #EEEEEE;
   position: relative;
 
   .popupRight {

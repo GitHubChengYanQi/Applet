@@ -15,7 +15,7 @@
                   :type="itemData(item).stepsStatus === 'success' ? 'checkbox-filled' : 'clear'"
               />
             </view>
-            <Avatar :src='old ? item.avatar : item.auditUserResult.avatar' />
+            <Avatar :src='old ? item.miniAppAvatar : item.auditUserResult.miniAppAvatar' />
           </view>
           {{ old ? item.name : item.auditUserResult.name }}
         </view>

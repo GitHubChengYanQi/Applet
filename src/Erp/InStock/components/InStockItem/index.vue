@@ -2,7 +2,11 @@
   <view>
     <view class='sku' style="margin: 0">
       <view :style="{ alignItems: inStockItemData().complete && 'flex-start' }" class="skuItem inStockSkuItem">
-        <view v-if="inStockItemData().complete" :class="['logo', inStockItemData().error ? 'errLogo' : 'infoLogo']">
+        <view
+            v-if="inStockItemData().complete"
+            :class="['logo', inStockItemData().error ? 'errLogo' : 'infoLogo']"
+            :style="{background: `url(${inStockItemData().error ? erp_error : erp_info})`}"
+        >
           <span>{{ moment(detail ? item.createTime : item.updateTime).format('YYYY-MM-DD') }}</span>
         </view>
         <view class='item'>
@@ -35,6 +39,8 @@
 import moment from "util/Common/moment";
 import SkuItem from "../../../../components/SkuItem";
 import ShopNumber from "../../../../components/ShopNumber";
+import {erp_error} from "../../../../images/erp/error";
+import {erp_info} from "../../../../images/erp/info";
 
 export default {
   name: 'InStockItem',
@@ -49,6 +55,8 @@ export default {
   ],
   data() {
     return {
+      erp_error,
+      erp_info,
       moment
     }
   },
@@ -134,12 +142,10 @@ export default {
 
   .errLogo {
     color: $uni-color-error;
-    background: url("../../../../static/images/error.png");
   }
 
   .infoLogo {
     color: $primary-color;
-    background: url("../../../../static/images/info.png");
   }
 
   .logo {

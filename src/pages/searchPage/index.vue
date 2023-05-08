@@ -1,6 +1,5 @@
 <template>
   <Auth>
-
     <Page v-if="auth && formType" :formType="formType" :searchValue="searchValue" />
   </Auth>
 </template>

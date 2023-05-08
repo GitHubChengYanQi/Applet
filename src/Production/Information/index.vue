@@ -77,10 +77,10 @@
 </template>
 
 <script>
-	import Card from '../../components/Card/index.vue'
-	import Search from '../../components/Search/index.vue'
-	import ShopNumber from '../../components/ShopNumber/index.vue'
-	import BottomButton from '../../components/BottomButton/index.vue'
+	import Card from '../../components/Card/index'
+	import Search from '../../components/Search/index'
+	import ShopNumber from '../../components/ShopNumber/index'
+	import BottomButton from '../../components/BottomButton/index'
 	export default{
 		components:{
 			Card,

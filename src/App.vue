@@ -7,11 +7,12 @@ import {getLocalParmas} from "./util/Tools";
 
 Init.initBaseURL(
     process.env.NODE_ENV === "development" ?
-        'http://192.168.2.100'
-        // 'http://192.168.2.220:8885'
+        // 'http://192.168.2.100'
+        'http://192.168.2.220:8885'
         // 'https://api.hh.zz2025.com'
         :
-        process.env.VUE_APP_BASE_URL)
+        process.env.VUE_APP_BASE_URL
+)
 
 
 export default {
@@ -41,6 +42,11 @@ export default {
   },
   methods: {
     appInit() {
+      const miniProgram = uni.getAccountInfoSync().miniProgram
+
+      //浑河 wx4e0e2e89ad2e48ef
+      //道昕 wx8f5e5bc74c513993
+      Init.requestParams({appid: miniProgram.appId}) //
       Init.responseConfig({
         loginTimeOut: () => {
           Message.toast('您已登录超时!\n正在重新登录...', () => {
@@ -67,7 +73,7 @@ export default {
 <style>
 /*每个页面公共css */
 @import "@/static/font/iconfont-weapp-icon.css";
-/*@import '/wxcomponents/common/index.wxss';*/
+
 .u-border-right {
   border-right-width: 0.5px !important;
   border-color: rgba(57, 116, 199, 0.1) !important;

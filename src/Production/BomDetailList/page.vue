@@ -168,10 +168,10 @@ export default {
     },
     selectUser(bomId, user) {
       uni.navigateTo({
-        url: `/User/SelectUser/index?id=${bomId}&type=radio`,
+        url: `/User/UserList/index?id=${bomId}&type=radio`,
         success: function (res) {
           // 通过eventChannel向被打开页面传送数据
-          res.eventChannel.emit('clickDept', {
+          res.eventChannel.emit('checkUsers', {
             checkUsers: user ? [user] : [],
           })
         }

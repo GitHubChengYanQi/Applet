@@ -9,7 +9,7 @@
       >
 
         <view class='avatar'>
-          <Avatar :size="24" :src='user(item).avatar' />
+          <Avatar :size="24" :src='user(item).miniAppAvatar' />
         </view>
 
         <view>

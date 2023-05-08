@@ -4,12 +4,11 @@
       总资产：<span class="num">￥10232.00</span>
     </view>
     <f2-uni
-        v-if="show"
+        :padding="[20,0,20,(windowWidth / 2) - 48]"
         :width="windowWidth - 48"
         :height="170"
         :onInit="onInitChart"
     />
-    <view style="height: 10px" />
   </view>
 </template>
 
@@ -22,17 +21,11 @@ export default {
   data() {
     return {
       current: 0,
-      show: false
+      windowWidth: 0
     }
   },
-  computed: {
-    windowWidth() {
-      if (this.$store.state.systemInfo.systemInfo) {
-        this.show = true
-        return this.$store.state.systemInfo.systemInfo.windowWidth || 0
-      }
-      return 0
-    }
+  created() {
+    this.windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth || 0
   },
   methods: {
     onInitChart: (F2Constructor, config) => {
@@ -69,6 +62,8 @@ export default {
       });
       chart.legend({
         position: 'left',
+        offsetY: 20,
+        verticalAlign: 'middle',
         itemFormatter: (val) => {
           return val + '  ￥' + map[val];
         }
@@ -116,7 +111,7 @@ export default {
 
   .total {
     position: absolute;
-    top: 12px;
+    top: 28px;
     left: 24px;
     font-size: 14px;
 

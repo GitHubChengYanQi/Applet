@@ -7,7 +7,7 @@
         name="waitInstock"
         :size='24'
         :number='order.waitInStockNum || 0'
-        :img='waitInstockShop'
+        :img='erp_waitInstockShop'
     />
     <Bouncing
         :number='order.instockErrorNum'
@@ -15,7 +15,7 @@
         @click="click"
         name="instockError"
         :size='24'
-        :img='instockErrorShop'
+        :img='erp_instockErrorShop'
     />
   </view>
 </template>
@@ -23,8 +23,9 @@
 
 <script>
 import Bouncing from "../../../../components/Bouncing";
-import instockErrorShop from '../../../../static/images/instockErrorShop.png'
-import waitInstockShop from '../../../../static/images/waitInstockShop.png'
+
+import {erp_instockErrorShop} from "../../../../images/erp/instockErrorShop";
+import {erp_waitInstockShop} from "../../../../images/erp/waitInstockShop";
 
 export default {
   name: 'InstockShop',
@@ -39,8 +40,8 @@ export default {
   },
   data() {
     return {
-      instockErrorShop,
-      waitInstockShop
+      erp_instockErrorShop,
+      erp_waitInstockShop
     }
   },
   methods:{}

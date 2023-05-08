@@ -1,6 +1,6 @@
 <template>
   <view>
-    <van-swipe-cell :disabled="disabled" :id="swipeId" :right-width="500" :left-width="500" @open="open">
+    <van-swipe-cell :disabled="disabled" :right-width="500" :left-width="500" @open="open">
       <view slot="left"></view>
       <slot></slot>
       <view slot="right"></view>
@@ -11,7 +11,7 @@
 <script>
 export default {
   name: 'Slide',
-  props: ['swipeId', 'disabled'],
+  props: ['disabled'],
   data() {
     return {
       width: 0

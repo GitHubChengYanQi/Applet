@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_wozaswfa67.js --to ./src/static/font",
+    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_opgre4t3hz.js --to ./src/static/font",
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --minimize",
     "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode cheng --watch --minimize",
     "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh --watch --minimize"
   },
   "dependencies": {
     "@antv/f2": "^3.8.13",
-    "@antv/wx-f2": "^2.1.1",
     "@dcloudio/uni-app": "2.0.2-3070320230222001",
     "@dcloudio/uni-app-plus": "2.0.2-3070320230222001",
     "@dcloudio/uni-h5": "2.0.2-3070320230222001",
@@ -33,10 +32,11 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "^0.2.96",
+    "MES-Apis": "^0.2.110",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",
+    "lrz": "^4.9.41",
     "md5": "^2.3.0",
     "node-sass": "^4.14.1",
     "pinyin-pro": "^3.13.2",

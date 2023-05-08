@@ -3,9 +3,13 @@
     <u-modal
         :show="show"
         :title="title"
-        :content='content'
         :showCancelButton="true"
     >
+      <slot v-if="show">
+        <view class="content">
+          {{ content }}
+        </view>
+      </slot>
       <template slot="confirmButton">
         <view class="buttons">
           <template v-if="!only">
@@ -135,8 +139,13 @@ export default {
     padding: 0;
   }
 
-  .u-modal__content {
+  .content {
     text-align: center;
+    color: #606266;
+  }
+
+  .u-transition {
+    z-index: 10076 !important;
   }
 }
 
