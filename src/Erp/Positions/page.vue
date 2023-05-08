@@ -1,43 +1,71 @@
 <template>
   <view>
-    <Loading skeleton skeleton-type="page" v-if="loading" />
-    <view v-else>
+    <page-container
+        :show="pageContainerShow"
+        :duration="false"
+        :overlay="false"
+        @afterleave="afterleave"
+    />
+    <Empty v-if="error" type="error" description="获取信息异常" />
+    <Loading
+        skeleton-type="page"
+        skeleton
+        v-if="loading"
+    />
+    <view v-else class="selectUser">
       <view class="header">
-        <Icon icon="icon-cangkuguanli1" size="24" />
-        <view class="text">{{ store || '-' }}</view>
+        <uni-breadcrumb separator="/">
+          <uni-breadcrumb-item v-for="(route,index) in positionPage" :key="index">
+            <view @click="positionPageClick(route)">
+              {{ route.name }}
+            </view>
+          </uni-breadcrumb-item>
+        </uni-breadcrumb>
       </view>
-      <Empty description="暂无库位" v-if="positionTree.length === 0" />
-      <view v-else class="allPositions" :style="{paddingBottom: `${60+safeAreaHeight(this,8)}px`}">
-        <PositionItem
-            v-for="(item,index) in positionTree"
-            :key="index"
-            top
-            :position="item"
-            :opens="opens"
-            @openPosition="openPosition"
-            @setting="setting"
+      <view
+          class="users"
+          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
+      >
+        <Empty
+            v-if="positionList.length === 0"
+            description="暂无数据"
         />
+        <view
+            v-for="item in positionList"
+            :key="item.key"
+            class="item"
+            @click="onCheckPosition(item)"
+        >
+          <view class="deptIcon">
+            <Icon icon="icon-pandiankuwei1" size="30" />
+          </view>
+          {{ item.title }}
+        </view>
       </view>
-
-      <BottomButton
-          only
-          text="添加库位"
-          @onClick="create"
-      />
     </view>
 
-    <Loading :loading="getPositionAuthsLoading" />
-
-    <u-action-sheet
-        round="10"
-        :safeAreaInsetBottom="true"
-        cancelText="取消"
-        :actions="settingActions"
-        :title="settingTitle"
-        :show="settingShow"
-        @close="settingShow = false"
-        @select="settingSelect"
-    />
+    <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+      <view class="action">
+        <LinkButton @click="addPosition">添加子库位</LinkButton>
+        <Modal ref="addPositionModal">
+          <u--input
+              placeholder="请输入库位名称"
+              clearable
+              v-model="positionName"
+          />
+        </Modal>
+      </view>
+      <view class="action">
+        <LinkButton :disabled="this.positionPage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
+        <u-action-sheet
+            cancelText="取消"
+            :actions="actionList"
+            :show="actionShow"
+            @close="actionShow = false"
+            @select="actionSelect"
+        />
+      </view>
+    </view>
 
     <Popup
         :show="authShow"
@@ -54,75 +82,209 @@
       </view>
     </Popup>
 
-    <Modal ref="modal" />
+    <Loading :loading="getPositionAuthsLoading" />
 
+    <Modal ref="modal" />
   </view>
 </template>
 
 <script>
-import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
+import Search from "../../components/Search";
 import Loading from "../../components/Loading";
-import PositionItem from "./components/PositionItem";
-import {isArray, safeAreaHeight} from "../../util/Tools";
-import BottomButton from "../../components/BottomButton";
+import UserName from "../../components/UserName";
+import Empty from "../../components/Empty";
+import Avatar from "../../components/Avatar";
+import {safeAreaHeight} from "../../util/Tools";
+import MyButton from "../../components/MyButton";
+import Check from "../../components/Check";
+import Icon from "../../components/Icon";
+import LinkButton from "../../components/LinkButton";
+import AddUser from "../../components/AddUser";
+import Modal from "../../components/Modal";
 import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
-import Tree from "../../components/Tree";
-import Empty from "../../components/Empty";
+import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
-import Icon from "../../components/Icon";
-import Modal from "../../components/Modal";
+import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Modal, Icon, Popup, Empty, Tree, BottomButton, PositionItem, Loading},
   props: ['storehouseId', 'store'],
+  name: 'SelectUser',
+  components: {
+    Tree,
+    Popup,
+    Modal,
+    AddUser,
+    LinkButton,
+    Icon,
+    Check,
+    MyButton,
+    Avatar,
+    Empty,
+    UserName,
+    Loading,
+    Search
+  },
   data() {
     return {
       authShow: false,
-      deptTreeLoading: false,
-      getPositionAuthsLoading: false,
-      positionId: '',
-      authTitle: '',
-      safeAreaHeight,
-      positionTree: [],
-      deptTree: [],
-      positionAuths: [],
+      positionPage: [],
       loading: true,
-      opens: [],
-      settingActions: [],
-      settingTitle: '',
-      settingShow: false,
+      positionList: [],
+      deptTree: [],
+      deptTreeLoading: false,
+      tree: [],
+      searchValue: '',
+      actionShow: false,
+      error: false,
+      safeAreaHeight,
+      tenant: {},
+      actionUser: {},
+      pageContainerShow: false,
+      userActionShow: false,
+      positionName: '',
+      admin: false,
+      getPositionAuthsLoading: false,
+      positionAuths: [],
+      authTitle: '',
     }
   },
   mounted() {
-    const _this = this
-    uni.$on('positionsAddSuccess', () => {
-      _this.getPositionTree()
-    })
-    this.getPositionTree()
+    this.getList()
     this.getDeptTree()
   },
+  computed: {
+    actionList() {
+      return [
+        {
+          name: '修改当前库位名称',
+          key: 'edit',
+        },
+        {
+          name: '删除当前库位',
+          key: 'delete',
+          color: 'red',
+        },
+        {
+          name: '设置权限',
+          // color: '#007aff',
+          key: 'auth',
+        },
+        {
+          name: '绑定物料',
+          color: '#007aff',
+          key: 'bind',
+          disabled: this.positionList.length > 0
+        },
+      ]
+    }
+  },
   methods: {
-    create() {
-      uni.navigateTo({
-        url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}`
-      })
-    },
-    openPosition(position) {
-      if (this.opens.find(id => id === position.key)) {
-        const opens = []
-        this.getAllPositions(isArray(position.children), opens)
-        this.opens = this.opens.filter(id => ![...opens, position.key].includes(id))
-      } else {
-        this.opens = [...this.opens, position.key]
+    actionSelect({key}) {
+      const _this = this
+      const thisPosition = this.positionPage[this.positionPage.length - 1]
+      switch (key) {
+        case 'edit':
+          _this.positionName = thisPosition.name
+          _this.$refs.addPositionModal.dialog({
+            title: '修改当前库位名称',
+            only: false,
+            confirmText: '修改',
+            onConfirm() {
+              return new Promise((resolve) => {
+                if (!_this.positionName) {
+                  Message.toast('请输入库位名称！')
+                  resolve(false)
+                  return
+                }
+                Storehouse.positionsEdit({
+                  data: {
+                    storehousePositionsId: thisPosition.key,
+                    name: _this.positionName
+                  }
+                }).then(() => {
+                  const newPosition = {
+                    key: thisPosition.key,
+                    title: _this.positionName
+                  }
+                  _this.positionPage = _this.positionPage.map(item => {
+                    if (item.key === newPosition.key) {
+                      return {...item, name: newPosition.title}
+                    }
+                    return item
+                  })
+                  _this.tree = _this.editPositionChildren(newPosition, _this.tree)
+                  resolve(true)
+                }).catch(() => {
+                  _this.$refs.modal.dialog({
+                    title: Init.getNewErrorMessage() || '修改失败!'
+                  })
+                  resolve(true)
+                })
+              })
+            }
+          })
+          break;
+        case 'delete':
+          _this.$refs.modal.dialog({
+            title: '删除后不可恢复，是否确认删除？',
+            content: '删除库位【' + thisPosition.name + '】',
+            only: false,
+            confirmError: true,
+            onConfirm() {
+              return new Promise((resolve) => {
+                Storehouse.positionsDelete({
+                  data: {storehousePositionsId: thisPosition.key}
+                }).then(() => {
+                  _this.tree = _this.delPositionChildren(thisPosition.key, _this.tree)
+                  _this.positionPageClick(_this.positionPage[_this.positionPage.length - 2])
+
+                  resolve(true)
+                }).catch(() => {
+                  _this.$refs.modal.dialog({
+                    title: Init.getNewErrorMessage() || '删除失败!'
+                  })
+                  resolve(true)
+                })
+              })
+            }
+          })
+          break
+        case 'bind':
+          uni.navigateTo({
+            url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${thisPosition.key}&position=${thisPosition.name}&store=${this.store}`
+          })
+          break;
+        case 'auth':
+          this.getPositionAuths(thisPosition.key)
+          this.authTitle = thisPosition.name + ' 权限设置'
+          break;
       }
     },
-    saveAuth() {
-      console.log(this.positionAuths)
+    getPositionAuths(positionId) {
+      this.getPositionAuthsLoading = true
+      Storehouse.positionsBindGetDeptIds({
+        params: {positionId}
+      }).then((res) => {
+        this.positionAuths = (res || []).map(key => ({key}))
+        this.authShow = true
+      }).catch(() => {
+      }).finally(() => {
+        this.getPositionAuthsLoading = false
+      })
+    },
+    afterleave() {
+      if (this.positionPage.length > 1) {
+        this.pageContainerShow = false
+        this.positionPageClick(this.positionPage[this.positionPage.length - 2])
+        setTimeout(() => {
+          this.pageContainerShow = this.positionPage.length > 1
+        }, 0)
+      }
     },
     getDeptTree() {
       this.deptTreeLoading = true
@@ -133,124 +295,140 @@ export default {
         this.deptTreeLoading = false
       })
     },
-    setting(position) {
-      this.settingTitle = position.title
-      this.settingShow = true
-      this.positionId = position.key
-
-      let settingActions = [
-        {
-          name: '设置权限',
-          // color: '#007aff',
-          key: 'auth',
-        },
-        {
-          name: '编辑',
-          color: '#f0ad4e',
-          key: 'edit'
-        },
-        {
-          name: '删除',
-          color: '#dd524d',
-          key: 'del'
-        }
-      ]
-
-      if (isArray(position.children).length === 0) {
-        settingActions = [
-          {
-            name: '绑定物料',
-            color: '#007aff',
-            key: 'bind'
-          },
-          ...settingActions
-        ]
-      }
-      this.settingActions = settingActions.map(item => ({
-        ...item,
-        position
-      }))
-    },
-    getPositionAuths(positionId) {
-      this.getPositionAuthsLoading = true
-      Storehouse.positionsBindGetDeptIds({
-        params: {positionId}
-      }).then((res) => {
-        this.positionAuths = res || []
-        this.authShow = true
-      }).catch(() => {
-      }).finally(() => {
-        this.getPositionAuthsLoading = false
-      })
-    },
-    settingSelect(event) {
-      const _this = this
-      switch (event.key) {
-        case 'bind':
-          uni.navigateTo({
-            url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${event.position.key}&position=${event.position.title}&store=${this.store}`
-          })
-          break;
-        case 'auth':
-          this.getPositionAuths(event.position.key)
-          this.authTitle = event.position.title + ' 权限设置'
-          break;
-        case 'edit':
-          uni.navigateTo({
-            url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}&storehousePositionsId=${event.position.key}`
-          })
-          break;
-        case 'del':
-          this.$refs.modal.dialog({
-            title: `确定要删除库位【` + event.position.title + '】吗？',
-            only: false,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Storehouse.positionsDelete({
-                  data: {storehousePositionsId: event.position.key}
-                }).then(() => {
-                  _this.getPositionTree()
-                  Message.successToast('删除成功！')
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage()
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
-          break;
-        default:
-          break
-      }
-    },
-    getPositionTree() {
+    async getList() {
       this.loading = true
-      Storehouse.positionsTreeView({
+      const res = await Storehouse.positionsTreeView({
         params: {
           ids: this.storehouseId
         }
-      }).then((res) => {
-        const opens = []
-        const tree = res.data || []
-        this.positionTree = tree
-        // this.getAllPositions(tree, opens)
-        // this.opens = opens
       }).catch(() => {
-
-      }).finally(() => {
-        this.loading = false
+        this.error = true
       })
+      this.loading = false
+
+      this.tree = res.data || []
+      this.positionList = res.data || []
+      this.positionPage = [{key: 0, name: this.store}]
     },
-    getAllPositions(tree, positions) {
-      tree.forEach(item => {
-        if (isArray(item.children).length > 0) {
-          positions.push(item.key)
-          this.getAllPositions(isArray(item.children), positions)
+    async onCheckPosition(position) {
+      const thisPosition = this.findPosition(position.key, this.tree) || {}
+      this.positionList = thisPosition.children || []
+      this.positionPage = [...this.positionPage, {key: thisPosition.key, name: thisPosition.title}]
+      this.pageContainerShow = true
+    },
+    async positionPageClick(route) {
+      if (route.key === 0) {
+        this.positionList = this.tree
+      } else {
+        const thisPosition = this.findPosition(route.key, this.tree) || {}
+        this.positionList = thisPosition.children || []
+      }
+
+      const newPage = []
+      let stop = false
+      this.positionPage.forEach(item => {
+        if (!stop) {
+          newPage.push(item)
+        }
+        if (item.key === route.key) {
+          stop = true
         }
       })
+      this.positionPage = newPage
+      if (newPage.length === 1) {
+        this.pageContainerShow = false
+      }
+    },
+    addPosition() {
+      const _this = this
+      _this.positionName = ''
+      _this.$refs.addPositionModal.dialog({
+        title: '添加子库位',
+        only: false,
+        confirmText: '添加',
+        onConfirm() {
+          return new Promise((resolve) => {
+            if (!_this.positionName) {
+              Message.toast('请输入库位名称！')
+              resolve(false)
+              return
+            }
+            Storehouse.positionsAdd({
+              data: {
+                name: _this.positionName,
+                sort: _this.positionList.length,
+                storehouseId: _this.storehouseId,
+                pid: _this.positionPage[_this.positionPage.length - 1].key
+              }
+            }).then((res) => {
+              const newPosition = {
+                key: res.data,
+                children: [],
+                title: _this.positionName
+              }
+              _this.positionList = [..._this.positionList, newPosition]
+              const key = _this.positionPage[_this.positionPage.length - 1].key
+              if (key === 0) {
+                _this.tree = [..._this.tree, newPosition]
+              } else {
+                _this.tree = _this.addPositionChildren(key, newPosition, _this.tree)
+              }
+
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '添加失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    findPosition(key, positionList = []) {
+      let position = null
+      positionList.forEach(item => {
+        if ((key + '') === (item.key + '')) {
+          position = item
+        } else {
+          const children = this.findPosition(key, item.children)
+          if (children) {
+            position = children
+          }
+        }
+      })
+      return position
+    },
+    addPositionChildren(key, position, positionList = []) {
+      return positionList.map(item => {
+        if ((key + '') === (item.key + '')) {
+          return {...item, children: [...item.children, position]}
+        } else {
+          return {...item, children: this.addPositionChildren(key, position, item.children || [])}
+        }
+      })
+    },
+    editPositionChildren(position, positionList = []) {
+      return positionList.map(item => {
+        if ((position.key + '') === (item.key + '')) {
+          return {...item, ...position}
+        } else {
+          return {...item, children: this.editPositionChildren(position, item.children || [])}
+        }
+      })
+    },
+    delPositionChildren(key, positionList = []) {
+      const newPositionList = []
+      positionList.map(item => {
+        if ((key + '') !== (item.key + '')) {
+          newPositionList.push({...item, children: this.delPositionChildren(key, item.children || [])})
+        }
+      })
+      return newPositionList
+    },
+    editUser(user) {
+      this.actionUser = user
+      this.userActionShow = true
     }
   }
 }
@@ -258,25 +436,114 @@ export default {
 
 <style lang="scss">
 
-.header {
-  padding: 12px;
-  border-bottom: 1px solid $body-color;
+.navBar {
+  .uni-navbar__header {
+
+    > view {
+      align-items: flex-end;
+    }
+  }
+
+  .uni-navbar__content {
+    border: none;
+  }
+}
+
+.title {
+  padding: 8px;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
+
+  .tenantName {
+    font-size: 12px;
+    color: #ccc;
+  }
+}
+
+.back {
+  height: 51px;
   display: flex;
+  align-items: center;
+}
+
+.selectUser {
+
+  .header {
+    padding: 8px 12px;
+    background-color: #fff;
+    border-bottom: solid 1px #EEEEEE;
+  }
+
+  .users {
+    overflow: auto;
+    background-color: #fff;
+    padding: 0 12px;
+  }
+
+}
+
+.item {
+  padding: 6px;
+  border-bottom: solid 1px #f5f5f5;
+  display: flex;
+  align-items: center;
   gap: 8px;
-  background-color: #fff;
+
+  .userItem {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .deptIcon {
+    //background-color: $body-color;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    //margin-left: 32px;
+  }
+
+  .backDept {
+    color: rgba(0, 0, 0, 0.5);
+  }
 }
 
-.allPositions {
-  padding: 12px 8px;
-}
+.footer {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  z-index: 1;
+  position: fixed;
+  bottom: 0;
+  background-color: #eee;
+  width: calc(100% - 24px);
 
-.u-action-sheet__header {
-  border-bottom: solid 1px #d6d7d9;
+  .checkUsers {
+    height: 35px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+  }
 }
 
 .deptTree {
   height: 50vh;
   overflow: auto;
 }
+
 
 </style>

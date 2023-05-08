@@ -236,7 +236,7 @@ export default {
 
       this.tree = res.data || []
       this.skuClassList = res.data || []
-      this.skuClassPage = [{key: 0, name: '分类管理'}]
+      this.skuClassPage = [{key: '0', name: '分类管理'}]
     },
     async onCheckSkuClass(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
@@ -328,7 +328,7 @@ export default {
     },
     addSkuClassChildren(key, skuClass, skuClassList = []) {
       return skuClassList.map(item => {
-        if (key === item.key) {
+        if ((key + '') === (item.key + '')) {
           return {...item, children: [...item.children, skuClass]}
         } else {
           return {...item, children: this.addSkuClassChildren(key, skuClass, item.children || [])}
@@ -337,7 +337,7 @@ export default {
     },
     editSkuClassChildren(skuClass, skuClassList = []) {
       return skuClassList.map(item => {
-        if (skuClass.key === item.key) {
+        if ((skuClass.key + '') === (item.key + '')) {
           return {...item, ...skuClass}
         } else {
           return {...item, children: this.editSkuClassChildren(skuClass, item.children || [])}
@@ -347,7 +347,7 @@ export default {
     delSkuClassChildren(key, skuClassList = []) {
       const newSkuClassList = []
       skuClassList.map(item => {
-        if (key !== item.key) {
+        if ((key + '') !== (item.key + '')) {
           newSkuClassList.push({...item, children: this.delSkuClassChildren(key, item.children || [])})
         }
       })

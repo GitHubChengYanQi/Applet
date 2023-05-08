@@ -35,7 +35,10 @@
           <Icon icon="icon-shenpijiaru" size="24" />
         </view>
         <view class="actionName">
-          <view class="name">审批加入</view>
+          <view class="name">
+            审批加入
+            <u-badge v-if="tenant.admin" type="warning" max="99" :value="waitJoinUsers"></u-badge>
+          </view>
           <u-icon name="arrow-right" size="12" color="#929293" />
         </view>
       </view>
@@ -110,7 +113,7 @@ import Loading from "../../components/Loading";
 import AddUser from "../../components/AddUser";
 import Avatar from "../../components/Avatar";
 import MyButton from "../../components/MyButton";
-import {getLocalParmas} from "../../util/Tools";
+import {getLocalParmas, isArray} from "../../util/Tools";
 import Modal from "../../components/Modal";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Init} from "MES-Apis/lib/Init";
@@ -127,7 +130,9 @@ export default {
     return {
       tenant: {},
       addUserShow: false,
-      menus: []
+      menus: [],
+      waitJoinUsers: 0,
+
     }
   },
   watch: {
@@ -139,10 +144,32 @@ export default {
     }
   },
   mounted() {
-    this.tenant = this.$store.state.userInfo.tenant || {}
+    const tenant = this.$store.state.userInfo.tenant || {}
+    this.tenant = tenant
     this.menus = this.$store.state.userInfo.menus || {}
+    if (tenant.admin) {
+      this.searchWaitJoinUsers()
+    }
+    const _this = this
+    uni.$on('handleJoinTenant', () => {
+      clearTimeout(_this.timeOutKey)
+      _this.searchWaitJoinUsers()
+    })
   },
   methods: {
+    searchWaitJoinUsers() {
+      Tenant.tenantBindStatusCount({
+        data: {
+          tenantId: this.$store.state.userInfo.tenant.tenantId,
+          status: 0
+        }
+      }).then((res) => {
+        this.waitJoinUsers = res.data || 0
+        this.timeOutKey = setTimeout(() => {
+          this.searchWaitJoinUsers()
+        }, 30000)
+      })
+    },
     preview(url) {
       uni.previewImage({
         current: url,
@@ -334,6 +361,9 @@ export default {
 
         .name {
           flex-grow: 1;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
       }
     }

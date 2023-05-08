@@ -375,6 +375,10 @@ export default {
           phone: userInfo.phone,
           email: userInfo.email,
           deptId: userInfo.deptId,
+          // deptList: userInfo.depts.map(item => ({
+          //   deptId: item.key,
+          //   mainDept: item.admin ? 1 : 0
+          // })),
           position: isArray(userInfo.positionIds).join(',')
         }
       }).then(() => {

@@ -91,7 +91,7 @@ export default {
     }
   },
   mounted() {
-    this.userInfo = this.$store.state.userInfo.userInfo || {}
+    this.userInfo = {...this.$store.state.userInfo.userInfo }
   },
   methods: {
     save() {
@@ -107,7 +107,9 @@ export default {
         onSuccess: (token) => {
           getApp().globalData.token = token
           this.$store.dispatch('userInfo/getUserInfo', true)
-          Message.successToast('保存成功！')
+          Message.successToast('保存成功！', () => {
+            uni.navigateBack()
+          })
         },
         onError: () => {
           Message.errorToast('保存失败！')

@@ -52,7 +52,7 @@ export default {
     styleIsolation: 'shared'
   },
   components: {Avatar, LoginByPhone, Modal, Icon, Loading, Empty},
-  props: ['tenantId'],
+  props: ['tenantId', 'deptId'],
   data() {
     return {
       tenant: {},
@@ -84,7 +84,7 @@ export default {
           return '申请已被拒绝，重新发起申请'
         case 99:
           this.disabled = false
-          return '已同意申请，进入团队'
+          return '进入团队'
         default:
           return '申请加入'
       }
@@ -119,7 +119,12 @@ export default {
     },
     join() {
       this.joinLoading = true
-      Tenant.joinTenant(this.tenantId).then(() => {
+      Tenant.joinTenant({
+        data: {
+          tenantId: this.tenantId,
+          deptId: this.deptId
+        }
+      }).then(() => {
         this.getStatus()
         this.$refs.modal.dialog({
           title: '申请成功！请等待管理员审批。'

@@ -38,7 +38,7 @@
             </view>
             <view style="color: #e1ebf6">|</view>
             <view class="actionItem" @click="positions(item)">
-              库位
+              管理库位
             </view>
             <view style="color: #e1ebf6">|</view>
             <view class="actionItem remove" @click="del(item)">

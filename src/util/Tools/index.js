@@ -1,12 +1,12 @@
 import moment from "util/Common/moment";
 
 // 获取当前地址信息
-export const getLocalParmas = () => {
+export const getLocalParmas = (page) => {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1]
     const search = pages[pages.length - 1]?.options || {}
     const urlSearch = Object.keys(search).length > 0 ? ('?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')) : ''
-    const route = '/' + currentPage.route + urlSearch
+    const route = page || ('/' + currentPage.route + urlSearch)
     return {
         route: route,
         stringRoute: route.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26"),

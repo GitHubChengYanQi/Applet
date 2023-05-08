@@ -38,7 +38,7 @@ export default {
   computed: {
     openGuide() {
       const openGuide = this.$store.state.guide.openGuide
-      if (openGuide) {
+      if (openGuide || this.error) {
         uni.hideTabBar()
       } else {
         uni.showTabBar()
@@ -78,6 +78,7 @@ export default {
               }
             },
             fail(res) {
+              console.log(res)
               _this.authError()
             }
           });

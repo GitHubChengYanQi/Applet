@@ -30,6 +30,21 @@ export default {
       })
     }
   },
+  async onShareAppMessage(res) {
+    const tenant = this.$store.state.userInfo.tenant || {}
+    if (res.from === 'button') {
+      const userInfo = this.$store.state.userInfo.userInfo || {}
+      return {
+        title: userInfo.name + '邀请您加入团队：' + tenant.name,
+        path: `/Tenant/JoinTenant/index?tenantId=${tenant.tenantId}&deptId=${res.target.dataset.deptid}`,
+        imageUrl: tenant.imgLogo
+      }
+    }
+    return {
+      title: tenant.name || '道昕云',
+      imageUrl: url
+    }
+  },
   data() {
     return {
       checkUsers: [],

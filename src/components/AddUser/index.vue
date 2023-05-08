@@ -13,7 +13,7 @@
       </template>
       <view class="addUserAction">
         <view class="addUserActionItem">
-          <button class="share" open-type="share">
+          <button class="share" open-type="share" :data-deptId="deptId">
             <view class="actionTitle">
               转发邀请给好友
             </view>
@@ -48,7 +48,7 @@ import Icon from "../Icon";
 export default {
   name: 'AddUser',
   components: {Icon, Modal, Loading, Popup},
-  props: ['addUserShow'],
+  props: ['addUserShow','deptId'],
   data() {
     return {
       createCodeLoading: false,

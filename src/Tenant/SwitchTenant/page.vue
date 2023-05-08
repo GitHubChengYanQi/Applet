@@ -71,7 +71,7 @@ export default {
   methods: {
     create() {
       uni.navigateTo({
-        url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas().stringRoute}`
+        url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas('/Tenant/TenantSet/index').stringRoute}`
       })
     },
     tenantList() {

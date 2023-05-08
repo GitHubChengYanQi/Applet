@@ -10,7 +10,7 @@
     <Loading
         skeleton-type="page"
         skeleton
-        v-if="loading"
+        v-else-if="loading"
     />
     <view
         v-else-if="noDept"
@@ -43,8 +43,8 @@
             </u-index-item>
           </template>
         </view>
-        <view class="total" :style="{paddingBottom:showFooter ? '10px' : `${safeAreaHeight(this,10)}px`}">
-          {{ total }} 个成员
+        <view class="total">
+          共 {{ total }} 人
         </view>
       </u-index-list>
     </view>
@@ -85,6 +85,10 @@
           </view>
           <view class="backDept">返回上级部门</view>
         </view>
+        <Empty
+            v-if="deptUsers.length === 0 && depts.length === 0"
+            description="暂无数据"
+        />
         <view
             v-for="user in deptUsers"
             :key="user.userId"
@@ -114,6 +118,9 @@
           </view>
         </template>
 
+        <view class="total">
+          共 {{ total }} 人
+        </view>
       </view>
     </view>
 
@@ -133,7 +140,7 @@
           </Modal>
         </view>
         <view class="action">
-          <LinkButton :disabled="noDept" @click="actionShow = true">更多管理</LinkButton>
+          <LinkButton :disabled="noDept || this.deptPage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
           <u-action-sheet
               cancelText="取消"
               :actions="actionList"
@@ -160,7 +167,7 @@
       </template>
     </view>
 
-    <AddUser :add-user-show="addUserShow" @close="addUserShow = false" />
+    <AddUser :add-user-show="addUserShow" @close="addUserShow = false" :deptId="deptPage[deptPage.length - 1].key" />
 
     <u-action-sheet
         cancelText="取消"
@@ -217,7 +224,6 @@ export default {
       groups: [],
       noDept: false,
       showFooter: false,
-      total: 0,
       tenant: {},
       actionUser: {},
       pageContainerShow: false,
@@ -261,7 +267,6 @@ export default {
         {
           name: '修改当前部门名称',
           key: 'edit',
-          disabled: this.deptPage.length <= 1
         },
         {
           name: '删除当前部门',
@@ -302,6 +307,28 @@ export default {
       } else {
         return []
       }
+    },
+    total() {
+      let total = 0;
+      if (this.noDept) {
+        this.groups.forEach(item => {
+          total += item.items.length
+        })
+      } else {
+        const thisDeptPage = this.deptPage[this.deptPage.length - 1]
+        if (thisDeptPage) {
+          const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
+          const ids = [thisDeptPage.key, ...this.getDeptChildrens(thisDept.children)]
+          if (this.searchValue) {
+            total = this.deptUsers.length
+          } else {
+            total = this.users.filter(item => {
+              return ids.find(id => id === (item.deptId + ''))
+            }).length
+          }
+        }
+      }
+      return total
     }
   },
   methods: {
@@ -474,20 +501,14 @@ export default {
       const res = await Dept.deptTree().catch(() => {
         this.error = true
       })
-      const newDepts = res?.data[0]?.children || []
+      const newDepts = isArray(res?.data)[0]?.children || []
       // const newDepts = []
-
-      // const userRes = await User.userList({
-      //   data: {}
-      // }).catch(() => {
-      //   this.error = true
-      // })
 
       const userRes = await Tenant.joinTenantAllList({data: {tenantId: this.tenant.tenantId, status: 99}}).catch(() => {
         this.error = true
       })
 
-      const users = isArray(userRes.data).map(item => {
+      const users = isArray(userRes?.data).map(item => {
         const userResult = item.userResult || {}
         const deptResult = userResult.deptResult || {}
         return {
@@ -506,7 +527,7 @@ export default {
         this.noDept = false
         this.deptTree = res?.data || []
         this.depts = newDepts
-        this.deptPage = [{key: 0, name: this.tenant.name || '顶级'}]
+        this.deptPage = [{key: '0', name: this.tenant.name || '顶级'}]
       }
     },
     onCheckUser(user) {
@@ -564,7 +585,6 @@ export default {
     },
     renderList(users) {
       const charCodeOfA = 'A'.charCodeAt(0);
-      this.total = users.length
       const groups = [];
       if (users.length > 0) {
         const useUser = []
@@ -649,7 +669,7 @@ export default {
         if ((key + '') === (item.key + '')) {
           dept = item
         } else {
-          const childrenDept = this.findDept(key, item.children, dept)
+          const childrenDept = this.findDept(key, item.children)
           if (childrenDept) {
             dept = childrenDept
           }
@@ -659,7 +679,7 @@ export default {
     },
     addDeptChildren(key, dept, depts = []) {
       return depts.map(item => {
-        if (key === item.key) {
+        if ((key + '') === (item.key + '')) {
           return {...item, children: [...item.children, dept]}
         } else {
           return {...item, children: this.addDeptChildren(key, dept, item.children || [])}
@@ -668,7 +688,7 @@ export default {
     },
     editDeptChildren(dept, depts = []) {
       return depts.map(item => {
-        if (dept.key === item.key) {
+        if ((dept.key + '') === (item.key + '')) {
           return {...item, ...dept}
         } else {
           return {...item, children: this.editDeptChildren(dept, item.children || [])}
@@ -678,7 +698,7 @@ export default {
     delDeptChildren(key, depts = []) {
       const newDepts = []
       depts.map(item => {
-        if (key !== item.key) {
+        if ((key + '') !== (item.key + '')) {
           newDepts.push({...item, children: this.delDeptChildren(key, item.children || [])})
         }
       })
@@ -687,6 +707,13 @@ export default {
     editUser(user) {
       this.actionUser = user
       this.userActionShow = true
+    },
+    getDeptChildrens(data = []) {
+      let ids = []
+      data.forEach(item => {
+        ids = ids.concat([item.key], this.getDeptChildrens(item.children))
+      })
+      return ids
     }
   }
 }
@@ -738,6 +765,12 @@ export default {
     padding: 0 12px;
   }
 
+}
+
+.total {
+  padding: 12px;
+  text-align: center;
+  color: #c7c7c7;
 }
 
 .item {
@@ -808,20 +841,6 @@ export default {
         }
       }
     }
-  }
-
-  .total {
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    width: calc(100% - 15px);
-    padding: 10px 15px 10px 0;
-    margin-left: 15px;
-    overflow: hidden;
-    color: #323233;
-    line-height: 24px;
-    background-color: #fff;
   }
 }
 

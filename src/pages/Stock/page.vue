@@ -1,7 +1,19 @@
 <template>
   <view>
+    <uni-nav-bar
+        background-color="#e1ebf6"
+        :height="totalHeight"
+        color="#000"
+        fixed
+        class="navBar"
+        leftWidth="100%"
+    >
+      <view slot="left" class="navLeft" @click="goToTenant">
+        所有仓库
+      </view>
+    </uni-nav-bar>
     <view class="stock">
-      <view class="search">
+      <view class="stockSearch">
         <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="click" />
       </view>
       <view v-if="!loading" class="skuClass">
@@ -23,7 +35,7 @@
         <List
             ref="skuList"
             :list="skuList"
-            max-height="calc(100vh - 103px)"
+            :max-height="`calc(100vh - 103px - ${totalHeight}px)`"
             @request="Sku.listV1_1"
             @listSource="listSource"
         >
@@ -52,6 +64,9 @@ import {isArray} from "../../util/Tools";
 import Loading from "../../components/Loading";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: 'Stock',
   components: {Loading, List, Search, SkuItem},
   data() {
@@ -62,12 +77,14 @@ export default {
       skuList: [],
       skuImages: [],
       skuClass: [],
+      totalHeight: 0,
       checkSkuClass: '',
       loading: false,
       screenData: {}
     }
   },
   mounted() {
+    this.totalHeight = this.$store.state.systemInfo.navHeight
     const _this = this;
     _this.getSkuClass()
     uni.$on(this.eventName, data => {
@@ -103,7 +120,7 @@ export default {
     },
     async listSource(skuList, newSkuList) {
       this.skuList = skuList
-      if (newSkuList.length > 0){
+      if (newSkuList.length > 0) {
         await Sku.getMediaUrls({
           mediaIds: newSkuList.map(item => item.images?.split(',')[0]),
           option: 'image/resize,m_fill,h_74,w_74',
@@ -144,8 +161,29 @@ export default {
 
 <style lang="scss">
 
+.navBar {
+  .uni-navbar__header {
+
+    > view {
+      align-items: flex-end;
+    }
+  }
+
+  .uni-navbar__content {
+    border: none;
+  }
+
+  .navLeft {
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center !important;
+    gap: 8px;
+    padding-bottom: 9px;
+  }
+}
+
 .stock {
-  height: 100vh;
   background-color: #FFFFFF;
   overflow-x: hidden;
 }
@@ -154,7 +192,7 @@ export default {
   background-color: $body-color;
 }
 
-.search {
+.stockSearch {
   padding: 0 12px;
 }
 

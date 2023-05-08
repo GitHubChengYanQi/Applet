@@ -25,7 +25,8 @@
       "path": "pages/Stock/index",
       "style": {
         "navigationBarTitleText": "库房",
-        "enablePullDownRefresh": true
+        "enablePullDownRefresh": true,
+        "navigationStyle": "custom"
       }
     },
     {

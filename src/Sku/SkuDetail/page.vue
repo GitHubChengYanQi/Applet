@@ -424,6 +424,7 @@ export default {
       this.customIndicator = current + 1;
     },
     auto() {
+      this.showErWeiMa = true;
       const qr = new UQRCode;
       // 设置二维码内容
       qr.data = this.skuId;
@@ -437,7 +438,6 @@ export default {
       qr.canvasContext = uni.createCanvasContext('firstCanvas', this);
       // 调用绘制方法将二维码图案绘制到canvas上
       qr.drawCanvas();
-      this.showErWeiMa = !this.showErWeiMa;
     },
     showStoreList() {
       this.inkindItemHidden = !this.inkindItemHidden

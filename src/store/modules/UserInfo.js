@@ -2,6 +2,7 @@ import {User} from "MES-Apis/lib/User/promise";
 import {Init} from "MES-Apis/lib/Init";
 import {base64src, isArray} from "../../util/Tools";
 import {logo} from "../../images/logo";
+import UQRCode from "uqrcodejs";
 
 const init = {
     auth: false,
@@ -26,7 +27,7 @@ const actions = {
             const userRes = await User.getUserInfo()
             const userInfo = userRes.data || {}
             const url = await base64src(logo)
-            state.userInfo = {...userInfo, avatar: userInfo.miniAppAvatar || userInfo.avatar}
+            state.userInfo = {...userInfo, avatar: userInfo.miniAppAvatar}
             state.tenant = {
                 tenantId: userInfo.tenantId,
                 name: userInfo.tenantName,
@@ -35,7 +36,19 @@ const actions = {
                 imgLogo: userInfo.tenantLogo?.url || url
             }
             state.menus = isArray(userInfo.miniAppMenus).filter(item => isArray(item.subMenus).length > 0)
-            if (!payload) {
+            if (!payload) {   const qr = new UQRCode;
+                // 设置二维码内容
+                qr.data = this.skuId;
+                // 设置二维码大小，必须与canvas设置的宽高一致
+                qr.size = 187;
+                // 调用制作二维码方法
+                qr.make();
+                // 获取canvas上下文
+                // 如果是组件，this必须传入
+                // 设置uQRCode实例的canvas上下文
+                qr.canvasContext = uni.createCanvasContext('firstCanvas', this);
+                // 调用绘制方法将二维码图案绘制到canvas上
+                qr.drawCanvas();
                 dispatch('getHomeMenus', true)
             }
         }
