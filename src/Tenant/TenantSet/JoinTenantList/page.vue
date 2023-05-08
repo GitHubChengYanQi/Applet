@@ -85,6 +85,10 @@ export default {
     }
   },
   methods: {
+    refresh() {
+      this.searchValue = ''
+      this.onSearch()
+    },
     onSearch() {
       this.$refs.list.submit({...this.defaultParams, keywords: this.searchValue})
     },

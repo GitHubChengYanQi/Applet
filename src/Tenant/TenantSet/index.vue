@@ -12,7 +12,7 @@ export default {
   data() {
     return {}
   },
-  async onShareAppMessage(res) {
+  onShareAppMessage(res) {
     const tenant = this.$store.state.userInfo.tenant || {}
     if (res.from === 'button') {
       const userInfo = this.$store.state.userInfo.userInfo || {}

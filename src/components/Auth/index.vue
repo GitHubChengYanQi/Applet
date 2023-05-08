@@ -13,7 +13,7 @@ import Loading from "../Loading";
 import Error from "../../pages/Error";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Login} from "MES-Apis/lib/Login/promise";
-import {getLocalParmas} from "../../util/Tools";
+import {getLocalParmas, queryString} from "../../util/Tools";
 import MyButton from "../MyButton";
 import LinkButton from "../LinkButton";
 import Guide from "../Guide";
@@ -91,6 +91,10 @@ export default {
       const userInfo = GetUserInfo().userInfo || {};
       console.log(userInfo)
       const tenantId = userInfo.tenantId
+      // 是否是分享页面
+      if (!this.shareTenant(tenantId)) {
+        return
+      }
       const userId = !!userInfo.userId;
       if (tenantId || !this.tenantAuth) { // 有租户直接进入 或 不需要验证租户的页面
         try {
@@ -111,6 +115,17 @@ export default {
           url: `/Tenant/InitTenant/index?backUrl=${getLocalParmas().stringRoute}`,
         })
       }
+    },
+    shareTenant(tenantId) {
+      const shareTenantId = getApp().globalData.shareTenantId
+      const shareTenantDeptId = getApp().globalData.shareTenantDeptId
+      if (shareTenantId && shareTenantId !== (tenantId + '') && !queryString('/Tenant/JoinTenant/index', getLocalParmas().route)) {
+        uni.reLaunch({
+          url: `/Tenant/JoinTenant/index?tenantId=${shareTenantId}&deptId=${shareTenantDeptId}`,
+        })
+        return false
+      }
+      return true
     },
     authSuccess() {
       this.$store.commit('userInfo/authStatus', true)

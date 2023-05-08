@@ -12,10 +12,11 @@ export default {
   data() {
     return {}
   },
-  async onShareAppMessage(res) {
+  onShareAppMessage(res) {
     const tenant = this.$store.state.userInfo.tenant || {}
     return {
       title: tenant.name || '道昕云',
+      path: '/pages/Home/index?tenantId' + tenant.tenantId,
       imageUrl: tenant.imgLogo
     }
   },

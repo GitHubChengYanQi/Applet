@@ -306,7 +306,10 @@ export default {
         }
         if (this.deptPage.length === 1) {
           return this.users.filter(item => {
-            const deptIds = isArray(item.deptList).filter(item => item?.deptId)
+            const deptIds = isArray(item.deptList).filter(item => {
+              const deptId = item?.deptId || 0
+              return !(deptId === 0 || deptId === '0');
+            })
             return deptIds.length === 0
           })
         }
@@ -336,7 +339,7 @@ export default {
               const deptIds = isArray(item.deptList).map(item => item?.deptId)
               return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
             }).length + this.deptUsers.length
-          }else {
+          } else {
             total = this.users.filter(item => {
               const deptIds = isArray(item.deptList).map(item => item?.deptId)
               return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))

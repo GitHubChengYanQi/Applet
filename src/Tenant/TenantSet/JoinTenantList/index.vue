@@ -1,7 +1,6 @@
 <template>
   <Auth>
-    <Page v-if="auth" />
-
+    <Page ref="page" v-if="auth" />
   </Auth>
 </template>
 <script>
@@ -12,6 +11,9 @@ export default {
   components: {Page, Auth},
   data() {
     return {}
+  },
+  onPullDownRefresh() {
+    this.$refs.page.refresh()
   },
   computed: {
     auth() {

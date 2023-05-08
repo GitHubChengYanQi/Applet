@@ -7,7 +7,7 @@
       <Avatar
           size="80"
           circular
-          v-if="tenant.logoResult && tenant.logoResult.url""
+          v-if="tenant.logoResult && tenant.logoResult.url"
           :src="tenant.logoResult && tenant.logoResult.url"
       />
       <Icon v-else icon="icon-tuanduitouxiang" size="80" />
@@ -69,6 +69,10 @@ export default {
     this.getTenantDetail(!!userInfo.userId)
   },
   methods: {
+    refresh() {
+      const userInfo = GetUserInfo().userInfo || {};
+      this.getTenantDetail(!!userInfo.userId)
+    },
     reload() {
       this.getStatus().then(() => {
         this.$refs.uNotify.primary('刷新完成')
@@ -127,8 +131,9 @@ export default {
       }).then(() => {
         this.$refs.modal.dialog({
           title: '申请成功！请等待管理员审批。',
-          onConfirm(){
+          onConfirm() {
             _this.getStatus()
+            return true
           }
         })
       }).catch(() => {
@@ -136,6 +141,7 @@ export default {
           title: Init.getNewErrorMessage() || '申请失败！',
           onConfirm() {
             _this.getStatus()
+            return true
           }
         })
       }).finally(() => {

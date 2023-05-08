@@ -74,7 +74,7 @@
 
           <view class="label">部门</view>
           <view class="value">
-<!--            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>-->
+            <!--            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>-->
             <view
                 v-for="(dept,index) in isArray(userInfo.depts)"
                 :key="index"
@@ -127,7 +127,7 @@
       >
         <Loading skeleton v-if="deptTreeLoading" />
         <view v-else class="deptTree">
-<!--          <Tree radio :data="deptTree" v-model="dept" />-->
+          <!--          <Tree radio :data="deptTree" v-model="dept" />-->
           <Tree multiple :data="deptTree" v-model="depts" />
         </view>
       </Popup>
@@ -294,7 +294,20 @@ export default {
       }).then((res) => {
         const userInfo = res.data || {}
         this.showPhone = userInfo.phone
-        this.userInfo = userInfo
+        const deptList = isArray(userInfo.deptList).filter(item=>item?.deptId)
+        const mainDept = deptList.find(item => item.mainDept === 1)
+        this.userInfo = {
+          ...userInfo,
+          depts: deptList.map((item, index) => {
+            if (index === 0) {
+              return {key: mainDept.deptId + '', title: mainDept.dept?.fullName, admin: 1}
+            } else if (mainDept.deptId === item.deptId) {
+              return {key: deptList[0].deptId + '', title: deptList[0].dept?.fullName}
+            } else {
+              return {key: item.deptId + '', title: item.dept?.fullName}
+            }
+          })
+        }
       }).catch(() => {
         this.error = true
       }).finally(() => {

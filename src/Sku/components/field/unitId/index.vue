@@ -121,7 +121,7 @@ export default {
 
   .placeholder {
     flex-grow: 1;
-    color: #ccc;
+    color: #999999;
   }
 
   .value {

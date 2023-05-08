@@ -245,7 +245,7 @@ export default {
       this.pageContainerShow = true
     },
     async skuClassPageClick(route) {
-      if (route.key === 0) {
+      if (route.key === '0') {
         this.skuClassList = this.tree
       } else {
         const thisSkuClass = this.findSkuClass(route.key, this.tree) || {}
@@ -295,7 +295,7 @@ export default {
               }
               _this.skuClassList = [..._this.skuClassList, newSkuClass]
               const key = _this.skuClassPage[_this.skuClassPage.length - 1].key
-              if (key === 0) {
+              if (key === '0') {
                 _this.tree = [..._this.tree, newSkuClass]
               } else {
                 _this.tree = _this.addSkuClassChildren(key, newSkuClass, _this.tree)

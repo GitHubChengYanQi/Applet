@@ -308,7 +308,7 @@ export default {
 
       this.tree = res.data || []
       this.positionList = res.data || []
-      this.positionPage = [{key: 0, name: this.store}]
+      this.positionPage = [{key: '0', name: this.store}]
     },
     async onCheckPosition(position) {
       const thisPosition = this.findPosition(position.key, this.tree) || {}
@@ -317,7 +317,7 @@ export default {
       this.pageContainerShow = true
     },
     async positionPageClick(route) {
-      if (route.key === 0) {
+      if (route.key === '0') {
         this.positionList = this.tree
       } else {
         const thisPosition = this.findPosition(route.key, this.tree) || {}
@@ -368,7 +368,7 @@ export default {
               }
               _this.positionList = [..._this.positionList, newPosition]
               const key = _this.positionPage[_this.positionPage.length - 1].key
-              if (key === 0) {
+              if (key === '0') {
                 _this.tree = [..._this.tree, newPosition]
               } else {
                 _this.tree = _this.addPositionChildren(key, newPosition, _this.tree)

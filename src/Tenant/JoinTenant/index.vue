@@ -1,6 +1,6 @@
 <template>
   <Auth :tenant-auth="false">
-    <Page v-if="auth && tenantId" :tenantId="tenantId" :deptId="deptId" />
+    <Page ref="page" v-if="auth && tenantId" :tenantId="tenantId" :deptId="deptId" />
     <Empty v-else description="未选择要加入的企业!" />
   </Auth>
 </template>
@@ -15,19 +15,24 @@ export default {
     let deptId = ''
     if (option.scene) {
       tenantId = option.scene.split('deptId')[0]
-      deptId = option.scene.split('deptId')[1] || 0
+      deptId = option.scene.split('deptId')[1]
     } else if (option.tenantId) {
       tenantId = option.tenantId
-      deptId = option.deptId || 0
+      deptId = option.deptId
     }
+    getApp().globalData.shareTenantId = tenantId
+    getApp().globalData.shareTenantDeptId = deptId
     this.tenantId = tenantId
     this.deptId = deptId
+  },
+  onPullDownRefresh() {
+    this.$refs.page.refresh()
   },
   components: {Empty, Page, Auth},
   data() {
     return {
       tenantId: '',
-      deptId: 0
+      deptId: ''
     }
   },
   computed: {

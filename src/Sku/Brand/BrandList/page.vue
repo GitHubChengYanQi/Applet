@@ -1,7 +1,13 @@
 <template>
-  <view>
-    <view class="manage" :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px)`}">
+  <view class="brandList">
+    <view style="padding: 0 12px">
+      <Search v-model="searchValue" @onSearch="onSearch" />
+    </view>
+    <view class="manage">
       <List
+          ref="list"
+          :max-height=" `calc(100vh - 58px - ${47+safeAreaHeight(this,8)}px)`"
+          :default-limit="20"
           @request="Sku.brandList"
           @listSource="(newList)=>brandList = newList"
           :list="brandList"
@@ -77,6 +83,7 @@ export default {
       safeAreaHeight,
       brandName: '',
       brandActionShow: false,
+      searchValue: '',
       brandActionList: [
         {
           name: '修改品牌名',
@@ -94,6 +101,9 @@ export default {
 
   },
   methods: {
+    onSearch(value) {
+      this.$refs.list.submit({brandName: value})
+    },
     brandActionSelect({key}) {
       const _this = this
       const thisbrand = this.actionbrand
@@ -201,6 +211,10 @@ export default {
 </script>
 
 <style lang="scss">
+.brandList {
+  background-color: #fff;
+  height: 100vh;
+}
 
 .manage {
   overflow: auto;

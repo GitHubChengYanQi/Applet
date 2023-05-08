@@ -12,7 +12,7 @@ export default {
   onLoad(option) {
     this.id = option.id
   },
-  async onShareAppMessage(res) {
+  onShareAppMessage(res) {
     if (res.from === 'button') {
       const tenant = this.$store.state.userInfo.tenant || {}
       const target = res.target

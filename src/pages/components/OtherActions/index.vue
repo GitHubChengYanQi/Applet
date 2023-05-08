@@ -44,7 +44,7 @@
       </view>
     </view>
 
-    <view class="actionItem">
+    <view class="actionItem" @click="feedback">
       <Icon
           icon="icon-feedback-fill"
           :size="24"
@@ -91,11 +91,29 @@
         复制网址
       </view>
     </u-action-sheet>
+
+    <u-modal
+        :show="feedbackShow"
+        title="反馈需求"
+        showCancelButton
+        @close="feedbackShow = false"
+        @cancel="feedbackShow = false"
+        confirmText="反馈"
+        @confirm="addFeedback"
+    >
+      <u--textarea
+          count
+          v-model="feedbackValue"
+          placeholder="请输入反馈内容"
+          maxlength="100"
+      />
+    </u-modal>
   </view>
 </template>
 
 <script>
 import Icon from "../../../components/Icon";
+import {Message} from "../../../components/Message";
 
 export default {
   options: {
@@ -106,10 +124,19 @@ export default {
   data() {
     return {
       website: false,
-      webUrl:'http://www.taosuncloud.com/'
+      feedbackShow: false,
+      feedbackValue: '',
+      webUrl: 'http://www.taosuncloud.com/'
     }
   },
   methods: {
+    feedback() {
+      this.feedbackShow = true
+    },
+    addFeedback() {
+      Message.successToast('反馈成功！')
+      this.feedbackShow = false
+    },
     guide() {
       this.$store.commit('guide/openGuide')
     },

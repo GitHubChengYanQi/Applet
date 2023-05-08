@@ -1,7 +1,7 @@
 <template>
   <Auth>
     <Page v-if="auth" />
-<!--    <ImageCropper img-url="https://hunts-cnc.oss-cn-beijing.aliyuncs.com/upload/png/20230427/20230427806525.png?Expires=1683858898&OSSAccessKeyId=LTAI5tRtx3bPozdsUhbF6PS1&Signature=LyqUNczLM%2FqHqLe5PUShZ3tMFfU%3D" />-->
+    <!--    <ImageCropper img-url="https://hunts-cnc.oss-cn-beijing.aliyuncs.com/upload/png/20230427/20230427806525.png?Expires=1683858898&OSSAccessKeyId=LTAI5tRtx3bPozdsUhbF6PS1&Signature=LyqUNczLM%2FqHqLe5PUShZ3tMFfU%3D" />-->
   </Auth>
 </template>
 <script>
@@ -10,6 +10,11 @@ import Page from "./page";
 import ImageCropper from "../../components/ImageCropper";
 
 export default {
+  onLoad(option) {
+    if (option.tenantId){
+      getApp().globalData.shareTenantId = option.tenantId
+    }
+  },
   components: {ImageCropper, Page, Auth},
   onPullDownRefresh() {
     console.log('refresh');
@@ -20,11 +25,11 @@ export default {
   data() {
     return {}
   },
-  async onShareAppMessage(res) {
+  onShareAppMessage(res) {
     const tenant = this.$store.state.userInfo.tenant || {}
     return {
       title: tenant.name || '道昕云',
-      path: '/pages/Home/index',
+      path: '/pages/Home/index?tenantId' + tenant.tenantId,
       imageUrl: tenant.imgLogo
     }
   },
