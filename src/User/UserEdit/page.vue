@@ -63,7 +63,7 @@
           <view class="label">职位</view>
           <view class="value">
             <LinkButton @click="openPosition">
-              {{ userInfo.positionIds[0] ? userInfo.positionNames : '设置职位' }}
+              {{ userInfo.positionIds[0] ? userInfo.positionNames.split(',')[0] : '设置职位' }}
             </LinkButton>
           </view>
         </view>

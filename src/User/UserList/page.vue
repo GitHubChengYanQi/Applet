@@ -34,7 +34,7 @@
                       v-if="!show"
                       :value="checkUsers.find(checkUser=>checkUser.userId === user.userId) && 'check'"
                   />
-                  <UserName :user="user" no-dept />
+                  <UserName :user="user" showRole />
                 </view>
                 <view v-if="user.isAdmin === 1">
                   <u-tag text="管理员" plain />
@@ -45,6 +45,10 @@
         </view>
         <view class="total">
           共 {{ total }} 人
+          <template v-if="waitJoinUserTotal > 0">
+            ，
+            <span style="color: #007aff" @click="joinUserList">{{ waitJoinUserTotal }}人待加入</span>
+          </template>
         </view>
       </u-index-list>
     </view>
@@ -97,7 +101,7 @@
         >
           <view class="userItem">
             <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId) && 'check'" />
-            <UserName :user="user" no-dept />
+            <UserName :user="user" showRole />
           </view>
           <view v-if="user.isAdmin === 1">
             <u-tag text="管理员" plain />
@@ -120,6 +124,10 @@
 
         <view class="total">
           共 {{ total }} 人
+          <template v-if="waitJoinUserTotal > 0">
+            ，
+            <span style="color: #007aff" @click="joinUserList">{{ waitJoinUserTotal }}人待加入</span>
+          </template>
         </view>
       </view>
     </view>
@@ -229,7 +237,8 @@ export default {
       pageContainerShow: false,
       userActionShow: false,
       deptName: '',
-      admin: false
+      admin: false,
+      waitJoinUserTotal: 0
     }
   },
   mounted() {
@@ -351,6 +360,11 @@ export default {
     }
   },
   methods: {
+    joinUserList(){
+      uni.navigateTo({
+        url:'/Tenant/TenantSet/JoinTenantList/index'
+      })
+    },
     init() {
       const tenant = this.$store.state.userInfo.tenant || {}
       this.tenant = tenant
@@ -517,6 +531,18 @@ export default {
     },
     async getList() {
       this.loading = true
+
+      await Tenant.tenantBindStatusCount({
+        data: {
+          tenantId: this.$store.state.userInfo.tenant.tenantId,
+          status: 0
+        }
+      }).then((res) => {
+        this.waitJoinUserTotal = res.data || 0
+      }).catch(() => {
+        this.error = true
+      })
+
       const res = await Dept.deptTree().catch(() => {
         this.error = true
       })
@@ -790,6 +816,7 @@ export default {
   padding: 12px;
   text-align: center;
   color: #c7c7c7;
+  font-size: 12px;
 }
 
 .item {

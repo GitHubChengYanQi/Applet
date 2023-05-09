@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page ref="page" v-if="auth" @refreshDone="refreshDone" />
+    <Page ref="page" v-if="auth" />
   </Auth>
 </template>
 <script>
@@ -16,9 +16,6 @@ export default {
     return {}
   },
   methods: {
-    refreshDone() {
-      uni.stopPullDownRefresh();
-    }
   },
   computed: {
     auth() {

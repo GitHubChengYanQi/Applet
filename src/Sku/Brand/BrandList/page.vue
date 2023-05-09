@@ -19,7 +19,7 @@
             @click="editbrand(brand)"
         >
           <view class="itemIon">
-            <Icon icon="icon-bumen1" size="30" />
+            <Icon icon="icon-a-pinpai1" size="20" />
           </view>
           {{ brand.brandName }}
         </view>

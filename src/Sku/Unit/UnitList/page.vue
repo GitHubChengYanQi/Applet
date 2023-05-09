@@ -4,7 +4,7 @@
     <Loading
         skeleton-type="page"
         skeleton
-        v-if="loading"
+        v-else-if="loading"
     />
     <view v-else class="manage" :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px)`}">
       <Empty
@@ -18,7 +18,7 @@
           @click="editUnit(unit)"
       >
         <view class="itemIon">
-          <Icon icon="icon-bumen1" size="30" />
+          <Icon icon="icon-jiliangdanwei" size="20" />
         </view>
         {{ unit.label }}
       </view>

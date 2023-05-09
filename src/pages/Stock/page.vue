@@ -148,7 +148,7 @@ export default {
       this.screenData = {}
       await this.$refs.skuList.submit({})
       await this.getSkuClass()
-      this.$emit('refreshDone')
+      uni.stopPullDownRefresh();
     },
     fabClick() {
       uni.navigateTo({

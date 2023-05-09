@@ -118,10 +118,10 @@ export default {
     },
     shareTenant(tenantId) {
       const shareTenantId = getApp().globalData.shareTenantId
-      const shareTenantDeptId = getApp().globalData.shareTenantDeptId
+      const shareInviteId = getApp().globalData.shareTenantDeptId
       if (shareTenantId && shareTenantId !== (tenantId + '') && !queryString('/Tenant/JoinTenant/index', getLocalParmas().route)) {
         uni.reLaunch({
-          url: `/Tenant/JoinTenant/index?tenantId=${shareTenantId}&deptId=${shareTenantDeptId}`,
+          url: `/Tenant/JoinTenant/index?inviteId=${shareInviteId || ''}&tenantId=${shareTenantId || ''}`,
         })
         return false
       }

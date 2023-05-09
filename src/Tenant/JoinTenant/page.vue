@@ -23,7 +23,7 @@
         {{ joinStatusText() }}
       </LoginByPhone>
 
-      <view @click="reload" v-if="joinStatus === 0">
+      <view @click="reload" v-if="joinStatus === 1">
         <u-icon name="reload" size="24" color="#007aff" />
       </view>
 
@@ -52,7 +52,7 @@ export default {
     styleIsolation: 'shared'
   },
   components: {Avatar, LoginByPhone, Modal, Icon, Loading, Empty},
-  props: ['tenantId', 'deptId'],
+  props: ['tenantId', 'deptId', 'inviterUser'],
   data() {
     return {
       tenant: {},
@@ -69,9 +69,10 @@ export default {
     this.getTenantDetail(!!userInfo.userId)
   },
   methods: {
-    refresh() {
+    async refresh() {
       const userInfo = GetUserInfo().userInfo || {};
-      this.getTenantDetail(!!userInfo.userId)
+      await this.getTenantDetail(!!userInfo.userId)
+      uni.stopPullDownRefresh();
     },
     reload() {
       this.getStatus().then(() => {
@@ -80,7 +81,7 @@ export default {
     },
     joinStatusText() {
       switch (this.joinStatus) {
-        case 0:
+        case 1:
           this.disabled = true
           return '申请中，等待管理员审批'
         case 50:
@@ -90,12 +91,13 @@ export default {
           this.disabled = false
           return '进入团队'
         default:
+          this.disabled = false
           return '申请加入'
       }
     },
     async getTenantDetail(isLogin) {
       this.loading = true
-      Tenant.tenantDetail(this.tenantId).then((res) => {
+      await Tenant.tenantDetail(this.tenantId).then((res) => {
         this.tenant = res.data || {}
         if (isLogin) {
           this.getStatus()
@@ -109,7 +111,11 @@ export default {
     getStatus() {
       return new Promise((resolve, reject) => {
         this.loading = true
-        Tenant.joinTenantStatus(this.tenantId).then((res) => {
+        Tenant.joinTenantStatus({
+          data: {
+            tenantId: this.tenantId
+          }
+        }).then((res) => {
           this.joinStatus = res.data
           resolve();
         }).catch(() => {
@@ -125,8 +131,12 @@ export default {
       const _this = this
       Tenant.joinTenant({
         data: {
+          userId: this.$store.state.userInfo.userInfo.id,
+          inviterUser: this.inviterUser,
+          type: '申请',
           tenantId: this.tenantId,
-          deptId: this.deptId
+          deptId: this.deptId,
+          status: 1,
         }
       }).then(() => {
         this.$refs.modal.dialog({
@@ -155,6 +165,7 @@ export default {
       }, {
         onSuccess: (res) => {
           this.joinLoading = false
+          getApp().globalData.shareTenantId = undefined
           getApp().globalData.token = res
           this.$store.commit('userInfo/clear')
           uni.reLaunch({

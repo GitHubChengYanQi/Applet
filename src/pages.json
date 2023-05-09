@@ -91,7 +91,8 @@
         {
           "path": "JoinTenant/index",
           "style": {
-            "navigationBarTitleText": "加入团队"
+            "navigationBarTitleText": "加入团队",
+            "enablePullDownRefresh": true
           }
         },
         {
@@ -103,7 +104,8 @@
         {
           "path": "TenantSet/JoinTenantList/index",
           "style": {
-            "navigationBarTitleText": "待审批用户"
+            "navigationBarTitleText": "审批用户",
+            "enablePullDownRefresh": true
           }
         }
       ]
@@ -409,7 +411,7 @@
         "pagePath": "pages/Stock/index",
         "iconPath": "/static/images/menus/stock.png",
         "selectedIconPath": "/static/images/menus/stock-checked.png",
-        "text": "库房"
+        "text": "仓储"
       },
       {
         "pagePath": "pages/Report/index",

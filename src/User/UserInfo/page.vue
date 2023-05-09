@@ -47,7 +47,7 @@
         预览
       </view>
       <view class="actionAvatar">
-        <button class="chooseAvatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+        <button class="chooseAvatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar" @click="actionAvatar = false">
           修改
         </button>
       </view>

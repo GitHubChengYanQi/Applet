@@ -24,7 +24,7 @@
         <view class="addUserActionItem" @click="createCode">
           <view class="actionTitle">
             扫码加入
-            <Icon icon="icon-erweima"  size="14"/>
+            <Icon icon="icon-erweima" size="14" />
           </view>
           <u-icon name="arrow-right" />
         </view>
@@ -44,23 +44,34 @@ import {System} from "MES-Apis/lib/System/promise";
 import {Message} from "../Message";
 import Modal from "../Modal";
 import Icon from "../Icon";
+import {Tenant} from "MES-Apis/lib/Tenant/promise";
 
 export default {
   name: 'AddUser',
   components: {Icon, Modal, Loading, Popup},
-  props: ['addUserShow','deptId'],
+  props: ['addUserShow', 'deptId'],
   data() {
     return {
       createCodeLoading: false,
     }
   },
+  computed: {},
   methods: {
-    createCode() {
+    async createCode() {
       const tenant = this.$store.state.userInfo.tenant || {}
       this.createCodeLoading = true
+      const userInfo = this.$store.state.userInfo.userInfo || {}
+      const invite = await Tenant.invite({
+        data: {
+          inviterUser: userInfo.id,
+          type: '邀请',
+          tenantId: tenant.tenantId,
+          deptId: this.deptId
+        }
+      })
       System.createMiniAppCode({
         data: {
-          scene: tenant.tenantId,
+          scene: invite.data,
           page: 'Tenant/JoinTenant/index',
           checkPath: false,
           envVersion: process.env.NODE_ENV === "development" ? 'develop' : 'release',

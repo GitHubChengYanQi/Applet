@@ -26,6 +26,16 @@
           class="users"
           :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
       >
+        <view
+            v-if="positionPage.length > 1"
+            class="item"
+            @click="positionPageClick(positionPage[positionPage.length - 2])"
+        >
+          <view class="deptIcon">
+            <Icon icon="icon-fanhui" size="20" />
+          </view>
+          <view class="backDept">返回上级库位</view>
+        </view>
         <Empty
             v-if="positionList.length === 0"
             description="暂无数据"
@@ -69,7 +79,7 @@
 
     <Popup
         :show="authShow"
-        :title="authTitle"
+        :title="authData.name + ' 权限设置'"
         @close="authShow = false"
         left-text="取消"
         right-text="保存"
@@ -82,7 +92,16 @@
       </view>
     </Popup>
 
-    <Loading :loading="getPositionAuthsLoading" />
+    <Loading :loading="getPositionAuthsLoading || saveAuthLoading" />
+
+    <u-action-sheet
+        :title="allActionData.title"
+        cancelText="取消"
+        :actions="allActionList"
+        :show="allActionShow"
+        @close="allActionShow = false"
+        @select="allActionSelect"
+    />
 
     <Modal ref="modal" />
   </view>
@@ -107,6 +126,8 @@ import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
+import {Sku} from "MES-Apis/lib/Sku/promise";
+import {Position} from "MES-Apis/lib/Position/promise";
 
 export default {
   options: {
@@ -149,8 +170,36 @@ export default {
       positionName: '',
       admin: false,
       getPositionAuthsLoading: false,
+      saveAuthLoading: false,
       positionAuths: [],
-      authTitle: '',
+      authData: {},
+      allActionList: [
+        {
+          name: '添加子库位',
+          key: 'add'
+        },
+        {
+          name: '修改库位名称',
+          key: 'edit',
+        },
+        {
+          name: '删除库位',
+          key: 'delete',
+          color: 'red',
+        },
+        {
+          name: '设置权限',
+          // color: '#007aff',
+          key: 'auth',
+        },
+        {
+          name: '绑定物料',
+          color: '#007aff',
+          key: 'bind',
+        },
+      ],
+      allActionShow: false,
+      allActionData: {}
     }
   },
   mounted() {
@@ -184,84 +233,145 @@ export default {
     }
   },
   methods: {
-    actionSelect({key}) {
+    saveAuth() {
+      this.saveAuthLoading = true
+      Position.positionDepts({
+        data: {
+          storehousePositionsId: this.authData.key,
+          deptId: this.positionAuths.map(item => item.key).toString(),
+        }
+      }).then(() => {
+        this.authShow = false
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: '设置失败！'
+        })
+      }).finally(() => {
+        this.saveAuthLoading = false
+      })
+    },
+    allActionSelect({key}) {
+      switch (key) {
+        case 'add':
+          this.addPosition(this.allActionData.key + '')
+          break;
+        case 'edit':
+          this.edit({name: this.allActionData.title, key: this.allActionData.key}, true)
+          break;
+        case 'delete':
+          this.del({name: this.allActionData.title, key: this.allActionData.key}, true)
+          break
+        case 'bind':
+          this.bind({name: this.allActionData.title, key: this.allActionData.key})
+          break;
+        case 'auth':
+          this.auth({name: this.allActionData.title, key: this.allActionData.key})
+          break;
+      }
+    },
+    edit(thisPosition, current) {
       const _this = this
+      _this.positionName = thisPosition.name
+      _this.$refs.addPositionModal.dialog({
+        title: '修改当前库位名称',
+        only: false,
+        confirmText: '修改',
+        onConfirm() {
+          return new Promise((resolve) => {
+            if (!_this.positionName) {
+              Message.toast('请输入库位名称！')
+              resolve(false)
+              return
+            }
+            Storehouse.positionsEdit({
+              data: {
+                storehousePositionsId: thisPosition.key,
+                name: _this.positionName
+              }
+            }).then(() => {
+              const newPosition = {
+                key: thisPosition.key,
+                title: _this.positionName
+              }
+              if (current) {
+                _this.positionList = _this.positionList.map(item => {
+                  if (item.key === newPosition.key) {
+                    return {...item, title: newPosition.title}
+                  }
+                  return item
+                })
+              } else {
+                _this.positionPage = _this.positionPage.map(item => {
+                  if (item.key === newPosition.key) {
+                    return {...item, name: newPosition.title}
+                  }
+                  return item
+                })
+              }
+              _this.tree = _this.editPositionChildren(newPosition, _this.tree)
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '修改失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    del(thisPosition, current) {
+      const _this = this
+      _this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        content: '删除库位【' + thisPosition.name + '】',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Storehouse.positionsDelete({
+              data: {storehousePositionsId: thisPosition.key}
+            }).then(() => {
+              _this.tree = _this.delPositionChildren(thisPosition.key, _this.tree)
+              if (current) {
+                _this.positionList = _this.positionList.filter(item => item.key !== thisPosition.key)
+              } else {
+                _this.positionPageClick(_this.positionPage[_this.positionPage.length - 2])
+              }
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    bind(thisPosition) {
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${thisPosition.key}&position=${thisPosition.name}&store=${this.store}`
+      })
+    },
+    auth(thisPosition) {
+      this.getPositionAuths(thisPosition.key)
+      this.authData = thisPosition
+    },
+    actionSelect({key}) {
       const thisPosition = this.positionPage[this.positionPage.length - 1]
       switch (key) {
         case 'edit':
-          _this.positionName = thisPosition.name
-          _this.$refs.addPositionModal.dialog({
-            title: '修改当前库位名称',
-            only: false,
-            confirmText: '修改',
-            onConfirm() {
-              return new Promise((resolve) => {
-                if (!_this.positionName) {
-                  Message.toast('请输入库位名称！')
-                  resolve(false)
-                  return
-                }
-                Storehouse.positionsEdit({
-                  data: {
-                    storehousePositionsId: thisPosition.key,
-                    name: _this.positionName
-                  }
-                }).then(() => {
-                  const newPosition = {
-                    key: thisPosition.key,
-                    title: _this.positionName
-                  }
-                  _this.positionPage = _this.positionPage.map(item => {
-                    if (item.key === newPosition.key) {
-                      return {...item, name: newPosition.title}
-                    }
-                    return item
-                  })
-                  _this.tree = _this.editPositionChildren(newPosition, _this.tree)
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage() || '修改失败!'
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
+          this.edit(thisPosition)
           break;
         case 'delete':
-          _this.$refs.modal.dialog({
-            title: '删除后不可恢复，是否确认删除？',
-            content: '删除库位【' + thisPosition.name + '】',
-            only: false,
-            confirmError: true,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Storehouse.positionsDelete({
-                  data: {storehousePositionsId: thisPosition.key}
-                }).then(() => {
-                  _this.tree = _this.delPositionChildren(thisPosition.key, _this.tree)
-                  _this.positionPageClick(_this.positionPage[_this.positionPage.length - 2])
-
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage() || '删除失败!'
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
+          this.del(thisPosition)
           break
         case 'bind':
-          uni.navigateTo({
-            url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${thisPosition.key}&position=${thisPosition.name}&store=${this.store}`
-          })
+          this.bind(thisPosition)
           break;
         case 'auth':
-          this.getPositionAuths(thisPosition.key)
-          this.authTitle = thisPosition.name + ' 权限设置'
+          this.bind(thisPosition)
           break;
       }
     },
@@ -312,7 +422,13 @@ export default {
     },
     async onCheckPosition(position) {
       const thisPosition = this.findPosition(position.key, this.tree) || {}
-      this.positionList = thisPosition.children || []
+      const children = thisPosition.children || []
+      if (children.length === 0) {
+        this.allActionShow = true
+        this.allActionData = position
+        return
+      }
+      this.positionList = children
       this.positionPage = [...this.positionPage, {key: thisPosition.key, name: thisPosition.title}]
       this.pageContainerShow = true
     },
@@ -339,7 +455,7 @@ export default {
         this.pageContainerShow = false
       }
     },
-    addPosition() {
+    addPosition(pid) {
       const _this = this
       _this.positionName = ''
       _this.$refs.addPositionModal.dialog({
@@ -358,7 +474,7 @@ export default {
                 name: _this.positionName,
                 sort: _this.positionList.length,
                 storehouseId: _this.storehouseId,
-                pid: _this.positionPage[_this.positionPage.length - 1].key
+                pid: pid || _this.positionPage[_this.positionPage.length - 1].key
               }
             }).then((res) => {
               const newPosition = {
@@ -366,8 +482,13 @@ export default {
                 children: [],
                 title: _this.positionName
               }
-              _this.positionList = [..._this.positionList, newPosition]
-              const key = _this.positionPage[_this.positionPage.length - 1].key
+              if (pid) {
+
+              } else {
+                _this.positionList = [..._this.positionList, newPosition]
+              }
+
+              const key = pid || _this.positionPage[_this.positionPage.length - 1].key
               if (key === '0') {
                 _this.tree = [..._this.tree, newPosition]
               } else {

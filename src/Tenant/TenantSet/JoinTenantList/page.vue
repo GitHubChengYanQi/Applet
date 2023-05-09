@@ -6,8 +6,8 @@
           :default-limit="20"
           ref="list"
           :max-height="`calc(100vh - 60px)`"
-          @request="Tenant.joinTenantList"
-          @listSource="(newList)=>list = newList"
+          @request="Tenant.joinList"
+          @listSource="listSource"
           :list="list"
           :default-params="defaultParams"
           @response="(res)=>total = res.count"
@@ -18,10 +18,12 @@
             class="user"
         >
           <view class="userInfo">
-            <UserName :user="item.userResult" />
+            <UserName :user="item.userResult">
+              {{ item.inviterUserResult && item.inviterUserResult.name || '-' }}邀请加入{{ item.dept && item.dept.fullName }}{{(item.dept && item.dept.fullName) ? '部门' : '团队'}}
+            </UserName>
           </view>
           <view class="action">
-            <view class="buttons" v-if="item.status === 0">
+            <view class="buttons" v-if="item.status === 1">
               <MyButton
                   type="error"
                   @click="reject(item)"
@@ -38,7 +40,7 @@
             <view v-else-if="item.status === 50">
               已拒绝
             </view>
-            <view v-else>
+            <view v-else-if="item.status === 99 || item.status === -1">
               已同意
             </view>
           </view>
@@ -81,29 +83,37 @@ export default {
   },
   created() {
     this.defaultParams = {
+      type: '申请',
       tenantId: this.$store.state.userInfo.tenant.tenantId
     }
   },
   methods: {
+    listSource(newList) {
+      this.list = newList.map(item => {
+        const newItem = this.list.find(listItem => listItem.tenantBindLogId === item.tenantBindLogId)
+        return newItem || item
+      })
+    },
     refresh() {
       this.searchValue = ''
       this.onSearch()
     },
     onSearch() {
       this.$refs.list.submit({...this.defaultParams, keywords: this.searchValue})
+      uni.stopPullDownRefresh();
     },
-    checkUser(tenantBindId) {
-      if (this.checked.includes(tenantBindId)) {
-        this.checked = this.checked.filter(id => id !== tenantBindId)
+    checkUser(tenantBindLogId) {
+      if (this.checked.includes(tenantBindLogId)) {
+        this.checked = this.checked.filter(id => id !== tenantBindLogId)
       } else {
-        this.checked = [...this.checked, tenantBindId]
+        this.checked = [...this.checked, tenantBindLogId]
       }
     },
     allCheck() {
       if (this.list.length === this.checked.length) {
         this.checked = []
       } else {
-        this.checked = this.list.map(item => item.tenantBindId)
+        this.checked = this.list.map(item => item.tenantBindLogId)
       }
     },
     submit(user) {
@@ -113,9 +123,10 @@ export default {
         only: false,
         onConfirm() {
           return new Promise((resolve) => {
-            Tenant.agreeJoinTenant({
+            Tenant.updateJoinStatus({
               data: {
-                tenantBindIds: [user.tenantBindId]
+                tenantBindLogId: user.tenantBindLogId,
+                status: 99
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
@@ -124,7 +135,7 @@ export default {
                 onConfirm() {
                   _this.checked = []
                   _this.list = _this.list.map(item => {
-                    if (item.tenantBindId === user.tenantBindId) {
+                    if (item.tenantBindLogId === user.tenantBindLogId) {
                       return {...item, status: 99}
                     } else {
                       return item
@@ -153,9 +164,10 @@ export default {
         confirmError: true,
         onConfirm() {
           return new Promise((resolve) => {
-            Tenant.rejectJoinTenant({
+            Tenant.updateJoinStatus({
               data: {
-                tenantBindIds: [user.tenantBindId]
+                tenantBindLogId: user.tenantBindLogId,
+                status: 50
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
@@ -164,7 +176,7 @@ export default {
                 onConfirm() {
                   _this.checked = []
                   _this.list = _this.list.map(item => {
-                    if (item.tenantBindId === user.tenantBindId) {
+                    if (item.tenantBindLogId === user.tenantBindLogId) {
                       return {...item, status: 50}
                     } else {
                       return item

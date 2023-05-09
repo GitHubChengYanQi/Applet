@@ -47,7 +47,7 @@
           <Icon icon="icon-yonghuguanli" size="24" />
         </view>
         <view class="actionName">
-          <view class="name">用户管理</view>
+          <view class="name">成员列表</view>
           <u-icon name="arrow-right" size="12" color="#929293" />
         </view>
       </view>
@@ -159,10 +159,9 @@ export default {
   },
   methods: {
     searchWaitJoinUsers() {
-      Tenant.tenantBindStatusCount({
+      Tenant.waitJoinCount({
         data: {
           tenantId: this.$store.state.userInfo.tenant.tenantId,
-          status: 0
         }
       }).then((res) => {
         this.waitJoinUsers = res.data || 0

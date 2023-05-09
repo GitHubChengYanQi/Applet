@@ -10,7 +10,7 @@
     <Loading
         skeleton-type="page"
         skeleton
-        v-if="loading"
+        v-else-if="loading"
     />
     <view v-else class="selectUser">
       <view class="header">
@@ -26,6 +26,16 @@
           class="users"
           :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
       >
+        <view
+            v-if="skuClassPage.length > 1"
+            class="item"
+            @click="skuClassPageClick(skuClassPage[skuClassPage.length - 2])"
+        >
+          <view class="deptIcon">
+            <Icon icon="icon-fanhui" size="20" />
+          </view>
+          <view class="backDept">返回上级分类</view>
+        </view>
         <Empty
             v-if="skuClassList.length === 0"
             description="暂无数据"
@@ -37,7 +47,7 @@
             @click="onCheckSkuClass(item)"
         >
           <view class="deptIcon">
-            <Icon icon="icon-bumen1" size="30" />
+            <Icon icon="icon-gaojizujian" size="20" />
           </view>
           {{ item.title }}
         </view>
@@ -46,7 +56,7 @@
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
-        <LinkButton @click="addSkuClass">添加子分类</LinkButton>
+        <LinkButton @click="addSkuClass()">添加子分类</LinkButton>
         <Modal ref="addSkuClassModal">
           <u--input
               placeholder="请输入分类名称"
@@ -66,6 +76,15 @@
         />
       </view>
     </view>
+
+    <u-action-sheet
+        :title="allActionData.title"
+        cancelText="取消"
+        :actions="allActionList"
+        :show="allActionShow"
+        @close="allActionShow = false"
+        @select="allActionSelect"
+    />
 
     <Modal ref="modal" />
   </view>
@@ -110,7 +129,24 @@ export default {
       pageContainerShow: false,
       userActionShow: false,
       skuClassName: '',
-      admin: false
+      admin: false,
+      allActionList: [
+        {
+          name: '添加子分类',
+          key: 'add'
+        },
+        {
+          name: '修改分类名称',
+          key: 'edit'
+        },
+        {
+          name: '删除分类',
+          key: 'delete',
+          color: 'red'
+        },
+      ],
+      allActionShow: false,
+      allActionData: {}
     }
   },
   mounted() {
@@ -138,83 +174,116 @@ export default {
     }
   },
   methods: {
+    allActionSelect({key}) {
+      switch (key) {
+        case 'add':
+          this.addSkuClass(this.allActionData.key + '')
+          break;
+        case 'edit':
+          this.edit({name: this.allActionData.title, key: this.allActionData.key}, true)
+          break;
+        case 'delete':
+          this.del({name: this.allActionData.title, key: this.allActionData.key}, true)
+          break
+      }
+    },
     init() {
       const tenant = this.$store.state.userInfo.tenant || {}
       this.tenant = tenant
       this.admin = tenant.admin
       this.showFooter = tenant.admin
     },
-    actionSelect({key}) {
+    edit(thisSkuClass, current) {
       const _this = this
+      _this.skuClassName = thisSkuClass.name
+      _this.$refs.addSkuClassModal.dialog({
+        title: '修改当前分类名称',
+        only: false,
+        confirmText: '修改',
+        onConfirm() {
+          return new Promise((resolve) => {
+            if (!_this.skuClassName) {
+              Message.toast('请输入分类名称！')
+              resolve(false)
+              return
+            }
+            Sku.spuClassEdit({
+              data: {
+                spuClassificationId: thisSkuClass.key,
+                name: _this.skuClassName
+              }
+            }).then(() => {
+              const newSkuClass = {
+                key: thisSkuClass.key,
+                title: _this.skuClassName
+              }
+              if (current) {
+                _this.skuClassList = _this.skuClassList.map(item => {
+                  if (item.key === newSkuClass.key) {
+                    return {...item, title: newSkuClass.title}
+                  }
+                  return item
+                })
+              } else {
+                _this.skuClassPage = _this.skuClassPage.map(item => {
+                  if (item.key === newSkuClass.key) {
+                    return {...item, name: newSkuClass.title}
+                  }
+                  return item
+                })
+              }
+
+              _this.tree = _this.editSkuClassChildren(newSkuClass, _this.tree)
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '修改失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    del(thisSkuClass, current) {
+      const _this = this
+      _this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        content: '删除分类【' + thisSkuClass.name + '】',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Sku.spuClassDelete({
+              data: {
+                spuClassificationId: thisSkuClass.key
+              }
+            }).then(() => {
+              _this.tree = _this.delSkuClassChildren(thisSkuClass.key, _this.tree)
+              if (current) {
+                _this.skuClassList = _this.skuClassList.filter(item => item.key !== thisSkuClass.key)
+              } else {
+                _this.skuClassPageClick(_this.skuClassPage[_this.skuClassPage.length - 2])
+              }
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    actionSelect({key}) {
       const thisSkuClass = this.skuClassPage[this.skuClassPage.length - 1]
       switch (key) {
         case 'edit':
-          _this.skuClassName = thisSkuClass.name
-          _this.$refs.addSkuClassModal.dialog({
-            title: '修改当前分类名称',
-            only: false,
-            confirmText: '修改',
-            onConfirm() {
-              return new Promise((resolve) => {
-                if (!_this.skuClassName) {
-                  Message.toast('请输入分类名称！')
-                  resolve(false)
-                  return
-                }
-                Sku.spuClassEdit({
-                  data: {
-                    spuClassificationId: thisSkuClass.key,
-                    name: _this.skuClassName
-                  }
-                }).then(() => {
-                  const newSkuClass = {
-                    key: thisSkuClass.key,
-                    title: _this.skuClassName
-                  }
-                  _this.skuClassPage = _this.skuClassPage.map(item => {
-                    if (item.key === newSkuClass.key) {
-                      return {...item, name: newSkuClass.title}
-                    }
-                    return item
-                  })
-                  _this.tree = _this.editSkuClassChildren(newSkuClass, _this.tree)
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage() || '修改失败!'
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
+          this.edit(thisSkuClass)
           break;
         case 'delete':
-          _this.$refs.modal.dialog({
-            title: '删除后不可恢复，是否确认删除？',
-            content: '删除分类【' + thisSkuClass.name + '】',
-            only: false,
-            confirmError: true,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Sku.spuClassDelete({
-                  data: {
-                    spuClassificationId: thisSkuClass.key
-                  }
-                }).then(() => {
-                  _this.tree = _this.delSkuClassChildren(thisSkuClass.key, _this.tree)
-                  _this.skuClassPageClick(_this.skuClassPage[_this.skuClassPage.length - 2])
-
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage() || '删除失败!'
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
+          this.del(thisSkuClass)
           break
       }
     },
@@ -240,7 +309,13 @@ export default {
     },
     async onCheckSkuClass(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
-      this.skuClassList = thisSkuClass.children || []
+      const children = thisSkuClass.children || []
+      if (children.length === 0) {
+        this.allActionShow = true
+        this.allActionData = skuClass
+        return
+      }
+      this.skuClassList = children
       this.skuClassPage = [...this.skuClassPage, {key: thisSkuClass.key, name: thisSkuClass.title}]
       this.pageContainerShow = true
     },
@@ -267,7 +342,7 @@ export default {
         this.pageContainerShow = false
       }
     },
-    addSkuClass() {
+    addSkuClass(pid) {
       const _this = this
       _this.skuClassName = ''
       _this.$refs.addSkuClassModal.dialog({
@@ -285,7 +360,7 @@ export default {
               data: {
                 name: _this.skuClassName,
                 sort: _this.skuClassList.length,
-                pid: _this.skuClassPage[_this.skuClassPage.length - 1].key
+                pid: pid || _this.skuClassPage[_this.skuClassPage.length - 1].key
               }
             }).then((res) => {
               const newSkuClass = {
@@ -293,8 +368,13 @@ export default {
                 children: [],
                 title: _this.skuClassName
               }
-              _this.skuClassList = [..._this.skuClassList, newSkuClass]
-              const key = _this.skuClassPage[_this.skuClassPage.length - 1].key
+              if (pid) {
+
+              } else {
+                _this.skuClassList = [..._this.skuClassList, newSkuClass]
+              }
+
+              const key = pid || _this.skuClassPage[_this.skuClassPage.length - 1].key
               if (key === '0') {
                 _this.tree = [..._this.tree, newSkuClass]
               } else {
