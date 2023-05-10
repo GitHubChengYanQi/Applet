@@ -329,7 +329,7 @@
         {
           "path": "SkuClass/SkuClassList/index",
           "style": {
-            "navigationBarTitleText": "分类管理"
+            "navigationBarTitleText": "物料管理"
           }
         },
         {
@@ -395,7 +395,7 @@
     }
   ],
   "tabBar": {
-    "color": "#ccc",
+    "color": "#808080",
     "selectedColor": "#007aff",
     "backgroundColor": "#ffffff",
     "iconWidth": "12px",

@@ -22,36 +22,26 @@
           </uni-breadcrumb-item>
         </uni-breadcrumb>
       </view>
-      <view
+      <scroll-view
+          scroll-with-animation
+          scroll-y
           class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
+          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`,width:'calc(100% - 24px)'}"
+          :scroll-top="scrollTop"
       >
-        <view
-            v-if="skuClassPage.length > 1"
-            class="item"
-            @click="skuClassPageClick(skuClassPage[skuClassPage.length - 2])"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-fanhui" size="20" />
-          </view>
-          <view class="backDept">返回上级分类</view>
-        </view>
-        <Empty
-            v-if="skuClassList.length === 0"
-            description="暂无数据"
+        <SkuManage
+            :moveIndex="moveIndex"
+            :inIndex="inIndex"
+            :movableViewY="movableViewY"
+            :sku-class-list="skuClassList"
+            :sku-class-page="skuClassPage"
+            :tree="tree"
+            @skuClassPageClick="skuClassPageClick"
+            @onCheckSkuClass="onCheckSkuClass"
+            @skuClassListChange="skuClassListChange"
+            @treeChange="(newTree)=>tree = newTree"
         />
-        <view
-            v-for="item in skuClassList"
-            :key="item.key"
-            class="item"
-            @click="onCheckSkuClass(item)"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-gaojizujian" size="20" />
-          </view>
-          {{ item.title }}
-        </view>
-      </view>
+      </scroll-view>
     </view>
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -104,21 +94,23 @@ import LinkButton from "../../../components/LinkButton";
 import AddUser from "../../../components/AddUser";
 import Modal from "../../../components/Modal";
 import {Message} from "../../../components/Message";
-import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Init} from "MES-Apis/lib/Init";
 import {Sku} from "MES-Apis/lib/Sku/promise";
+import SkuManage from "../components/SkuManage";
+import {addSkuClassChildren, delSkuClassChildren} from "./index";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'SelectUser',
-  components: {Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
+  components: {SkuManage, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
       skuClassPage: [],
       loading: true,
       skuClassList: [],
+      movableViewY: 0,
       tree: [],
       searchValue: '',
       actionShow: false,
@@ -146,15 +138,13 @@ export default {
         },
       ],
       allActionShow: false,
-      allActionData: {}
+      allActionData: {},
+      moveIndex: null,
+      inIndex: null,
     }
   },
   mounted() {
-    this.init()
     this.getList()
-
-    const _this = this
-
   },
   computed: {
     actionList() {
@@ -187,12 +177,6 @@ export default {
           break
       }
     },
-    init() {
-      const tenant = this.$store.state.userInfo.tenant || {}
-      this.tenant = tenant
-      this.admin = tenant.admin
-      this.showFooter = tenant.admin
-    },
     edit(thisSkuClass, current) {
       const _this = this
       _this.skuClassName = thisSkuClass.name
@@ -218,12 +202,12 @@ export default {
                 title: _this.skuClassName
               }
               if (current) {
-                _this.skuClassList = _this.skuClassList.map(item => {
+                _this.skuClassListChange(_this.skuClassList.map(item => {
                   if (item.key === newSkuClass.key) {
                     return {...item, title: newSkuClass.title}
                   }
                   return item
-                })
+                }))
               } else {
                 _this.skuClassPage = _this.skuClassPage.map(item => {
                   if (item.key === newSkuClass.key) {
@@ -259,9 +243,9 @@ export default {
                 spuClassificationId: thisSkuClass.key
               }
             }).then(() => {
-              _this.tree = _this.delSkuClassChildren(thisSkuClass.key, _this.tree)
+              _this.tree = delSkuClassChildren(thisSkuClass.key, _this.tree)
               if (current) {
-                _this.skuClassList = _this.skuClassList.filter(item => item.key !== thisSkuClass.key)
+                _this.skuClassListChange(_this.skuClassList.filter(item => item.key !== thisSkuClass.key))
               } else {
                 _this.skuClassPageClick(_this.skuClassPage[_this.skuClassPage.length - 2])
               }
@@ -296,6 +280,17 @@ export default {
         }, 0)
       }
     },
+    skuClassListChange(skuClassList) {
+      this.skuClassList = skuClassList
+      this.$nextTick(function () {
+        this.movableViewY = this.skuClassPage.length > 1 ? 49 : 1
+        setTimeout(() => {
+          this.movableViewY = this.skuClassPage.length > 1 ? 48 : 0
+        }, 0)
+        this.moveIndex = null
+        this.inIndex = null
+      })
+    },
     async getList() {
       this.loading = true
       const res = await Sku.spuClassTreeView({data: {}}).catch(() => {
@@ -304,27 +299,27 @@ export default {
       this.loading = false
 
       this.tree = res.data || []
-      this.skuClassList = res.data || []
+      this.skuClassListChange(res.data || [])
       this.skuClassPage = [{key: '0', name: '分类管理'}]
     },
     async onCheckSkuClass(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
       const children = thisSkuClass.children || []
-      if (children.length === 0) {
-        this.allActionShow = true
-        this.allActionData = skuClass
-        return
-      }
-      this.skuClassList = children
+      // if (children.length === 0) {
+      //   this.allActionShow = true
+      //   this.allActionData = skuClass
+      //   return
+      // }
+      this.skuClassListChange(children)
       this.skuClassPage = [...this.skuClassPage, {key: thisSkuClass.key, name: thisSkuClass.title}]
       this.pageContainerShow = true
     },
     async skuClassPageClick(route) {
       if (route.key === '0') {
-        this.skuClassList = this.tree
+        this.skuClassListChange(this.tree)
       } else {
         const thisSkuClass = this.findSkuClass(route.key, this.tree) || {}
-        this.skuClassList = thisSkuClass.children || []
+        this.skuClassListChange(thisSkuClass.children || [])
       }
 
       const newPage = []
@@ -371,14 +366,14 @@ export default {
               if (pid) {
 
               } else {
-                _this.skuClassList = [..._this.skuClassList, newSkuClass]
+                _this.skuClassListChange([..._this.skuClassList, newSkuClass])
               }
 
               const key = pid || _this.skuClassPage[_this.skuClassPage.length - 1].key
               if (key === '0') {
                 _this.tree = [..._this.tree, newSkuClass]
               } else {
-                _this.tree = _this.addSkuClassChildren(key, newSkuClass, _this.tree)
+                _this.tree = addSkuClassChildren(key, newSkuClass, _this.tree)
               }
 
               resolve(true)
@@ -406,15 +401,6 @@ export default {
       })
       return skuClass
     },
-    addSkuClassChildren(key, skuClass, skuClassList = []) {
-      return skuClassList.map(item => {
-        if ((key + '') === (item.key + '')) {
-          return {...item, children: [...item.children, skuClass]}
-        } else {
-          return {...item, children: this.addSkuClassChildren(key, skuClass, item.children || [])}
-        }
-      })
-    },
     editSkuClassChildren(skuClass, skuClassList = []) {
       return skuClassList.map(item => {
         if ((skuClass.key + '') === (item.key + '')) {
@@ -423,15 +409,6 @@ export default {
           return {...item, children: this.editSkuClassChildren(skuClass, item.children || [])}
         }
       })
-    },
-    delSkuClassChildren(key, skuClassList = []) {
-      const newSkuClassList = []
-      skuClassList.map(item => {
-        if ((key + '') !== (item.key + '')) {
-          newSkuClassList.push({...item, children: this.delSkuClassChildren(key, item.children || [])})
-        }
-      })
-      return newSkuClassList
     },
     editUser(user) {
       this.actionUser = user
@@ -442,6 +419,38 @@ export default {
 </script>
 
 <style lang="scss">
+
+.movable-area {
+  width: 100%;
+  height: 100vh;
+}
+
+.movableView {
+  width: 100%;
+  height: 48px;
+}
+
+.inItem {
+  background-color: rgba(0, 122, 255, 0.50);
+}
+
+.moveItem {
+  opacity: 0.5;
+  background-color: #f5f5f5;
+}
+
+.moveFixItem {
+  opacity: 0.3;
+  position: absolute;
+  width: 100%;
+}
+
+.moveLine {
+  height: 1px;
+  background-color: rgba(0, 122, 255, 0.50);
+  position: fixed;
+  width: 100%;
+}
 
 .navBar {
   .uni-navbar__header {
@@ -496,6 +505,19 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  .itemTitle {
+    flex-grow: 1;
+  }
+
+  .drap {
+    width: 50px;
+    height: 48px;
+    margin: -8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
 
   .userItem {
     flex-grow: 1;
