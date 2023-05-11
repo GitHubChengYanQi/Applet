@@ -1,7 +1,7 @@
 export const SkuResultSkuJsons = ({ skuResult, describe, spu, sku, emptyText }) => {
 
-    if (!(skuResult && skuResult.spuResult)) {
-        return '-';
+    if (!skuResult) {
+        return '';
     }
 
     if (describe) {
@@ -26,5 +26,5 @@ export const SkuResultSkuJsons = ({ skuResult, describe, spu, sku, emptyText }) 
         return `${skuResult.skuName || '-'}${skuResult.specifications ? ` / ${skuResult.specifications}` : ''}`;
     }
 
-    return `${skuResult.spuResult.name} / ${skuResult.skuName || '-'}${skuResult.specifications ? ` / ${skuResult.specifications}` : ''}`;
+    return `${skuResult.spuResult ? skuResult.spuResult.name : ''} ${skuResult.skuName ? ` / ${skuResult.skuName}` : ''}${skuResult.specifications ? ` / ${skuResult.specifications}` : ''}`;
 };

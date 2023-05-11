@@ -13,35 +13,18 @@
         v-else-if="loading"
     />
     <view v-else class="selectUser">
-      <view class="header">
-        <uni-breadcrumb separator="/">
-          <uni-breadcrumb-item v-for="(route,index) in skuClassPage" :key="index">
-            <view @click="skuClassPageClick(route)">
-              {{ route.name }}
-            </view>
-          </uni-breadcrumb-item>
-        </uni-breadcrumb>
-      </view>
-      <scroll-view
-          scroll-with-animation
-          scroll-y
-          class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`,width:'calc(100% - 24px)'}"
-          :scroll-top="scrollTop"
-      >
-        <SkuManage
-            :moveIndex="moveIndex"
-            :inIndex="inIndex"
-            :movableViewY="movableViewY"
-            :sku-class-list="skuClassList"
-            :sku-class-page="skuClassPage"
-            :tree="tree"
-            @skuClassPageClick="skuClassPageClick"
-            @onCheckSkuClass="onCheckSkuClass"
-            @skuClassListChange="skuClassListChange"
-            @treeChange="(newTree)=>tree = newTree"
-        />
-      </scroll-view>
+      <SkuManage
+          :moveIndex="moveIndex"
+          :inIndex="inIndex"
+          :movableViewY="movableViewY"
+          :sku-class-list="skuClassList"
+          :sku-class-page="skuClassPage"
+          :tree="tree"
+          @skuClassPageClick="skuClassPageClick"
+          @onCheckSkuClass="onCheckSkuClass"
+          @skuClassListChange="skuClassListChange"
+          @treeChange="(newTree)=>tree = newTree"
+      />
     </view>
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -287,8 +270,6 @@ export default {
         setTimeout(() => {
           this.movableViewY = this.skuClassPage.length > 1 ? 48 : 0
         }, 0)
-        this.moveIndex = null
-        this.inIndex = null
       })
     },
     async getList() {
@@ -420,9 +401,10 @@ export default {
 
 <style lang="scss">
 
-.movable-area {
+.movableArea {
   width: 100%;
   height: 100vh;
+  z-index: 1;
 }
 
 .movableView {
@@ -492,7 +474,7 @@ export default {
   }
 
   .users {
-    overflow: auto;
+    overflow: hidden auto;
     background-color: #fff;
     padding: 0 12px;
   }
