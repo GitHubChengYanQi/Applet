@@ -2,9 +2,9 @@
   <view class="manage">
     <view class="item" @click="skuClass">
       <view class="info">
-        分类管理
+        物料管理
         <view class="des">
-          管理物料的分类
+          管理物料信息
         </view>
       </view>
       <view>

@@ -8,6 +8,16 @@ export const addSkuClassChildren = (key, skuClass, skuClassList = []) => {
     })
 };
 
+export const sortSkuClassChildren = (key, children, skuClassList = []) => {
+    return skuClassList.map(item => {
+        if ((key + '') === (item.key + '')) {
+            return {...item, children: children}
+        } else {
+            return {...item, children: addSkuClassChildren(key, children, item.children || [])}
+        }
+    })
+};
+
 
 export const delSkuClassChildren = (key, skuClassList = []) => {
     const newSkuClassList = []

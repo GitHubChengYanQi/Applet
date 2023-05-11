@@ -279,8 +279,8 @@ export default {
       })
       this.loading = false
 
-      this.tree = res.data || []
-      this.skuClassListChange(res.data || [])
+      this.tree = res?.data || []
+      this.skuClassListChange(res?.data || [])
       this.skuClassPage = [{key: '0', name: '分类管理'}]
     },
     async onCheckSkuClass(skuClass) {
@@ -335,7 +335,6 @@ export default {
             Sku.spuClassAdd({
               data: {
                 name: _this.skuClassName,
-                sort: _this.skuClassList.length,
                 pid: pid || _this.skuClassPage[_this.skuClassPage.length - 1].key
               }
             }).then((res) => {
@@ -473,16 +472,10 @@ export default {
     border-bottom: solid 1px #EEEEEE;
   }
 
-  .users {
-    overflow: hidden auto;
-    background-color: #fff;
-    padding: 0 12px;
-  }
-
 }
 
 .item {
-  padding: 6px;
+  padding: 6px 0 6px 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
@@ -490,15 +483,6 @@ export default {
 
   .itemTitle {
     flex-grow: 1;
-  }
-
-  .drap {
-    width: 50px;
-    height: 48px;
-    margin: -8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
   }
 
   .userItem {
@@ -522,6 +506,15 @@ export default {
   .backDept {
     color: rgba(0, 0, 0, 0.5);
   }
+}
+
+
+.drap {
+  height: 48px;
+  margin: -8px 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 24px;
 }
 
 .footer {

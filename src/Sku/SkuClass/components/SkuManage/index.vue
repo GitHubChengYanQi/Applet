@@ -9,12 +9,18 @@
         </uni-breadcrumb-item>
       </uni-breadcrumb>
     </view>
-    <view
-        class="users"
-        :style="{
-      height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`,
-      width:'calc(100% - 24px)',
-    }"
+    <List
+        :disabled="isMove !== null || skuIsMove !== null"
+        @request="requestSkuList"
+        :list="skuList"
+        no-empty
+        :default-limit="20"
+        @onLoading="(newLoading)=> skuListLoading = newLoading"
+        ref="skuList"
+        @listSource="skuListSource"
+        :height="`calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`"
+        width="100%"
+        :default-params="{categoryId:'0'}"
     >
       <view style="margin-left:-12px" class="header" v-if="skuIsMove !== null">
         <uni-breadcrumb separator="/">
@@ -29,46 +35,48 @@
           v-if="skuIsMove !== null"
           class="moveSkuBox"
       >
-        <view :class="{removeSku:true,startRemoveSku:removeSku}">
-          <u-icon name="trash" color="red" size="28" />
-        </view>
-        <view class="moveSkuBoxSkuClass">
-          <view
-              v-if="skuClassPage.length > 1"
-              :class="{item:true,skuMove:skuMoveIndex === 0}"
-              :style="{border:skuClassList.length ===0 && 'none'}"
-          >
-            <view class="deptIcon">
-              <Icon icon="icon-gaojizujian" size="20" />
-            </view>
-            <view class="itemTitle">
-              {{
-                skuClassPage[skuClassPage.length - 2].key !== '0' ? skuClassPage[skuClassPage.length - 2].name : '顶级'
-              }}
-            </view>
+        <view class="make"></view>
+        <u-transition mode="fade" :show="skuIsMove !== null" :duration="500">
+          <view :class="{removeSku:true,startRemoveSku:removeSku}">
+            <u-icon name="trash" :color="removeSku ? 'red' : '#fff'" size="28" />
           </view>
-          <view
-              v-for="(item,index) in skuClassList"
-              :key="index"
-          >
+          <view class="moveSkuBoxSkuClass">
             <view
-                :class="{item:true,skuMove:skuMoveIndex === (skuClassPage.length > 1 ? index + 1 : index)}"
-                :style="{border:index === skuClassList.length - 1 && 'none'}"
+                v-if="skuClassPage.length > 1"
+                :class="{item:true,skuMove:skuMoveIndex === 0}"
+                :style="{border:skuClassList.length ===0 && 'none'}"
             >
               <view class="deptIcon">
                 <Icon icon="icon-gaojizujian" size="20" />
               </view>
               <view class="itemTitle">
-                {{ item.title }}
+                {{
+                  skuClassPage[skuClassPage.length - 2].key !== '0' ? skuClassPage[skuClassPage.length - 2].name : '顶级'
+                }}
+              </view>
+            </view>
+            <view
+                v-for="(item,index) in skuClassList"
+                :key="index"
+            >
+              <view
+                  :class="{item:true,skuMove:skuMoveIndex === (skuClassPage.length > 1 ? index + 1 : index)}"
+                  :style="{border:index === skuClassList.length - 1 && 'none'}"
+              >
+                <view class="deptIcon">
+                  <Icon icon="icon-gaojizujian" size="20" />
+                </view>
+                <view class="itemTitle">
+                  {{ item.title }}
+                </view>
               </view>
             </view>
           </view>
-        </view>
+        </u-transition>
       </view>
-
       <movable-area
           class="movableArea"
-          :style="{height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 58 : 20)}px`}"
+          :style="{height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 68 : 20)}px`}"
       >
         <movable-view
             v-if="skuClassPage.length > 1"
@@ -113,7 +121,7 @@
             <view class="itemTitle">
               {{ item.title }}
             </view>
-            <view class="drap" @touchstart="moveStart(e,index)">
+            <view v-if="tenantAdmin" class="drap" @touchstart="moveStart(e,index)">
               <u-icon name="list" />
             </view>
           </view>
@@ -133,26 +141,24 @@
         </view>
       </movable-area>
 
-      <Loading skeleton v-if="skuListLoading" />
       <movable-area
-          v-else
           :class="{skuMovableArea:true}"
           :style="{
-      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? 58 : 20) + 36 + (skuList.length * 66)}px`,
+      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 46 + (skuList.length * 66)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
-      marginTop:`-${(skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 58 : 20) + 36)}px`
+      marginTop:`-${((skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 56)}px`,
+      minHeight:`calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`
     }"
       >
         <movable-view
-            :damping="0"
             :out-of-bounds="true"
             :animation="false"
             v-for="(item,index) in skuList"
             :key="index"
             :disabled="skuIsMove !== index"
             :style="{
-            top:`${66 * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 58 : 20) + 36)}px`,
+            top:`${66 * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? itemHeight : 0) + 46)}px`,
             width: `${itemWidth}px`,
           }"
             :y="skuMovableViewY"
@@ -164,15 +170,15 @@
         >
           <view class="skuItem">
             <view class="sku">
-              <SkuItem hidden-number :sku-result="item" img-size="48" />
+              <SkuItem hidden-number :sku-result="skuResultFormat(item)" img-size="48" />
             </view>
-            <view class="drap" :id="`skuMoveItem${index}`" @touchstart="skuMoveStart(e,index)">
+            <view v-if="tenantAdmin" class="drap" :id="`skuMoveItem${index}`" @touchstart="skuMoveStart(e,index)">
               <u-icon name="list" />
             </view>
           </view>
         </movable-view>
       </movable-area>
-    </view>
+    </List>
 
 
     <u-action-sheet
@@ -186,26 +192,32 @@
 
     <Modal ref="modal" />
 
+    <Loading :loading="loading" />
+
   </view>
 </template>
 
 <script>
 import Icon from "../../../../components/Icon";
 import Empty from "../../../../components/Empty";
-import {addSkuClassChildren, delSkuClassChildren} from "../../SkuClassList";
+import {addSkuClassChildren, delSkuClassChildren, sortSkuClassChildren} from "../../SkuClassList";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuItem from "../../../../components/SkuItem";
 import Loading from "../../../../components/Loading";
-import {safeAreaHeight} from "../../../../util/Tools";
+import {isArray, safeAreaHeight} from "../../../../util/Tools";
 import Modal from "../../../../components/Modal";
 import {SkuResultSkuJsons} from "../../../sku";
+import List from "../../../../components/List/indx";
+import axios from "axios";
+import {Init} from "MES-Apis/lib/Init";
+import {request} from "MES-Apis/lib/Service/request";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'SkuManage',
-  components: {Modal, Loading, SkuItem, Empty, Icon},
+  components: {List, Modal, Loading, SkuItem, Empty, Icon},
   props: [
     'skuClassList',
     'skuClassPage',
@@ -214,8 +226,9 @@ export default {
   ],
   data() {
     return {
+      Sku,
       safeAreaHeight,
-      tenant: {},
+      tenantAdmin: true,
       skuClassId: '',
       skuList: [],
       movableView: 0,
@@ -228,13 +241,13 @@ export default {
       isMoveEnd: false,
       skuIsMove: null,
       scrollTop: 0,
-      moveEndIndex: 0,
+      moveEndIndex: null,
       moveActionShow: false,
       moveActionData: {},
       moveActionList: [
         {
           name: '移动分类',
-          key: 'edit',
+          key: 'move',
         },
         {
           name: '拷贝并移动',
@@ -244,12 +257,21 @@ export default {
       skuMovableViewY: 0,
       skuMovableViewX: 0,
       removeSku: false,
-      skuMoveIndex: null
+      skuMoveIndex: null,
+      requestSkuListPromise: null,
+      loading: false,
+      removeSkuIds: [],
+      skuImages: []
     }
   },
   mounted() {
-    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth - 24
-    this.tenant = this.$store.state.userInfo.tenant
+    // const miniProgram = uni.getAccountInfoSync().miniProgram
+    // request({
+    //   url: `/wxma/messageCallBack/${miniProgram.appId}`,
+    //   method: 'POST'
+    // })
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
+    this.tenantAdmin = this.$store.state.userInfo.tenant.admin || true
   },
   watch: {
     skuClassPage: {
@@ -258,51 +280,161 @@ export default {
         const thisSkuClass = skuClassPage[skuClassPage.length - 1]
         if (thisSkuClass.key !== this.skuClassId) {
           this.skuClassId = thisSkuClass.key
-          this.skuListLoading = true
-          Sku.listV1_1({data: {categoryId: thisSkuClass.key}}).then((res) => {
-            this.skuList = res.data || []
-            this.$nextTick(function () {
-              this.skuMovableViewX = 0
-              this.skuMovableViewY = 0
-              this.$nextTick(function () {
-                this.skuMovableViewX = this.itemWidth
-                this.skuMovableViewY = 0
-              })
-            })
-          }).finally(() => {
-            this.skuListLoading = false
-          })
-        } else if (thisSkuClass.key === '0') {
-          this.skuList = []
+          this.submitSkuList({categoryId: thisSkuClass.key})
         }
-
-        this.$nextTick(function () {
-          this.moveIndex = null
-          this.inIndex = null
-        })
       }
     }
   },
   methods: {
-    moveActionSelect() {
-      const thisSkuClass = this.skuClassList[this.moveActionData.thisIndex]
-      const tree = delSkuClassChildren(thisSkuClass.key, this.tree)
-      let newTree = []
-      if (this.moveActionData.inIndex === -1) {
-        const key = this.skuClassPage[this.skuClassPage.length - 2].key
-        if (key === '0') {
-          newTree = [...tree, thisSkuClass]
-        } else {
-          newTree = addSkuClassChildren(key, thisSkuClass, tree)
-        }
-      } else {
-        const skuClass = this.skuClassList[this.moveActionData.inIndex]
-        newTree = addSkuClassChildren(skuClass.key, thisSkuClass, tree)
+    skuResultFormat(item) {
+      const media = this.skuImages.find(mediaItem => mediaItem.mediaId === item.images?.split(',')[0]) || {}
+      return {
+        ...item,
+        thumbUrl: media.thumbUrl
       }
+    },
+    requestSkuList(service, params) {
+      const CancelToken = axios.CancelToken;
+      let cancel;
+      Sku.listV1_1({
+        ...service,
+        cancelToken: new CancelToken(function executor(c) {
+          // executor 函数接收一个 cancel 函数作为参数
+          cancel = c;
+        })
+      }, params)
+      this.cancel = cancel
+    },
+    async submitSkuList({categoryId}) {
+      if (this.skuListLoading) {
+        this.cancel()
+      }
+      this.skuImages = []
+      this.removeSkuIds = []
+      this.$refs.skuList.submit({categoryId})
+    },
+    async skuListSource(list, newSkuList) {
+      this.skuList = list.filter(item => !this.removeSkuIds.find(removeItem => removeItem.skuId === item.skuId))
+      this.resetSkuMove()
+      if (newSkuList.length > 0) {
+        await Sku.getMediaUrls({
+          mediaIds: newSkuList.map(item => item.images?.split(',')[0]),
+          option: 'image/resize,m_fill,h_48,w_48',
+        }).then((res) => {
+          isArray(res?.data).map(item => {
+            this.skuImages.push(item)
+          })
+        }).catch(() => {
+        })
+      }
+    },
+    async moveActionSelect({key}) {
+      let newTree = []
+      const thisSkuClass = this.skuClassList[this.moveActionData.thisIndex]
+      this.loading = true
+      switch (key) {
+        case 'move':
+          const tree = delSkuClassChildren(thisSkuClass.key, this.tree)
+          if (this.moveActionData.inIndex === -1) {
+            const skuClassKey = this.skuClassPage[this.skuClassPage.length - 2].key
+            await Sku.spuClassEdit({
+              data: {
+                spuClassificationId: thisSkuClass.key,
+                pid: skuClassKey
+              }
+            }).then(() => {
+              if (skuClassKey === '0') {
+                newTree = [...tree, thisSkuClass]
+              } else {
+                newTree = addSkuClassChildren(skuClassKey, thisSkuClass, tree)
+              }
+              this.skuClassListChange(this.skuClassList.filter((item, index) => index !== this.moveActionData.thisIndex))
+              const newSkuList = this.skuList
+              this.skuList = []
+              setTimeout(() => {
+                this.skuList = newSkuList
+              }, 0)
+            }).catch(() => {
+              this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '移动失败!'
+              })
+            })
+          } else {
+            const skuClass = this.skuClassList[this.moveActionData.inIndex]
+            await Sku.spuClassEdit({
+              data: {
+                spuClassificationId: thisSkuClass.key,
+                pid: skuClass.key
+              }
+            }).then(() => {
+              newTree = addSkuClassChildren(skuClass.key, thisSkuClass, tree)
+              this.skuClassListChange(this.skuClassList.filter((item, index) => index !== this.moveActionData.thisIndex))
+              const newSkuList = this.skuList
+              this.skuList = []
+              setTimeout(() => {
+                this.skuList = newSkuList
+              }, 0)
+            }).catch(() => {
+              this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '移动失败!'
+              })
+            })
+          }
+          break;
+        case 'copy':
+          if (this.moveActionData.inIndex === -1) {
+            const skuClassKey = this.skuClassPage[this.skuClassPage.length - 2].key
+            await Sku.spuClassAdd({
+              data: {
+                name: thisSkuClass.title,
+                pid: skuClassKey
+              }
+            }).then((res) => {
+              const newSkuClass = {
+                key: res.data,
+                children: [],
+                title: thisSkuClass.title
+              }
+              if (skuClassKey === '0') {
+                newTree = [...this.tree, newSkuClass]
+              } else {
+                newTree = addSkuClassChildren(skuClassKey, newSkuClass, this.tree)
+              }
+            }).catch(() => {
+              this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '拷贝失败!'
+              })
+            })
+          } else {
+            const skuClass = this.skuClassList[this.moveActionData.inIndex]
+            await Sku.spuClassAdd({
+              data: {
+                name: thisSkuClass.title,
+                pid: skuClass.key
+              }
+            }).then((res) => {
+              const newSkuClass = {
+                key: res.data,
+                children: [],
+                title: thisSkuClass.title
+              }
+              newTree = addSkuClassChildren(skuClass.key, newSkuClass, this.tree)
+            }).catch(() => {
+              this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '拷贝失败!'
+              })
+            })
+
+          }
+          break
+      }
+      this.loading = false
       this.$emit('treeChange', newTree)
-      this.skuClassListChange(this.skuClassList.filter((item, index) => index !== this.moveActionData.thisIndex))
     },
     move(e, index) {
+      if (!e.detail.source) {
+        return
+      }
       const y = this.skuClassPage.length > 1 ? e.detail.y - this.itemHeight : e.detail.y
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -318,7 +450,6 @@ export default {
       } else if (endIndex < 0) {
         endIndex = 0
       }
-
       this.moveEndIndex = endIndex
       if (moveIndex === 0) {
         this.moveIndex = null
@@ -381,7 +512,7 @@ export default {
           this.moveActionShow = true
           this.moveActionData = {...this.skuClassList[thisIndex], thisIndex, inIndex: this.inIndex}
           this.skuClassListChange(this.skuClassList)
-        } else {
+        } else if (this.moveEndIndex !== null) {
           const skuClassList = this.skuClassList.map((item, index) => {
             if (moveIndex > 0) {
               if (index < this.moveEndIndex && index >= thisIndex) {
@@ -399,7 +530,35 @@ export default {
             return item
           })
           this.skuClassListChange(skuClassList)
+          const thisKey = this.skuClassPage[this.skuClassPage.length - 1].key
+          if (thisKey === '0') {
+            this.$emit('treeChange', skuClassList)
+          } else {
+            this.$emit('treeChange', sortSkuClassChildren(thisKey, skuClassList, this.tree))
+          }
+
+          Sku.categorySort({
+            data: {
+              sortParam: skuClassList.map((item, index) => ({
+                spuClassificationId: item.key,
+                sort: skuClassList.length - index
+              }))
+            }
+          }).then(() => {
+
+          }).catch(() => {
+            this.$refs.modal.dialog({
+              title: Init.getNewErrorMessage() || '排序失败!'
+            })
+          })
         }
+
+        this.$nextTick(function () {
+          this.moveEndIndex = null
+          this.moveIndex = null
+          this.inIndex = null
+        })
+
 
       })
     },
@@ -407,6 +566,7 @@ export default {
       if (typeof this.skuIsMove !== 'number') {
         return
       }
+
       const query = uni.createSelectorQuery().in(this);
       query.select(`#skuMoveItem${index}`).boundingClientRect(data => {
         const top = data.top - 64
@@ -416,7 +576,6 @@ export default {
         } else {
           this.skuMoveIndex = null
         }
-        // console.log("节点离页面顶部的距离为" + data.top);
       }).exec();
 
     },
@@ -428,6 +587,7 @@ export default {
       if (typeof this.skuIsMove !== 'number') {
         return
       }
+
       if (this.removeSku) {
         const _this = this
         this.$refs.modal.dialog({
@@ -436,49 +596,87 @@ export default {
           content: SkuResultSkuJsons({skuResult: _this.skuList[thisIndex]}),
           confirmError: true,
           onConfirm: () => {
-            return true
+            return new Promise((resolve) => {
+              Sku.del({
+                data: {
+                  skuId: _this.skuList[thisIndex].skuId,
+                }
+              }).then(() => {
+                this.removeSkuIds = [...this.removeSkuIds, _this.skuList[thisIndex].skuId]
+                _this.skuList = _this.skuList.filter(item => item.skuId !== _this.skuList[thisIndex].skuId)
+                resolve(true)
+              }).catch(() => {
+                resolve(false)
+                _this.$refs.modal.dialog({
+                  title: Init.getNewErrorMessage() || '删除失败!'
+                })
+              })
+            })
           }
         })
       }
       if (this.skuMoveIndex !== null) {
         const _this = this
         let title = ''
+        let skuClassId = 0
         if (this.skuClassPage.length > 1) {
           if (_this.skuMoveIndex === 0) {
             const key = _this.skuClassPage[_this.skuClassPage.length - 2].key
-            title = '确认移动物料到' + (key !== '0' ? _this.skuClassPage[_this.skuClassPage.length - 2].name : '顶级') + '吗？'
+            title = '确认将物料移动到' + (key !== '0' ? _this.skuClassPage[_this.skuClassPage.length - 2].name : '顶级') + '吗？'
+            skuClassId = key
           } else {
-            title = '确认移动物料到' + _this.skuClassList[_this.skuMoveIndex - 1].title + '吗？'
+            title = '确认将物料移动到' + _this.skuClassList[_this.skuMoveIndex - 1].title + '吗？'
+            skuClassId = _this.skuClassList[_this.skuMoveIndex - 1].key
           }
         } else {
-          title = '确认移动物料到' + _this.skuClassList[_this.skuMoveIndex].title + '吗？'
+          title = '确认将物料移动到' + _this.skuClassList[_this.skuMoveIndex].title + '吗？'
+          skuClassId = _this.skuClassList[_this.skuMoveIndex].key
         }
+        const sku = this.skuList[thisIndex]
         this.$refs.modal.dialog({
           title,
+          content: SkuResultSkuJsons({skuResult: sku}),
           only: false,
-          confirmError: true,
           onConfirm: () => {
-            return true
+            return new Promise((resolve) => {
+              Sku.edit({
+                data: {
+                  unitId: sku.unitId,
+                  spu: {categoryId: skuClassId, name: sku.spuName, spuId: sku.spuId},
+                  skuId: sku.skuId,
+                  spuClass: skuClassId,
+                  skuName: sku.skuName
+                }
+              }).then(() => {
+                this.removeSkuIds = [...this.removeSkuIds, sku.skuId]
+                _this.skuList = _this.skuList.filter(item => item.skuId !== sku.skuId)
+                resolve(true)
+              }).catch(() => {
+                resolve(false)
+                _this.$refs.modal.dialog({
+                  title: Init.getNewErrorMessage() || '移动失败!'
+                })
+              })
+            })
           }
         })
       }
-      this.skuIsMove = null
-      this.skuMoveIndex = null
-      this.$nextTick(function () {
-        this.skuMovableViewX = 0
-        this.skuMovableViewY = 0
-        setTimeout(() => {
-          this.skuMovableViewX = this.itemWidth
-          this.skuMovableViewY = 0
-        }, 0)
-      })
+
+      this.resetSkuMove()
 
     },
     skuClassListChange(skuClassList) {
       this.$emit('skuClassListChange', skuClassList)
+      // this.resetSkuMove()
+    },
+    resetSkuMove() {
+      this.skuMovableViewX = this.itemWidth - 0.1
+      this.skuMovableViewY = 0.1
       this.$nextTick(function () {
-        this.moveIndex = null
-        this.inIndex = null
+        this.skuIsMove = null
+        this.skuMoveIndex = null
+        this.skuMovableViewX = this.itemWidth
+        this.skuMovableViewY = 0
       })
     }
   }
@@ -486,6 +684,11 @@ export default {
 </script>
 
 <style lang="scss">
+
+.scrollList {
+  overflow: hidden auto;
+  background-color: #fff;
+}
 
 .skuMoveAreaBox {
   //position: fixed;
@@ -500,21 +703,29 @@ export default {
 .moveSkuBox {
   position: fixed;
   top: 0;
-  width: calc(100% - 48px);
+  width: 100vw;
   height: 100%;
-  margin-left: -12px;
-  background-color: rgba(0, 0, 0, 0.3);
   z-index: 2;
-  padding: 0 24px;
+
+  .make {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 
   .removeSku {
+    z-index: 1;
     margin: 0 -24px;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 50px;
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.5);
     margin-bottom: 24px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
   }
 
   .startRemoveSku {
@@ -522,8 +733,10 @@ export default {
   }
 
   .moveSkuBoxSkuClass {
+    z-index: 1;
     background-color: #fff;
     border-radius: 8px;
+    margin: 0 24px;
   }
 }
 
@@ -535,7 +748,7 @@ export default {
 .skuItem {
   display: flex;
   align-items: center;
-  padding: 8px 6px;
+  padding: 6px 0 6px 12px;
   border-bottom: solid 1px #f5f5f5;
 
   .sku {
