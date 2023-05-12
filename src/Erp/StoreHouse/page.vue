@@ -156,7 +156,7 @@ export default {
 .listItem {
   background-color: #fff;
   border-radius: 4px;
-  padding: 12px;
+  padding: 12px 12px 0;
   margin-bottom: 4px;
 
   .name {
@@ -198,7 +198,7 @@ export default {
     align-items: center;
 
     .actionItem {
-      padding-top: 8px;
+      padding: 8px;
       flex-grow: 1;
       display: flex;
       justify-content: center;

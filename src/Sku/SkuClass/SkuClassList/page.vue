@@ -14,8 +14,8 @@
     />
     <view v-else class="selectUser">
       <SkuManage
-          :moveIndex="moveIndex"
-          :inIndex="inIndex"
+          :itemWidth="itemWidth"
+          :movableViewX="movableViewX"
           :movableViewY="movableViewY"
           :sku-class-list="skuClassList"
           :sku-class-page="skuClassPage"
@@ -94,7 +94,9 @@ export default {
       loading: true,
       skuClassList: [],
       movableViewY: 0,
+      movableViewX: 0,
       tree: [],
+      itemWidth: 0,
       searchValue: '',
       actionShow: false,
       error: false,
@@ -127,6 +129,7 @@ export default {
     }
   },
   mounted() {
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
     this.getList()
   },
   computed: {
@@ -142,6 +145,10 @@ export default {
           key: 'delete',
           color: 'red',
           disabled: this.skuClassPage.length <= 1
+        },
+        {
+          name: '添加物料',
+          key: 'addSku',
         },
       ]
     }
@@ -252,6 +259,11 @@ export default {
         case 'delete':
           this.del(thisSkuClass)
           break
+        case 'addSku':
+          uni.navigateTo({
+            url: `/Sku/SkuAdd/index?classId=${thisSkuClass.key}`
+          })
+          break;
       }
     },
     afterleave() {
@@ -267,8 +279,10 @@ export default {
       this.skuClassList = skuClassList
       this.$nextTick(function () {
         this.movableViewY = this.skuClassPage.length > 1 ? 49 : 1
+        this.movableViewX = this.itemWidth - 0.1
         setTimeout(() => {
           this.movableViewY = this.skuClassPage.length > 1 ? 48 : 0
+          this.movableViewX = this.itemWidth
         }, 0)
       })
     },
@@ -514,7 +528,7 @@ export default {
   margin: -8px 0;
   display: flex;
   align-items: center;
-  padding: 0 12px 0 24px;
+  padding: 0 24px 0;
 }
 
 .footer {

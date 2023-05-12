@@ -27,13 +27,17 @@ const actions = {
             const userRes = await User.getUserInfo()
             const userInfo = userRes.data || {}
             const url = await base64src(logo)
-            state.userInfo = {...userInfo, avatar: userInfo.miniAppAvatar}
+            state.userInfo = {
+                ...userInfo,
+                avatar: userInfo.miniAppAvatar,
+                logo:url
+            }
             state.tenant = {
                 tenantId: userInfo.tenantId,
                 name: userInfo.tenantName,
                 logo: userInfo.tenantLogo,
                 admin: !!userInfo.isTenantAdmin,
-                imgLogo: userInfo.tenantLogo?.url || url
+                imgLogo: userInfo.tenantLogo?.url || url,
             }
             state.menus = isArray(userInfo.miniAppMenus).filter(item => isArray(item.subMenus).length > 0)
             if (!payload) {

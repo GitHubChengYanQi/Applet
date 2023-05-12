@@ -23,8 +23,7 @@ export default {
 
   .left, .right {
     height: 1px;
-    width: 100%;
-    background-color: rgb(220, 223, 230);
+    background-color: #dcdfe6;
     flex-grow: 1;
   }
 }

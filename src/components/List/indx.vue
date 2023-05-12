@@ -10,6 +10,7 @@
     >
       <slot></slot>
       <Empty
+          :type="emptyType"
           v-if="!noEmpty && isArray(list).length === 0 && moreStatus !== 'loading'"
           :description="description || '暂无数据'"
       />
@@ -33,6 +34,7 @@ export default {
   name: 'List',
   components: {Empty},
   props: [
+    'emptyType',
     'disabled',
     'noEmpty',
     'list',

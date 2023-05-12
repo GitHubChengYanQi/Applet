@@ -19,13 +19,11 @@ export default {
   },
   async onShareAppMessage(res) {
     const tenant = this.$store.state.userInfo.tenant || {}
+    const userInfo = this.$store.state.userInfo.userInfo || {}
     if (res.from === 'button') {
-      const userInfo = this.$store.state.userInfo.userInfo || {}
       this.loading = true
       const invite = await Tenant.invite({
         data: {
-          inviterUser: userInfo.id,
-          type: '邀请',
           tenantId: tenant.tenantId,
         }
       }).finally(() => {
@@ -38,9 +36,9 @@ export default {
       }
     }
     return {
-      title: tenant.name || '道昕云',
-      path: '/pages/Home/index?shareTenantId=' + tenant.tenantId,
-      imageUrl: tenant.imgLogo
+      title: '道昕云',
+      path: '/pages/Home/index',
+      imageUrl: userInfo.logo
     }
   },
   computed: {

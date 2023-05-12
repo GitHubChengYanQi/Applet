@@ -3,7 +3,6 @@
     <Loading v-if="loading" :skeleton="true" skeleton-type="page" />
     <Error v-else-if="error" />
     <slot v-else></slot>
-
     <Guide v-if="openGuide" />
   </view>
 </template>
@@ -118,10 +117,10 @@ export default {
     },
     shareTenant(tenantId) {
       const shareTenantId = getApp().globalData.shareTenantId
-      const shareInviteId = getApp().globalData.shareTenantDeptId
-      if (shareTenantId && shareTenantId !== (tenantId + '') && !queryString('/Tenant/JoinTenant/index', getLocalParmas().route)) {
+      const shareInviteId = getApp().globalData.shareInviteId
+      if (shareTenantId && (shareTenantId + '') !== (tenantId + '') && !queryString('/Tenant/JoinTenant/index', getLocalParmas().route)) {
         uni.reLaunch({
-          url: `/Tenant/JoinTenant/index?inviteId=${shareInviteId || ''}&tenantId=${shareTenantId || ''}`,
+          url: `/Tenant/JoinTenant/index?inviteId=${shareInviteId || ''}`,
         })
         return false
       }

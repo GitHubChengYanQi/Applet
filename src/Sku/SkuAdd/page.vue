@@ -100,15 +100,15 @@
             />
           </uni-forms-item>
 
-<!--          <uni-forms-item-->
-<!--              label="初始库存"-->
-<!--              name="initialNumber"-->
-<!--              required-->
-<!--          >-->
-<!--           <view class="formItem">-->
-<!--             <ShopNumber :min="0" v-model="formData.initialNumber" />-->
-<!--           </view>-->
-<!--          </uni-forms-item>-->
+          <!--          <uni-forms-item-->
+          <!--              label="初始库存"-->
+          <!--              name="initialNumber"-->
+          <!--              required-->
+          <!--          >-->
+          <!--           <view class="formItem">-->
+          <!--             <ShopNumber :min="0" v-model="formData.initialNumber" />-->
+          <!--           </view>-->
+          <!--          </uni-forms-item>-->
 
           <uni-forms-item
               label="单位"
@@ -288,6 +288,7 @@
 
 <script>
 import {
+  getLocalParmas,
   isArray
 } from "../../util/Tools";
 import Card from '../../components/Card';
@@ -482,20 +483,29 @@ export default {
     async getCateGory(classId) {
       const response = await SkuApis.spuClassTreeView({data: {}});
       const {data} = response;
-      const {list, currentObj} = this.format(data || [], classId);
+      const defaultId = getLocalParmas().search.classId
+      const {list, currentObj, defaultClass} = this.format(data || [], classId, defaultId);
+
       this.cateGoryData = list
       if (classId) {
         this.show = false
         this.formData = {
           ...this.formData,
-          spuClass: currentObj.id,
-          skuClassTitle: currentObj.name
+          spuClass: currentObj && currentObj.id,
+          skuClassTitle: currentObj && currentObj.name
+        }
+      } else if (defaultId) {
+        this.formData = {
+          ...this.formData,
+          spuClass: defaultClass && defaultClass.id,
+          skuClassTitle: defaultClass && defaultClass.name
         }
       }
     },
-    format(data, classId) {
+    format(data, classId, defaultClassId) {
       const list = [];
-      let currentObj = {}
+      let currentObj = null
+      let defaultClass = null
       data.forEach(item => {
         const obj = {
           name: item.title,
@@ -504,17 +514,30 @@ export default {
         if (classId && item.key === classId) {
           currentObj = obj
         }
+        if (defaultClassId && item.key === defaultClassId) {
+          defaultClass = obj
+        }
         if (item.children.length > 0) {
-          const {list, currentObj: childrenCurrentObj} = this.format(item.children, classId)
+          const {
+            list,
+            currentObj: childrenCurrentObj,
+            defaultClass: childrenDefaultClass
+          } = this.format(item.children, classId, defaultClassId)
           obj.children = list;
-          currentObj = childrenCurrentObj
+          if (!currentObj) {
+            currentObj = childrenCurrentObj
+          }
+          if (!defaultClass) {
+            defaultClass = childrenDefaultClass
+          }
         }
         list.push(obj);
       })
 
       return {
         list,
-        currentObj
+        currentObj,
+        defaultClass
       };
     },
     formSubmit() {
@@ -547,7 +570,7 @@ export default {
                 setTimeout(() => {
                   _this.refreshLoading = false
                 }, 1000)
-                uni.navigateTo({
+                uni.redirectTo({
                   url: `/Sku/SkuDetail/index?skuId=${res.data}`
                 })
                 return true

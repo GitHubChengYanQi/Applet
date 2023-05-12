@@ -98,7 +98,7 @@
         showCancelButton
         @close="feedbackShow = false"
         @cancel="feedbackShow = false"
-        confirmText="反馈"
+        confirmText="提交"
         @confirm="addFeedback"
     >
       <u--textarea
@@ -233,6 +233,10 @@ export default {
     margin: 26px auto;
     width: fit-content;
   }
+}
+
+.u-modal__content {
+  padding: 12px 25px 20px;
 }
 
 .u-action-sheet__header__title {

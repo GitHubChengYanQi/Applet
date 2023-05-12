@@ -30,7 +30,7 @@
           <u-icon name="arrow-right" size="12" color="#929293" />
         </view>
       </view>
-      <view class="actionItem" @click="gotoJoinTenantList">
+      <view v-if="tenant.admin" class="actionItem" @click="gotoJoinTenantList">
         <view class="icon">
           <Icon icon="icon-shenpijiaru" size="24" />
         </view>
@@ -132,7 +132,7 @@ export default {
       addUserShow: false,
       menus: [],
       waitJoinUsers: 0,
-
+      timeOutKey: null,
     }
   },
   watch: {
@@ -144,7 +144,7 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('userInfo/getUserInfo',true)
+    this.$store.dispatch('userInfo/getUserInfo', true)
     const tenant = this.$store.state.userInfo.tenant || {}
     this.tenant = tenant
     this.menus = this.$store.state.userInfo.menus || {}
@@ -167,7 +167,7 @@ export default {
         this.waitJoinUsers = res.data || 0
         this.timeOutKey = setTimeout(() => {
           this.searchWaitJoinUsers()
-        }, 30000)
+        }, 5000)
       })
     },
     preview(url) {

@@ -11,6 +11,7 @@
       </view>
       <Card title="请选择采购订单" body-style="padding:0" style="padding-top: 0">
         <List
+            :empty-type="value ? 'error' : ''"
             :description="value ? '未查询到采购订单' : '请通过搜索查询采购订单'"
             ref="listRef"
             max-height="calc(100vh - 110px)"

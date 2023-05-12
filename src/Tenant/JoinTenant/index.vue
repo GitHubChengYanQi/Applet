@@ -2,7 +2,7 @@
   <Auth :tenant-auth="false">
     <template v-if="auth">
       <Loading skeleton-type="page" skeleton v-if="loading" />
-      <Page ref="page" v-else-if="tenantId" :tenantId="tenantId" :deptId="deptId" :inviterUser="inviterUser" />
+      <Page ref="page" v-else-if="tenantId" :inviter="inviter" />
       <Empty v-else description="未选择要加入的企业!" />
     </template>
   </Auth>
@@ -21,8 +21,6 @@ export default {
       inviteId = option.scene
     } else if (option.inviteId) {
       inviteId = option.inviteId
-    } else if (option.tenantId) {
-      this.tenantId = option.tenantId
     }
     if (!inviteId) {
       this.loading = false
@@ -32,14 +30,13 @@ export default {
     this.loading = true
     Tenant.inviteDetail({
       data: {
-        tenantBindLogId: inviteId
+        tenantInviteLogId: inviteId
       }
     }).then((res) => {
       const invite = res.data || {}
       getApp().globalData.shareTenantId = invite.tenantId
       this.tenantId = invite.tenantId
-      this.deptId = invite.deptId
-      this.inviterUser = invite.inviterUser
+      this.inviter = invite
     }).finally(() => {
       this.loading = false
     })
@@ -51,8 +48,7 @@ export default {
   data() {
     return {
       tenantId: '',
-      deptId: '',
-      inviterUser: '',
+      inviter: '',
       loading: true
     }
   },

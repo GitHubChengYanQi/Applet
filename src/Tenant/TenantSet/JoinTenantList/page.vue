@@ -18,8 +18,15 @@
             class="user"
         >
           <view class="userInfo">
-            <UserName :user="item.userResult">
-              {{ item.inviterUserResult && item.inviterUserResult.name || '-' }}邀请加入{{ item.dept && item.dept.fullName }}{{(item.dept && item.dept.fullName) ? '部门' : '团队'}}
+            <UserName size="45" :user="item.userResult">
+              <view class="des">
+                {{ item.inviterUserResult && item.inviterUserResult.name || '-' }}邀请加入{{
+                  item.dept && item.dept.fullName
+                }}{{ (item.dept && item.dept.fullName) ? '' : '团队' }}
+              </view>
+              <view class="des">
+                {{ timeDifference(item.createTime) }}
+              </view>
             </UserName>
           </view>
           <view class="action">
@@ -130,18 +137,12 @@ export default {
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
-              _this.$refs.modal.dialog({
-                title: '通过成功！',
-                onConfirm() {
-                  _this.checked = []
-                  _this.list = _this.list.map(item => {
-                    if (item.tenantBindLogId === user.tenantBindLogId) {
-                      return {...item, status: 99}
-                    } else {
-                      return item
-                    }
-                  })
-                  return true
+              _this.checked = []
+              _this.list = _this.list.map(item => {
+                if (item.tenantBindLogId === user.tenantBindLogId) {
+                  return {...item, status: 99}
+                } else {
+                  return item
                 }
               })
               resolve(true)
@@ -171,18 +172,12 @@ export default {
               }
             }).then(() => {
               uni.$emit('handleJoinTenant')
-              _this.$refs.modal.dialog({
-                title: '拒绝成功！',
-                onConfirm() {
-                  _this.checked = []
-                  _this.list = _this.list.map(item => {
-                    if (item.tenantBindLogId === user.tenantBindLogId) {
-                      return {...item, status: 50}
-                    } else {
-                      return item
-                    }
-                  })
-                  return true
+              _this.checked = []
+              _this.list = _this.list.map(item => {
+                if (item.tenantBindLogId === user.tenantBindLogId) {
+                  return {...item, status: 50}
+                } else {
+                  return item
                 }
               })
               resolve(true)
@@ -214,6 +209,11 @@ export default {
 
     .userInfo {
       flex-grow: 1;
+
+      .des {
+        font-size: 12px;
+        color: #a4a2a2;
+      }
 
       .phone {
         font-size: 12px;

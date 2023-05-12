@@ -20,7 +20,8 @@ export default {
     this.appInit();
   },
   onShow: function (res) {
-    this.globalData.shareTenantId = res.query.shareTenantId
+    // this.globalData.shareTenantId = res.query.shareTenantId
+    // this.globalData.shareInviteId = res.query.inviteId
 
     const updateManager = uni.getUpdateManager();
 
@@ -60,7 +61,7 @@ export default {
           })
         },
         errorMessage: (res) => {
-          Message.toast(res)
+          // Message.toast(res)
         },
       })
     }

@@ -7,7 +7,7 @@
         no-header-border
     >
       <template slot="title">
-        <view class="title">
+        <view class="addNewUserTitle">
           添加用户
         </view>
       </template>
@@ -63,11 +63,11 @@ export default {
       const userInfo = this.$store.state.userInfo.userInfo || {}
       const invite = await Tenant.invite({
         data: {
-          inviterUser: userInfo.id,
-          type: '邀请',
           tenantId: tenant.tenantId,
           deptId: this.deptId
         }
+      }).catch(() => {
+        this.createCodeLoading = false
       })
       System.createMiniAppCode({
         data: {
@@ -97,8 +97,9 @@ export default {
 
 <style lang="scss">
 
-.title {
+.addNewUserTitle {
   font-weight: bold;
+  font-size: 14px;
 }
 
 .addUserAction {
@@ -115,7 +116,9 @@ export default {
       font-weight: 300;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
+      font-size: 16px;
     }
 
     .share {

@@ -20,8 +20,14 @@ export default {
       return {
         title: dataset.cardcoding,
         path: `/Production/ProductionCard/index?scene=${target.id}`,
-        imageUrl: dataset.skuimg ||   tenant.imgLogo
+        imageUrl: dataset.skuimg || tenant.imgLogo
       }
+    }
+    const userInfo = this.$store.state.userInfo.userInfo || {}
+    return {
+      title: '道昕云',
+      path: '/pages/Home/index',
+      imageUrl: userInfo.logo
     }
   },
   components: {Page, Auth},

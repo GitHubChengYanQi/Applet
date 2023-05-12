@@ -76,11 +76,17 @@
       </view>
       <movable-area
           class="movableArea"
-          :style="{height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 68 : 20)}px`}"
+          :style="{
+      height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 68 : 20)}px`,
+      width: `${itemWidth * 3}px`,
+      marginLeft:`-${itemWidth}px`,
+    }"
       >
         <movable-view
             v-if="skuClassPage.length > 1"
-            direction="vertical"
+            direction="all"
+            :x="movableViewX"
+            :style="{ width: `${itemWidth}px`,}"
             :class="{movableView:true,inItem:inIndex === -1}"
             :disabled="true"
             @click="$emit('skuClassPageClick',skuClassPage[skuClassPage.length - 2])"
@@ -94,7 +100,7 @@
         </movable-view>
         <Empty
             style="padding-top: 48px"
-            v-if="skuClassList.length === 0 && skuList.length === 0"
+            v-if="!skuListLoading && skuClassList.length === 0 && skuList.length === 0"
             description="暂无数据"
         />
         <movable-view
@@ -105,9 +111,10 @@
             :key="index"
             :disabled="isMove !== index"
             :id="`movableView${index}`"
-            :style="{top:`${48 * index+(skuClassPage.length > 1 ? 0 : 10)}px`}"
+            :style="{top:`${itemHeight * index+(skuClassPage.length > 1 ? 0 : 10)}px`, width: `${itemWidth}px`,}"
             :y="movableViewY"
-            direction="vertical"
+            :x="movableViewX"
+            direction="all"
             @change="(e)=>move(e,index)"
             @touchend="(e)=>moveEnd(e,index)"
             :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
@@ -121,7 +128,7 @@
             <view class="itemTitle">
               {{ item.title }}
             </view>
-            <view v-if="tenantAdmin" class="drap" @touchstart="moveStart(e,index)">
+            <view v-if="tenantAdmin" class="drap" @longpress="moveStart(e,index)">
               <u-icon name="list" />
             </view>
           </view>
@@ -132,7 +139,7 @@
         </movable-view>
         <view
             class="item moveFixItem" v-if="isMove !== null"
-            :style="{top:`${48 * isMove + (skuClassPage.length > 1 ? 48 : 10)}px`}"
+            :style="{top:`${itemHeight * isMove + (skuClassPage.length > 1 ? itemHeight : 10)}px`,left:`${itemWidth}px`}"
         >
           <view class="deptIcon">
             <Icon icon="icon-gaojizujian" size="20" />
@@ -141,10 +148,11 @@
         </view>
       </movable-area>
 
+      <Loading skeleton v-if="skuList.length === 0 && skuListLoading" />
       <movable-area
           :class="{skuMovableArea:true}"
           :style="{
-      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 46 + (skuList.length * 66)}px`,
+      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 46 + (skuList.length * skuItemHeight)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
       marginTop:`-${((skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 56)}px`,
@@ -158,8 +166,9 @@
             :key="index"
             :disabled="skuIsMove !== index"
             :style="{
-            top:`${66 * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? itemHeight : 0) + 46)}px`,
+            top:`${skuItemHeight * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? itemHeight : 0) + 46)}px`,
             width: `${itemWidth}px`,
+            height:`${skuItemHeight}px`
           }"
             :y="skuMovableViewY"
             :x="skuMovableViewX"
@@ -170,9 +179,9 @@
         >
           <view class="skuItem">
             <view class="sku">
-              <SkuItem hidden-number :sku-result="skuResultFormat(item)" img-size="48" />
+              <SkuItem hidden-number :sku-result="skuResultFormat(item)" img-size="40" />
             </view>
-            <view v-if="tenantAdmin" class="drap" :id="`skuMoveItem${index}`" @touchstart="skuMoveStart(e,index)">
+            <view v-if="tenantAdmin" class="drap" :id="`skuMoveItem${index}`" @longpress="skuMoveStart(e,index)">
               <u-icon name="list" />
             </view>
           </view>
@@ -223,6 +232,8 @@ export default {
     'skuClassPage',
     'tree',
     'movableViewY',
+    'movableViewX',
+    'itemWidth',
   ],
   data() {
     return {
@@ -232,8 +243,8 @@ export default {
       skuClassId: '',
       skuList: [],
       movableView: 0,
+      skuItemHeight: 55,
       skuListLoading: false,
-      itemWidth: 404,
       itemHeight: 48,
       moveIndex: null,
       inIndex: null,
@@ -270,8 +281,7 @@ export default {
     //   url: `/wxma/messageCallBack/${miniProgram.appId}`,
     //   method: 'POST'
     // })
-    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
-    this.tenantAdmin = this.$store.state.userInfo.tenant.admin || true
+    this.tenantAdmin = this.$store.state.userInfo.tenant.admin
   },
   watch: {
     skuClassPage: {
@@ -490,6 +500,9 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
+    skuMoveStart(e, index) {
+      this.skuIsMove = index
+    },
     moveEnd(e, thisIndex) {
 
       if (typeof this.isMove !== 'number') {
@@ -504,8 +517,6 @@ export default {
         newY = y
       }
       let moveIndex = parseInt(newY / this.itemHeight)
-
-      // this.movableViewY = y
 
       this.$nextTick(function () {
         if (this.inIndex !== null) {
@@ -579,9 +590,6 @@ export default {
       }).exec();
 
     },
-    skuMoveStart(e, index) {
-      this.skuIsMove = index
-    },
     skuMoveEnd(e, thisIndex) {
 
       if (typeof this.skuIsMove !== 'number') {
@@ -641,6 +649,7 @@ export default {
             return new Promise((resolve) => {
               Sku.edit({
                 data: {
+                  images: sku.images,
                   unitId: sku.unitId,
                   spu: {categoryId: skuClassId, name: sku.spuName, spuId: sku.spuId},
                   skuId: sku.skuId,
@@ -742,7 +751,6 @@ export default {
 
 .skuMovableView {
   width: 100%;
-  height: 66px;
 }
 
 .skuItem {
