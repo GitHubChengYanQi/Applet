@@ -4,10 +4,75 @@
     <view v-else>
       <Loading :loading="loading" />
 
-      <u-notice-bar text="需要批量添加物料可在管理平台进行导入"></u-notice-bar>
-
       <view class="skuAdd">
-        <uni-forms ref="form" :model="formData" :rules="rules" labelWidth="100px">
+
+        <Uploader :size="70" @onChange="imgChange">
+          <view
+              class="uploadSkuImg"
+              :style="{
+            backgroundImage:isArray(formData.imageUrls).length > 0 ? `url(${isArray(formData.imageUrls)[0].url.split('?')[0]+'?x-oss-process=image%2Fresize%2Cm_fill%2Ch_213%2Cw_'+windowWidth})` : `url(${sku_uploadImage})`,
+          }"
+          >
+            <view :class="{box:isArray(formData.imageUrls).length > 0}">
+              <view class="imgTitle" :style="{color:isArray(formData.imageUrls).length > 0 && '#fff'}">
+                <u-icon size="60" color="#dcdee0" name="camera-fill" />
+                上传物料图片
+              </view>
+            </view>
+          </view>
+        </Uploader>
+
+        <view class="skuImgs">
+          <u--image
+              v-for="(image,index) in isArray(formData.imageUrls)"
+              :key="index"
+              :showLoading="true"
+              :src="image.url"
+              :width='imgWidth'
+              :height="imgWidth"
+              @click="previewImage(image)"
+          />
+        </view>
+
+        <view class="content">
+
+          <view class="skuForm">
+
+            <SkuFormItem required class="skuFormItemComponent" icon="icon-fenlei" label="分类" />
+
+            <view class="space" />
+
+            <SkuFormItem required class="skuFormItemComponent" icon="icon-chanpinmingcheng" label="产品名称" />
+
+
+            <SkuFormItem class="skuFormItemComponent" icon="icon-xinghao" label="型号/国家标准/零件号" />
+
+            <view class="space" />
+
+            <SkuFormItem class="skuFormItemComponent" icon="icon-guige" label="规格" />
+
+
+            <SkuFormItem required class="skuFormItemComponent" icon="icon-jidanwei" label="单位" />
+
+            <view class="space" />
+
+            <SkuFormItem required class="skuFormItemComponent" icon="icon-erweimal" label="二维码" />
+
+          </view>
+
+          <view class="expand" @click="open = !open">
+            <img :src="sku_expand" alt="">
+            <view class="icon">
+              <Icon :icon="!open ? 'icon-shuangjiantouxia' : 'icon-shuangjiantoushang'" size="10" />
+            </view>
+          </view>
+
+          <view class="footer" />
+
+        </view>
+
+
+        <uni-forms v-if="false" ref="form" :model="formData" :rules="rules" labelWidth="100px">
 
           <uni-forms-item
               label="物料图片"
@@ -265,16 +330,12 @@
           </view>
 
         </uni-forms>
-
-        <view class="open" @click="open = !open">
-          {{ !open ? '展开完整信息' : '收起' }}
-          <u-icon :name="!open ? 'arrow-down' : 'arrow-up'" />
-        </view>
       </view>
 
 
-      <view style="height:80px" />
+      <view style="height:80px" v-if="false" />
       <BottomButton
+          v-if="false"
           :loading="loading"
           only
           @onClick="formSubmit"
@@ -317,12 +378,18 @@ import Modal from "../../components/Modal";
 import Cascader from "../../components/Cascader";
 import ShopNumber from "../../components/ShopNumber";
 import {Init} from "MES-Apis/lib/Init";
+import Icon from "../../components/Icon";
+import SkuFormItem from "./components/SkuFormItem";
+import {sku_uploadImage} from "../../images/sku/uploadImage";
+import {sku_expand} from "../../images/sku/expand";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    SkuFormItem,
+    Icon,
     ShopNumber,
     Cascader,
     Modal,
@@ -347,20 +414,21 @@ export default {
     UnitId,
     Weight
   },
-  mounted() {
-    const _this = this
-    uni.$on('skuClassAddSuccess', (classId) => {
-      _this.getCateGory(classId);
-    })
-    _this.getCateGory();
-  },
   data() {
     return {
+      sku_expand,
+      sku_uploadImage,
       isArray,
+      imgWidth: 0,
+      windowWidth: 0,
       typeSetting: [],
       cateGoryData: [],
       general: [],
-      formData: {batch: 1, initialNumber: 0},
+      formData: {
+        batch: 1,
+        initialNumber: 0,
+
+      },
       refreshLoading: false,
       show: false,
       showContent: false,
@@ -406,6 +474,15 @@ export default {
 
       }
     }
+  },
+  mounted() {
+    this.windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth
+    this.imgWidth = (this.windowWidth - 60) / 4
+    const _this = this
+    uni.$on('skuClassAddSuccess', (classId) => {
+      _this.getCateGory(classId);
+    })
+    _this.getCateGory();
   },
   methods: {
     generalFormData(key, value) {
@@ -615,34 +692,109 @@ export default {
 
 <style lang="scss">
 
-.box {
-  top: 0;
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  /* 主要内容 */
-  background: rgba(0, 0, 0, .5);
-  /* 模糊大小就是靠的blur这个函数中的数值大小 */
-  backdrop-filter: blur(20px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
 .skuAdd {
-  border-radius: 8px;
-  margin: 16px 8px;
-  padding: 12px;
-  background-color: #fff;
+
+  .uploadSkuImg {
+    width: 100vw;
+    height: 213px;
+    background-color: #fff;
+    box-shadow: 0 6px 9px -2px rgba(220, 220, 220, 0.3);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-direction: column;
+    background-size: cover;
+
+    .box {
+      top: 0;
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      /* 主要内容 */
+      background: rgba(0, 0, 0, .5);
+      /* 模糊大小就是靠的blur这个函数中的数值大小 */
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .imgBox {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 6px 9px -2px rgba(220, 220, 220, 0.3);
+    }
+
+    .imgTitle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1;
+      color: #3D3D3D;
+    }
+  }
 
   .skuImgs {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    padding: 16px 12px 0;
+    overflow: auto;
   }
+
+  .content {
+    margin: 16px 12px;
+    padding: 0 18px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .skuForm {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .skuFormItemComponent {
+        width: calc(50% - 8px)
+      }
+
+      .space {
+        width: 16px;
+      }
+    }
+
+    .expand {
+      padding-top: 32px;
+      height: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      image {
+        position: absolute;
+        width: 37px;
+        height: 15px;
+      }
+
+      .icon {
+        z-index: 1;
+        margin-top: 2px;
+      }
+    }
+
+    .footer {
+      height: 6px;
+      margin: 0 -18px;
+      background-color: #257BDE;
+    }
+  }
+
 
   .uni-forms-item {
     margin: 0;
