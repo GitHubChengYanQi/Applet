@@ -93,10 +93,10 @@ export default {
       skuClassPage: [],
       loading: true,
       skuClassList: [],
+      itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
       tree: [],
-      itemWidth: 0,
       searchValue: '',
       actionShow: false,
       error: false,
@@ -123,9 +123,7 @@ export default {
         },
       ],
       allActionShow: false,
-      allActionData: {},
-      moveIndex: null,
-      inIndex: null,
+      allActionData: {}
     }
   },
   mounted() {
@@ -523,9 +521,8 @@ export default {
 }
 
 
-.drap {
-  height: 48px;
-  margin: -8px 0;
+.drag {
+  margin: -6px 0 -5px;
   display: flex;
   align-items: center;
   padding: 0 24px 0;

@@ -225,7 +225,7 @@ export const base64src = async (base64data) => {
         if (!format) {
             return (new Error('ERROR_BASE64SRC_PARSE'));
         }
-        const filePath = `${wx.env.USER_DATA_PATH}/${FILE_BASE_NAME + Date.now()}.${format}`;
+        const filePath = `${wx.env.USER_DATA_PATH}/logo.${format}`;
         const buffer = uni.base64ToArrayBuffer(bodyData);
         fsm.writeFile({
             filePath,
@@ -234,10 +234,30 @@ export const base64src = async (base64data) => {
             success() {
                 resolve(filePath);
             },
-            fail() {
+            fail(res) {
+                console.log(res)
                 reject()
             },
         });
+        // fsm.readdir({
+        //     dirPath: wx.env.USER_DATA_PATH,
+        //     success(res) {
+        //         console.log(res.files)
+        //         resolve();
+        //         return
+        //         res.files.forEach((val) => {
+        //             uni.removeSavedFile({
+        //                 filePath: `${wx.env.USER_DATA_PATH}/${val}`,
+        //                 complete(res) {
+        //
+        //                 }
+        //             });
+        //         })
+        //         setTimeout(function () {
+        //
+        //         }, 1500)
+        //     }
+        // })
     })
 };
 
