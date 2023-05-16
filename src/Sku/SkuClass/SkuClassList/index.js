@@ -13,7 +13,7 @@ export const sortSkuClassChildren = (key, children, skuClassList = []) => {
         if ((key + '') === (item.key + '')) {
             return {...item, children: children}
         } else {
-            return {...item, children: addSkuClassChildren(key, children, item.children || [])}
+            return {...item, children: sortSkuClassChildren(key, children, item.children || [])}
         }
     })
 };

@@ -23,6 +23,10 @@ export default {
     // this.globalData.shareTenantId = res.query.shareTenantId
     // this.globalData.shareInviteId = res.query.inviteId
 
+    uni.onKeyboardHeightChange((res) => {
+      this.$store.commit('keyboard/keyboardHeightChange', res.height)
+    })
+
     const updateManager = uni.getUpdateManager();
 
     updateManager.onUpdateReady(function () {

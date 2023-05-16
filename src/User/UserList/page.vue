@@ -52,85 +52,33 @@
         </view>
       </u-index-list>
     </view>
-    <view v-else class="selectUser">
-      <view class="header">
-        <view style="padding-top: 8px">
-          <uni-breadcrumb separator="/">
-            <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
-              <view @click="deptPageClick(route)">
-                {{ route.name }}
-              </view>
-            </uni-breadcrumb-item>
-          </uni-breadcrumb>
-        </view>
-        <Search
-            placeholder="请输入成员姓名"
-            :value="searchValue"
-            no-search-button
-            @onChange="(value)=> searchValue = value"
-        />
-      </view>
-      <Empty
-          v-if="deptUsers.length === 0 && searchValue"
-          description="暂无人员信息"
-      />
-      <view
-          v-else
-          class="users"
-          :style="{height: `calc(100vh - ${showFooter ? (47+safeAreaHeight(this,8)) : 0}px - 85px)`}"
-      >
-        <view
-            v-if="deptPage.length > 1"
-            class="item"
-            @click="deptPageClick(deptPage[deptPage.length - 2])"
-        >
-          <view class="deptIcon" :style="{marginLeft:show ? 0 : 32,width:'auto'}">
-            <Icon icon="icon-fanhui" size="20" />
-          </view>
-          <view class="backDept">返回上级部门</view>
-        </view>
-        <Empty
-            v-if="deptUsers.length === 0 && depts.length === 0"
-            description="暂无数据"
-        />
-        <view
-            v-for="user in deptUsers"
-            :key="user.userId"
-            class="item"
-            @click="admin ? editUser(user) : onCheckUser(user)"
-        >
-          <view class="userItem">
-            <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId) && 'check'" />
-            <UserName :user="user" showRole />
-          </view>
-          <view v-if="user.isAdmin === 1">
-            <u-tag text="管理员" plain />
-          </view>
-        </view>
-
-        <template v-if="!searchValue">
-          <view
-              v-for="item in depts"
-              :key="item.key"
-              class="item"
-              @click="onCheckDept(item)"
-          >
-            <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
-              <Icon icon="icon-bumen1" size="30" />
-            </view>
-            {{ item.title }}
-          </view>
-        </template>
-
-        <view class="total">
-          共 {{ total }} 人
-          <template v-if="waitJoinUserTotal > 0">
-            ，
-            <span style="color: #007aff" @click="joinUserList">{{ waitJoinUserTotal }}人待加入</span>
-          </template>
-        </view>
-      </view>
-    </view>
+    <UserManage
+        v-else
+        :deptPage="deptPage"
+        :searchValue="searchValue"
+        @deptPageClick="deptPageClick"
+        @searchOnChange="(value)=>searchValue = value"
+        :deptUsers="deptUsers"
+        :showFooter="showFooter"
+        :depts="depts"
+        :admin="admin"
+        @editUser="editUser"
+        @onCheckUser="onCheckUser"
+        :total="total"
+        :waitJoinUserTotal="waitJoinUserTotal"
+        @joinUserList="joinUserList"
+        :show="show"
+        :checkUsers="checkUsers"
+        :itemWidth="itemWidth"
+        :movableViewY="movableViewY"
+        :movableViewX="movableViewX"
+        @deptsChange="deptsChange"
+        :deptTree="deptTree"
+        @treeChange="(newTree)=>deptTree = newTree"
+        @onCheckDept="onCheckDept"
+        :users="users"
+        @usersChange="(newUser)=>users = newUser"
+    />
 
     <view v-if="showFooter" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <template v-if="admin">
@@ -208,6 +156,8 @@ import Modal from "../../components/Modal";
 import {Message} from "../../components/Message";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Init} from "MES-Apis/lib/Init";
+import UserManage from "./components/UserManage";
+import {addDeptChildren, delDeptChildren} from "./index";
 
 export default {
   options: {
@@ -215,7 +165,7 @@ export default {
   },
   name: 'SelectUser',
   props: ['checdUsers', 'type', 'show'],
-  components: {Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
+  components: {UserManage, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
       deptPage: [],
@@ -238,7 +188,10 @@ export default {
       userActionShow: false,
       deptName: '',
       admin: false,
-      waitJoinUserTotal: 0
+      waitJoinUserTotal: 0,
+      itemWidth: 0,
+      movableViewY: 0,
+      movableViewX: 0,
     }
   },
   mounted() {
@@ -360,17 +313,29 @@ export default {
     }
   },
   methods: {
-    joinUserList(){
+    joinUserList() {
       uni.navigateTo({
-        url:'/Tenant/TenantSet/JoinTenantList/index'
+        url: '/Tenant/TenantSet/JoinTenantList/index'
       })
     },
     init() {
+      this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
       const tenant = this.$store.state.userInfo.tenant || {}
       this.tenant = tenant
       this.admin = (this.show && tenant.admin)
       this.showFooter = this.admin || !this.show
       this.checkUsers = [...this.checdUsers]
+    },
+    deptsChange(depts) {
+      this.depts = depts
+      this.$nextTick(function () {
+        this.movableViewY = this.deptPage.length > 1 ? 49 : 1
+        this.movableViewX = this.itemWidth - 0.1
+        setTimeout(() => {
+          this.movableViewY = this.deptPage.length > 1 ? 48 : 0
+          this.movableViewX = this.itemWidth
+        }, 0)
+      })
     },
     userActionSelect({key}) {
       const _this = this
@@ -501,7 +466,7 @@ export default {
                     deptId: thisDept.key
                   }
                 }).then(() => {
-                  const newDeptTree = _this.delDeptChildren(thisDept.key, _this.deptTree)
+                  const newDeptTree = delDeptChildren(thisDept.key, _this.deptTree)
                   if (newDeptTree[0]?.children.length === 0) {
                     _this.getList()
                   } else {
@@ -532,10 +497,9 @@ export default {
     async getList() {
       this.loading = true
 
-      await Tenant.tenantBindStatusCount({
+      await Tenant.waitJoinCount({
         data: {
           tenantId: this.$store.state.userInfo.tenant.tenantId,
-          status: 0
         }
       }).then((res) => {
         this.waitJoinUserTotal = res.data || 0
@@ -571,7 +535,7 @@ export default {
       } else {
         this.noDept = false
         this.deptTree = res?.data || []
-        this.depts = newDepts
+        this.deptsChange(newDepts)
         this.deptPage = [{key: '0', name: this.tenant.name || '顶级'}]
       }
     },
@@ -599,13 +563,13 @@ export default {
     },
     async onCheckDept(dept) {
       const thisDept = this.findDept(dept.key, this.deptTree) || {}
-      this.depts = thisDept.children || []
+      this.deptsChange(thisDept.children || [])
       this.deptPage = [...this.deptPage, {key: thisDept.key, name: thisDept.title}]
       this.pageContainerShow = true
     },
     async deptPageClick(route) {
       const thisDept = this.findDept(route.key, this.deptTree) || {}
-      this.depts = thisDept.children || []
+      this.deptsChange(thisDept.children || [])
       const newPage = []
       let stop = false
       this.deptPage.forEach(item => {
@@ -696,8 +660,8 @@ export default {
                   children: [],
                   title: _this.deptName
                 }
-                _this.depts = [..._this.depts, newDept]
-                _this.deptTree = _this.addDeptChildren(_this.deptPage[_this.deptPage.length - 1].key, newDept, _this.deptTree)
+                _this.deptsChange([..._this.depts, newDept])
+                _this.deptTree = addDeptChildren(_this.deptPage[_this.deptPage.length - 1].key, newDept, _this.deptTree)
               }
               resolve(true)
             }).catch(() => {
@@ -722,15 +686,6 @@ export default {
       })
       return dept
     },
-    addDeptChildren(key, dept, depts = []) {
-      return depts.map(item => {
-        if ((key + '') === (item.key + '')) {
-          return {...item, children: [...item.children, dept]}
-        } else {
-          return {...item, children: this.addDeptChildren(key, dept, item.children || [])}
-        }
-      })
-    },
     editDeptChildren(dept, depts = []) {
       return depts.map(item => {
         if ((dept.key + '') === (item.key + '')) {
@@ -739,15 +694,6 @@ export default {
           return {...item, children: this.editDeptChildren(dept, item.children || [])}
         }
       })
-    },
-    delDeptChildren(key, depts = []) {
-      const newDepts = []
-      depts.map(item => {
-        if ((key + '') !== (item.key + '')) {
-          newDepts.push({...item, children: this.delDeptChildren(key, item.children || [])})
-        }
-      })
-      return newDepts
     },
     editUser(user) {
       this.actionUser = user
@@ -805,7 +751,7 @@ export default {
   }
 
   .users {
-    overflow: auto;
+    overflow: hidden auto;
     background-color: #fff;
     padding: 0 12px;
   }
@@ -820,11 +766,16 @@ export default {
 }
 
 .item {
-  padding: 6px;
+  padding: 0 6px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 47px;
+
+  .itemTitle {
+    flex-grow: 1;
+  }
 
   .userItem {
     flex-grow: 1;

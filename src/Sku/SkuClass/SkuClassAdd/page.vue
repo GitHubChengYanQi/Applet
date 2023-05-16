@@ -203,7 +203,7 @@ export default {
 
       return list;
     },
-    async onChange({id,name}) {
+    onChange({id,name}) {
       this.formData = {
         ...this.formData,
         pid: id,

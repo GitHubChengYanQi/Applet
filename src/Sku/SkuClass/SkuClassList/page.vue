@@ -93,18 +93,16 @@ export default {
       skuClassPage: [],
       loading: true,
       skuClassList: [],
+      itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
       tree: [],
-      itemWidth: 0,
       searchValue: '',
       actionShow: false,
       error: false,
       safeAreaHeight,
       tenant: {},
-      actionUser: {},
       pageContainerShow: false,
-      userActionShow: false,
       skuClassName: '',
       admin: false,
       allActionList: [
@@ -123,9 +121,7 @@ export default {
         },
       ],
       allActionShow: false,
-      allActionData: {},
-      moveIndex: null,
-      inIndex: null,
+      allActionData: {}
     }
   },
   mounted() {
@@ -300,11 +296,6 @@ export default {
     async onCheckSkuClass(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
       const children = thisSkuClass.children || []
-      // if (children.length === 0) {
-      //   this.allActionShow = true
-      //   this.allActionData = skuClass
-      //   return
-      // }
       this.skuClassListChange(children)
       this.skuClassPage = [...this.skuClassPage, {key: thisSkuClass.key, name: thisSkuClass.title}]
       this.pageContainerShow = true
@@ -403,10 +394,6 @@ export default {
           return {...item, children: this.editSkuClassChildren(skuClass, item.children || [])}
         }
       })
-    },
-    editUser(user) {
-      this.actionUser = user
-      this.userActionShow = true
     }
   }
 }
@@ -523,9 +510,8 @@ export default {
 }
 
 
-.drap {
-  height: 48px;
-  margin: -8px 0;
+.drag {
+  margin: -6px 0 -5px;
   display: flex;
   align-items: center;
   padding: 0 24px 0;

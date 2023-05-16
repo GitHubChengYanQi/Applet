@@ -128,7 +128,7 @@
             <view class="itemTitle">
               {{ item.title }}
             </view>
-            <view v-if="tenantAdmin" class="drap" @longpress="moveStart(e,index)">
+            <view v-if="tenantAdmin" :style="{height:itemHeight}" class="drag" @longpress="moveStart(e,index)">
               <u-icon name="list" />
             </view>
           </view>
@@ -181,7 +181,13 @@
             <view class="sku">
               <SkuItem hidden-number :sku-result="skuResultFormat(item)" img-size="40" />
             </view>
-            <view v-if="tenantAdmin" class="drap" :id="`skuMoveItem${index}`" @longpress="skuMoveStart(e,index)">
+            <view
+                v-if="tenantAdmin"
+                :style="{height:skuItemHeight}"
+                class="drag"
+                :id="`skuMoveItem${index}`"
+                @longpress="skuMoveStart(e,index)"
+            >
               <u-icon name="list" />
             </view>
           </view>
@@ -250,7 +256,6 @@ export default {
       inIndex: null,
       isMove: null,
       isMoveEnd: false,
-      skuIsMove: null,
       scrollTop: 0,
       moveEndIndex: null,
       moveActionShow: false,
@@ -265,10 +270,11 @@ export default {
           key: 'copy',
         },
       ],
+      skuIsMove: null,
       skuMovableViewY: 0,
       skuMovableViewX: 0,
-      removeSku: false,
       skuMoveIndex: null,
+      removeSku: false,
       requestSkuListPromise: null,
       loading: false,
       removeSkuIds: [],
@@ -500,9 +506,6 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
-    skuMoveStart(e, index) {
-      this.skuIsMove = index
-    },
     moveEnd(e, thisIndex) {
 
       if (typeof this.isMove !== 'number') {
@@ -555,8 +558,6 @@ export default {
                 sort: skuClassList.length - index
               }))
             }
-          }).then(() => {
-
           }).catch(() => {
             this.$refs.modal.dialog({
               title: Init.getNewErrorMessage() || '排序失败!'
@@ -572,6 +573,11 @@ export default {
 
 
       })
+    },
+    skuMoveStart(e, index) {
+      this.skuIsMove = index
+      this.removeSku = false
+      this.skuMoveIndex = null
     },
     skuMove(e, index) {
       if (typeof this.skuIsMove !== 'number') {

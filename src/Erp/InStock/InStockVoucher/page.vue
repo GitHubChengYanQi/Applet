@@ -396,12 +396,9 @@ export default {
         extName = extName[1]
       }
 
-      //获取自1970到现在的毫秒 + 文件后缀 生成文件名
-      let fileName = md5(base64File) + '.' + extName
-
       return new Promise((resolve, reject) => {
         //写入文件的路径
-        let filePath = wx.env.USER_DATA_PATH + '/' + fileName
+        let filePath = wx.env.USER_DATA_PATH + '/seal.' + extName
 
         fsm.writeFile({
           filePath,

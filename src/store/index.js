@@ -7,6 +7,7 @@ import dialog from './modules/Dialog'
 import systemInfo from './modules/SystemInfo'
 import qrCode from './modules/QrCode'
 import guide from './modules/Guide'
+import keyboard from './modules/Keybord'
 
 Vue.use(Vuex)
 
@@ -18,6 +19,7 @@ export default new Vuex.Store({
         dialog,
         systemInfo,
         qrCode,
-        guide
+        guide,
+        keyboard
     },
 })
