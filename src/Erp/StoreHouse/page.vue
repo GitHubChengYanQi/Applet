@@ -12,47 +12,18 @@
         skeleton
         v-else-if="loading"
     />
-    <view v-else class="selectUser">
-      <view class="header">
-        <uni-breadcrumb separator="/">
-          <uni-breadcrumb-item v-for="(route,index) in storeHousePage" :key="index">
-            <view @click="storeHousePageClick(route)">
-              {{ route.name }}
-            </view>
-          </uni-breadcrumb-item>
-        </uni-breadcrumb>
-      </view>
-      <view
-          class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
-      >
-        <view
-            v-if="storeHousePage.length > 1"
-            class="item"
-            @click="storeHousePageClick(storeHousePage[storeHousePage.length - 2])"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-fanhui" size="20" />
-          </view>
-          <view class="backDept">返回上级仓库</view>
-        </view>
-        <Empty
-            v-if="storeHouseList.length === 0"
-            description="暂无数据"
-        />
-        <view
-            v-for="item in storeHouseList"
-            :key="item.key"
-            class="item"
-            @click="onCheckStoreHouse(item)"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-cangkuguanli1" size="30" />
-          </view>
-          {{ item.title }}
-        </view>
-      </view>
-    </view>
+
+    <StoreHouseManage
+        :admin="admin"
+        :store-house-list="storeHouseList"
+        :store-house-page="storeHousePage"
+        :itemWidth="itemWidth"
+        :movableViewY="movableViewY"
+        :movableViewX="movableViewX"
+        @listChange="listChange"
+        @onCheckStoreHouse="onCheckStoreHouse"
+        @storeHousePageClick="storeHousePageClick"
+    />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
@@ -109,6 +80,8 @@ import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
+import StoreHouseManage from "./components/StoreHouseManage";
+import {addStoreHouseChildren, delStoreHouseChildren} from "./index";
 
 export default {
   options: {
@@ -117,6 +90,7 @@ export default {
   props: ['storehouseId', 'store'],
   name: 'SelectUser',
   components: {
+    StoreHouseManage,
     Tree,
     Popup,
     Modal,
@@ -164,34 +138,40 @@ export default {
         },
       ],
       allActionShow: false,
-      allActionData: {}
+      allActionData: {},
+      itemWidth: 0,
+      movableViewY: 0,
+      movableViewX: 0,
     }
   },
   mounted() {
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
+    const tenant = this.$store.state.userInfo.tenant || {}
+    this.admin = tenant.admin
     const _this = this
     uni.$on('storeHouseAddSuccess', (result) => {
       const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key){
-        _this.storeHouseList = [..._this.storeHouseList, {key: result.id, title: result.name}]
+      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
+        _this.listChange([..._this.storeHouseList, {key: result.id, title: result.name}])
       }
 
       if (result.pid === '0') {
         _this.tree = [..._this.tree, newStore]
       } else {
-        _this.tree = _this.addStoreHouseChildren(result.pid, newStore, _this.tree)
+        _this.tree = addStoreHouseChildren(result.pid, newStore, _this.tree)
       }
     })
 
     uni.$on('storeHouseEditSuccess', (result) => {
       const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key){
-        _this.storeHouseList = _this.storeHouseList.map(item => {
+      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
+        _this.listChange(_this.storeHouseList.map(item => {
           if (item.key === newStore.key) {
             return {...item, title: newStore.title}
           }
           return item
-        })
-      }else {
+        }))
+      } else {
         _this.storeHousePage = _this.storeHousePage.map(item => {
           if (item.key === newStore.key) {
             return {...item, name: newStore.title}
@@ -250,9 +230,9 @@ export default {
             Storehouse.storeHouseDelete({
               data: {storehouseId: thisStoreHouse.key}
             }).then(() => {
-              _this.tree = _this.delStoreHouseChildren(thisStoreHouse.key, _this.tree)
+              _this.tree = delStoreHouseChildren(thisStoreHouse.key, _this.tree)
               if (current) {
-                _this.storeHouseList = _this.storeHouseList.filter(item => item.key !== thisStoreHouse.key)
+                _this.listChange(_this.storeHouseList.filter(item => item.key !== thisStoreHouse.key))
               } else {
                 _this.storeHousePageClick(_this.storeHousePage[_this.storeHousePage.length - 2])
               }
@@ -305,7 +285,7 @@ export default {
       this.loading = false
 
       this.tree = this.format(res.data || [])
-      this.storeHouseList = this.format(res.data || [])
+      this.listChange(this.format(res.data || []))
       this.storeHousePage = [{key: '0', name: '顶级仓库'}]
     },
     format(data) {
@@ -317,7 +297,7 @@ export default {
         }
         if (isArray(item.childrenList).length > 0) {
           obj.children = this.format(item.childrenList || []);
-        }else {
+        } else {
           obj.children = []
         }
         list.push(obj);
@@ -333,16 +313,16 @@ export default {
         this.allActionData = storeHouse
         return
       }
-      this.storeHouseList = children
+      this.listChange(children)
       this.storeHousePage = [...this.storeHousePage, {key: thisStoreHouse.key, name: thisStoreHouse.title}]
       this.pageContainerShow = true
     },
     async storeHousePageClick(route) {
       if (route.key === '0') {
-        this.storeHouseList = this.tree
+        this.listChange(this.tree)
       } else {
         const thisStoreHouse = this.findStoreHouse(route.key, this.tree) || {}
-        this.storeHouseList = thisStoreHouse.children || []
+        this.listChange(thisStoreHouse.children || [])
       }
 
       const newPage = []
@@ -379,15 +359,6 @@ export default {
       })
       return storeHouse
     },
-    addStoreHouseChildren(key, storeHouse, storeHouseList = []) {
-      return storeHouseList.map(item => {
-        if ((key + '') === (item.key + '')) {
-          return {...item, children: [...item.children, storeHouse]}
-        } else {
-          return {...item, children: this.addStoreHouseChildren(key, storeHouse, item.children || [])}
-        }
-      })
-    },
     editStoreHouseChildren(storeHouse, storeHouseList = []) {
       return storeHouseList.map(item => {
         if ((storeHouse.key + '') === (item.key + '')) {
@@ -397,14 +368,16 @@ export default {
         }
       })
     },
-    delStoreHouseChildren(key, storeHouseList = []) {
-      const newStoreHouseList = []
-      storeHouseList.map(item => {
-        if ((key + '') !== (item.key + '')) {
-          newStoreHouseList.push({...item, children: this.delStoreHouseChildren(key, item.children || [])})
-        }
+    listChange(storeHouseList) {
+      this.storeHouseList = storeHouseList
+      this.$nextTick(function () {
+        this.movableViewY = this.storeHousePage.length > 1 ? 49 : 1
+        this.movableViewX = this.itemWidth - 0.1
+        setTimeout(() => {
+          this.movableViewY = this.storeHousePage.length > 1 ? 48 : 0
+          this.movableViewX = this.itemWidth
+        }, 0)
       })
-      return newStoreHouseList
     },
   }
 }
@@ -460,11 +433,16 @@ export default {
 }
 
 .item {
-  padding: 6px;
+  padding: 0 6px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 47px;
+
+  .itemTitle {
+    flex-grow: 1;
+  }
 
   .userItem {
     flex-grow: 1;
