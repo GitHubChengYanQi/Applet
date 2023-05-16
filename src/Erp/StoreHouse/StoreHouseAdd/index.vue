@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page v-if="auth" :storehouseId="id" />
+    <Page v-if="auth && show" :storehouseId="id" :pid="pid" />
 
   </Auth>
 </template>
@@ -10,12 +10,16 @@ import Page from "./page";
 
 export default {
   onLoad(option) {
+    this.show = true
     this.id = option.id
+    this.pid = option.pid
   },
   components: {Page, Auth},
   data() {
     return {
-      id: ''
+      id: '',
+      pid: '',
+      show: false
     }
   },
   computed: {

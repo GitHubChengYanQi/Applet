@@ -10,12 +10,15 @@
         </view>
         <view v-else class="space" />
         <view class="title" @click="onCheck(item)">
-          <Check :value="radio ? value.key === item.key : value.find(valueItem=>valueItem.key === item.key)" />
+          <Check
+              :value="radio ? (value.key+'') === (item.key+'') : value.find(valueItem=>(valueItem.key+'') === (item.key+''))"
+          />
           {{ item.title }}
         </view>
       </view>
       <view class="children" v-show="open(item)">
         <Tree
+            :collapse="collapse"
             :radio="radio"
             :multiple="multiple"
             :data="isArray(item.children)"
@@ -38,7 +41,7 @@ import Tree from './index'
 export default {
   name: 'Tree',
   components: {Check, Tree},
-  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple'],
+  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse'],
   data() {
     return {
       isArray,
@@ -46,7 +49,7 @@ export default {
     }
   },
   mounted() {
-    this.openKeys = this.data.map(item => item.key)
+    this.openKeys = this.collapse ? [] : this.data.map(item => item.key)
   },
   methods: {
     openClick(item) {

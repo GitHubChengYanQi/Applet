@@ -163,8 +163,6 @@ export default {
       actionShow: false,
       error: false,
       safeAreaHeight,
-      tenant: {},
-      actionUser: {},
       pageContainerShow: false,
       userActionShow: false,
       positionName: '',

@@ -102,9 +102,7 @@ export default {
       error: false,
       safeAreaHeight,
       tenant: {},
-      actionUser: {},
       pageContainerShow: false,
-      userActionShow: false,
       skuClassName: '',
       admin: false,
       allActionList: [
@@ -298,11 +296,6 @@ export default {
     async onCheckSkuClass(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
       const children = thisSkuClass.children || []
-      // if (children.length === 0) {
-      //   this.allActionShow = true
-      //   this.allActionData = skuClass
-      //   return
-      // }
       this.skuClassListChange(children)
       this.skuClassPage = [...this.skuClassPage, {key: thisSkuClass.key, name: thisSkuClass.title}]
       this.pageContainerShow = true
@@ -401,10 +394,6 @@ export default {
           return {...item, children: this.editSkuClassChildren(skuClass, item.children || [])}
         }
       })
-    },
-    editUser(user) {
-      this.actionUser = user
-      this.userActionShow = true
     }
   }
 }
