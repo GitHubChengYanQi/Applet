@@ -4,7 +4,7 @@
     <view v-else>
       <Loading :loading="loading" />
 
-      <view class="skuAdd">
+      <scroll-view class="skuAdd">
 
         <Uploader :size="70" @onChange="imgChange">
           <view
@@ -22,6 +22,129 @@
           </view>
         </Uploader>
 
+        <movable-area
+            class="movableArea"
+            :style="{height: `calc(100vh - 20px + 213px + ${isArray(formData.imageUrls).length > 0 ? 108 : 0}px)`}"
+        >
+          <movable-view
+              :disabled="moveY === 0 && startMove === false"
+              class="movableView"
+              :y="y"
+              :x="x"
+              direction="vertical"
+              @change="change"
+          >
+
+            <view class="content">
+
+              <view class="comment-container" @touchstart="startMove = true" @touchend="touchend">
+                <view class="comment-header">
+                  <view class="comment-handler"></view>
+                </view>
+              </view>
+
+              <view
+                  class="skuForm"
+                  :style="{
+                overflow:moveY === 0 ? 'auto' : 'hidden',
+                 maxHeight: `calc(100vh - 20px - 33px - 81px - ${safeAreaHeight(this,8)}px)`
+              }"
+                  @touchstart="touchstart"
+                  @touchend="touchend"
+              >
+
+                <SkuFormItem required class="skuFormItemComponent" icon="icon-fenlei" label="分类" />
+
+                <view class="space" />
+
+                <SkuFormItem required class="skuFormItemComponent" icon="icon-chanpinmingcheng" label="产品名称" />
+
+
+                <SkuFormItem class="skuFormItemComponent" icon="icon-xinghao" label="型号/国家标准/零件号" />
+
+                <view class="space" />
+
+                <SkuFormItem class="skuFormItemComponent" icon="icon-guige" label="规格" />
+
+
+                <SkuFormItem required class="skuFormItemComponent" icon="icon-jidanwei" label="单位" />
+
+                <view class="space" />
+
+                <SkuFormItem required class="skuFormItemComponent" icon="icon-erweimal" label="二维码" />
+
+                <template v-if="open">
+                  <view class="otherFormItem" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="养护周期" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="规格参数" />
+
+
+                  <SkuFormItem class="skuFormItemComponent" label="品牌" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="材质" />
+
+
+                  <SkuFormItem class="skuFormItemComponent" label="重量" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="级别" />
+
+
+                  <SkuFormItem class="skuFormItemComponent" label="表色" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="热处理" />
+
+
+                  <SkuFormItem style="width: 100%" label="尺寸" />
+
+
+                  <SkuFormItem class="skuFormItemComponent" label="图纸" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="附件" />
+
+
+                  <SkuFormItem class="skuFormItemComponent" label="包装方式" />
+
+                  <view class="space" />
+
+                  <SkuFormItem class="skuFormItemComponent" label="图幅" />
+
+
+                  <SkuFormItem style="width: 100%" class="skuFormItemComponent" label="备注" />
+
+                </template>
+              </view>
+
+              <view class="formDes">
+                注：
+                <u-badge isDot />
+                为必填项
+              </view>
+
+              <view class="expand" @click="open = !open">
+                <img :src="sku_expand" alt="">
+                <view class="icon">
+                  <Icon :icon="!open ? 'icon-shuangjiantouxia' : 'icon-shuangjiantoushang'" size="10" />
+                </view>
+              </view>
+
+              <view class="footer" />
+
+            </view>
+          </movable-view>
+        </movable-area>
+
         <view class="skuImgs">
           <u--image
               v-for="(image,index) in isArray(formData.imageUrls)"
@@ -33,44 +156,6 @@
               @click="previewImage(image)"
           />
         </view>
-
-        <view class="content">
-
-          <view class="skuForm">
-
-            <SkuFormItem required class="skuFormItemComponent" icon="icon-fenlei" label="分类" />
-
-            <view class="space" />
-
-            <SkuFormItem required class="skuFormItemComponent" icon="icon-chanpinmingcheng" label="产品名称" />
-
-
-            <SkuFormItem class="skuFormItemComponent" icon="icon-xinghao" label="型号/国家标准/零件号" />
-
-            <view class="space" />
-
-            <SkuFormItem class="skuFormItemComponent" icon="icon-guige" label="规格" />
-
-
-            <SkuFormItem required class="skuFormItemComponent" icon="icon-jidanwei" label="单位" />
-
-            <view class="space" />
-
-            <SkuFormItem required class="skuFormItemComponent" icon="icon-erweimal" label="二维码" />
-
-          </view>
-
-          <view class="expand" @click="open = !open">
-            <img :src="sku_expand" alt="">
-            <view class="icon">
-              <Icon :icon="!open ? 'icon-shuangjiantouxia' : 'icon-shuangjiantoushang'" size="10" />
-            </view>
-          </view>
-
-          <view class="footer" />
-
-        </view>
-
 
         <uni-forms v-if="false" ref="form" :model="formData" :rules="rules" labelWidth="100px">
 
@@ -330,7 +415,7 @@
           </view>
 
         </uni-forms>
-      </view>
+      </scroll-view>
 
 
       <view style="height:80px" v-if="false" />
@@ -372,7 +457,6 @@ import Uploader from "../../components/Uploader";
 import {Sku as SkuApis} from "MES-Apis/lib/Sku/promise";
 import Loading from "../../components/Loading";
 import BottomButton from "../../components/BottomButton";
-import {Message} from "../../components/Message";
 import Popup from "../../components/Popup";
 import Modal from "../../components/Modal";
 import Cascader from "../../components/Cascader";
@@ -382,6 +466,7 @@ import Icon from "../../components/Icon";
 import SkuFormItem from "./components/SkuFormItem";
 import {sku_uploadImage} from "../../images/sku/uploadImage";
 import {sku_expand} from "../../images/sku/expand";
+import {safeAreaHeight} from '../../util/Tools'
 
 export default {
   options: {
@@ -416,6 +501,11 @@ export default {
   },
   data() {
     return {
+      safeAreaHeight,
+      startMove: false,
+      y: 213,
+      move: false,
+      moveY: 213,
       sku_expand,
       sku_uploadImage,
       isArray,
@@ -485,6 +575,27 @@ export default {
     _this.getCateGory();
   },
   methods: {
+    change(e) {
+      if (!this.startMove) {
+        return
+      }
+      this.move = true
+      this.moveY = e.detail.y
+    },
+    touchstart() {
+      if (this.moveY === 0) {
+
+      } else {
+        this.startMove = true
+      }
+    },
+    touchend() {
+      if (!this.move) {
+        return
+      }
+      this.startMove = false
+      this.move = false
+    },
     generalFormData(key, value) {
       let exits = false;
       const newFormData = this.general.map(formDataItem => {
@@ -516,6 +627,15 @@ export default {
       // this.loading = false
     },
     imgChange(value) {
+
+      if (this.moveY !== 321) {
+        this.y = this.moveY
+        this.$nextTick(function () {
+          this.y = 321
+          this.moveY = 321
+        })
+      }
+
       this.formData = {
         ...this.formData,
         images: this.formData.images ? [...this.formData.images.split(','), value.id].join(',') : value.id,
@@ -692,9 +812,47 @@ export default {
 
 <style lang="scss">
 
+.movableArea {
+  position: absolute;
+  top: 20px;
+  width: 100vw;
+}
+
+.movableView {
+  width: 100vw;
+  height: calc(100vh - 20px);
+  z-index: 2;
+}
+
+.comment-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  //position: absolute;
+  //top: 0;
+  z-index: 999;
+}
+
+.comment-header {
+  width: 100%;
+  font-size: 16px;
+  text-align: center;
+  padding: 15px 0;
+}
+
+.comment-handler {
+  width: 50px;
+  height: 3px;
+  border-radius: 3px;
+  background-color: #EEE;
+  margin: 0 auto;
+}
+
 .skuAdd {
+  height: 100vh;
 
   .uploadSkuImg {
+    z-index: 1;
     width: 100vw;
     height: 213px;
     background-color: #fff;
@@ -715,9 +873,9 @@ export default {
       width: 100%;
       height: 100%;
       /* 主要内容 */
-      background: rgba(0, 0, 0, .5);
+      background: rgba(0, 0, 0, .1);
       /* 模糊大小就是靠的blur这个函数中的数值大小 */
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(12px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -746,14 +904,16 @@ export default {
     gap: 12px;
     padding: 16px 12px 0;
     overflow: auto;
+    z-index: 1;
   }
 
   .content {
-    margin: 16px 12px;
+    margin: 0 12px;
     padding: 0 18px;
     background-color: #fff;
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 0 9px 0 rgba(220, 220, 220, 0.4);
 
     .skuForm {
       display: flex;
@@ -767,6 +927,21 @@ export default {
       .space {
         width: 16px;
       }
+
+      .otherFormItem {
+        width: 100%;
+        border-bottom: 3px solid #E1EBF6;
+      }
+    }
+
+    .formDes {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      padding-top: 12px;
+      color: #999999;
+      gap: 8px;
     }
 
     .expand {
@@ -794,105 +969,6 @@ export default {
       background-color: #257BDE;
     }
   }
-
-
-  .uni-forms-item {
-    margin: 0;
-    padding: 12px 0;
-    //border-bottom: solid 1px #ebebeb;
-  }
-}
-
-.endItem {
-  .uni-forms-item {
-    border-bottom: none;
-  }
-}
-
-.select {
-  display: flex;
-  align-items: center;
-  border: 1px solid #dcdfe6;
-  padding: 0 10px;
-  line-height: 34px;
-  border-radius: 4px;
-
-  .value {
-    flex-grow: 1;
-    font-size: 14px;
-  }
-
-  .icon {
-
-  }
-}
-
-
-.grey {
-  color: #999999;
-}
-
-.grey2 {
-  color: #434343;
-}
-
-.space {
-  height: 3px;
-}
-
-.choice {
-  display: flex;
-}
-
-
-.uni-input2 {
-  width: 30px;
-  padding-top: 2px;
-}
-
-.size {
-  border: 1px solid #ccc;
-  display: flex;
-  padding: 0 10px;
-  margin: 0 5px;
-}
-
-.symbol {
-  line-height: 30px;
-}
-
-.company {
-  font-size: 14px;
-  padding-top: 2px;
-  line-height: 18px;
-  padding-left: 5px;
-  color: #ccc;
-}
-
-.company2 {
-  font-size: 14px;
-  padding-top: 2px;
-  line-height: 22px;
-  padding-left: 5px;
-  color: #ccc;
-}
-
-.open {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 16px;
-  font-size: 12px;
-  border: solid 1px #ebebeb;
-  width: fit-content;
-  margin: 16px auto auto;
-  border-radius: 50px;
-}
-
-.formItem {
-  height: 100%;
-  display: flex;
-  align-items: center;
 }
 
 </style>

@@ -1,7 +1,7 @@
 <template>
   <view class="skuFormItem">
-    <Icon :icon="icon" size="25" />
-    <view class="skuFormItemContent">
+    <Icon :icon="icon" size="25" v-if="icon" />
+    <view class="skuFormItemContent" :style="{paddingLeft:icon ? '16px' : '0'}">
       <view class="label">
         {{ label }}
         <view v-if="required" class="required">
