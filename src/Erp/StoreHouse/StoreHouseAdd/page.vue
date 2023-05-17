@@ -14,7 +14,6 @@
             id="myMap"
             :longitude="location.longitude"
             :latitude="location.latitude"
-
             @regionchange="regionchange"
         />
         <view :class="{landmark:true,landmarkBounce}">
@@ -58,11 +57,12 @@
                     </view>
                   </view>
                 </slot>
-                <view @click="keyboardInput('palce')">
+                <view class="storePalce" @click="keyboardInput('palce')">
+                  <u-icon name="map-fill" color="#257BDE" />
                   <u--textarea
-                      border="bottom"
+                      border="none"
                       autoHeight
-                      :disabled="!windows"
+                      disabled
                       :adjustPosition="false"
                       v-model="formData.palce"
                       placeholder="请输入仓库地点"
@@ -79,10 +79,9 @@
                     </view>
                   </view>
                 </slot>
-                <view id="storeName" class="storeName" @click="onName">
-                  <u-icon name="map-fill" color="#257BDE" />
+                <view id="storeName" @click="onName">
                   <u--input
-                      border="none"
+                      border="bottom"
                       v-model="formData.name"
                       placeholder="请输入仓库名称"
                       :adjustPosition="false"
@@ -90,20 +89,18 @@
                 </view>
               </uni-forms-item>
 
-              <uni-forms-item name="palce">
+              <uni-forms-item name="describe">
                 <slot name="label">
                   <view class="label">
                     仓库描述
                   </view>
                 </slot>
-                <view @click="keyboardInput('palce')">
-                  <u--textarea
+                <view id="storeDescribe" @click="onDescribe">
+                  <u--input
                       border="bottom"
-                      autoHeight
-                      :disabled="!windows"
+                      v-model="formData.describe"
+                      placeholder="请输入仓库描述"
                       :adjustPosition="false"
-                      v-model="formData.palce"
-                      placeholder="请输入仓库地点"
                   />
                 </view>
               </uni-forms-item>
@@ -111,22 +108,21 @@
               <uni-forms-item name="pid">
                 <slot name="label">
                   <view class="label">
-                    上级仓库
+                    {{ pid ? '仓库结构' : '上级仓库' }}
                     <view class="required">
                       <u-badge isDot />
                     </view>
                   </view>
                 </slot>
-                <Tree radio :data="storeHouseData" :value="{key:formData.pid}" @input="onPStoreHouse" />
-              </uni-forms-item>
-
-              <uni-forms-item name="classList">
-                <slot name="label">
-                  <view class="label">
-                    存放分类
-                  </view>
-                </slot>
-                <Tree :data="cateGoryData" :value="formData.classList" @input="onClassList" />
+                <StoreHouseStructure
+                    :current="formData"
+                    v-if="pid"
+                    :storehouseId="storehouseId"
+                    :storeHouseData="storeHouseData"
+                    :classList="classList"
+                    @openClass="classShow = true"
+                />
+                <Tree v-else radio :data="isArray(storeHouseData)" :value="{key:formData.pid}" @input="onPStoreHouse" />
               </uni-forms-item>
 
             </uni-forms>
@@ -136,21 +132,37 @@
       </movable-area>
 
       <BottomButton
+          v-if="!topInputShow"
           only
           text="保存"
           :loading="loading"
           @onClick="save"
       />
 
+      <Popup
+          z-index="99"
+          :show="classShow"
+          left-text="取消"
+          right-text="确认"
+          @close="classShow = false"
+          @onLeft="classShow = false"
+          @onRight="classShow = false"
+      >
+        <view style="padding: 12px">
+          <Tree :data="cateGoryData" :value="classList" @input="onClassList" />
+        </view>
+      </Popup>
 
-      <KeybordInput
-          :title="topInputShow === 'palce' ? '仓库地点' : '仓库名称'"
+
+      <StorehouseKeybordInput
+          title="仓库地点"
           :show="topInputShow"
           @close="keyboardInputOk"
-          v-model="formData[topInputShow]"
+          v-model="formData.palce"
           :selectList="searchPlacces"
           :noAutoFocus="!autoFocus"
           @select="selectPlace"
+          @selectAddress="selectAddress"
       />
 
       <Modal ref="modal" />
@@ -169,16 +181,28 @@ import MyButton from "../../../components/MyButton";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Modal from "../../../components/Modal";
 import Loading from "../../../components/Loading";
-import KeybordInput from "../../../components/KeybordInput";
+import StorehouseKeybordInput from "../components/StorehouseKeybordInput";
 import {erp_map} from "../../../images/erp/map";
 import BottomButton from "../../../components/BottomButton";
+import StoreHouseStructure from "../components/StoreHouseStructure";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   props: ['storehouseId', 'pid'],
-  components: {BottomButton, KeybordInput, Loading, Modal, MyButton, Elliptsis, Tree, Cascader, Popup},
+  components: {
+    StoreHouseStructure,
+    BottomButton,
+    StorehouseKeybordInput,
+    Loading,
+    Modal,
+    MyButton,
+    Elliptsis,
+    Tree,
+    Cascader,
+    Popup
+  },
   data() {
     return {
       safeAreaHeight,
@@ -196,14 +220,17 @@ export default {
       moveY: 0,
       map: {},
       location: {},
-      formData: {pid: '0', classList: []},
+      formData: {pid: '0',},
+      classList: [],
       markId: 0,
       time: null,
       cateGoryData: [],
-      storeHouseData: [],
+      storeHouseData: null,
       loading: false,
+      classShow: false,
       windows: false,
       inputStoreName: false,
+      inputStoreDescribe: false,
       rules: {
         name: {
           rules: [
@@ -267,7 +294,20 @@ export default {
           this.inputStoreName = false
           this.y = this.moveY
           setTimeout(() => {
-            this.y = this.moveY - (height - (windowHeight - res.top)) - 40
+            // this.y = this.moveY - (height - (windowHeight - res.top)) - 40
+            this.y = 0
+          }, 0)
+        }
+      }).exec()
+
+      query.select('#storeDescribe').boundingClientRect((res) => {
+        const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
+        if (res && this.inputStoreDescribe && (windowHeight - res.top) < height) {
+          this.inputStoreDescribe = false
+          this.y = this.moveY
+          setTimeout(() => {
+            // this.y = this.moveY - (height - (windowHeight - res.top)) - 40
+            this.y = 0
           }, 0)
         }
       }).exec()
@@ -310,11 +350,11 @@ export default {
           name: data.name,
           palce: data.palce,
           pid: data.pid,
-          classList: isArray(data.spuClassResults).map(item => ({
-            key: item.spuClassificationId,
-            title: item.name
-          }))
         }
+        this.classList = isArray(data.spuClassResults).map(item => ({
+          key: item.spuClassificationId,
+          title: item.name
+        }))
         if (!data.longitude) {
           const _this = this
           uni.getLocation({
@@ -345,7 +385,7 @@ export default {
       if (this.storehouseId) {
         await this.getDetail(this.storehouseId)
       } else {
-        this.formData = {pid: this.pid || '0', classList: []}
+        this.formData = {pid: this.pid || '0'}
         const _this = this
         uni.getLocation({
           success(res) {
@@ -403,27 +443,30 @@ export default {
       this.move = false
     },
     moveToLocation() {
-      const _this = this
-      this.map.moveToLocation({
-        ..._this.location,
-        complete(res) {
-          _this.landmarkBounce = true
-          setTimeout(() => {
-            _this.landmarkBounce = false
-          }, 500)
-        }
-      })
+      this.landmarkBounce = true
+      setTimeout(() => {
+        this.landmarkBounce = false
+      }, 500)
     },
     async getStoreHouseTree() {
       const response = await Storehouse.storeHouseTreeV2_0();
       const {
         data
       } = response;
-      this.storeHouseData = [{
-        title: '顶级',
-        key: '0',
-        children: this.format(data || [])
-      }];
+      if (this.pid) {
+        if (this.pid === '0') {
+          this.storeHouseData = {key: '0', name: '顶级', childrenList: data}
+        } else {
+          this.storeHouseData = this.findStoreHouse(data || [], this.pid)
+        }
+      } else {
+        this.storeHouseData = [{
+          title: '顶级',
+          key: '0',
+          children: this.format(data || [])
+        }];
+      }
+
     },
     async getCateGory() {
       const response = await Sku.spuClassTreeView({data: {}});
@@ -444,16 +487,29 @@ export default {
         }
         list.push(obj);
       })
-
       return list;
+    },
+    findStoreHouse(data, key) {
+      let storeHouse = null
+      data.forEach(item => {
+        if (item.storehouseId === key) {
+          storeHouse = item
+        } else {
+          const childrenStoreHouse = this.findStoreHouse(item.childrenList || [], key, storeHouse);
+          if (childrenStoreHouse) {
+            storeHouse = childrenStoreHouse
+          }
+        }
+      })
+      return storeHouse
     },
     onName() {
       this.inputStoreName = true
     },
+    onDescribe() {
+      this.inputStoreDescribe = true
+    },
     keyboardInput(filed, noAutoFocus) {
-      if (this.windows) {
-        return
-      }
       this.autoFocus = !noAutoFocus
       this.searchPlacces = []
       this.topInputShow = filed
@@ -464,8 +520,19 @@ export default {
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
       this.topInputShow = false
       this.height = windowHeight * 0.5
+      this.y = this.moveY
+      setTimeout(() => {
+        this.y = windowHeight * 0.4
+        this.moveY = windowHeight * 0.4
+      }, 0)
     },
     selectPlace(address) {
+      this.location = {
+        longitude: address.location.lng,
+        latitude: address.location.lat
+      }
+    },
+    selectAddress(address) {
       this.formData = {
         ...this.formData,
         palce: address.address
@@ -483,10 +550,7 @@ export default {
       }
     },
     onClassList(classList) {
-      this.formData = {
-        ...this.formData,
-        classList
-      }
+      this.classList = classList
     },
     save() {
       this.$refs.form.validate((err) => {
@@ -499,7 +563,7 @@ export default {
                 storehouseId: this.storehouseId,
                 ...this.formData,
                 ...this.location,
-                spuClassIds: isArray(this.formData.classList).map(item => item.key),
+                spuClassIds: isArray(this.classList).map(item => item.key),
                 classList: undefined
               }
             }).then((res) => {
@@ -529,7 +593,7 @@ export default {
             data: {
               ...this.formData,
               ...this.location,
-              spuClassIds: isArray(this.formData.classList).map(item => item.key),
+              spuClassIds: isArray(this.classList).map(item => item.key),
               classList: undefined
             }
           }).then((res) => {
@@ -688,18 +752,6 @@ export default {
     }
   }
 
-
-  .myButton {
-    padding: 24px 0;
-    width: 100% !important;
-
-    > button {
-      width: 100% !important;
-      border-radius: 50px !important;
-      padding: 8px 0 !important;
-    }
-  }
-
   .u-textarea--disabled {
     background-color: #fff !important;
   }
@@ -727,7 +779,7 @@ export default {
   }
 }
 
-.storeName {
+.storePalce {
   display: flex;
   align-items: center;
   gap: 4px;

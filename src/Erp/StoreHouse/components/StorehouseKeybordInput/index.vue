@@ -1,5 +1,9 @@
 <template>
   <view>
+    <view v-if="show" class="selectPlace">
+      <MyButton @click="$emit('close')">取消</MyButton>
+      <MyButton v-if="select !== null" color="#19be6b" @click="$emit('selectAddress',selectList[select])">确定</MyButton>
+    </view>
     <view
         v-if="show"
         class="KeybordInput"
@@ -16,7 +20,6 @@
             :adjustPosition="false"
             autoHeight
             :round="10"
-            @confirm="$emit('close')"
             :placeholder="placeholder || '请输入'"
             :value="value"
             @input="(val)=>$emit('input',val)"
@@ -31,14 +34,17 @@
             class="selectListItem"
             v-for="(item,index) in isArray(selectList)"
             :key="index"
-            @click="$emit('select',item)"
+            @click="onSelect(index)"
         >
-          <view class="selectListTitle">
-            {{ item.title }}
+          <view class="selectListItemContent">
+            <view class="selectListTitle">
+              {{ item.title }}
+            </view>
+            <view class="selectListDescribe">
+              {{ item.describe }}
+            </view>
           </view>
-          <view class="selectListDescribe">
-            {{ item.describe }}
-          </view>
+          <u-icon v-if="index === select" name="checkbox-mark" color="#19be6b" />
         </view>
       </view>
     </view>
@@ -47,19 +53,29 @@
 
 <script>
 
-import LinkButton from "../LinkButton";
-import {isArray} from "../../util/Tools";
+import LinkButton from "../../../../components/LinkButton";
+import {isArray} from "../../../../util/Tools";
+import MyButton from "../../../../components/MyButton";
 
 export default {
-  components: {LinkButton},
+  components: {MyButton, LinkButton},
   options: {
     styleIsolation: 'shared'
   },
-  name: 'KeybordInput',
+  name: 'StorehouseKeybordInput',
   props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus'],
   data() {
     return {
-      isArray
+      isArray,
+      select: null
+    }
+  },
+  watch: {
+    value() {
+      this.select = null
+    },
+    selectList(list) {
+      this.select = null
     }
   },
   computed: {
@@ -71,8 +87,13 @@ export default {
   },
   mounted() {
 
-
   },
+  methods: {
+    onSelect(index) {
+      this.$emit('select', this.selectList[index])
+      this.select = index
+    }
+  }
 }
 </script>
 
@@ -108,18 +129,34 @@ export default {
     .selectListItem {
       padding: 8px 0;
       border-bottom: 1px solid #EDEDED;
+      display: flex;
+      align-items: center;
 
-      .selectListTitle {
-        font-size: 14px;
+      .selectListItemContent {
+        flex-grow: 1;
+
+        .selectListTitle {
+          font-size: 14px;
+        }
+
+        .selectListDescribe {
+          color: #999999;
+          font-size: 12px;
+        }
       }
 
-      .selectListDescribe {
-        color: #999999;
-        font-size: 12px;
-      }
     }
   }
+}
 
-
+.selectPlace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 8px;
+  width: calc(100vw - 24px);
+  z-index: 1;
+  padding: 12px;
 }
 </style>

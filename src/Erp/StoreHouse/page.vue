@@ -218,7 +218,7 @@ export default {
     },
     edit(thisStoreHouse, current) {
       uni.navigateTo({
-        url: `/Erp/StoreHouse/StoreHouseAdd/index?id=${thisStoreHouse.key}`
+        url: `/Erp/StoreHouse/StoreHouseAdd/index?id=${thisStoreHouse.key}&pid=${this.storeHousePage[this.storeHousePage.length - (current ? 1 : 2)].key}`
       })
     },
     del(thisStoreHouse, current) {
@@ -428,7 +428,7 @@ export default {
   }
 
   .users {
-    overflow: auto;
+    overflow: hidden auto;
     background-color: #fff;
     padding: 0 12px;
   }
