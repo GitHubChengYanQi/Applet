@@ -122,6 +122,7 @@ export default {
     'movableViewY',
     'movableViewX',
     'admin',
+    'tree'
   ],
   data() {
     return {
@@ -215,6 +216,7 @@ export default {
           const top = _this.storeHousePage[_this.storeHousePage.length - 2]
           this.$refs.modal.dialog({
             title: '确认要把' + moveItem.title + '移动到' + (inStoreHouse ? inStoreHouse.title + '下级' : top.name) + '吗？',
+            only: false,
             onConfirm() {
               return new Promise(async (resolve) => {
                 Storehouse.storeHouseEditV2_0({
@@ -224,7 +226,7 @@ export default {
                   }
                 }).then(() => {
                   let newTree
-                  const tree = delStoreHouseChildren(moveItem.key, _this.deptTree)
+                  const tree = delStoreHouseChildren(moveItem.key, _this.tree)
                   if (_this.inIndex === -1) {
                     const deptKey = _this.storeHousePage[_this.storeHousePage.length - 2].key
                     newTree = addStoreHouseChildren(deptKey, moveItem, tree)
@@ -266,21 +268,21 @@ export default {
           if (thisKey === '0') {
             this.$emit('treeChange', storeHouseList)
           } else {
-            this.$emit('treeChange', sortStoreHouseChildren(thisKey, storeHouseList, this.deptTree))
+            this.$emit('treeChange', sortStoreHouseChildren(thisKey, storeHouseList, this.tree))
           }
 
-            Storehouse.storeHouseSortV2_0({
-              data: {
-                sortList: storeHouseList.map((item, index) => ({
-                  storehouseId: item.key,
-                  sort: storeHouseList.length - index
-                }))
-              }
-            }).catch(() => {
-              this.$refs.modal.dialog({
-                title: Init.getNewErrorMessage() || '排序失败!'
-              })
+          Storehouse.storeHouseSortV2_0({
+            data: {
+              sortList: storeHouseList.map((item, index) => ({
+                storehouseId: item.key,
+                sort: storeHouseList.length - index
+              }))
+            }
+          }).catch(() => {
+            this.$refs.modal.dialog({
+              title: Init.getNewErrorMessage() || '排序失败!'
             })
+          })
         }
 
         this.$nextTick(function () {

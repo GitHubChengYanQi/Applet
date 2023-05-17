@@ -384,6 +384,7 @@ export default {
           const top = _this.deptPage[_this.deptPage.length - 2]
           this.$refs.modal.dialog({
             title: '确认要把' + moveDept.title + '移动到' + (inDept ? inDept.title + '下级' : top.name) + '吗？',
+            only: false,
             onConfirm() {
               return new Promise(async (resolve) => {
                 Dept.deptEdit({
@@ -435,11 +436,8 @@ export default {
           })
           this.deptsChange(depts)
           const thisKey = this.deptPage[this.deptPage.length - 1].key
-          if (thisKey === '0') {
-            this.$emit('treeChange', depts)
-          } else {
-            this.$emit('treeChange', sortDeptsChildren(thisKey, depts, this.deptTree))
-          }
+
+          this.$emit('treeChange', sortDeptsChildren(thisKey, depts, this.deptTree))
 
           Dept.deptSort({
             data: {

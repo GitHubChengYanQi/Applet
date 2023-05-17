@@ -14,7 +14,9 @@
     />
 
     <StoreHouseManage
+        v-else
         :admin="admin"
+        :tree="tree"
         :store-house-list="storeHouseList"
         :store-house-page="storeHousePage"
         :itemWidth="itemWidth"
@@ -23,6 +25,7 @@
         @listChange="listChange"
         @onCheckStoreHouse="onCheckStoreHouse"
         @storeHousePageClick="storeHousePageClick"
+        @treeChange="(newTree)=>tree = newTree"
     />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">

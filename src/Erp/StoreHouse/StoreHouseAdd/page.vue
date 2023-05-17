@@ -2,20 +2,31 @@
   <view>
     <Loading skeleton-type="page" skeleton v-if="refreshLoading" />
     <scroll-view v-else class="storeHouseAdd">
-      <map
+      <view
           class="myMap"
-          :scale="scale"
-          id="myMap"
-          :longitude="location.longitude"
-          :latitude="location.latitude"
-          :markers="markers"
-          :style="{height:`${height - keyboardHeight}px`}"
-          @regionchange="regionchange"
-      />
+          :style="{
+        height:`${height - keyboardHeight - (topInputShow ? (searchPlacces.length * 52 + 8) :0)}px`
+      }"
+      >
+        <map
+            class="map"
+            :scale="16"
+            id="myMap"
+            :longitude="location.longitude"
+            :latitude="location.latitude"
+
+            @regionchange="regionchange"
+        />
+        <view :class="{landmark:true,landmarkBounce}">
+          <img :src="erp_map" alt="">
+        </view>
+      </view>
+
       <movable-area v-if="!topInputShow" class="movableArea">
         <movable-view
-            :disabled="!startMove"
+            :animation="false"
             class="movableView"
+            :disabled="moveY === 0 && startMove === false"
             :x="x"
             :y="y"
             direction="vertical"
@@ -26,71 +37,120 @@
               <view class="comment-handler"></view>
             </view>
           </view>
-          <view class="skuClassAdd">
+          <view
+              class="storeHouseAddForm"
+              :style="{overflow:moveY === 0 ? 'auto' : 'hidden'}"
+              @touchstart="touchstart"
+              @touchend="touchend"
+          >
             <uni-forms
                 ref="form"
                 :model="formData"
                 :rules="rules"
-                labelWidth="100px"
                 validateTrigger="bind"
-                label-position="top"
             >
-
-              <uni-forms-item
-                  label="仓库地点"
-                  name="palce"
-                  required
-              >
+              <uni-forms-item name="palce">
+                <slot name="label">
+                  <view class="label">
+                    仓库地点
+                    <view class="required">
+                      <u-badge isDot />
+                    </view>
+                  </view>
+                </slot>
                 <view @click="keyboardInput('palce')">
-                  <uni-easyinput
-                      type="textarea"
+                  <u--textarea
+                      border="bottom"
                       autoHeight
                       :disabled="!windows"
+                      :adjustPosition="false"
                       v-model="formData.palce"
                       placeholder="请输入仓库地点"
                   />
                 </view>
               </uni-forms-item>
 
-              <uni-forms-item
-                  label="仓库名称"
-                  name="name"
-                  required
-              >
-                <view id="storeName" @click="onName">
-                  <uni-easyinput v-model="formData.name" placeholder="请输入仓库名称" />
+              <uni-forms-item name="name">
+                <slot name="label">
+                  <view class="label">
+                    仓库名称
+                    <view class="required">
+                      <u-badge isDot />
+                    </view>
+                  </view>
+                </slot>
+                <view id="storeName" class="storeName" @click="onName">
+                  <u-icon name="map-fill" color="#257BDE" />
+                  <u--input
+                      border="none"
+                      v-model="formData.name"
+                      placeholder="请输入仓库名称"
+                      :adjustPosition="false"
+                  />
                 </view>
               </uni-forms-item>
 
-              <uni-forms-item
-                  label="上级仓库"
-                  name="pid"
-                  required
-              >
+              <uni-forms-item name="palce">
+                <slot name="label">
+                  <view class="label">
+                    仓库描述
+                  </view>
+                </slot>
+                <view @click="keyboardInput('palce')">
+                  <u--textarea
+                      border="bottom"
+                      autoHeight
+                      :disabled="!windows"
+                      :adjustPosition="false"
+                      v-model="formData.palce"
+                      placeholder="请输入仓库地点"
+                  />
+                </view>
+              </uni-forms-item>
+
+              <uni-forms-item name="pid">
+                <slot name="label">
+                  <view class="label">
+                    上级仓库
+                    <view class="required">
+                      <u-badge isDot />
+                    </view>
+                  </view>
+                </slot>
                 <Tree radio :data="storeHouseData" :value="{key:formData.pid}" @input="onPStoreHouse" />
               </uni-forms-item>
 
-              <uni-forms-item
-                  label="存放分类"
-                  name="classList"
-              >
+              <uni-forms-item name="classList">
+                <slot name="label">
+                  <view class="label">
+                    存放分类
+                  </view>
+                </slot>
                 <Tree :data="cateGoryData" :value="formData.classList" @input="onClassList" />
               </uni-forms-item>
 
             </uni-forms>
-
-            <MyButton :loading="loading" type="primary" @click="save">
-              保存
-            </MyButton>
+            <view :style="{height: `${60+safeAreaHeight(this,)}px`}" />
           </view>
         </movable-view>
       </movable-area>
+
+      <BottomButton
+          only
+          text="保存"
+          :loading="loading"
+          @onClick="save"
+      />
+
 
       <KeybordInput
           :title="topInputShow === 'palce' ? '仓库地点' : '仓库名称'"
           :show="topInputShow"
           @close="keyboardInputOk"
           v-model="formData[topInputShow]"
+          :selectList="searchPlacces"
+          :noAutoFocus="!autoFocus"
+          @select="selectPlace"
       />
 
       <Modal ref="modal" />
@@ -103,31 +163,36 @@ import Popup from "../../../components/Popup";
 import Cascader from "../../../components/Cascader";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import Tree from "../../../components/Tree";
-import {isArray} from "../../../util/Tools";
+import {isArray, safeAreaHeight} from "../../../util/Tools";
 import Elliptsis from "../../../components/Ellipsis";
 import MyButton from "../../../components/MyButton";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Modal from "../../../components/Modal";
 import Loading from "../../../components/Loading";
 import KeybordInput from "../../../components/KeybordInput";
+import {erp_map} from "../../../images/erp/map";
+import BottomButton from "../../../components/BottomButton";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   props: ['storehouseId', 'pid'],
-  components: {KeybordInput, Loading, Modal, MyButton, Elliptsis, Tree, Cascader, Popup},
+  components: {BottomButton, KeybordInput, Loading, Modal, MyButton, Elliptsis, Tree, Cascader, Popup},
   data() {
     return {
+      safeAreaHeight,
+      erp_map,
       refreshLoading: false,
       isArray,
       scale: 16,
       height: 100,
       top: 50,
+      startMove: false,
       y: 0,
       move: false,
-      startMove: false,
       topInputShow: false,
+      landmarkBounce: false,
       moveY: 0,
       map: {},
       location: {},
@@ -164,7 +229,9 @@ export default {
             },
           ]
         },
-      }
+      },
+      searchPlacces: [],
+      autoFocus: true,
     }
   },
   computed: {
@@ -177,35 +244,19 @@ export default {
         return 0
       }
 
-    },
-    markers() {
-      this.markId = this.markId + 1
-      if (uni.getSystemInfoSync().platform === 'devtools') {
-        return Object.keys(this.location).length > 0 ? [{
-          ...this.location,
-          width: 34,
-          height: 50,
-          id: this.markId,
-        }] : []
-      } else {
-        return Object.keys(this.location).length > 0 ? [{
-          ...this.location,
-          id: this.markId,
-        }] : []
-      }
-
     }
   },
   created() {
     const _this = this
     wx.getSystemInfo({
       success: (res) => {
-        // _this.windows = false
-        _this.windows = res.platform !== "ios" && res.platform !== 'android'
+        _this.windows = false
+        // _this.windows = res.platform !== "ios" && res.platform !== 'android'
       }
     });
     const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
     this.y = windowHeight * 0.4
+    this.moveY = windowHeight * 0.4
   },
   watch: {
     '$store.state.keyboard.keyboardHeight'(height) {
@@ -214,7 +265,10 @@ export default {
         const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
         if (res && this.inputStoreName && (windowHeight - res.top) < height) {
           this.inputStoreName = false
-          this.keyboardInput('name')
+          this.y = this.moveY
+          setTimeout(() => {
+            this.y = this.moveY - (height - (windowHeight - res.top)) - 40
+          }, 0)
         }
       }).exec()
     },
@@ -227,16 +281,13 @@ export default {
       this.time = setTimeout(() => {
         wx.request({
           //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-          url: `https://apis.map.qq.com/ws/place/v1/search?key=ALWBZ-SCA3I-3TVGR-UX4VD-PGTG6-JEFNH&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=1`,
+          url: `https://apis.map.qq.com/ws/place/v1/search?key=ALWBZ-SCA3I-3TVGR-UX4VD-PGTG6-JEFNH&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=5`,
           success(res) {
-            if (res.data.data && res.data.data[0]) {
-              const place = res.data.data[0].location
-              _this.location = {
-                longitude: place.lng,
-                latitude: place.lat
-              }
-              _this.moveToLocation()
-            }
+            _this.searchPlacces = isArray(res?.data?.data).map(item => ({
+              ...item,
+              title: item.title,
+              describe: item.address
+            }))
           },
         })
       }, 500);
@@ -309,10 +360,22 @@ export default {
       this.refreshLoading = false
     },
     regionchange(res) {
-      if (res.type === 'end' && res.causedBy === "drag") {
-        console.log(res)
+      if (res.type === 'end' && (res.causedBy === "drag")) {
         this.location = res.detail.centerLocation
         this.moveToLocation()
+        const _this = this
+        wx.request({
+          //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
+          url: `https://apis.map.qq.com/ws/place/v1/explore?key=ALWBZ-SCA3I-3TVGR-UX4VD-PGTG6-JEFNH&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=5`,
+          success(res) {
+            _this.keyboardInput('palce', true)
+            _this.searchPlacces = isArray(res?.data?.data).map(item => ({
+              ...item,
+              title: item.title,
+              describe: item.address
+            }))
+          },
+        })
       }
     },
     change(e) {
@@ -322,8 +385,15 @@ export default {
       this.move = true
       this.moveY = e.detail.y
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
-      this.scale = 16 - ((windowHeight * 0.4) - e.detail.y) / ((windowHeight * 0.4) / 10)
+      // this.scale = 16 - ((windowHeight * 0.4) - e.detail.y) / ((windowHeight * 0.4) / 10)
       this.height = e.detail.y + windowHeight * 0.1
+    },
+    touchstart() {
+      if (this.moveY === 0) {
+
+      } else {
+        this.startMove = true
+      }
     },
     touchend() {
       if (!this.move) {
@@ -331,13 +401,16 @@ export default {
       }
       this.startMove = false
       this.move = false
-      this.moveToLocation()
     },
     moveToLocation() {
+      const _this = this
       this.map.moveToLocation({
-        ...this.location,
+        ..._this.location,
         complete(res) {
-
+          _this.landmarkBounce = true
+          setTimeout(() => {
+            _this.landmarkBounce = false
+          }, 500)
         }
       })
     },
@@ -377,21 +450,31 @@ export default {
     onName() {
       this.inputStoreName = true
     },
-    keyboardInput(filed) {
+    keyboardInput(filed, noAutoFocus) {
       if (this.windows) {
         return
       }
+      this.autoFocus = !noAutoFocus
+      this.searchPlacces = []
       this.topInputShow = filed
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
       this.height = windowHeight - 100
-      this.scale = 16
-      this.moveToLocation()
     },
     keyboardInputOk() {
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
       this.topInputShow = false
       this.height = windowHeight * 0.5
-      this.scale = 16
+    },
+    selectPlace(address) {
+      this.formData = {
+        ...this.formData,
+        palce: address.address
+      }
+      this.location = {
+        longitude: address.location.lng,
+        latitude: address.location.lat
+      }
+      this.keyboardInputOk()
     },
     onPStoreHouse(storeHouse) {
       this.formData = {
@@ -498,7 +581,8 @@ export default {
   position: absolute;
   top: 10vh;
   width: 100vw;
-  height: 130vh
+  height: 130vh;
+  background-color: $body-color;
 }
 
 .movableView {
@@ -507,10 +591,47 @@ export default {
   background-color: #fff;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
+  z-index: 2;
 }
 
 .myMap {
   width: 100vw;
+  z-index: 1;
+  position: relative;
+
+  .map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .landmark {
+    width: 50px;
+    height: 100px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    image {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  .landmarkBounce {
+    animation: bounce .5s ease-in-out infinite;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    top: 0;
+  }
+  50% {
+    top: -50px;
+  }
 }
 
 .comment-container {
@@ -537,7 +658,7 @@ export default {
   margin: 0 auto;
 }
 
-.skuClassAdd {
+.storeHouseAddForm {
   padding: 0 12px;
   max-height: calc(90vh - 33px);
   overflow: auto;
@@ -547,9 +668,24 @@ export default {
     padding: 12px 0;
   }
 
-  .uni-forms-item__label {
-    font-size: 12px;
+  .label {
+    font-size: 14px;
     color: #666666;
+    padding: 0;
+    height: fit-content;
+    width: fit-content;
+    position: relative;
+
+    .required {
+      position: absolute;
+      top: 0;
+      right: -4px;
+
+      .u-badge {
+        width: 4px;
+        height: 4px;
+      }
+    }
   }
 
 
@@ -564,14 +700,12 @@ export default {
     }
   }
 
-  .is-disabled {
+  .u-textarea--disabled {
     background-color: #fff !important;
-    color: #000000 !important;
   }
 
-  .is-input-border {
-    border: none;
-    border-bottom: 1px solid #EDEDED;
+  .u-textarea, .u-input {
+    padding: 8px 0 !important;
   }
 }
 
@@ -593,12 +727,11 @@ export default {
   }
 }
 
-.grey {
-  color: #999999;
-}
-
-.grey2 {
-  color: #434343;
+.storeName {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: solid 1px #dadbde;
 }
 
 </style>

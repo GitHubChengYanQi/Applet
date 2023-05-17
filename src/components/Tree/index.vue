@@ -13,6 +13,7 @@
           <Check
               :value="radio ? (value.key+'') === (item.key+'') : value.find(valueItem=>(valueItem.key+'') === (item.key+''))"
           />
+          <Icon v-if="icon" :icon="icon" size="24" />
           {{ item.title }}
         </view>
       </view>
@@ -20,6 +21,7 @@
         <Tree
             :collapse="collapse"
             :radio="radio"
+            :icon="icon"
             :multiple="multiple"
             :data="isArray(item.children)"
             :tree="isChildren ? tree : data"
@@ -37,11 +39,12 @@
 import Check from "../Check";
 import {isArray} from "../../util/Tools";
 import Tree from './index'
+import Icon from "../Icon";
 
 export default {
   name: 'Tree',
-  components: {Check, Tree},
-  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse'],
+  components: {Icon, Check, Tree},
+  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse', 'icon'],
   data() {
     return {
       isArray,
@@ -139,7 +142,6 @@ export default {
 
 <style lang="scss">
 .item {
-  padding: 8px;
   //background-color: #fff;
   display: flex;
   align-items: center;
@@ -148,6 +150,10 @@ export default {
   .title {
     display: flex;
     align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 8px;
+    border-bottom: 1px solid #EDEDED;
   }
 
   .space {
@@ -157,7 +163,7 @@ export default {
 }
 
 .children {
-  padding-left: 30px;
+  padding-left: 12px;
 }
 
 </style>

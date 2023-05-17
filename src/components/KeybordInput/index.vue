@@ -12,19 +12,35 @@
         <u--textarea
             :selectionStart="value ? value.length : -1"
             :showConfirmBar="false"
-            focus
+            :focus="!noAutoFocus"
             :adjustPosition="false"
             autoHeight
             :round="10"
             @confirm="$emit('close')"
-            @blur="$emit('close')"
             :placeholder="placeholder || '请输入'"
             :value="value"
             @input="(val)=>$emit('input',val)"
         />
         <LinkButton @click="$emit('close')">确认</LinkButton>
       </view>
-
+      <view
+          class="selectList"
+          v-if="isArray(selectList).length > 0"
+      >
+        <view
+            class="selectListItem"
+            v-for="(item,index) in isArray(selectList)"
+            :key="index"
+            @click="$emit('select',item)"
+        >
+          <view class="selectListTitle">
+            {{ item.title }}
+          </view>
+          <view class="selectListDescribe">
+            {{ item.describe }}
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -32,7 +48,7 @@
 <script>
 
 import LinkButton from "../LinkButton";
-import {safeAreaHeight} from "../../util/Tools";
+import {isArray} from "../../util/Tools";
 
 export default {
   components: {LinkButton},
@@ -40,9 +56,11 @@ export default {
     styleIsolation: 'shared'
   },
   name: 'KeybordInput',
-  props: ['show', 'placeholder', 'value', 'title'],
+  props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus'],
   data() {
-    return {}
+    return {
+      isArray
+    }
   },
   computed: {
     keyboardHeight() {
@@ -64,6 +82,7 @@ export default {
   padding: 12px;
   width: calc(100% - 24px);
   background-color: #FFFFFF;
+  z-index: 1;
 
   .KeybordInput-title {
     display: flex;
@@ -80,6 +99,24 @@ export default {
       margin-right: 12px;
       flex-grow: 1;
       background-color: #fafafa !important
+    }
+  }
+
+  .selectList {
+    padding-top: 8px;
+
+    .selectListItem {
+      padding: 8px 0;
+      border-bottom: 1px solid #EDEDED;
+
+      .selectListTitle {
+        font-size: 14px;
+      }
+
+      .selectListDescribe {
+        color: #999999;
+        font-size: 12px;
+      }
     }
   }
 
