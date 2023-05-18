@@ -39,6 +39,7 @@
         </movable-view>
 
         <Empty
+            :style="{paddingTop:`${itemHeight}px`}"
             v-if="storeHouseList.length === 0"
             description="暂无数据"
         />
@@ -66,7 +67,7 @@
           <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
           <view class="item">
             <view class="deptIcon">
-              <Icon icon="icon-cangkuguanli1" size="30" />
+              <Icon icon="icon-cangkutubiao" size="30" />
             </view>
             <view class="itemTitle">
               {{ item.title }}
@@ -210,6 +211,7 @@ export default {
       const moveItem = this.storeHouseList[thisIndex]
       this.$nextTick(function () {
         if (this.inIndex !== null) {
+          const inIndex = this.inIndex
           const inStoreHouse = this.storeHouseList[this.inIndex]
           this.listChange(this.storeHouseList)
           const _this = this
@@ -227,9 +229,13 @@ export default {
                 }).then(() => {
                   let newTree
                   const tree = delStoreHouseChildren(moveItem.key, _this.tree)
-                  if (_this.inIndex === -1) {
-                    const deptKey = _this.storeHousePage[_this.storeHousePage.length - 2].key
-                    newTree = addStoreHouseChildren(deptKey, moveItem, tree)
+                  if (inIndex === -1) {
+                    const storeHouseKey = _this.storeHousePage[_this.storeHousePage.length - 2].key
+                    if (storeHouseKey === '0') {
+                      newTree = [...tree, moveItem]
+                    } else {
+                      newTree = addStoreHouseChildren(storeHouseKey, moveItem, tree)
+                    }
                   } else {
                     newTree = addStoreHouseChildren(inStoreHouse ? inStoreHouse.key : top.key, moveItem, tree)
                   }
@@ -245,7 +251,6 @@ export default {
               })
             }
           })
-          this.moveActionData = {...this.storeHouseList[thisIndex], thisIndex, inIndex: this.inIndex}
         } else if (this.moveEndIndex !== null) {
           const storeHouseList = this.storeHouseList.map((item, index) => {
             if (moveIndex > 0) {

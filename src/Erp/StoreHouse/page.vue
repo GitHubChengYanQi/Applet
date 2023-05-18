@@ -77,14 +77,12 @@ import Icon from "../../components/Icon";
 import LinkButton from "../../components/LinkButton";
 import AddUser from "../../components/AddUser";
 import Modal from "../../components/Modal";
-import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
-import {Dept} from "MES-Apis/lib/Dept/promise";
 import StoreHouseManage from "./components/StoreHouseManage";
-import {addStoreHouseChildren, delStoreHouseChildren} from "./index";
+import {delStoreHouseChildren} from "./index";
 
 export default {
   options: {
@@ -152,38 +150,19 @@ export default {
     const tenant = this.$store.state.userInfo.tenant || {}
     this.admin = tenant.admin
     const _this = this
-    uni.$on('storeHouseAddSuccess', (result) => {
-      const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
-        _this.listChange([..._this.storeHouseList, {key: result.id, title: result.name}])
-      }
-
-      if (result.pid === '0') {
-        _this.tree = [..._this.tree, newStore]
-      } else {
-        _this.tree = addStoreHouseChildren(result.pid, newStore, _this.tree)
-      }
+    uni.$on('storeHouseAddSuccess', () => {
+      _this.getList(true,_this.storeHousePage[_this.storeHousePage.length - 1].key)
     })
 
     uni.$on('storeHouseEditSuccess', (result) => {
-      const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
-        _this.listChange(_this.storeHouseList.map(item => {
-          if (item.key === newStore.key) {
-            return {...item, title: newStore.title}
-          }
-          return item
-        }))
-      } else {
-        _this.storeHousePage = _this.storeHousePage.map(item => {
-          if (item.key === newStore.key) {
-            return {...item, name: newStore.title}
-          }
-          return item
-        })
-      }
+      _this.getList(true,_this.storeHousePage[_this.storeHousePage.length - 1].key)
 
-      _this.tree = _this.editStoreHouseChildren(newStore, _this.tree)
+      _this.storeHousePage = _this.storeHousePage.map(item => {
+        if (item.key === result.id) {
+          return {...item, name:  result.name}
+        }
+        return item
+      })
     })
     this.getList()
   },
@@ -276,20 +255,26 @@ export default {
         }, 0)
       }
     },
-    async getList() {
+    async getList(refresh, topKey) {
       this.loading = true
-      const res = await Storehouse.storeHouseTreeV2_0({
-        params: {
-          ids: this.storehouseId
-        }
-      }).catch(() => {
+      const res = await Storehouse.storeHouseTreeV2_0().catch(() => {
         this.error = true
       })
       this.loading = false
 
       this.tree = this.format(res.data || [])
-      this.listChange(this.format(res.data || []))
-      this.storeHousePage = [{key: '0', name: '顶级仓库'}]
+      if (refresh) {
+        if (topKey === '0'){
+          this.listChange(this.tree)
+        }else {
+          const thisStoreHouse = this.findStoreHouse(topKey, this.tree)
+          this.listChange(thisStoreHouse.children)
+        }
+
+      } else {
+        this.listChange(this.format(res.data || []))
+        this.storeHousePage = [{key: '0', name: '顶级仓库'}]
+      }
     },
     format(data) {
       const list = [];

@@ -35,7 +35,7 @@ export const routes = [
     {
         name: '即时盘点',
         key: 'miniapp-stocktaking',
-        url: '/Erp/Stocktaking/immediately/index'
+        url: '/Erp/Stocktaking/immediately/index',
     },
     {
         name: '库存预警',

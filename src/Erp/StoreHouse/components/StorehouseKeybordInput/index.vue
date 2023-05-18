@@ -1,60 +1,63 @@
 <template>
-  <view>
-    <view v-if="show" class="selectPlace">
-      <MyButton @click="$emit('close')">取消</MyButton>
-      <MyButton v-if="select !== null" color="#19be6b" @click="$emit('selectAddress',selectList[select])">确定</MyButton>
-    </view>
+  <view
+      class="KeybordInput"
+      :style="{bottom:`${keyboardHeight}px`}"
+  >
     <view
-        v-if="show"
-        class="KeybordInput"
-        :style="{bottom:`${keyboardHeight}px`}"
+        @touchstart="$emit('onTouchstart',true)"
+        @touchend="$emit('onTouchend',true)"
     >
       <view class="KeybordInput-title">
         {{ title }}
       </view>
       <view class="KeybordInput-input">
-        <u--textarea
+        <u--input
             :selectionStart="value ? value.length : -1"
-            :showConfirmBar="false"
             :focus="!noAutoFocus"
             :adjustPosition="false"
-            autoHeight
             :round="10"
             :placeholder="placeholder || '请输入'"
             :value="value"
             @input="(val)=>$emit('input',val)"
         />
-        <LinkButton @click="$emit('close')">确认</LinkButton>
-      </view>
-      <view
-          class="selectList"
-          v-if="isArray(selectList).length > 0"
-      >
-        <view
-            class="selectListItem"
-            v-for="(item,index) in isArray(selectList)"
-            :key="index"
-            @click="onSelect(index)"
-        >
-          <view class="selectListItemContent">
-            <view class="selectListTitle">
-              {{ item.title }}
-            </view>
-            <view class="selectListDescribe">
-              {{ item.describe }}
-            </view>
-          </view>
-          <u-icon v-if="index === select" name="checkbox-mark" color="#19be6b" />
-        </view>
       </view>
     </view>
+
+    <scroll-view
+        class="selectList"
+        v-if="isArray(selectList).length > 0"
+        :scroll-y="moveY === 0"
+        :style="{
+          maxHeight: `calc(${100 - top}vh - 33px - 103px - ${safeAreaHeight(this,8)}px)`,
+        }"
+        @scroll="(scroll)=>$emit('onScroll',scroll)"
+        @touchstart="$emit('onTouchstart')"
+        @touchend="$emit('onTouchend')"
+    >
+      <view
+          class="selectListItem"
+          v-for="(item,index) in isArray(selectList)"
+          :key="index"
+          @click="onSelect(index)"
+      >
+        <view class="selectListItemContent">
+          <view class="selectListTitle">
+            {{ item.title }}
+          </view>
+          <view class="selectListDescribe">
+            {{ item.describe }}
+          </view>
+        </view>
+        <u-icon v-if="index === select" name="checkbox-mark" color="#19be6b" />
+      </view>
+    </scroll-view>
   </view>
 </template>
 
 <script>
 
 import LinkButton from "../../../../components/LinkButton";
-import {isArray} from "../../../../util/Tools";
+import {isArray, safeAreaHeight} from "../../../../util/Tools";
 import MyButton from "../../../../components/MyButton";
 
 export default {
@@ -63,9 +66,10 @@ export default {
     styleIsolation: 'shared'
   },
   name: 'StorehouseKeybordInput',
-  props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus'],
+  props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus', 'moveY', 'top'],
   data() {
     return {
+      safeAreaHeight,
       isArray,
       select: null
     }
@@ -74,7 +78,7 @@ export default {
     value() {
       this.select = null
     },
-    selectList(list) {
+    selectList() {
       this.select = null
     }
   },
@@ -89,6 +93,12 @@ export default {
 
   },
   methods: {
+    disabled() {
+      return typeof this.select !== "number"
+    },
+    ok() {
+      this.$emit('selectAddress', this.select === null ? null : this.selectList[this.select])
+    },
     onSelect(index) {
       this.$emit('select', this.selectList[index])
       this.select = index
@@ -99,7 +109,7 @@ export default {
 
 <style lang="scss">
 .KeybordInput {
-  position: fixed;
+  //position: fixed;
   padding: 12px;
   width: calc(100% - 24px);
   background-color: #FFFFFF;
@@ -115,16 +125,16 @@ export default {
   .KeybordInput-input {
     display: flex;
     align-items: center;
+    padding-bottom: 8px;
 
-    .u-textarea {
-      margin-right: 12px;
+    .u-input {
+      //margin-right: 12px;
       flex-grow: 1;
       background-color: #fafafa !important
     }
   }
 
   .selectList {
-    padding-top: 8px;
 
     .selectListItem {
       padding: 8px 0;
@@ -147,16 +157,5 @@ export default {
 
     }
   }
-}
-
-.selectPlace {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  top: 8px;
-  width: calc(100vw - 24px);
-  z-index: 1;
-  padding: 12px;
 }
 </style>

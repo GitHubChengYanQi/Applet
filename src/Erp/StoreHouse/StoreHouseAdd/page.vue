@@ -5,7 +5,7 @@
       <view
           class="myMap"
           :style="{
-        height:`${height - keyboardHeight - (topInputShow ? (searchPlacces.length * 52 + 8) :0)}px`
+        height:`${height}px`
       }"
       >
         <map
@@ -15,32 +15,71 @@
             :longitude="location.longitude"
             :latitude="location.latitude"
             @regionchange="regionchange"
+            @click="clickMap"
         />
         <view :class="{landmark:true,landmarkBounce}">
           <img :src="erp_map" alt="">
         </view>
       </view>
 
-      <movable-area v-if="!topInputShow" class="movableArea">
+      <view class="selectPlace" v-if="topInputShow">
+        <MyButton @click="keyboardInputOk">取消</MyButton>
+        <MyButton
+            v-if="$refs.storehouseKeybordInput && !$refs.storehouseKeybordInput.disabled()"
+            color="#19be6b"
+            @click="$refs.storehouseKeybordInput.ok()"
+        >
+          确定
+        </MyButton>
+      </view>
+
+      <movable-area
+          class="movableArea"
+          :style="{top:`${top}vh`,height:`${(100 - top) + (50 - top)}vh`}"
+      >
         <movable-view
             :animation="false"
             class="movableView"
             :disabled="moveY === 0 && startMove === false"
             :x="x"
             :y="y"
+            :style="{height:`${100 - top}vh`}"
             direction="vertical"
             @change="change"
         >
-          <view class="comment-container" @touchstart="startMove = true" @touchend="touchend">
+          <view class="comment-container" @touchstart="touchstart(true)" @touchend="touchend">
             <view class="comment-header">
               <view class="comment-handler"></view>
             </view>
           </view>
-          <view
+
+          <StorehouseKeybordInput
+              ref="storehouseKeybordInput"
+              v-if="topInputShow"
+              title="仓库地点"
+              @close="keyboardInputOk"
+              v-model="formData.palce"
+              :selectList="searchPlacces"
+              :noAutoFocus="!autoFocus"
+              @select="selectPlace"
+              @selectAddress="selectAddress"
+              @onTouchstart="touchstart"
+              @onTouchend="touchend"
+              @onScroll="scroll"
+              :moveY="moveY"
+              :top="top"
+          />
+
+          <scroll-view
+              v-else
+              :scroll-y="moveY === 0"
               class="storeHouseAddForm"
-              :style="{overflow:moveY === 0 ? 'auto' : 'hidden'}"
+              :style="{
+             maxHeight: `calc(${100 - top}vh - 33px - 60px - ${safeAreaHeight(this,)}px)`
+          }"
               @touchstart="touchstart"
               @touchend="touchend"
+              @scroll="scroll"
           >
             <uni-forms
                 ref="form"
@@ -116,18 +155,18 @@
                 </slot>
                 <StoreHouseStructure
                     :current="formData"
-                    v-if="pid"
+                    v-if="pid &&storeHouseData"
                     :storehouseId="storehouseId"
                     :storeHouseData="storeHouseData"
                     :classList="classList"
                     @openClass="classShow = true"
+                    ref="storeHouseStructure"
                 />
                 <Tree v-else radio :data="isArray(storeHouseData)" :value="{key:formData.pid}" @input="onPStoreHouse" />
               </uni-forms-item>
 
             </uni-forms>
-            <view :style="{height: `${60+safeAreaHeight(this,)}px`}" />
-          </view>
+          </scroll-view>
         </movable-view>
       </movable-area>
 
@@ -149,21 +188,9 @@
           @onRight="classShow = false"
       >
         <view style="padding: 12px">
-          <Tree :data="cateGoryData" :value="classList" @input="onClassList" />
+          <Tree icon="icon-gaojizujian" :data="cateGoryData" :value="classList" @input="onClassList" />
         </view>
       </Popup>
-
-
-      <StorehouseKeybordInput
-          title="仓库地点"
-          :show="topInputShow"
-          @close="keyboardInputOk"
-          v-model="formData.palce"
-          :selectList="searchPlacces"
-          :noAutoFocus="!autoFocus"
-          @select="selectPlace"
-          @selectAddress="selectAddress"
-      />
 
       <Modal ref="modal" />
     </scroll-view>
@@ -211,9 +238,10 @@ export default {
       isArray,
       scale: 16,
       height: 100,
-      top: 50,
+      top: 20,
       startMove: false,
       y: 0,
+      scrollTop: 0,
       move: false,
       topInputShow: false,
       landmarkBounce: false,
@@ -261,18 +289,6 @@ export default {
       autoFocus: true,
     }
   },
-  computed: {
-    keyboardHeight() {
-      if (!!this.topInputShow) {
-        const safeAreaHeight = this.$store.state.systemInfo.systemInfo?.safeAreaInsets?.bottom || 0
-        const keyboardHeight = this.$store.state.keyboard.keyboardHeight
-        return keyboardHeight < safeAreaHeight ? safeAreaHeight : keyboardHeight
-      } else {
-        return 0
-      }
-
-    }
-  },
   created() {
     const _this = this
     wx.getSystemInfo({
@@ -282,11 +298,21 @@ export default {
       }
     });
     const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
-    this.y = windowHeight * 0.4
-    this.moveY = windowHeight * 0.4
+    this.y = windowHeight * ((50 - this.top) / 100)
+    this.moveY = windowHeight * ((50 - this.top) / 100)
   },
   watch: {
     '$store.state.keyboard.keyboardHeight'(height) {
+
+      if (!!this.topInputShow && height > 0) {
+        const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
+        this.height = windowHeight * (this.top / 100)
+        this.y = this.moveY
+        setTimeout(() => {
+          this.y = 0
+        }, 0)
+      }
+
       const query = uni.createSelectorQuery().in(this);
       query.select('#storeName').boundingClientRect((res) => {
         const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
@@ -321,7 +347,7 @@ export default {
       this.time = setTimeout(() => {
         wx.request({
           //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-          url: `https://apis.map.qq.com/ws/place/v1/search?key=ALWBZ-SCA3I-3TVGR-UX4VD-PGTG6-JEFNH&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=5`,
+          url: `https://apis.map.qq.com/ws/place/v1/search?key=${process.env.VUE_APP_MAP_KEY}&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
           success(res) {
             _this.searchPlacces = isArray(res?.data?.data).map(item => ({
               ...item,
@@ -400,15 +426,20 @@ export default {
       this.refreshLoading = false
     },
     regionchange(res) {
-      if (res.type === 'end' && (res.causedBy === "drag")) {
-        this.location = res.detail.centerLocation
+      const search = res.type === 'search'
+      if ((res.type === 'end' && res.causedBy === "drag") || search) {
+        if (!search) {
+          this.location = res.detail.centerLocation
+        }
         this.moveToLocation()
         const _this = this
         wx.request({
           //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-          url: `https://apis.map.qq.com/ws/place/v1/explore?key=ALWBZ-SCA3I-3TVGR-UX4VD-PGTG6-JEFNH&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=5`,
+          url: `https://apis.map.qq.com/ws/place/v1/explore?key=${process.env.VUE_APP_MAP_KEY}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
           success(res) {
-            _this.keyboardInput('palce', true)
+            if (!search) {
+              _this.keyboardInput('palce', true)
+            }
             _this.searchPlacces = isArray(res?.data?.data).map(item => ({
               ...item,
               title: item.title,
@@ -418,6 +449,15 @@ export default {
         })
       }
     },
+    clickMap(){
+      const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
+      this.height = windowHeight * 0.5
+      this.y = this.moveY
+      setTimeout(() => {
+        this.y = windowHeight * ((50 - this.top) / 100)
+        this.moveY = windowHeight * ((50 - this.top) / 100)
+      }, 0)
+    },
     change(e) {
       if (!this.startMove) {
         return
@@ -425,12 +465,17 @@ export default {
       this.move = true
       this.moveY = e.detail.y
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
-      // this.scale = 16 - ((windowHeight * 0.4) - e.detail.y) / ((windowHeight * 0.4) / 10)
-      this.height = e.detail.y + windowHeight * 0.1
+      this.height = e.detail.y + windowHeight * (this.top / 100)
     },
-    touchstart() {
+    touchstart(move) {
+      if (move) {
+        this.startMove = true
+        return
+      }
       if (this.moveY === 0) {
-
+        if (this.scrollTop < 5) {
+          this.startMove = true
+        }
       } else {
         this.startMove = true
       }
@@ -441,6 +486,9 @@ export default {
       }
       this.startMove = false
       this.move = false
+    },
+    scroll({detail}) {
+      this.scrollTop = detail.scrollTop
     },
     moveToLocation() {
       this.landmarkBounce = true
@@ -511,19 +559,28 @@ export default {
     },
     keyboardInput(filed, noAutoFocus) {
       this.autoFocus = !noAutoFocus
-      this.searchPlacces = []
+      // this.searchPlacces = []
       this.topInputShow = filed
+      this.top = 20
+      this.scrollTop = 0
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
-      this.height = windowHeight - 100
+      this.height = windowHeight * 0.5
+      this.y = this.moveY
+      setTimeout(() => {
+        this.y = windowHeight * ((50 - this.top) / 100)
+        this.moveY = windowHeight * ((50 - this.top) / 100)
+        this.regionchange({type: 'search'})
+      }, 0)
     },
     keyboardInputOk() {
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
       this.topInputShow = false
+      this.scrollTop = 0
       this.height = windowHeight * 0.5
       this.y = this.moveY
       setTimeout(() => {
-        this.y = windowHeight * 0.4
-        this.moveY = windowHeight * 0.4
+        this.y = windowHeight * ((50 - this.top) / 100)
+        this.moveY = windowHeight * ((50 - this.top) / 100)
       }, 0)
     },
     selectPlace(address) {
@@ -533,13 +590,15 @@ export default {
       }
     },
     selectAddress(address) {
-      this.formData = {
-        ...this.formData,
-        palce: address.address
-      }
-      this.location = {
-        longitude: address.location.lng,
-        latitude: address.location.lat
+      if (address) {
+        this.formData = {
+          ...this.formData,
+          palce: address.address
+        }
+        this.location = {
+          longitude: address.location.lng,
+          latitude: address.location.lat
+        }
       }
       this.keyboardInputOk()
     },
@@ -556,7 +615,7 @@ export default {
       this.$refs.form.validate((err) => {
         if (!err) {
           this.loading = true
-
+          const sort = this.$refs.storeHouseStructure.getCurrentSort()
           if (this.storehouseId) {
             Storehouse.storeHouseEditV2_0({
               data: {
@@ -564,7 +623,8 @@ export default {
                 ...this.formData,
                 ...this.location,
                 spuClassIds: isArray(this.classList).map(item => item.key),
-                classList: undefined
+                classList: undefined,
+                sort
               }
             }).then((res) => {
               uni.$emit('storeHouseEditSuccess', {
@@ -600,7 +660,8 @@ export default {
             uni.$emit('storeHouseAddSuccess', {
               pid: this.formData.pid,
               id: res.data,
-              name: this.formData.name
+              name: this.formData.name,
+              sort
             })
 
             const _this = this
@@ -651,7 +712,6 @@ export default {
 
 .movableView {
   width: 100vw;
-  height: 90vh;
   background-color: #fff;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
@@ -686,6 +746,7 @@ export default {
 
   .landmarkBounce {
     animation: bounce .5s ease-in-out infinite;
+    animation-iteration-count: 1;
   }
 }
 
@@ -724,7 +785,6 @@ export default {
 
 .storeHouseAddForm {
   padding: 0 12px;
-  max-height: calc(90vh - 33px);
   overflow: auto;
 
   .uni-forms-item {
@@ -784,6 +844,19 @@ export default {
   align-items: center;
   gap: 4px;
   border-bottom: solid 1px #dadbde;
+}
+
+.selectPlace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px 10px rgba(0, 0, 0, 0.3);
+  width: calc(100vw - 24px);
+  z-index: 1;
+  padding: 12px 12px 0;
 }
 
 </style>

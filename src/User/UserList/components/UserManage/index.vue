@@ -147,7 +147,7 @@
           <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
           <view class="item">
             <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
-              <Icon icon="icon-bumen1" size="30" />
+              <Icon icon="icon-bumen1" size="35" />
             </view>
             <view class="itemTitle">
               {{ item.title }}

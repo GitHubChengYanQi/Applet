@@ -55,11 +55,9 @@ const actions = {
         if (Object.keys(state.homeMenus).length === 0 || payload) {
 
             const menus = []
-            const menuCodes = []
             state.menus.forEach(item => {
                 const subMenus = item.subMenus
                 subMenus.forEach(item => {
-                    menuCodes.push(item.code)
                     menus.push(item)
                 })
             })
@@ -73,7 +71,7 @@ const actions = {
             const homeMenus = isArray(res.data && res.data.details)
             if (homeMenus.length > 0) {
                 // 首页菜单
-                state.homeMenus = homeMenus.filter(item => menuCodes.find(code => code === item.code))
+                state.homeMenus = menus.filter(item => homeMenus.find(homeItem => homeItem.code === item.code))
             } else {
                 // 首页默认菜单
                 const homeMenusCode = ['miniapp-outStock', 'miniapp-inStock', 'miniapp-inStockAsk', 'miniapp-stocktaking', 'miniapp-StockForewarn']

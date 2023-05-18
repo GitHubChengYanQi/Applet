@@ -753,7 +753,6 @@ export default {
   .users {
     overflow: hidden auto;
     background-color: #fff;
-    padding: 0 12px;
   }
 
 }
@@ -766,7 +765,7 @@ export default {
 }
 
 .item {
-  padding: 0 6px;
+  padding-left: 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
