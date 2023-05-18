@@ -5,10 +5,10 @@
         :key="index"
     >
       <view class="item">
-        <view @click="openClick(item)" v-if="isArray(item.children).length > 0">
+        <view @click="openClick(item)" v-if="expandIcon && isArray(item.children).length > 0">
           <u-icon :name="open(item) ? 'arrow-down-fill' : 'play-right-fill'" />
         </view>
-        <view v-else class="space" />
+        <view v-else-if="expandIcon" class="space" />
         <view class="title" @click="onCheck(item)">
           <Check
               :value="radio ? (value.key+'') === (item.key+'') : value.find(valueItem=>(valueItem.key+'') === (item.key+''))"
@@ -44,7 +44,7 @@ import Icon from "../Icon";
 export default {
   name: 'Tree',
   components: {Icon, Check, Tree},
-  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse', 'icon'],
+  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse', 'icon', 'expandIcon'],
   data() {
     return {
       isArray,
