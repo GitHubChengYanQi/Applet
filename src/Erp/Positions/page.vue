@@ -164,7 +164,6 @@ export default {
       error: false,
       safeAreaHeight,
       pageContainerShow: false,
-      userActionShow: false,
       positionName: '',
       admin: false,
       getPositionAuthsLoading: false,
@@ -386,6 +385,18 @@ export default {
       })
     },
     afterleave() {
+      if (this.authShow || this.actionShow || this.allActionShow|| this.$refs.addPositionModal.showStatus() || this.$refs.modal.showStatus()) {
+        this.pageContainerShow = false
+        this.authShow = false
+        this.actionShow = false
+        this.allActionShow = false
+        this.$refs.addPositionModal.close()
+        this.$refs.modal.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.positionPage.length > 1
+        }, 0)
+        return
+      }
       if (this.positionPage.length > 1) {
         this.pageContainerShow = false
         this.positionPageClick(this.positionPage[this.positionPage.length - 2])
@@ -544,10 +555,6 @@ export default {
         }
       })
       return newPositionList
-    },
-    editUser(user) {
-      this.actionUser = user
-      this.userActionShow = true
     }
   }
 }

@@ -8,7 +8,7 @@ export const routes = [
         url: '/Sku/Manage/index'
     },
     {
-        name: '仓库管理',
+        name: '仓储管理',
         key: 'miniapp-storeHouse',
         url: '/Erp/StoreHouse/index'
     },

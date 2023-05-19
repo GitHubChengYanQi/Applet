@@ -302,6 +302,13 @@ export default {
     }
   },
   methods: {
+    showStatus() {
+      return this.$refs.modal.showStatus() || this.moveActionShow;
+    },
+    close() {
+      this.$refs.modal.close();
+      this.moveActionShow = false
+    },
     skuResultFormat(item) {
       const media = this.skuImages.find(mediaItem => mediaItem.mediaId === item.images?.split(',')[0]) || {}
       return {

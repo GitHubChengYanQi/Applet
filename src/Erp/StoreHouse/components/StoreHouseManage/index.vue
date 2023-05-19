@@ -135,6 +135,12 @@ export default {
     }
   },
   methods: {
+    showStatus() {
+      return this.$refs.modal.showStatus();
+    },
+    close() {
+      return this.$refs.modal.close();
+    },
     move(e, index) {
       if (!e.detail.source) {
         return

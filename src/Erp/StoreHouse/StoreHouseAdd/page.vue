@@ -5,7 +5,7 @@
       <view
           class="myMap"
           :style="{
-        height:`${height}px`
+        height:`${height + 20}px`
       }"
       >
         <map
@@ -61,6 +61,7 @@
               v-model="formData.palce"
               :selectList="searchPlacces"
               :noAutoFocus="!autoFocus"
+              :searchPlaccesLoading="searchPlaccesLoading"
               @select="selectPlace"
               @selectAddress="selectAddress"
               @onTouchstart="touchstart"
@@ -96,16 +97,15 @@
                     </view>
                   </view>
                 </slot>
-                <view class="storePalce" @click="keyboardInput('palce')">
+                <view
+                    class="storePalce formItem"
+                    @click="keyboardInput('palce')"
+                    :style="{color:formData.palce ? '#000000' : '#999999'}"
+                >
                   <u-icon name="map-fill" color="#257BDE" />
-                  <u--textarea
-                      border="none"
-                      autoHeight
-                      disabled
-                      :adjustPosition="false"
-                      v-model="formData.palce"
-                      placeholder="请输入仓库地点"
-                  />
+                  <view style="flex-grow: 1">
+                    {{ formData.palce || '请输入仓库地点' }}
+                  </view>
                 </view>
               </uni-forms-item>
 
@@ -118,7 +118,7 @@
                     </view>
                   </view>
                 </slot>
-                <view id="storeName" @click="onName">
+                <view id="storeName" class="formItem" @click="onName">
                   <u--input
                       border="bottom"
                       v-model="formData.name"
@@ -134,7 +134,7 @@
                     仓库描述
                   </view>
                 </slot>
-                <view id="storeDescribe" @click="onDescribe">
+                <view id="storeDescribe" class="formItem" @click="onDescribe">
                   <u--input
                       border="bottom"
                       v-model="formData.describe"
@@ -287,6 +287,7 @@ export default {
       },
       searchPlacces: [],
       autoFocus: true,
+      searchPlaccesLoading: false
     }
   },
   created() {
@@ -342,21 +343,24 @@ export default {
       if (this.refreshLoading) {
         return
       }
-      const _this = this
       clearTimeout(this.time);
       this.time = setTimeout(() => {
-        wx.request({
-          //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-          url: `https://apis.map.qq.com/ws/place/v1/search?key=${process.env.VUE_APP_MAP_KEY}&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
-          success(res) {
-            _this.searchPlacces = isArray(res?.data?.data).map(item => ({
-              ...item,
-              title: item.title,
-              describe: item.address
-            }))
-          },
-        })
+        this.searchAddress(value)
       }, 500);
+    },
+    formData: {
+      deep: true,
+      handler(formData) {
+        if (Object.keys(formData).length > 1) {
+          uni.enableAlertBeforeUnload({
+            message: '数据未提交，是否退出？',
+            success: () => {
+            }
+          })
+        } else {
+          uni.disableAlertBeforeUnload()
+        }
+      }
     }
   },
   async mounted() {
@@ -365,6 +369,24 @@ export default {
     await this.init()
   },
   methods: {
+    searchAddress(value) {
+      const _this = this
+      this.searchPlaccesLoading = true
+      wx.request({
+        //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
+        url: `https://apis.map.qq.com/ws/place/v1/search?key=${process.env.VUE_APP_MAP_KEY}&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
+        success(res) {
+          _this.searchPlacces = isArray(res?.data?.data).map(item => ({
+            ...item,
+            title: item.title,
+            describe: item.address
+          }))
+        },
+        complete() {
+          _this.searchPlaccesLoading = false
+        }
+      })
+    },
     async getDetail(storehouseId) {
       await Storehouse.storeHouseDetailV2_0({
         data: {
@@ -433,23 +455,27 @@ export default {
         }
         this.moveToLocation()
         const _this = this
+        if (!search) {
+          _this.keyboardInput('palce', true)
+        }
+        this.searchPlaccesLoading = true
         wx.request({
           //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
           url: `https://apis.map.qq.com/ws/place/v1/explore?key=${process.env.VUE_APP_MAP_KEY}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
           success(res) {
-            if (!search) {
-              _this.keyboardInput('palce', true)
-            }
             _this.searchPlacces = isArray(res?.data?.data).map(item => ({
               ...item,
               title: item.title,
               describe: item.address
             }))
           },
+          complete() {
+            _this.searchPlaccesLoading = false
+          }
         })
       }
     },
-    clickMap(){
+    clickMap() {
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
       this.height = windowHeight * 0.5
       this.y = this.moveY
@@ -459,9 +485,9 @@ export default {
       }, 0)
     },
     change(e) {
-      if (!this.startMove) {
-        return
-      }
+      // if (!this.startMove) {
+      //   return
+      // }
       this.move = true
       this.moveY = e.detail.y
       const windowHeight = this.$store.state.systemInfo.systemInfo.windowHeight
@@ -569,7 +595,13 @@ export default {
       setTimeout(() => {
         this.y = windowHeight * ((50 - this.top) / 100)
         this.moveY = windowHeight * ((50 - this.top) / 100)
-        this.regionchange({type: 'search'})
+        if (!noAutoFocus){
+          if (this.formData.palce) {
+            this.searchAddress(this.formData.palce)
+          } else {
+            this.regionchange({type: 'search'})
+          }
+        }
       }, 0)
     },
     keyboardInputOk() {
@@ -593,7 +625,7 @@ export default {
       if (address) {
         this.formData = {
           ...this.formData,
-          palce: address.address
+          palce: address.title
         }
         this.location = {
           longitude: address.location.lng,
@@ -635,6 +667,7 @@ export default {
               this.$refs.modal.dialog({
                 title: "修改成功！",
                 onConfirm() {
+                  uni.disableAlertBeforeUnload()
                   uni.navigateBack()
                   return true
                 }
@@ -671,6 +704,7 @@ export default {
               confirmText: '继续添加',
               cancelText: '返回',
               onCancel() {
+                uni.disableAlertBeforeUnload()
                 uni.navigateBack()
                 return true
               },
@@ -844,6 +878,11 @@ export default {
   align-items: center;
   gap: 4px;
   border-bottom: solid 1px #dadbde;
+  padding: 8px 0;
+
+  .u-input {
+    background-color: #fff !important;
+  }
 }
 
 .selectPlace {
@@ -857,6 +896,10 @@ export default {
   width: calc(100vw - 24px);
   z-index: 1;
   padding: 12px 12px 0;
+}
+
+.formItem {
+  width: calc(100% - 24px);
 }
 
 </style>

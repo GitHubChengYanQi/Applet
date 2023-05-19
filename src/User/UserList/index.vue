@@ -19,10 +19,6 @@ import Loading from "../../components/Loading";
 export default {
   components: {Loading, Page, Auth},
   onLoad(option) {
-    // uni.enableAlertBeforeUnload({
-    //   message: '请您填写数据',
-    //   success:()=>{}
-    // })
     this.type = option.type // 选择用户
     this.show = !option.type // 查看用户列表
     const curren = this

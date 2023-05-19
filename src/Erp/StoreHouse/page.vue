@@ -14,6 +14,7 @@
     />
 
     <StoreHouseManage
+        ref="storeHouseManage"
         v-else
         :admin="admin"
         :tree="tree"
@@ -31,13 +32,6 @@
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
         <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
-        <Modal ref="addStoreHouseModal">
-          <u--input
-              placeholder="请输入仓库名称"
-              clearable
-              v-model="storeHouseName"
-          />
-        </Modal>
       </view>
       <view class="action">
         <LinkButton :disabled="this.storeHousePage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
@@ -108,7 +102,6 @@ export default {
   },
   data() {
     return {
-      authShow: false,
       storeHousePage: [],
       loading: true,
       storeHouseList: [],
@@ -120,8 +113,6 @@ export default {
       error: false,
       safeAreaHeight,
       pageContainerShow: false,
-      userActionShow: false,
-      storeHouseName: '',
       admin: false,
       allActionList: [
         {
@@ -247,6 +238,17 @@ export default {
       }
     },
     afterleave() {
+      if (this.actionShow  || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
+        this.pageContainerShow = false
+        this.actionShow = false
+        this.allActionShow = false
+        this.$refs.modal.close()
+        this.$refs.storeHouseManage.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.storeHousePage.length > 1
+        }, 0)
+        return
+      }
       if (this.storeHousePage.length > 1) {
         this.pageContainerShow = false
         this.storeHousePageClick(this.storeHousePage[this.storeHousePage.length - 2])

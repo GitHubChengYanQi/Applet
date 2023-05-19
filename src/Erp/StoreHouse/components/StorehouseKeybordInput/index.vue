@@ -23,9 +23,10 @@
       </view>
     </view>
 
+    <Loading skeleton v-if="searchPlaccesLoading" />
     <scroll-view
+        v-else
         class="selectList"
-        v-if="isArray(selectList).length > 0"
         :scroll-y="moveY === 0"
         :style="{
           maxHeight: `calc(${100 - top}vh - 33px - 103px - ${safeAreaHeight(this,8)}px)`,
@@ -59,14 +60,15 @@
 import LinkButton from "../../../../components/LinkButton";
 import {isArray, safeAreaHeight} from "../../../../util/Tools";
 import MyButton from "../../../../components/MyButton";
+import Loading from "../../../../components/Loading";
 
 export default {
-  components: {MyButton, LinkButton},
+  components: {Loading, MyButton, LinkButton},
   options: {
     styleIsolation: 'shared'
   },
   name: 'StorehouseKeybordInput',
-  props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus', 'moveY', 'top'],
+  props: ['show', 'placeholder', 'value', 'title', 'selectList', 'noAutoFocus', 'moveY', 'top', 'searchPlaccesLoading'],
   data() {
     return {
       safeAreaHeight,

@@ -54,6 +54,7 @@
     </view>
     <UserManage
         v-else
+        ref="userManage"
         :deptPage="deptPage"
         :searchValue="searchValue"
         @deptPageClick="deptPageClick"
@@ -199,6 +200,11 @@ export default {
     this.getList()
 
     const _this = this
+
+    uni.$on('handleJoinTenant', () => {
+      _this.getList(true)
+    })
+
     uni.$on('saveUserSuccess', (userInfo) => {
       _this.users = _this.users.map(item => {
         if (item.userId === userInfo.userId) {
@@ -293,7 +299,7 @@ export default {
         const thisDeptPage = this.deptPage[this.deptPage.length - 1]
         if (thisDeptPage) {
           const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
-          const ids = [thisDeptPage.key, ...this.getDeptChildrens(thisDept.children)]
+          const ids = [...this.getDeptChildrens(thisDept.children)]
           if (this.searchValue) {
             total = this.deptUsers.length
           } else if (this.deptPage.length === 1) {
@@ -304,7 +310,7 @@ export default {
           } else {
             total = this.users.filter(item => {
               const deptIds = isArray(item.deptList).map(item => item?.deptId)
-              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
+              return [...ids, thisDeptPage.key].find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
             }).length
           }
         }
@@ -486,6 +492,19 @@ export default {
       }
     },
     afterleave() {
+      if (this.addUserShow || this.actionShow || this.userActionShow || this.$refs.addDeptModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.userManage.showStatus()) {
+        this.pageContainerShow = false
+        this.addUserShow = false
+        this.actionShow = false
+        this.userActionShow = false
+        this.$refs.addDeptModal.close()
+        this.$refs.modal.close()
+        this.$refs.userManage.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.deptPage.length > 1
+        }, 0)
+        return
+      }
       if (this.deptPage.length > 1) {
         this.pageContainerShow = false
         this.deptPageClick(this.deptPage[this.deptPage.length - 2])
@@ -494,7 +513,7 @@ export default {
         }, 0)
       }
     },
-    async getList() {
+    async getList(refresh) {
       this.loading = true
 
       await Tenant.waitJoinCount({
@@ -529,6 +548,11 @@ export default {
       this.users = users
 
       this.loading = false
+
+      if (refresh) {
+        return
+      }
+
       if (newDepts.length === 0) {
         this.noDept = true
         this.renderList(users)

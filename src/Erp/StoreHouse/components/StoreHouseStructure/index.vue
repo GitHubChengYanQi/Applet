@@ -139,6 +139,7 @@ export default {
           return this.sorts
         }
       }
+      return []
     }
   },
   data() {

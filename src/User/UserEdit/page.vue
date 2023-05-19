@@ -208,7 +208,7 @@ export default {
       tenant: {},
       loading: true,
       error: false,
-      positionIndex: 0,
+      positionIndex: 1,
       positionPickerShow: false,
       positionLoading: false,
       saveLoading: false,
@@ -328,7 +328,8 @@ export default {
       })
     },
     openPosition() {
-      this.positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0]) || 0
+      const positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0])
+      this.positionIndex = positionIndex > 0 ? positionIndex : 0
       this.positionPickerShow = true
       this.positionShow = true
     },
