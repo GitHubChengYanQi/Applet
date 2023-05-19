@@ -128,7 +128,7 @@
                 </view>
               </uni-forms-item>
 
-              <uni-forms-item name="describe">
+              <uni-forms-item name="description">
                 <slot name="label">
                   <view class="label">
                     仓库描述
@@ -137,7 +137,7 @@
                 <view id="storeDescribe" class="formItem" @click="onDescribe">
                   <u--input
                       border="bottom"
-                      v-model="formData.describe"
+                      v-model="formData.description"
                       placeholder="请输入仓库描述"
                       :adjustPosition="false"
                   />
@@ -398,6 +398,7 @@ export default {
           name: data.name,
           palce: data.palce,
           pid: data.pid,
+          description: data.description
         }
         this.classList = isArray(data.spuClassResults).map(item => ({
           key: item.spuClassificationId,
@@ -595,7 +596,7 @@ export default {
       setTimeout(() => {
         this.y = windowHeight * ((50 - this.top) / 100)
         this.moveY = windowHeight * ((50 - this.top) / 100)
-        if (!noAutoFocus){
+        if (!noAutoFocus) {
           if (this.formData.palce) {
             this.searchAddress(this.formData.palce)
           } else {
@@ -655,7 +656,6 @@ export default {
                 ...this.formData,
                 ...this.location,
                 spuClassIds: isArray(this.classList).map(item => item.key),
-                classList: undefined,
                 sort
               }
             }).then((res) => {
@@ -687,7 +687,6 @@ export default {
               ...this.formData,
               ...this.location,
               spuClassIds: isArray(this.classList).map(item => item.key),
-              classList: undefined
             }
           }).then((res) => {
             uni.$emit('storeHouseAddSuccess', {

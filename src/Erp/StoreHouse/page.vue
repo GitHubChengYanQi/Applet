@@ -120,6 +120,10 @@ export default {
           key: 'add'
         },
         {
+          name: '查看库位',
+          key: 'position'
+        },
+        {
           name: '修改仓库',
           key: 'edit',
         },
@@ -142,15 +146,15 @@ export default {
     this.admin = tenant.admin
     const _this = this
     uni.$on('storeHouseAddSuccess', () => {
-      _this.getList(true,_this.storeHousePage[_this.storeHousePage.length - 1].key)
+      _this.getList(true, _this.storeHousePage[_this.storeHousePage.length - 1].key)
     })
 
     uni.$on('storeHouseEditSuccess', (result) => {
-      _this.getList(true,_this.storeHousePage[_this.storeHousePage.length - 1].key)
+      _this.getList(true, _this.storeHousePage[_this.storeHousePage.length - 1].key)
 
       _this.storeHousePage = _this.storeHousePage.map(item => {
         if (item.key === result.id) {
-          return {...item, name:  result.name}
+          return {...item, name: result.name}
         }
         return item
       })
@@ -160,6 +164,10 @@ export default {
   computed: {
     actionList() {
       return [
+        {
+          name: '查看当前仓库库位',
+          key: 'position',
+        },
         {
           name: '修改当前仓库',
           key: 'edit',
@@ -177,6 +185,11 @@ export default {
       switch (key) {
         case 'add':
           this.addStoreHouse(this.allActionData.key + '')
+          break;
+        case 'position':
+          uni.navigateTo({
+            url: `/Erp/Positions/index?storehouseId=${this.allActionData.key}&store=${this.allActionData.title}`
+          })
           break;
         case 'edit':
           this.edit({name: this.allActionData.title, key: this.allActionData.key}, true)
@@ -235,10 +248,13 @@ export default {
         case 'auth':
           this.bind(thisStoreHouse)
           break;
+        case 'position':
+          this.allActionSelect({key})
+          break;
       }
     },
     afterleave() {
-      if (this.actionShow  || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
+      if (this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
         this.pageContainerShow = false
         this.actionShow = false
         this.allActionShow = false
@@ -266,9 +282,9 @@ export default {
 
       this.tree = this.format(res.data || [])
       if (refresh) {
-        if (topKey === '0'){
+        if (topKey === '0') {
           this.listChange(this.tree)
-        }else {
+        } else {
           const thisStoreHouse = this.findStoreHouse(topKey, this.tree)
           this.listChange(thisStoreHouse.children)
         }

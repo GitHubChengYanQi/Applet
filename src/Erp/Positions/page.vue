@@ -10,7 +10,7 @@
     <Loading
         skeleton-type="page"
         skeleton
-        v-if="loading"
+        v-else-if="loading"
     />
     <view v-else class="selectUser">
       <view class="header">
@@ -88,7 +88,7 @@
     >
       <Loading skeleton v-if="deptTreeLoading" />
       <view v-else class="deptTree">
-        <Tree :data="deptTree" v-model="positionAuths" />
+        <Tree  icon="icon-bumen1" :data="deptTree" v-model="positionAuths" />
       </view>
     </Popup>
 

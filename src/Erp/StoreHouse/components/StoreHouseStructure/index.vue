@@ -198,11 +198,12 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
-    moveEnd(e, thisIndex) {
+    moveEnd(e) {
 
       if (typeof this.isMove !== 'number') {
         return
       }
+      const thisIndex = this.isMove
       this.isMove = null
       const y = this.movableView
       let newY = 0

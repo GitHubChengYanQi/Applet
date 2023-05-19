@@ -302,6 +302,12 @@ export default {
     this.resetUserMove()
   },
   methods: {
+    showStatus() {
+      return this.$refs.modal.showStatus();
+    },
+    close() {
+      return this.$refs.modal.close();
+    },
     move(e, index) {
       if (!e.detail.source) {
         return
@@ -361,11 +367,11 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
-    moveEnd(e, thisIndex) {
-
+    moveEnd(e) {
       if (typeof this.isMove !== 'number') {
         return
       }
+      const thisIndex = this.isMove
       this.isMove = null
       const y = this.movableView
       let newY = 0
@@ -418,6 +424,7 @@ export default {
           })
           this.moveActionData = {...this.depts[thisIndex], thisIndex, inIndex: this.inIndex}
         } else if (this.moveEndIndex !== null) {
+
           const depts = this.depts.map((item, index) => {
             if (moveIndex > 0) {
               if (index < this.moveEndIndex && index >= thisIndex) {
@@ -569,6 +576,7 @@ export default {
             })
             return new Promise((resolve) => {
               User.userEdit({
+              // User.userChangeDept({
                 data: {
                   userId: thisUser.userId,
                   deptList: newDeptList.filter(item => item)

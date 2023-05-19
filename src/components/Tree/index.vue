@@ -4,12 +4,12 @@
         v-for="(item,index) in data"
         :key="index"
     >
-      <view class="item">
+      <view class="tree-item">
         <view @click="openClick(item)" v-if="expandIcon && isArray(item.children).length > 0">
           <u-icon :name="open(item) ? 'arrow-down-fill' : 'play-right-fill'" />
         </view>
-        <view v-else-if="expandIcon" class="space" />
-        <view class="title" @click="onCheck(item)">
+        <view v-else-if="expandIcon" class="tree-space" />
+        <view class="tree-title" @click="onCheck(item)">
           <Check
               :value="radio ? (value.key+'') === (item.key+'') : value.find(valueItem=>(valueItem.key+'') === (item.key+''))"
           />
@@ -17,7 +17,7 @@
           {{ item.title }}
         </view>
       </view>
-      <view class="children" v-show="open(item)">
+      <view class="tree-children" v-show="open(item)">
         <Tree
             :collapse="collapse"
             :radio="radio"
@@ -141,13 +141,13 @@ export default {
 
 
 <style lang="scss">
-.item {
+.tree-item {
   //background-color: #fff;
   display: flex;
   align-items: center;
   gap: 8px;
 
-  .title {
+  .tree-title {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -156,13 +156,13 @@ export default {
     border-bottom: 1px solid #EDEDED;
   }
 
-  .space {
+  .tree-space {
     width: 16px;
   }
 
 }
 
-.children {
+.tree-children {
   padding-left: 12px;
 }
 
