@@ -6,67 +6,37 @@
         :overlay="false"
         @afterleave="afterleave"
     />
+
     <Empty v-if="error" type="error" description="获取信息异常" />
+
     <Loading
         skeleton-type="page"
         skeleton
         v-else-if="loading"
     />
-    <view v-else class="selectUser">
-      <view class="header">
-        <uni-breadcrumb separator="/">
-          <uni-breadcrumb-item v-for="(route,index) in positionPage" :key="index">
-            <view @click="positionPageClick(route)">
-              {{ route.name }}
-            </view>
-          </uni-breadcrumb-item>
-        </uni-breadcrumb>
-      </view>
-      <view
-          class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
-      >
-        <view
-            v-if="positionPage.length > 1"
-            class="item"
-            @click="positionPageClick(positionPage[positionPage.length - 2])"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-fanhui" size="20" />
-          </view>
-          <view class="backDept">返回上级库位</view>
-        </view>
-        <Empty
-            v-if="positionList.length === 0"
-            description="暂无数据"
-        />
-        <view
-            v-for="item in positionList"
-            :key="item.key"
-            class="item"
-            @click="onCheckPosition(item)"
-        >
-          <view class="deptIcon">
-            <Icon icon="icon-pandiankuwei1" size="30" />
-          </view>
-          {{ item.title }}
-        </view>
-      </view>
-    </view>
+
+    <PositionManage
+        ref="positionManage"
+        v-else
+        :admin="admin"
+        :tree="tree"
+        :list="list"
+        :page="page"
+        :itemWidth="itemWidth"
+        :movableViewY="movableViewY"
+        :movableViewX="movableViewX"
+        @listChange="listChange"
+        @onCheck="onCheck"
+        @pageClick="pageClick"
+        @treeChange="(newTree)=>tree = newTree"
+    />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
         <LinkButton @click="addPosition">添加子库位</LinkButton>
-        <Modal ref="addPositionModal">
-          <u--input
-              placeholder="请输入库位名称"
-              clearable
-              v-model="positionName"
-          />
-        </Modal>
       </view>
       <view class="action">
-        <LinkButton :disabled="this.positionPage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
+        <LinkButton :disabled="this.page.length <= 1" @click="actionShow = true">更多管理</LinkButton>
         <u-action-sheet
             cancelText="取消"
             :actions="actionList"
@@ -88,7 +58,7 @@
     >
       <Loading skeleton v-if="deptTreeLoading" />
       <view v-else class="deptTree">
-        <Tree  icon="icon-bumen1" :data="deptTree" v-model="positionAuths" />
+        <Tree icon="icon-bumen1" :data="deptTree" v-model="positionAuths" />
       </view>
     </Popup>
 
@@ -113,7 +83,7 @@ import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
 import Empty from "../../components/Empty";
 import Avatar from "../../components/Avatar";
-import {safeAreaHeight} from "../../util/Tools";
+import {isArray, safeAreaHeight} from "../../util/Tools";
 import MyButton from "../../components/MyButton";
 import Check from "../../components/Check";
 import Icon from "../../components/Icon";
@@ -128,6 +98,8 @@ import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import {Position} from "MES-Apis/lib/Position/promise";
+import PositionManage from "./components/PositionManage";
+import {addChildren, delChildren} from "./index";
 
 export default {
   options: {
@@ -136,6 +108,7 @@ export default {
   props: ['storehouseId', 'store'],
   name: 'SelectUser',
   components: {
+    PositionManage,
     Tree,
     Popup,
     Modal,
@@ -153,9 +126,9 @@ export default {
   data() {
     return {
       authShow: false,
-      positionPage: [],
+      page: [],
       loading: true,
-      positionList: [],
+      list: [],
       deptTree: [],
       deptTreeLoading: false,
       tree: [],
@@ -176,7 +149,7 @@ export default {
           key: 'add'
         },
         {
-          name: '修改库位名称',
+          name: '修改库位',
           key: 'edit',
         },
         {
@@ -196,18 +169,41 @@ export default {
         },
       ],
       allActionShow: false,
-      allActionData: {}
+      allActionData: {},
+      itemWidth: 0,
+      movableViewY: 0,
+      movableViewX: 0,
     }
   },
   mounted() {
+    const tenant = this.$store.state.userInfo.tenant || {}
+    this.admin = tenant.admin
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
     this.getList()
     this.getDeptTree()
+
+    const _this = this
+
+    uni.$on('positionsAddSuccess', () => {
+      _this.getList(true, _this.page[_this.page.length - 1].key)
+    })
+
+    uni.$on('positionsEditSuccess', (result) => {
+      _this.getList(true, _this.page[_this.page.length - 1].key)
+
+      _this.page = _this.page.map(item => {
+        if (item.key === result.id) {
+          return {...item, name: result.name}
+        }
+        return item
+      })
+    })
   },
   computed: {
     actionList() {
       return [
         {
-          name: '修改当前库位名称',
+          name: '修改当前库位',
           key: 'edit',
         },
         {
@@ -224,7 +220,7 @@ export default {
           name: '绑定物料',
           color: '#007aff',
           key: 'bind',
-          disabled: this.positionList.length > 0
+          disabled: this.list.length > 0
         },
       ]
     }
@@ -267,54 +263,8 @@ export default {
       }
     },
     edit(thisPosition, current) {
-      const _this = this
-      _this.positionName = thisPosition.name
-      _this.$refs.addPositionModal.dialog({
-        title: '修改当前库位名称',
-        only: false,
-        confirmText: '修改',
-        onConfirm() {
-          return new Promise((resolve) => {
-            if (!_this.positionName) {
-              Message.toast('请输入库位名称！')
-              resolve(false)
-              return
-            }
-            Storehouse.positionsEdit({
-              data: {
-                storehousePositionsId: thisPosition.key,
-                name: _this.positionName
-              }
-            }).then(() => {
-              const newPosition = {
-                key: thisPosition.key,
-                title: _this.positionName
-              }
-              if (current) {
-                _this.positionList = _this.positionList.map(item => {
-                  if (item.key === newPosition.key) {
-                    return {...item, title: newPosition.title}
-                  }
-                  return item
-                })
-              } else {
-                _this.positionPage = _this.positionPage.map(item => {
-                  if (item.key === newPosition.key) {
-                    return {...item, name: newPosition.title}
-                  }
-                  return item
-                })
-              }
-              _this.tree = _this.editPositionChildren(newPosition, _this.tree)
-              resolve(true)
-            }).catch(() => {
-              _this.$refs.modal.dialog({
-                title: Init.getNewErrorMessage() || '修改失败!'
-              })
-              resolve(true)
-            })
-          })
-        }
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionsAdd/index?storehousePositionsId=${thisPosition.key}&storehouseId=${this.storehouseId}&pid=${this.page[this.page.length - (current ? 1 : 2)].key}&store=${this.store}`
       })
     },
     del(thisPosition, current) {
@@ -329,11 +279,11 @@ export default {
             Storehouse.positionsDelete({
               data: {storehousePositionsId: thisPosition.key}
             }).then(() => {
-              _this.tree = _this.delPositionChildren(thisPosition.key, _this.tree)
+              _this.tree = delChildren(thisPosition.key, _this.tree)
               if (current) {
-                _this.positionList = _this.positionList.filter(item => item.key !== thisPosition.key)
+                _this.listChange(_this.list.filter(item => item.key !== thisPosition.key))
               } else {
-                _this.positionPageClick(_this.positionPage[_this.positionPage.length - 2])
+                _this.pageClick(_this.page[_this.page.length - 2])
               }
               resolve(true)
             }).catch(() => {
@@ -356,7 +306,7 @@ export default {
       this.authData = thisPosition
     },
     actionSelect({key}) {
-      const thisPosition = this.positionPage[this.positionPage.length - 1]
+      const thisPosition = this.page[this.page.length - 1]
       switch (key) {
         case 'edit':
           this.edit(thisPosition)
@@ -368,7 +318,7 @@ export default {
           this.bind(thisPosition)
           break;
         case 'auth':
-          this.bind(thisPosition)
+          this.auth(thisPosition)
           break;
       }
     },
@@ -385,36 +335,42 @@ export default {
       })
     },
     afterleave() {
-      if (this.authShow || this.actionShow || this.allActionShow|| this.$refs.addPositionModal.showStatus() || this.$refs.modal.showStatus()) {
+      if (this.authShow || this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.positionManage.showStatus()) {
         this.pageContainerShow = false
         this.authShow = false
         this.actionShow = false
         this.allActionShow = false
-        this.$refs.addPositionModal.close()
         this.$refs.modal.close()
+        this.$refs.positionManage.close()
         setTimeout(() => {
-          this.pageContainerShow = this.positionPage.length > 1
+          this.pageContainerShow = this.page.length > 1
         }, 0)
         return
       }
-      if (this.positionPage.length > 1) {
+      if (this.page.length > 1) {
         this.pageContainerShow = false
-        this.positionPageClick(this.positionPage[this.positionPage.length - 2])
+        this.pageClick(this.page[this.page.length - 2])
         setTimeout(() => {
-          this.pageContainerShow = this.positionPage.length > 1
+          this.pageContainerShow = this.page.length > 1
         }, 0)
       }
     },
     getDeptTree() {
       this.deptTreeLoading = true
       Dept.deptTree().then((res) => {
-        this.deptTree = res.data || []
+        this.deptTree = [
+          {
+            title: this.$store.state.userInfo.tenant.name,
+            key: '0',
+            children: isArray(res.data)[0]?.children
+          }
+        ]
       }).catch(() => {
       }).finally(() => {
         this.deptTreeLoading = false
       })
     },
-    async getList() {
+    async getList(refresh, topKey) {
       this.loading = true
       const res = await Storehouse.positionsTreeView({
         params: {
@@ -426,10 +382,20 @@ export default {
       this.loading = false
 
       this.tree = res.data || []
-      this.positionList = res.data || []
-      this.positionPage = [{key: '0', name: this.store}]
+
+      if (refresh) {
+        if (topKey === '0') {
+          this.listChange(this.tree)
+        } else {
+          const thisStoreHouse = this.findPosition(topKey, this.tree)
+          this.listChange(thisStoreHouse.children)
+        }
+      } else {
+        this.listChange(res.data || [])
+        this.page = [{key: '0', name: this.store}]
+      }
     },
-    async onCheckPosition(position) {
+    async onCheck(position) {
       const thisPosition = this.findPosition(position.key, this.tree) || {}
       const children = thisPosition.children || []
       if (children.length === 0) {
@@ -437,21 +403,21 @@ export default {
         this.allActionData = position
         return
       }
-      this.positionList = children
-      this.positionPage = [...this.positionPage, {key: thisPosition.key, name: thisPosition.title}]
+      this.listChange(children)
+      this.page = [...this.page, {key: thisPosition.key, name: thisPosition.title}]
       this.pageContainerShow = true
     },
-    async positionPageClick(route) {
+    async pageClick(route) {
       if (route.key === '0') {
-        this.positionList = this.tree
+        this.listChange(this.tree)
       } else {
         const thisPosition = this.findPosition(route.key, this.tree) || {}
-        this.positionList = thisPosition.children || []
+        this.listChange(thisPosition.children || [])
       }
 
       const newPage = []
       let stop = false
-      this.positionPage.forEach(item => {
+      this.page.forEach(item => {
         if (!stop) {
           newPage.push(item)
         }
@@ -459,65 +425,19 @@ export default {
           stop = true
         }
       })
-      this.positionPage = newPage
+      this.page = newPage
       if (newPage.length === 1) {
         this.pageContainerShow = false
       }
     },
     addPosition(pid) {
-      const _this = this
-      _this.positionName = ''
-      _this.$refs.addPositionModal.dialog({
-        title: '添加子库位',
-        only: false,
-        confirmText: '添加',
-        onConfirm() {
-          return new Promise((resolve) => {
-            if (!_this.positionName) {
-              Message.toast('请输入库位名称！')
-              resolve(false)
-              return
-            }
-            Storehouse.positionsAdd({
-              data: {
-                name: _this.positionName,
-                sort: _this.positionList.length,
-                storehouseId: _this.storehouseId,
-                pid: pid || _this.positionPage[_this.positionPage.length - 1].key
-              }
-            }).then((res) => {
-              const newPosition = {
-                key: res.data,
-                children: [],
-                title: _this.positionName
-              }
-              if (pid) {
-
-              } else {
-                _this.positionList = [..._this.positionList, newPosition]
-              }
-
-              const key = pid || _this.positionPage[_this.positionPage.length - 1].key
-              if (key === '0') {
-                _this.tree = [..._this.tree, newPosition]
-              } else {
-                _this.tree = _this.addPositionChildren(key, newPosition, _this.tree)
-              }
-
-              resolve(true)
-            }).catch(() => {
-              _this.$refs.modal.dialog({
-                title: Init.getNewErrorMessage() || '添加失败!'
-              })
-              resolve(true)
-            })
-          })
-        }
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}&pid=${pid || this.page[this.page.length - 1].key}&store=${this.store}`
       })
     },
-    findPosition(key, positionList = []) {
+    findPosition(key, list = []) {
       let position = null
-      positionList.forEach(item => {
+      list.forEach(item => {
         if ((key + '') === (item.key + '')) {
           position = item
         } else {
@@ -529,17 +449,8 @@ export default {
       })
       return position
     },
-    addPositionChildren(key, position, positionList = []) {
-      return positionList.map(item => {
-        if ((key + '') === (item.key + '')) {
-          return {...item, children: [...item.children, position]}
-        } else {
-          return {...item, children: this.addPositionChildren(key, position, item.children || [])}
-        }
-      })
-    },
-    editPositionChildren(position, positionList = []) {
-      return positionList.map(item => {
+    editPositionChildren(position, list = []) {
+      return list.map(item => {
         if ((position.key + '') === (item.key + '')) {
           return {...item, ...position}
         } else {
@@ -547,15 +458,17 @@ export default {
         }
       })
     },
-    delPositionChildren(key, positionList = []) {
-      const newPositionList = []
-      positionList.map(item => {
-        if ((key + '') !== (item.key + '')) {
-          newPositionList.push({...item, children: this.delPositionChildren(key, item.children || [])})
-        }
+    listChange(list) {
+      this.list = list
+      this.$nextTick(function () {
+        this.movableViewY = this.page.length > 1 ? 49 : 1
+        this.movableViewX = this.itemWidth - 0.1
+        setTimeout(() => {
+          this.movableViewY = this.page.length > 1 ? 48 : 0
+          this.movableViewX = this.itemWidth
+        }, 0)
       })
-      return newPositionList
-    }
+    },
   }
 }
 </script>
@@ -602,7 +515,7 @@ export default {
   }
 
   .users {
-    overflow: auto;
+    overflow: hidden auto;
     background-color: #fff;
     padding: 0 12px;
   }
@@ -610,11 +523,16 @@ export default {
 }
 
 .item {
-  padding: 6px;
+  padding: 0 6px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 47px;
+
+  .itemTitle {
+    flex-grow: 1;
+  }
 
   .userItem {
     flex-grow: 1;

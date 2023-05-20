@@ -6,7 +6,7 @@
       <Icon icon="icon-pandiankuwei1" size="22" />
       {{ position }}
     </view>
-    <Loading :skeleton="true" v-if="loading" />
+    <Loading :skeleton="true" v-if="list.length === 0 && loading" />
     <Empty description="暂无绑定物料，请添加" v-else-if="list.length === 0" />
     <view v-else :style="{maxHeight:`calc(100vh - 43px - 60px - ${safeAreaHeight(this)}px)`}">
       <view class="bindSkus">
@@ -24,6 +24,8 @@
         </view>
       </view>
     </view>
+
+    <Loading :loading="loading || addLoading" />
 
     <BottomButton
         only
@@ -56,7 +58,7 @@
               <view class="sku">
                 <SkuItem :sku-result="skuResultFormat(item)" extra-width="100px" />
               </view>
-              <view @click="addSku(item.skuId)" v-if="!list.find(bindItem=>bindItem.skuId === item.skuId)">
+              <view @click="addSku(item)" v-if="!list.find(bindItem=>bindItem.skuId === item.skuId)">
                 <u-icon name="plus-circle" color="#007aff" size="24" />
               </view>
             </view>
@@ -88,7 +90,7 @@ import Modal from "../../../components/Modal";
 
 export default {
   components: {Modal, Empty, Loading, Popup, Remove, BottomButton, Icon, SkuItem, List, Search},
-  props: ['storehousePositionsId', 'position', 'store'],
+  props: ['storehousePositionsId', 'position', 'store', 'positionBindSkus'],
   data() {
     return {
       show: false,
@@ -100,11 +102,16 @@ export default {
       skuImages: [],
       skuListSearchValue: '',
       skuListShow: false,
-      loading: false
+      loading: false,
+      addLoading: false
     }
   },
   mounted() {
-    this.getList()
+    if (this.storehousePositionsId) {
+      this.getList()
+    } else {
+      this.list = this.positionBindSkus
+    }
   },
   methods: {
     getList() {
@@ -132,25 +139,31 @@ export default {
       }
     },
     remove(item) {
-      const _this = this
-      this.$refs.modal.dialog({
-        title: '删除后不可恢复，确定删除吗？',
-        only: false,
-        onConfirm() {
-          return new Promise((resolve) => {
-            Storehouse.positionsBindDelete({
-              data: {bindId: item.bindId}
-            }).then(() => {
-              _this.list = _this.list.filter(listItem => listItem.bindId !== item.bindId)
-              resolve(true)
-            }).catch(() => {
-              Message.errorToast('删除失败！')
-              resolve(false)
-            })
+      if (this.storehousePositionsId) {
+        const _this = this
+        this.$refs.modal.dialog({
+          title: '删除后不可恢复，确定删除吗？',
+          only: false,
+          onConfirm() {
+            return new Promise((resolve) => {
+              Storehouse.positionsBindDelete({
+                data: {bindId: item.bindId}
+              }).then(() => {
+                _this.list = _this.list.filter(listItem => listItem.bindId !== item.bindId)
+                resolve(true)
+              }).catch(() => {
+                Message.errorToast('删除失败！')
+                resolve(false)
+              })
 
-          })
-        }
-      })
+            })
+          }
+        })
+      } else {
+        const list = this.list.filter(listItem => listItem.skuId !== item.skuId)
+        this.list = list
+        uni.$emit('positionBindSkus', list)
+      }
     },
     async listSource(skuList, newSkuList) {
       this.skuList = skuList
@@ -164,31 +177,37 @@ export default {
       }).catch(() => {
       })
     },
-    addSku(skuId) {
+    addSku(sku) {
       const _this = this
-      this.addLoading = true
-      Storehouse.positionsBindAdd({
-        data: {
-          positionId: this.storehousePositionsId,
-          skuId: skuId,
-          spuId: skuId
-        }
-      }).then(() => {
-        this.$refs.modal.dialog({
-          title: '添加成功！',
-          onConfirm() {
-            _this.show = false
-            _this.getList()
-            return true
+      if (this.storehousePositionsId) {
+        this.addLoading = true
+        Storehouse.positionsBindAdd({
+          data: {
+            positionId: this.storehousePositionsId,
+            skuId: sku.skuId,
+            spuId: sku.skuId
           }
+        }).then(() => {
+          this.$refs.modal.dialog({
+            title: '添加成功！',
+            onConfirm() {
+              _this.show = false
+              _this.getList()
+              return true
+            }
+          })
+        }).catch(() => {
+          this.$refs.modal.dialog({
+            title: '添加失败！'
+          })
+        }).finally(() => {
+          this.addLoading = false
         })
-      }).catch(() => {
-        this.$refs.modal.dialog({
-          title: '添加失败！'
-        })
-      }).finally(() => {
-        this.addLoading = false
-      })
+      } else {
+        const list = [...this.list, {skuResult: sku, skuId: sku.skuId}]
+        this.list = list
+        uni.$emit('positionBindSkus', list)
+      }
     }
   }
 }

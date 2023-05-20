@@ -274,16 +274,13 @@ export default {
         }
         if (this.deptPage.length === 1) {
           return this.users.filter(item => {
-            const deptIds = isArray(item.deptList).filter(item => {
-              const deptId = item?.deptId || 0
-              return !(deptId === 0 || deptId === '0');
-            })
-            return deptIds.length === 0
+            const deptIds = isArray(item.deptList).filter(item => item).map(item => item?.deptId)
+            return deptIds.length === 0 || deptIds.findIndex(id => (id + '') === '0') > -1
           })
         }
         return this.users.filter(item => {
           const deptIds = isArray(item.deptList).map(item => item?.deptId)
-          return deptIds.find(id => (id + '') === (this.deptPage[this.deptPage.length - 1].key + ''))
+          return deptIds.findIndex(id => (id + '') === (this.deptPage[this.deptPage.length - 1].key + '')) > -1
         })
       } else {
         return []
@@ -516,15 +513,17 @@ export default {
     async getList(refresh) {
       this.loading = true
 
-      await Tenant.waitJoinCount({
-        data: {
-          tenantId: this.$store.state.userInfo.tenant.tenantId,
-        }
-      }).then((res) => {
-        this.waitJoinUserTotal = res.data || 0
-      }).catch(() => {
-        this.error = true
-      })
+      if (this.$store.state.userInfo.tenant.admin) {
+        await Tenant.waitJoinCount({
+          data: {
+            tenantId: this.$store.state.userInfo.tenant.tenantId,
+          }
+        }).then((res) => {
+          this.waitJoinUserTotal = res.data || 0
+        }).catch(() => {
+          this.error = true
+        })
+      }
 
       const res = await Dept.deptTree().catch(() => {
         this.error = true
@@ -671,7 +670,6 @@ export default {
               data: {
                 simpleName: _this.deptName,
                 fullName: _this.deptName,
-                sort: _this.depts.length,
                 description: _this.deptName,
                 pid: _this.noDept ? '0' : _this.deptPage[_this.deptPage.length - 1].key
               }

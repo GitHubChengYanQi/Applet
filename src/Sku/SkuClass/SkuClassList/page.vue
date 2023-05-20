@@ -431,7 +431,9 @@ export default {
 
 .moveItem {
   opacity: 0.5;
-  background-color: #f5f5f5;
+  background-color: #fff;
+  box-shadow: 0 1px 10px rgba(34, 33, 81, 0.15);
+  z-index: 1;
 }
 
 .moveFixItem {

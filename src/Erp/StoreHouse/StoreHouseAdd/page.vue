@@ -88,15 +88,11 @@
                 :rules="rules"
                 validateTrigger="bind"
             >
-              <uni-forms-item name="palce">
-                <slot name="label">
-                  <view class="label">
-                    仓库地点
-                    <view class="required">
-                      <u-badge isDot />
-                    </view>
-                  </view>
-                </slot>
+              <FormItem
+                  name="palce"
+                  label="仓库地点"
+                  required
+              >
                 <view
                     class="storePalce formItem"
                     @click="keyboardInput('palce')"
@@ -107,17 +103,13 @@
                     {{ formData.palce || '请输入仓库地点' }}
                   </view>
                 </view>
-              </uni-forms-item>
+              </FormItem>
 
-              <uni-forms-item name="name">
-                <slot name="label">
-                  <view class="label">
-                    仓库名称
-                    <view class="required">
-                      <u-badge isDot />
-                    </view>
-                  </view>
-                </slot>
+              <FormItem
+                  name="name"
+                  label="仓库名称"
+                  required
+              >
                 <view id="storeName" class="formItem" @click="onName">
                   <u--input
                       border="bottom"
@@ -126,14 +118,12 @@
                       :adjustPosition="false"
                   />
                 </view>
-              </uni-forms-item>
+              </FormItem>
 
-              <uni-forms-item name="description">
-                <slot name="label">
-                  <view class="label">
-                    仓库描述
-                  </view>
-                </slot>
+              <FormItem
+                  name="description"
+                  label="仓库描述"
+              >
                 <view id="storeDescribe" class="formItem" @click="onDescribe">
                   <u--input
                       border="bottom"
@@ -142,17 +132,12 @@
                       :adjustPosition="false"
                   />
                 </view>
-              </uni-forms-item>
+              </FormItem>
 
-              <uni-forms-item name="pid">
-                <slot name="label">
-                  <view class="label">
-                    {{ pid ? '仓库结构' : '上级仓库' }}
-                    <view class="required">
-                      <u-badge isDot />
-                    </view>
-                  </view>
-                </slot>
+              <FormItem
+                  name="pid"
+                  :label="pid ? '仓库结构' : '上级仓库'"
+              >
                 <StoreHouseStructure
                     :current="formData"
                     v-if="pid &&storeHouseData"
@@ -163,7 +148,7 @@
                     ref="storeHouseStructure"
                 />
                 <Tree v-else radio :data="isArray(storeHouseData)" :value="{key:formData.pid}" @input="onPStoreHouse" />
-              </uni-forms-item>
+              </FormItem>
 
             </uni-forms>
           </scroll-view>
@@ -212,6 +197,7 @@ import StorehouseKeybordInput from "../components/StorehouseKeybordInput";
 import {erp_map} from "../../../images/erp/map";
 import BottomButton from "../../../components/BottomButton";
 import StoreHouseStructure from "../components/StoreHouseStructure";
+import FormItem from "../../../components/FormItem";
 
 export default {
   options: {
@@ -219,6 +205,7 @@ export default {
   },
   props: ['storehouseId', 'pid'],
   components: {
+    FormItem,
     StoreHouseStructure,
     BottomButton,
     StorehouseKeybordInput,
@@ -687,13 +674,13 @@ export default {
               ...this.formData,
               ...this.location,
               spuClassIds: isArray(this.classList).map(item => item.key),
+              sort
             }
           }).then((res) => {
             uni.$emit('storeHouseAddSuccess', {
               pid: this.formData.pid,
               id: res.data,
               name: this.formData.name,
-              sort
             })
 
             const _this = this
@@ -819,31 +806,6 @@ export default {
 .storeHouseAddForm {
   padding: 0 12px;
   overflow: auto;
-
-  .uni-forms-item {
-    margin: 0;
-    padding: 12px 0;
-  }
-
-  .label {
-    font-size: 14px;
-    color: #666666;
-    padding: 0;
-    height: fit-content;
-    width: fit-content;
-    position: relative;
-
-    .required {
-      position: absolute;
-      top: 0;
-      right: -4px;
-
-      .u-badge {
-        width: 4px;
-        height: 4px;
-      }
-    }
-  }
 
   .u-textarea--disabled {
     background-color: #fff !important;

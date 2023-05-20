@@ -1,8 +1,8 @@
 <template>
   <view>
-    <view class="StoreHouseStructure">
+    <view class="positionStructure">
       <movable-area
-          class="StoreHouseStructure-movableArea"
+          class="positionStructure-movableArea"
           :style="{
       height:`${childrenList.length * itemHeight + itemHeight + 20}px`,
       width: `${itemWidth * 3}px`,
@@ -21,8 +21,8 @@
                 }"
         >
           <view class="storeItem">
-            <Icon icon="icon-cangkutubiao" size="20" />
-            {{ storeHouseData.name }}
+            <Icon icon="icon-pandiankuwei1" size="20" />
+            {{ positionData.title }}
           </view>
         </movable-view>
         <movable-view
@@ -48,16 +48,26 @@
           <view class="moveLine" v-if="moveIndex === index" />
           <view class="storeItem">
             <view class="storeItemContent">
-              <Icon icon="icon-cangkutubiao" size="20" />
-              {{ item.name }}
-              <MyButton
-                  v-if="item.storehouseId === newStorehouseId"
-                  plain
-                  type="primary"
-                  @click="$emit('openClass')"
-              >
-                绑定物料分类
-              </MyButton>
+              <Icon icon="icon-pandiankuwei1" size="20" />
+              <view class="positionStructure-title">
+                {{ item.title }}
+              </view>
+              <view class="actionButtons" v-if="item.key === newPositionId">
+                <MyButton
+                    plain
+                    type="primary"
+                    @click="$emit('authShow')"
+                >
+                  设置权限
+                </MyButton>
+                <MyButton
+                    plain
+                    type="primary"
+                    @click="$emit('goToBindSku')"
+                >
+                  绑定物料
+                </MyButton>
+              </view>
             </view>
             <view class="drag" @longpress="moveStart(e,index)" :style="{height:`${itemHeight}px`}">
               <u-icon name="list" />
@@ -81,12 +91,13 @@
               }"
         >
           <view class="storeItem">
-            <Icon icon="icon-cangkutubiao" size="20" />
-            {{ childrenList[isMove].name }}
+            <Icon icon="icon-pandiankuwei1" size="20" />
+            {{ childrenList[isMove].title }}
           </view>
         </view>
       </movable-area>
     </view>
+
     <Modal ref="modal" />
   </view>
 </template>
@@ -101,10 +112,10 @@ import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../../../components/Modal";
 
 export default {
-  name: 'StoreHouseStructure',
+  name: 'PositionStructure',
   components: {Modal, MyButton, Icon},
   props: {
-    storeHouseData: {
+    positionData: {
       default: _ => {
       }
     },
@@ -114,37 +125,38 @@ export default {
     },
     cateGoryData: Array,
     classList: Array,
-    storehouseId: String,
+    positionId: String,
+    store: String,
   },
   created() {
-    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth - 24 - 10
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth - 24 - 24 - 10
     this.movableViewX = this.itemWidth
-    this.newStorehouseId = this.storehouseId || 'newStorehouseId'
-    this.sorts = isArray(this.storeHouseData.childrenList)
+    this.newPositionId = this.positionId || 'newPositionId'
+    this.sorts = isArray(this.positionData.children)
   },
   computed: {
     childrenList() {
       if (this.sorts.length > 0) {
-        if (this.sorts.find(item => item.storehouseId === this.newStorehouseId)) {
+        if (this.sorts.find(item => item.key === this.newPositionId)) {
           return this.sorts.map(item => {
-            if (item.storehouseId === this.newStorehouseId) {
-              return {name: this.current.name, storehouseId: this.newStorehouseId}
+            if (item.key === this.newPositionId) {
+              return {title: this.current.name, key: this.newPositionId}
             } else {
               return item
             }
           })
         } else if (this.current.name) {
           return [...this.sorts, {
-            name: this.current.name,
-            storehouseId: this.newStorehouseId
+            title: this.current.name,
+            key: this.newPositionId
           }]
         } else {
           return this.sorts
         }
       }
       return this.current.name ? [{
-        name: this.current.name,
-        storehouseId: this.newStorehouseId
+        title: this.current.name,
+        key: this.newPositionId
       }] : []
     }
   },
@@ -160,13 +172,12 @@ export default {
       movableViewX: 0,
       moveEndIndex: null,
       sorts: [],
-      newStorehouseId: null
+      newPositionId: null
     }
   },
   methods: {
     getCurrentSort() {
-      const sort = this.childrenList.findIndex(item => item.storehouseId === this.newStorehouseId)
-
+      const sort = this.childrenList.findIndex(item => item.key === this.newPositionId)
       if (sort > -1) {
         return this.childrenList.length - 1 - sort
       } else {
@@ -243,16 +254,16 @@ export default {
 
           const sortList = []
           childrenList.forEach((item, index) => {
-            if (item.storehouseId !== 'newStorehouseId') {
+            if (item.key !== 'newPositionId') {
               sortList.push({
-                storehouseId: item.storehouseId,
+                storehousePositionsId: item.key,
                 sort: childrenList.length - index
               })
             }
           })
 
           if (sortList.length > 0) {
-            Storehouse.storeHouseSortV2_0({
+            Storehouse.positionsSortV2_0({
               data: {sortList}
             }).catch(() => {
               this.$refs.modal.dialog({
@@ -260,7 +271,6 @@ export default {
               })
             })
           }
-
 
         }
 
@@ -278,7 +288,7 @@ export default {
 
 
       })
-    },
+    }
   }
 }
 </script>
@@ -333,5 +343,16 @@ export default {
 .drag {
   padding: 0 12px;
   display: flex;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.positionStructure-title {
+  max-width: calc(100vw - 24px - 10px - 20px - 180px - 40px - 8px)
 }
 </style>

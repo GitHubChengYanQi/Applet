@@ -237,6 +237,7 @@
     </view>
 
     <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -563,7 +564,14 @@ export default {
                   }
                   return item
                 })
-                newDeptList = (exit ? deptList : [...deptList, {
+
+                newDeptList = (exit ? (admin ? deptList : deptList.map(item => {
+                  if ((item.deptId + '') === (deptId + '')) {
+                    return {...item, mainDept: 1}
+                  } else {
+                    return item
+                  }
+                })) : [...deptList, {
                   deptId,
                   mainDept: admin ? 0 : 1
                 }]).filter(item => item && (item.deptId + '') !== (dept.key + ''))
@@ -574,9 +582,10 @@ export default {
               }
               return item
             })
+            console.log(newDeptList)
             return new Promise((resolve) => {
-              User.userEdit({
-              // User.userChangeDept({
+              // User.userEdit({
+              User.userChangeDept({
                 data: {
                   userId: thisUser.userId,
                   deptList: newDeptList.filter(item => item)
@@ -643,7 +652,9 @@ export default {
 
 .moveItem {
   opacity: 0.5;
-  background-color: #f5f5f5;
+  background-color: #fff;
+  box-shadow: 0 1px 10px rgba(34, 33, 81, 0.15);
+  z-index: 1;
 }
 
 .inItem {

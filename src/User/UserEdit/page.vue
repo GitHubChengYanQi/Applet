@@ -85,7 +85,7 @@
             >
               <view class="deptInfo">
                 <view>
-                  {{ dept.title }}
+                  {{ dept.title || tenant.name }}
                 </view>
                 <view class="describe">
                   {{ tenant.name }}
@@ -307,8 +307,9 @@ export default {
       }).then((res) => {
         const userInfo = res.data || {}
         this.showPhone = userInfo.phone
-        const deptList = isArray(userInfo.deptList).filter(item => item?.deptId)
-        const mainDept = deptList.find(item => item.mainDept === 1)
+        const deptList = isArray(userInfo.deptList)
+        const mainDept = deptList.find(item => item.mainDept === 1) || deptList[0] || {}
+
         this.userInfo = {
           ...userInfo,
           depts: deptList.map((item, index) => {
@@ -321,7 +322,7 @@ export default {
             }
           })
         }
-      }).catch(() => {
+      }).catch((res) => {
         this.error = true
       }).finally(() => {
         this.loading = false
@@ -386,7 +387,13 @@ export default {
     getDeptTree() {
       this.deptTreeLoading = true
       Dept.deptTree().then((res) => {
-        this.deptTree = isArray(res.data)[0]?.children
+        this.deptTree = [
+          {
+            title: this.tenant.name,
+            key: '0',
+            children: isArray(res.data)[0]?.children
+          }
+        ]
       }).catch(() => {
       }).finally(() => {
         this.deptTreeLoading = false
