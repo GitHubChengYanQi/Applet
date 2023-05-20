@@ -58,14 +58,14 @@
                     type="primary"
                     @click="$emit('authShow')"
                 >
-                  设置权限
+                  权限
                 </MyButton>
                 <MyButton
                     plain
                     type="primary"
                     @click="$emit('goToBindSku')"
                 >
-                  绑定物料
+                  物料
                 </MyButton>
               </view>
             </view>
@@ -257,7 +257,7 @@ export default {
             if (item.key !== 'newPositionId') {
               sortList.push({
                 storehousePositionsId: item.key,
-                sort: childrenList.length - index
+                sort: childrenList.length - 1 - index
               })
             }
           })
@@ -349,10 +349,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  min-width: 180px;
+  min-width: 124px;
 }
 
 .positionStructure-title {
-  max-width: calc(100vw - 24px - 10px - 20px - 180px - 40px - 8px)
+  max-width: calc(100vw - 24px - 24px - 10px - 20px - 124px - 40px - 24px);
+  overflow: hidden;
 }
 </style>

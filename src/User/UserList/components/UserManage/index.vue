@@ -451,7 +451,7 @@ export default {
             data: {
               sortList: depts.map((item, index) => ({
                 deptId: item.key,
-                sort: depts.length - index
+                sort: depts.length - 1 - index
               }))
             }
           }).catch(() => {

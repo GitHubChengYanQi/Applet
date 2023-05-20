@@ -295,16 +295,13 @@ export default {
       } else {
         const thisDeptPage = this.deptPage[this.deptPage.length - 1]
         if (thisDeptPage) {
-          const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
-          const ids = [...this.getDeptChildrens(thisDept.children)]
           if (this.searchValue) {
             total = this.deptUsers.length
           } else if (this.deptPage.length === 1) {
-            total = this.users.filter(item => {
-              const deptIds = isArray(item.deptList).map(item => item?.deptId)
-              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
-            }).length + this.deptUsers.length
+            total = this.users.length
           } else {
+            const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
+            const ids = [...this.getDeptChildrens(thisDept.children)]
             total = this.users.filter(item => {
               const deptIds = isArray(item.deptList).map(item => item?.deptId)
               return [...ids, thisDeptPage.key].find(id => deptIds.find(deptId => (id + '') === (deptId + '')))

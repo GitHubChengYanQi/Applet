@@ -286,7 +286,7 @@ export default {
             data: {
               sortList: storeHouseList.map((item, index) => ({
                 storehouseId: item.key,
-                sort: storeHouseList.length - index
+                sort: storeHouseList.length - 1 - index
               }))
             }
           }).catch(() => {

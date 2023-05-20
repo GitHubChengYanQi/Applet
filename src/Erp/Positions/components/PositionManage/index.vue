@@ -291,7 +291,7 @@ export default {
             data: {
               sortList: list.map((item, index) => ({
                 storehousePositionsId: item.key,
-                sort: list.length - index
+                sort: list.length - 1 - index
               }))
             }
           }).catch(() => {

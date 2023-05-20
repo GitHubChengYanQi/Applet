@@ -563,7 +563,7 @@ export default {
             data: {
               sortParam: skuClassList.map((item, index) => ({
                 spuClassificationId: item.key,
-                sort: skuClassList.length - index
+                sort: skuClassList.length - 1 - index
               }))
             }
           }).catch(() => {

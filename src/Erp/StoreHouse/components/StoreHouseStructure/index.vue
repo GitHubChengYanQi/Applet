@@ -246,7 +246,7 @@ export default {
             if (item.storehouseId !== 'newStorehouseId') {
               sortList.push({
                 storehouseId: item.storehouseId,
-                sort: childrenList.length - index
+                sort: childrenList.length - 1 - index
               })
             }
           })
