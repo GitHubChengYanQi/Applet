@@ -8,7 +8,7 @@ export const routes = [
         url: '/Sku/Manage/index'
     },
     {
-        name: '仓库管理',
+        name: '仓储管理',
         key: 'miniapp-storeHouse',
         url: '/Erp/StoreHouse/index'
     },
@@ -35,7 +35,7 @@ export const routes = [
     {
         name: '即时盘点',
         key: 'miniapp-stocktaking',
-        url: '/Erp/Stocktaking/immediately/index'
+        url: '/Erp/Stocktaking/immediately/index',
     },
     {
         name: '库存预警',

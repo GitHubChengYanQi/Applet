@@ -147,7 +147,7 @@
           <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
           <view class="item">
             <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
-              <Icon icon="icon-bumen1" size="30" />
+              <Icon icon="icon-bumen1" size="35" />
             </view>
             <view class="itemTitle">
               {{ item.title }}
@@ -237,6 +237,7 @@
     </view>
 
     <Modal ref="modal" />
+
   </view>
 </template>
 
@@ -302,6 +303,12 @@ export default {
     this.resetUserMove()
   },
   methods: {
+    showStatus() {
+      return this.$refs.modal.showStatus();
+    },
+    close() {
+      return this.$refs.modal.close();
+    },
     move(e, index) {
       if (!e.detail.source) {
         return
@@ -361,11 +368,11 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
-    moveEnd(e, thisIndex) {
-
+    moveEnd(e) {
       if (typeof this.isMove !== 'number') {
         return
       }
+      const thisIndex = this.isMove
       this.isMove = null
       const y = this.movableView
       let newY = 0
@@ -384,6 +391,7 @@ export default {
           const top = _this.deptPage[_this.deptPage.length - 2]
           this.$refs.modal.dialog({
             title: '确认要把' + moveDept.title + '移动到' + (inDept ? inDept.title + '下级' : top.name) + '吗？',
+            only: false,
             onConfirm() {
               return new Promise(async (resolve) => {
                 Dept.deptEdit({
@@ -417,6 +425,7 @@ export default {
           })
           this.moveActionData = {...this.depts[thisIndex], thisIndex, inIndex: this.inIndex}
         } else if (this.moveEndIndex !== null) {
+
           const depts = this.depts.map((item, index) => {
             if (moveIndex > 0) {
               if (index < this.moveEndIndex && index >= thisIndex) {
@@ -435,17 +444,14 @@ export default {
           })
           this.deptsChange(depts)
           const thisKey = this.deptPage[this.deptPage.length - 1].key
-          if (thisKey === '0') {
-            this.$emit('treeChange', depts)
-          } else {
-            this.$emit('treeChange', sortDeptsChildren(thisKey, depts, this.deptTree))
-          }
+
+          this.$emit('treeChange', sortDeptsChildren(thisKey, depts, this.deptTree))
 
           Dept.deptSort({
             data: {
               sortList: depts.map((item, index) => ({
                 deptId: item.key,
-                sort: depts.length - index
+                sort: depts.length - 1 - index
               }))
             }
           }).catch(() => {
@@ -558,7 +564,14 @@ export default {
                   }
                   return item
                 })
-                newDeptList = (exit ? deptList : [...deptList, {
+
+                newDeptList = (exit ? (admin ? deptList : deptList.map(item => {
+                  if ((item.deptId + '') === (deptId + '')) {
+                    return {...item, mainDept: 1}
+                  } else {
+                    return item
+                  }
+                })) : [...deptList, {
                   deptId,
                   mainDept: admin ? 0 : 1
                 }]).filter(item => item && (item.deptId + '') !== (dept.key + ''))
@@ -569,8 +582,10 @@ export default {
               }
               return item
             })
+            console.log(newDeptList)
             return new Promise((resolve) => {
-              User.userEdit({
+              // User.userEdit({
+              User.userChangeDept({
                 data: {
                   userId: thisUser.userId,
                   deptList: newDeptList.filter(item => item)
@@ -637,7 +652,9 @@ export default {
 
 .moveItem {
   opacity: 0.5;
-  background-color: #f5f5f5;
+  background-color: #fff;
+  box-shadow: 0 1px 10px rgba(34, 33, 81, 0.15);
+  z-index: 1;
 }
 
 .inItem {

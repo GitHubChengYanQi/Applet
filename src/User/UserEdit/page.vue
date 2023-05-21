@@ -2,7 +2,10 @@
   <view>
     <Empty type="error" description="获取成员信息失败！" v-if="error" />
     <Loading skeleton-type="page" skeleton v-else-if="loading" />
-    <template v-else>
+    <view
+        v-else
+        :style="{paddingBottom: `${60+safeAreaHeight(this,)}px`}"
+    >
       <view class="avatar">
         <Avatar :src="userInfo.miniAppAvatar" size="84" circular @click="preview" />
       </view>
@@ -81,9 +84,11 @@
                 :class="{deptItem:true,firstDeptItem:index === 0}"
             >
               <view class="deptInfo">
-                <Icon class="icon" icon="icon-bumen1" size="30" />
                 <view>
-                  {{ dept.title }}
+                  {{ dept.title || tenant.name }}
+                </view>
+                <view class="describe">
+                  {{ tenant.name }}
                 </view>
               </view>
               <view class="deptAction">
@@ -121,14 +126,19 @@
           title="设置部门"
           @close="deptShow = false"
           left-text="取消"
-          right-text="保存"
+          right-text="确认"
           @onLeft="deptShow = false"
           @onRight="saveDept"
       >
         <Loading skeleton v-if="deptTreeLoading" />
         <view v-else class="deptTree">
           <!--          <Tree radio :data="deptTree" v-model="dept" />-->
-          <Tree multiple :data="deptTree" v-model="depts" />
+          <Tree
+              multiple
+              :data="deptTree"
+              v-model="depts"
+              icon="icon-bumen1"
+          />
         </view>
       </Popup>
 
@@ -155,7 +165,7 @@
           @select="deptActionSelect"
           @close="deptActionShow=false"
       />
-    </template>
+    </view>
   </view>
 </template>
 
@@ -171,7 +181,7 @@ import BottomButton from "../../components/BottomButton";
 import Modal from "../../components/Modal";
 import {Init} from "MES-Apis/lib/Init";
 import {Position} from "MES-Apis/lib/Position/promise";
-import {isArray} from "../../util/Tools";
+import {isArray, safeAreaHeight} from "../../util/Tools";
 import Icon from "../../components/Icon";
 import Avatar from "../../components/Avatar";
 
@@ -184,6 +194,7 @@ export default {
   data() {
     return {
       isArray,
+      safeAreaHeight,
       deptShow: false,
       showPhone: false,
       deptTreeLoading: false,
@@ -194,9 +205,10 @@ export default {
       positionColumns: [],
       depts: [],
       dept: {},
+      tenant: {},
       loading: true,
       error: false,
-      positionIndex: 0,
+      positionIndex: 1,
       positionPickerShow: false,
       positionLoading: false,
       saveLoading: false,
@@ -218,6 +230,7 @@ export default {
     }
   },
   mounted() {
+    this.tenant = this.$store.state.userInfo.tenant || {}
     this.getDeptTree()
     this.userDetail()
     this.positionList()
@@ -294,8 +307,9 @@ export default {
       }).then((res) => {
         const userInfo = res.data || {}
         this.showPhone = userInfo.phone
-        const deptList = isArray(userInfo.deptList).filter(item=>item?.deptId)
-        const mainDept = deptList.find(item => item.mainDept === 1)
+        const deptList = isArray(userInfo.deptList)
+        const mainDept = deptList.find(item => item.mainDept === 1) || deptList[0] || {}
+
         this.userInfo = {
           ...userInfo,
           depts: deptList.map((item, index) => {
@@ -308,14 +322,15 @@ export default {
             }
           })
         }
-      }).catch(() => {
+      }).catch((res) => {
         this.error = true
       }).finally(() => {
         this.loading = false
       })
     },
     openPosition() {
-      this.positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0]) || 0
+      const positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0])
+      this.positionIndex = positionIndex > 0 ? positionIndex : 0
       this.positionPickerShow = true
       this.positionShow = true
     },
@@ -333,10 +348,8 @@ export default {
           this.userInfo = {
             ...this.userInfo,
             depts: this.userInfo.depts.map((item, index) => {
-              if (index === 0) {
-                return {...this.actionDept, admin: true}
-              } else if (this.actionDept.key === item.key) {
-                return {...this.userInfo.depts[0], admin: false}
+              if (this.actionDept.key === item.key) {
+                return {...item, admin: true}
               } else {
                 return {...item, admin: false}
               }
@@ -374,7 +387,13 @@ export default {
     getDeptTree() {
       this.deptTreeLoading = true
       Dept.deptTree().then((res) => {
-        this.deptTree = isArray(res.data)[0]?.children
+        this.deptTree = [
+          {
+            title: this.tenant.name,
+            key: '0',
+            children: isArray(res.data)[0]?.children
+          }
+        ]
       }).catch(() => {
       }).finally(() => {
         this.deptTreeLoading = false
@@ -463,9 +482,11 @@ export default {
 
         .deptInfo {
           flex-grow: 1;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+
+          .describe {
+            font-size: 12px;
+            color: #999999;
+          }
 
           .icon {
             width: 30px;

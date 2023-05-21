@@ -18,7 +18,7 @@
           @click="editUnit(unit)"
       >
         <view class="itemIon">
-          <Icon icon="icon-jiliangdanwei" size="20" />
+          <Icon icon="icon-jiliangdanwei" size="35" />
         </view>
         {{ unit.label }}
       </view>

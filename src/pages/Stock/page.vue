@@ -18,13 +18,13 @@
       </view>
       <view v-if="!loading" class="skuClass">
         <scroll-view scroll-x="true" class="scroll-view">
-          <view :class="{classItem:true, choose:!checkSkuClass}" @click="clickSkuClass(null)">
+          <view :class="{classItem:true, choose:!screenData.categoryId}" @click="clickSkuClass(null)">
             全部
           </view>
           <view
               v-for="(item,index) in skuClass"
               :key="index"
-              :class="{classItem:true, choose:checkSkuClass === item.value}"
+              :class="{classItem:true, choose:screenData.categoryId === item.value}"
               @click="clickSkuClass(item.value)"
           >
             {{ item.label }}
@@ -78,7 +78,6 @@ export default {
       skuImages: [],
       skuClass: [],
       totalHeight: 0,
-      checkSkuClass: '',
       loading: false,
       screenData: {}
     }
@@ -134,7 +133,6 @@ export default {
     },
     clickSkuClass(checkSkuClass) {
       this.refreshList({categoryId: checkSkuClass})
-      this.checkSkuClass = checkSkuClass
     },
     refreshList(data) {
       const newScreenData = {
@@ -145,8 +143,7 @@ export default {
       this.$refs.skuList.submit(newScreenData)
     },
     async refresh() {
-      this.screenData = {}
-      await this.$refs.skuList.submit({})
+      await this.$refs.skuList.submit(this.screenData)
       await this.getSkuClass()
       uni.stopPullDownRefresh();
     },

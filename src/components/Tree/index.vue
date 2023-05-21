@@ -4,22 +4,24 @@
         v-for="(item,index) in data"
         :key="index"
     >
-      <view class="item">
-        <view @click="openClick(item)" v-if="isArray(item.children).length > 0">
+      <view class="tree-item">
+        <view @click="openClick(item)" v-if="expandIcon && isArray(item.children).length > 0">
           <u-icon :name="open(item) ? 'arrow-down-fill' : 'play-right-fill'" />
         </view>
-        <view v-else class="space" />
-        <view class="title" @click="onCheck(item)">
+        <view v-else-if="expandIcon" class="tree-space" />
+        <view class="tree-title" @click="onCheck(item)">
           <Check
               :value="radio ? (value.key+'') === (item.key+'') : value.find(valueItem=>(valueItem.key+'') === (item.key+''))"
           />
+          <Icon v-if="icon" :icon="icon" size="24" />
           {{ item.title }}
         </view>
       </view>
-      <view class="children" v-show="open(item)">
+      <view class="tree-children" v-show="open(item)">
         <Tree
             :collapse="collapse"
             :radio="radio"
+            :icon="icon"
             :multiple="multiple"
             :data="isArray(item.children)"
             :tree="isChildren ? tree : data"
@@ -37,11 +39,12 @@
 import Check from "../Check";
 import {isArray} from "../../util/Tools";
 import Tree from './index'
+import Icon from "../Icon";
 
 export default {
   name: 'Tree',
-  components: {Check, Tree},
-  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse'],
+  components: {Icon, Check, Tree},
+  props: ['data', 'value', 'tree', 'isChildren', 'radio', 'multiple', 'collapse', 'icon', 'expandIcon'],
   data() {
     return {
       isArray,
@@ -138,26 +141,29 @@ export default {
 
 
 <style lang="scss">
-.item {
-  padding: 8px;
+.tree-item {
   //background-color: #fff;
   display: flex;
   align-items: center;
   gap: 8px;
 
-  .title {
+  .tree-title {
     display: flex;
     align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 8px;
+    border-bottom: 1px solid #EDEDED;
   }
 
-  .space {
+  .tree-space {
     width: 16px;
   }
 
 }
 
-.children {
-  padding-left: 30px;
+.tree-children {
+  padding-left: 12px;
 }
 
 </style>

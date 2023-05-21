@@ -14,7 +14,10 @@
     />
 
     <StoreHouseManage
+        ref="storeHouseManage"
+        v-else
         :admin="admin"
+        :tree="tree"
         :store-house-list="storeHouseList"
         :store-house-page="storeHousePage"
         :itemWidth="itemWidth"
@@ -23,18 +26,12 @@
         @listChange="listChange"
         @onCheckStoreHouse="onCheckStoreHouse"
         @storeHousePageClick="storeHousePageClick"
+        @treeChange="(newTree)=>tree = newTree"
     />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <view class="action">
         <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
-        <Modal ref="addStoreHouseModal">
-          <u--input
-              placeholder="请输入仓库名称"
-              clearable
-              v-model="storeHouseName"
-          />
-        </Modal>
       </view>
       <view class="action">
         <LinkButton :disabled="this.storeHousePage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
@@ -74,14 +71,12 @@ import Icon from "../../components/Icon";
 import LinkButton from "../../components/LinkButton";
 import AddUser from "../../components/AddUser";
 import Modal from "../../components/Modal";
-import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
-import {Dept} from "MES-Apis/lib/Dept/promise";
 import StoreHouseManage from "./components/StoreHouseManage";
-import {addStoreHouseChildren, delStoreHouseChildren} from "./index";
+import {delStoreHouseChildren} from "./index";
 
 export default {
   options: {
@@ -107,7 +102,6 @@ export default {
   },
   data() {
     return {
-      authShow: false,
       storeHousePage: [],
       loading: true,
       storeHouseList: [],
@@ -119,13 +113,15 @@ export default {
       error: false,
       safeAreaHeight,
       pageContainerShow: false,
-      userActionShow: false,
-      storeHouseName: '',
       admin: false,
       allActionList: [
         {
           name: '添加子仓库',
           key: 'add'
+        },
+        {
+          name: '查看库位',
+          key: 'position'
         },
         {
           name: '修改仓库',
@@ -149,44 +145,29 @@ export default {
     const tenant = this.$store.state.userInfo.tenant || {}
     this.admin = tenant.admin
     const _this = this
-    uni.$on('storeHouseAddSuccess', (result) => {
-      const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
-        _this.listChange([..._this.storeHouseList, {key: result.id, title: result.name}])
-      }
-
-      if (result.pid === '0') {
-        _this.tree = [..._this.tree, newStore]
-      } else {
-        _this.tree = addStoreHouseChildren(result.pid, newStore, _this.tree)
-      }
+    uni.$on('storeHouseAddSuccess', () => {
+      _this.getList(true, _this.storeHousePage[_this.storeHousePage.length - 1].key)
     })
 
     uni.$on('storeHouseEditSuccess', (result) => {
-      const newStore = {key: result.id, title: result.name}
-      if (result.pid === _this.storeHousePage[_this.storeHousePage.length - 1].key) {
-        _this.listChange(_this.storeHouseList.map(item => {
-          if (item.key === newStore.key) {
-            return {...item, title: newStore.title}
-          }
-          return item
-        }))
-      } else {
-        _this.storeHousePage = _this.storeHousePage.map(item => {
-          if (item.key === newStore.key) {
-            return {...item, name: newStore.title}
-          }
-          return item
-        })
-      }
+      _this.getList(true, _this.storeHousePage[_this.storeHousePage.length - 1].key)
 
-      _this.tree = _this.editStoreHouseChildren(newStore, _this.tree)
+      _this.storeHousePage = _this.storeHousePage.map(item => {
+        if (item.key === result.id) {
+          return {...item, name: result.name}
+        }
+        return item
+      })
     })
     this.getList()
   },
   computed: {
     actionList() {
       return [
+        {
+          name: '查看当前仓库库位',
+          key: 'position',
+        },
         {
           name: '修改当前仓库',
           key: 'edit',
@@ -205,6 +186,11 @@ export default {
         case 'add':
           this.addStoreHouse(this.allActionData.key + '')
           break;
+        case 'position':
+          uni.navigateTo({
+            url: `/Erp/Positions/index?storehouseId=${this.allActionData.key}&store=${this.allActionData.title}`
+          })
+          break;
         case 'edit':
           this.edit({name: this.allActionData.title, key: this.allActionData.key}, true)
           break;
@@ -215,7 +201,7 @@ export default {
     },
     edit(thisStoreHouse, current) {
       uni.navigateTo({
-        url: `/Erp/StoreHouse/StoreHouseAdd/index?id=${thisStoreHouse.key}`
+        url: `/Erp/StoreHouse/StoreHouseAdd/index?id=${thisStoreHouse.key}&pid=${this.storeHousePage[this.storeHousePage.length - (current ? 1 : 2)].key}`
       })
     },
     del(thisStoreHouse, current) {
@@ -262,9 +248,23 @@ export default {
         case 'auth':
           this.bind(thisStoreHouse)
           break;
+        case 'position':
+          this.allActionSelect({key})
+          break;
       }
     },
     afterleave() {
+      if (this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
+        this.pageContainerShow = false
+        this.actionShow = false
+        this.allActionShow = false
+        this.$refs.modal.close()
+        this.$refs.storeHouseManage.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.storeHousePage.length > 1
+        }, 0)
+        return
+      }
       if (this.storeHousePage.length > 1) {
         this.pageContainerShow = false
         this.storeHousePageClick(this.storeHousePage[this.storeHousePage.length - 2])
@@ -273,20 +273,26 @@ export default {
         }, 0)
       }
     },
-    async getList() {
+    async getList(refresh, topKey) {
       this.loading = true
-      const res = await Storehouse.storeHouseTreeV2_0({
-        params: {
-          ids: this.storehouseId
-        }
-      }).catch(() => {
+      const res = await Storehouse.storeHouseTreeV2_0().catch(() => {
         this.error = true
       })
       this.loading = false
 
       this.tree = this.format(res.data || [])
-      this.listChange(this.format(res.data || []))
-      this.storeHousePage = [{key: '0', name: '顶级仓库'}]
+      if (refresh) {
+        if (topKey === '0') {
+          this.listChange(this.tree)
+        } else {
+          const thisStoreHouse = this.findStoreHouse(topKey, this.tree)
+          this.listChange(thisStoreHouse.children)
+        }
+
+      } else {
+        this.listChange(this.format(res.data || []))
+        this.storeHousePage = [{key: '0', name: '顶级仓库'}]
+      }
     },
     format(data) {
       const list = [];
@@ -425,7 +431,7 @@ export default {
   }
 
   .users {
-    overflow: auto;
+    overflow: hidden auto;
     background-color: #fff;
     padding: 0 12px;
   }

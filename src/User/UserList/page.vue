@@ -54,6 +54,7 @@
     </view>
     <UserManage
         v-else
+        ref="userManage"
         :deptPage="deptPage"
         :searchValue="searchValue"
         @deptPageClick="deptPageClick"
@@ -199,6 +200,11 @@ export default {
     this.getList()
 
     const _this = this
+
+    uni.$on('handleJoinTenant', () => {
+      _this.getList(true)
+    })
+
     uni.$on('saveUserSuccess', (userInfo) => {
       _this.users = _this.users.map(item => {
         if (item.userId === userInfo.userId) {
@@ -268,16 +274,13 @@ export default {
         }
         if (this.deptPage.length === 1) {
           return this.users.filter(item => {
-            const deptIds = isArray(item.deptList).filter(item => {
-              const deptId = item?.deptId || 0
-              return !(deptId === 0 || deptId === '0');
-            })
-            return deptIds.length === 0
+            const deptIds = isArray(item.deptList).filter(item => item).map(item => item?.deptId)
+            return deptIds.length === 0 || deptIds.findIndex(id => (id + '') === '0') > -1
           })
         }
         return this.users.filter(item => {
           const deptIds = isArray(item.deptList).map(item => item?.deptId)
-          return deptIds.find(id => (id + '') === (this.deptPage[this.deptPage.length - 1].key + ''))
+          return deptIds.findIndex(id => (id + '') === (this.deptPage[this.deptPage.length - 1].key + '')) > -1
         })
       } else {
         return []
@@ -292,19 +295,16 @@ export default {
       } else {
         const thisDeptPage = this.deptPage[this.deptPage.length - 1]
         if (thisDeptPage) {
-          const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
-          const ids = [thisDeptPage.key, ...this.getDeptChildrens(thisDept.children)]
           if (this.searchValue) {
             total = this.deptUsers.length
           } else if (this.deptPage.length === 1) {
-            total = this.users.filter(item => {
-              const deptIds = isArray(item.deptList).map(item => item?.deptId)
-              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
-            }).length + this.deptUsers.length
+            total = this.users.length
           } else {
+            const thisDept = this.findDept(thisDeptPage.key, this.deptTree) || {}
+            const ids = [...this.getDeptChildrens(thisDept.children)]
             total = this.users.filter(item => {
               const deptIds = isArray(item.deptList).map(item => item?.deptId)
-              return ids.find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
+              return [...ids, thisDeptPage.key].find(id => deptIds.find(deptId => (id + '') === (deptId + '')))
             }).length
           }
         }
@@ -486,6 +486,19 @@ export default {
       }
     },
     afterleave() {
+      if (this.addUserShow || this.actionShow || this.userActionShow || this.$refs.addDeptModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.userManage.showStatus()) {
+        this.pageContainerShow = false
+        this.addUserShow = false
+        this.actionShow = false
+        this.userActionShow = false
+        this.$refs.addDeptModal.close()
+        this.$refs.modal.close()
+        this.$refs.userManage.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.deptPage.length > 1
+        }, 0)
+        return
+      }
       if (this.deptPage.length > 1) {
         this.pageContainerShow = false
         this.deptPageClick(this.deptPage[this.deptPage.length - 2])
@@ -494,18 +507,20 @@ export default {
         }, 0)
       }
     },
-    async getList() {
+    async getList(refresh) {
       this.loading = true
 
-      await Tenant.waitJoinCount({
-        data: {
-          tenantId: this.$store.state.userInfo.tenant.tenantId,
-        }
-      }).then((res) => {
-        this.waitJoinUserTotal = res.data || 0
-      }).catch(() => {
-        this.error = true
-      })
+      if (this.$store.state.userInfo.tenant.admin) {
+        await Tenant.waitJoinCount({
+          data: {
+            tenantId: this.$store.state.userInfo.tenant.tenantId,
+          }
+        }).then((res) => {
+          this.waitJoinUserTotal = res.data || 0
+        }).catch(() => {
+          this.error = true
+        })
+      }
 
       const res = await Dept.deptTree().catch(() => {
         this.error = true
@@ -529,6 +544,11 @@ export default {
       this.users = users
 
       this.loading = false
+
+      if (refresh) {
+        return
+      }
+
       if (newDepts.length === 0) {
         this.noDept = true
         this.renderList(users)
@@ -647,7 +667,6 @@ export default {
               data: {
                 simpleName: _this.deptName,
                 fullName: _this.deptName,
-                sort: _this.depts.length,
                 description: _this.deptName,
                 pid: _this.noDept ? '0' : _this.deptPage[_this.deptPage.length - 1].key
               }
@@ -753,7 +772,6 @@ export default {
   .users {
     overflow: hidden auto;
     background-color: #fff;
-    padding: 0 12px;
   }
 
 }
@@ -766,7 +784,7 @@ export default {
 }
 
 .item {
-  padding: 0 6px;
+  padding-left: 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;

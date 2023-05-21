@@ -302,6 +302,13 @@ export default {
     }
   },
   methods: {
+    showStatus() {
+      return this.$refs.modal.showStatus() || this.moveActionShow;
+    },
+    close() {
+      this.$refs.modal.close();
+      this.moveActionShow = false
+    },
     skuResultFormat(item) {
       const media = this.skuImages.find(mediaItem => mediaItem.mediaId === item.images?.split(',')[0]) || {}
       return {
@@ -506,11 +513,12 @@ export default {
     moveStart(e, index) {
       this.isMove = index
     },
-    moveEnd(e, thisIndex) {
+    moveEnd(e) {
 
       if (typeof this.isMove !== 'number') {
         return
       }
+      const thisIndex = this.isMove
       this.isMove = null
       const y = this.movableView
       let newY = 0
@@ -555,7 +563,7 @@ export default {
             data: {
               sortParam: skuClassList.map((item, index) => ({
                 spuClassificationId: item.key,
-                sort: skuClassList.length - index
+                sort: skuClassList.length - 1 - index
               }))
             }
           }).catch(() => {

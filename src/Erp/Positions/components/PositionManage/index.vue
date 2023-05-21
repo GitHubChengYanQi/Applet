@@ -2,8 +2,8 @@
   <view v-else class="selectUser">
     <view class="header">
       <uni-breadcrumb separator="/">
-        <uni-breadcrumb-item v-for="(route,index) in storeHousePage" :key="index">
-          <view @click="$emit('storeHousePageClick',route)">
+        <uni-breadcrumb-item v-for="(route,index) in page" :key="index">
+          <view @click="$emit('pageClick',route)">
             {{ route.name }}
           </view>
         </uni-breadcrumb-item>
@@ -16,19 +16,19 @@
       <movable-area
           class="movableArea"
           :style="{
-      height:`${storeHouseList.length * itemHeight + (storeHousePage.length > 1 ? 68 : 20)}px`,
+      height:`${list.length * itemHeight + (page.length > 1 ? 68 : 20)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
     }"
       >
         <movable-view
-            v-if="storeHousePage.length > 1"
+            v-if="page.length > 1"
             direction="all"
             :x="movableViewX"
             :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
             :class="{movableView:true,inItem:inIndex === -1}"
             :disabled="true"
-            @click="$emit('storeHousePageClick',storeHousePage[storeHousePage.length - 2])"
+            @click="$emit('pageClick',page[page.length - 2])"
         >
           <view class="item">
             <view class="deptIcon">
@@ -40,20 +40,20 @@
 
         <Empty
             :style="{paddingTop:`${itemHeight}px`}"
-            v-if="storeHouseList.length === 0"
+            v-if="list.length === 0"
             description="暂无数据"
         />
 
         <movable-view
-            v-for="(item,index) in storeHouseList"
+            v-for="(item,index) in list"
             :key="index"
-            @click="$emit('onCheckStoreHouse',item)"
+            @click="$emit('onCheck',item)"
             :damping="0"
             :out-of-bounds="true"
             :animation="false"
             :disabled="isMove !== index"
             :style="{
-                top:`${itemHeight * index+(storeHousePage.length > 1 ? 0 : 10)}px`,
+                top:`${itemHeight * index+(page.length > 1 ? 0 : 10)}px`,
                 width: `${itemWidth}px`,
                 height:`${itemHeight}px`
                 }"
@@ -67,7 +67,7 @@
           <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
           <view class="item">
             <view class="deptIcon">
-              <Icon icon="icon-cangkutubiao" size="30" />
+              <Icon icon="icon-pandiankuwei1" size="30" />
             </view>
             <view class="itemTitle">
               {{ item.title }}
@@ -78,22 +78,22 @@
           </view>
           <view
               class="moveLine"
-              v-if="inIndex === null  && moveIndex === storeHouseList.length && index === storeHouseList.length-1"
+              v-if="inIndex === null  && moveIndex === list.length && index === list.length-1"
           />
         </movable-view>
 
         <view
             class="item moveFixItem" v-if="isMove !== null"
             :style="{
-                top:`${itemHeight * isMove + (storeHousePage.length > 1 ? itemHeight : 10)}px`,
+                top:`${itemHeight * isMove + (page.length > 1 ? itemHeight : 10)}px`,
                 left:`${itemWidth}px`,
                 height:`${itemHeight}px`
               }"
         >
           <view class="deptIcon" style="margin-left:0">
-            <Icon icon="icon-cangkutubiao" size="30" />
+            <Icon icon="icon-pandiankuwei1" size="30" />
           </view>
-          {{ storeHouseList[isMove].title }}
+          {{ list[isMove].title }}
         </view>
       </movable-area>
 
@@ -111,14 +111,14 @@ import Icon from "../../../../components/Icon";
 import {Init} from "MES-Apis/lib/Init";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Modal from "../../../../components/Modal";
-import {addStoreHouseChildren, delStoreHouseChildren, sortStoreHouseChildren} from "../../index";
+import {addChildren, delChildren, sortChildren} from "../../index";
 
 export default {
-  name: 'StoreHouseManage',
+  name: 'PositionManage',
   components: {Modal, Icon, Empty},
   props: [
-    'storeHousePage',
-    'storeHouseList',
+    'page',
+    'list',
     'itemWidth',
     'movableViewY',
     'movableViewX',
@@ -132,6 +132,7 @@ export default {
       itemHeight: 48,
       moveIndex: null,
       inIndex: null,
+      startDrag: false
     }
   },
   methods: {
@@ -145,7 +146,7 @@ export default {
       if (!e.detail.source) {
         return
       }
-      const y = this.storeHousePage.length > 1 ? e.detail.y - this.itemHeight : e.detail.y
+      const y = this.page.length > 1 ? e.detail.y - this.itemHeight : e.detail.y
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
         newY = y
@@ -155,8 +156,8 @@ export default {
 
       const moveIndex = parseInt(newY / this.itemHeight)
       let endIndex = (moveIndex + index)
-      if (endIndex > this.storeHouseList.length - 1) {
-        endIndex = this.storeHouseList.length - 1
+      if (endIndex > this.list.length - 1) {
+        endIndex = this.list.length - 1
       } else if (endIndex < 0) {
         endIndex = 0
       }
@@ -199,6 +200,10 @@ export default {
     },
     moveStart(e, index) {
       this.isMove = index
+      this.startDrag = true
+      setTimeout(() => {
+        this.startDrag = false
+      }, 500)
     },
     moveEnd(e) {
       if (typeof this.isMove !== 'number') {
@@ -214,38 +219,38 @@ export default {
         newY = y
       }
       let moveIndex = parseInt(newY / this.itemHeight)
-      const moveItem = this.storeHouseList[thisIndex]
+      const moveItem = this.list[thisIndex]
       this.$nextTick(function () {
         if (this.inIndex !== null) {
           const inIndex = this.inIndex
-          const inStoreHouse = this.storeHouseList[this.inIndex]
-          this.listChange(this.storeHouseList)
+          const inItem = this.list[this.inIndex]
+          this.listChange(this.list)
           const _this = this
-          const top = _this.storeHousePage[_this.storeHousePage.length - 2]
+          const top = _this.page[_this.page.length - 2]
           this.$refs.modal.dialog({
-            title: '确认要把' + moveItem.title + '移动到' + (inStoreHouse ? inStoreHouse.title + '下级' : top.name) + '吗？',
+            title: '确认要把' + moveItem.title + '移动到' + (inItem ? inItem.title + '下级' : top.name) + '吗？',
             only: false,
             onConfirm() {
               return new Promise(async (resolve) => {
-                Storehouse.storeHouseEditV2_0({
+                Storehouse.positionsEdit({
                   data: {
-                    storehouseId: moveItem.key,
-                    pid: inStoreHouse ? inStoreHouse.key : top.key
+                    storehousePositionsId: moveItem.key,
+                    pid: inItem ? inItem.key : top.key
                   }
                 }).then(() => {
                   let newTree
-                  const tree = delStoreHouseChildren(moveItem.key, _this.tree)
+                  const tree = delChildren(moveItem.key, _this.tree)
                   if (inIndex === -1) {
-                    const storeHouseKey = _this.storeHousePage[_this.storeHousePage.length - 2].key
-                    if (storeHouseKey === '0') {
+                    const Key = _this.page[_this.page.length - 2].key
+                    if (Key === '0') {
                       newTree = [...tree, moveItem]
                     } else {
-                      newTree = addStoreHouseChildren(storeHouseKey, moveItem, tree)
+                      newTree = addChildren(Key, moveItem, tree)
                     }
                   } else {
-                    newTree = addStoreHouseChildren(inStoreHouse ? inStoreHouse.key : top.key, moveItem, tree)
+                    newTree = addChildren(inItem ? inItem.key : top.key, moveItem, tree)
                   }
-                  _this.listChange(_this.storeHouseList.filter((item, index) => index !== thisIndex))
+                  _this.listChange(_this.list.filter((item, index) => index !== thisIndex))
                   _this.$emit('treeChange', newTree)
                   resolve(true)
                 }).catch(() => {
@@ -258,35 +263,35 @@ export default {
             }
           })
         } else if (this.moveEndIndex !== null) {
-          const storeHouseList = this.storeHouseList.map((item, index) => {
+          const list = this.list.map((item, index) => {
             if (moveIndex > 0) {
               if (index < this.moveEndIndex && index >= thisIndex) {
-                return {...this.storeHouseList[index + 1]}
+                return {...this.list[index + 1]}
               } else if (index === this.moveEndIndex) {
-                return {...this.storeHouseList[thisIndex]}
+                return {...this.list[thisIndex]}
               }
             } else {
               if (index > this.moveEndIndex && index <= thisIndex) {
-                return {...this.storeHouseList[index - 1]}
+                return {...this.list[index - 1]}
               } else if (index === this.moveEndIndex) {
-                return {...this.storeHouseList[thisIndex]}
+                return {...this.list[thisIndex]}
               }
             }
             return item
           })
-          this.listChange(storeHouseList)
-          const thisKey = this.storeHousePage[this.storeHousePage.length - 1].key
+          this.listChange(list)
+          const thisKey = this.page[this.page.length - 1].key
           if (thisKey === '0') {
-            this.$emit('treeChange', storeHouseList)
+            this.$emit('treeChange', list)
           } else {
-            this.$emit('treeChange', sortStoreHouseChildren(thisKey, storeHouseList, this.tree))
+            this.$emit('treeChange', sortChildren(thisKey, list, this.tree))
           }
 
-          Storehouse.storeHouseSortV2_0({
+          Storehouse.positionsSortV2_0({
             data: {
-              sortList: storeHouseList.map((item, index) => ({
-                storehouseId: item.key,
-                sort: storeHouseList.length - 1 - index
+              sortList: list.map((item, index) => ({
+                storehousePositionsId: item.key,
+                sort: list.length - 1 - index
               }))
             }
           }).catch(() => {
@@ -319,6 +324,21 @@ export default {
   display: flex;
   align-items: center;
   padding: 0 24px 0;
+}
+
+.startDrag {
+  animation: startDrag .5s ease-in-out infinite;
+  //animation-iteration-count: 1;
+}
+
+
+@keyframes startDrag {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.5;
+  }
 }
 
 .moveLine {
