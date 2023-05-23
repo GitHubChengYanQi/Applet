@@ -44,6 +44,10 @@ export default {
     width: fit-content !important;
     padding: 4px 15px;
     font-size: 14px;
+
+    &::after, &::before {
+      content: none;
+    }
   }
 }
 </style>

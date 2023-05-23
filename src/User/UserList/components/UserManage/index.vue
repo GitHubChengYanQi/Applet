@@ -208,7 +208,7 @@
         >
           <view class="item">
             <view class="userItem">
-              <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId) && 'check'" />
+              <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
               <UserName :user="user" showRole />
             </view>
             <view v-if="user.isAdmin === 1">

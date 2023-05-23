@@ -32,7 +32,7 @@
 
       <keybord
           :visible='visible'
-          @visiblChange="(value)=>visible = value"
+          @close="visible = false"
           :value='number'
           :min='1'
           @onChange="onChange"

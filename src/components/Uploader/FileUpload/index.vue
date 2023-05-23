@@ -1,8 +1,8 @@
 <template>
   <view class="">
-    <view class="files" v-if="files.length > 0">
+    <view class="files" v-if="value.length > 0">
       <view
-          v-for="(file,index) in files"
+          v-for="(file,index) in value"
           :key="index"
           class="fileItem"
       >
@@ -25,7 +25,16 @@
 
       </view>
     </view>
-    <Uploader file @onChange="onChange" />
+    <Uploader file @onChange="onChange">
+      <slot>
+        <u-button size="small" customStyle="width:100px">
+          <view class="uploadFile">
+            <uni-icons type="upload"></uni-icons>
+            上传
+          </view>
+        </u-button>
+      </slot>
+    </Uploader>
   </view>
 </template>
 
@@ -40,26 +49,27 @@ export default {
     Uploader,
     LinkButton
   },
-  props:['nameWidth'],
-  data() {
-    return {
-      files: []
+  props: {
+    nameWidth: String,
+    value: {
+      type: Array,
+      default: _ => []
     }
+  },
+  data() {
+    return {}
   },
   methods: {
     onChange(file) {
-      const files = [...this.files, file]
+      const files = [...this.value, file]
       this.save(files)
     },
     remove(file) {
-      const files = this.files.filter(item => item.id !== file.id)
+      const files = this.value.filter(item => item.id !== file.id)
       this.save(files)
     },
     save(files) {
-      this.files = files
-      const value = files.map(item => item.id).join(',')
-      this.$emit('input', value)
-      this.$emit('change', value)
+      this.$emit('input', files)
     }
   }
 }

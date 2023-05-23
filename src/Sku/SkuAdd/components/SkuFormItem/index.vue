@@ -1,12 +1,17 @@
 <template>
-  <view class="skuFormItem">
+  <view class="skuFormItem" @click="$emit('click')">
     <Icon :icon="icon" size="25" v-if="icon" />
-    <view class="skuFormItemContent" :style="{paddingLeft:icon ? '16px' : '0'}">
+    <view :class="{skuFormItemContent:true}" :style="{paddingLeft:icon ? '8px' : '0'}">
       <view class="label">
         {{ label }}
         <view v-if="required" class="required">
           <u-badge class="badge" isDot />
         </view>
+      </view>
+      <view class="value">
+        <slot>
+          {{ value || '' }}
+        </slot>
       </view>
     </view>
     <u-icon name="arrow-right" size="12" color="#D3D3D3" />
@@ -22,7 +27,12 @@ export default {
   },
   name: 'SkuFormItem',
   components: {Icon},
-  props: ['label', 'icon', 'required']
+  props: [
+    'label',
+    'icon',
+    'required',
+    'value',
+  ]
 }
 </script>
 
@@ -34,13 +44,14 @@ export default {
   display: flex;
   align-items: center;
   width: 100%;
+  overflow: hidden;
 
   .skuFormItemContent {
     flex-grow: 1;
-    padding: 0 16px;
+    padding: 0 8px;
 
     .label {
-      font-size: 12px;
+      font-size: 14px;
       color: #666666;
       position: relative;
       display: inline-block;
@@ -56,6 +67,12 @@ export default {
         }
       }
     }
+  }
+
+  .noIconSkuFormItemContent {
+    height: 85px;
+    display: flex;
+    align-items: flex-end;
   }
 }
 </style>

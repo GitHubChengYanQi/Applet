@@ -32,7 +32,7 @@
                 >
                   <Check
                       v-if="!show"
-                      :value="checkUsers.find(checkUser=>checkUser.userId === user.userId) && 'check'"
+                      :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)"
                   />
                   <UserName :user="user" showRole />
                 </view>
@@ -165,7 +165,7 @@ export default {
     styleIsolation: 'shared'
   },
   name: 'SelectUser',
-  props: ['checdUsers', 'type', 'show'],
+  props: ['defaultChecdUsers', 'type', 'show'],
   components: {UserManage, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
   data() {
     return {
@@ -324,7 +324,7 @@ export default {
       this.tenant = tenant
       this.admin = (this.show && tenant.admin)
       this.showFooter = this.admin || !this.show
-      this.checkUsers = [...this.checdUsers]
+      this.checkUsers = [...this.defaultChecdUsers]
     },
     deptsChange(depts) {
       this.depts = depts

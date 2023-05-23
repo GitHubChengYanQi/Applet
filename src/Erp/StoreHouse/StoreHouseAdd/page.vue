@@ -66,7 +66,6 @@
               @selectAddress="selectAddress"
               @onTouchstart="touchstart"
               @onTouchend="touchend"
-              @onScroll="scroll"
               :moveY="moveY"
               :top="top"
           />
@@ -80,7 +79,6 @@
           }"
               @touchstart="touchstart"
               @touchend="touchend"
-              @scroll="scroll"
           >
             <uni-forms
                 ref="form"
@@ -361,7 +359,7 @@ export default {
       this.searchPlaccesLoading = true
       wx.request({
         //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-        url: `https://apis.map.qq.com/ws/place/v1/search?key=${process.env.VUE_APP_MAP_KEY}&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
+        url: `https://apis.map.qq.com/ws/place/v1/search?key=${process.env.VUE_APP_MAP_KEY}&keyword=${value}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&orderby=_distance&page_size=20`,
         success(res) {
           _this.searchPlacces = isArray(res?.data?.data).map(item => ({
             ...item,
@@ -394,6 +392,7 @@ export default {
         if (!data.longitude) {
           const _this = this
           uni.getLocation({
+            type: 'gcj02',
             success(res) {
               _this.location = {
                 longitude: res.longitude,
@@ -424,7 +423,9 @@ export default {
         this.formData = {pid: this.pid || '0'}
         const _this = this
         uni.getLocation({
+          type: 'gcj02',
           success(res) {
+            console.log(res)
             _this.location = {
               longitude: res.longitude,
               latitude: res.latitude,
@@ -449,7 +450,7 @@ export default {
         this.searchPlaccesLoading = true
         wx.request({
           //地图WebserviceAPI驾车路线规划接口 请求路径及参数（具体使用方法请参考开发文档）
-          url: `https://apis.map.qq.com/ws/place/v1/explore?key=${process.env.VUE_APP_MAP_KEY}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&page_size=20`,
+          url: `https://apis.map.qq.com/ws/place/v1/explore?key=${process.env.VUE_APP_MAP_KEY}&boundary=nearby(${this.location.latitude},${this.location.longitude},1000,1)&orderby=_distance&page_size=20`,
           success(res) {
             _this.searchPlacces = isArray(res?.data?.data).map(item => ({
               ...item,
@@ -482,27 +483,14 @@ export default {
       this.height = e.detail.y + windowHeight * (this.top / 100)
     },
     touchstart(move) {
-      if (move) {
-        this.startMove = true
-        return
-      }
-      if (this.moveY === 0) {
-        if (this.scrollTop < 5) {
-          this.startMove = true
-        }
-      } else {
-        this.startMove = true
-      }
+      this.startMove = true
     },
     touchend() {
-      if (!this.move) {
-        return
-      }
+      // if (!this.move) {
+      //   return
+      // }
       this.startMove = false
       this.move = false
-    },
-    scroll({detail}) {
-      this.scrollTop = detail.scrollTop
     },
     moveToLocation() {
       this.landmarkBounce = true

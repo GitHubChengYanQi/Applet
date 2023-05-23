@@ -33,29 +33,12 @@
             </Popup>
           </uni-forms-item>
 
-
           <uni-forms-item
               label="分类名称"
               name="name"
               required
           >
             <uni-easyinput v-model="formData.name" placeholder="请输入分类名称" />
-          </uni-forms-item>
-
-          <uni-forms-item
-              label="分类码"
-              name="codingClass"
-          >
-            <uni-easyinput v-model="formData.codingClass" placeholder="请输入分类码" />
-          </uni-forms-item>
-
-          <uni-forms-item
-              label="排序"
-              name="sort"
-          >
-            <view class="sort">
-              <uni-easyinput v-model="formData.sort" placeholder="请输入排序值" type="number" />
-            </view>
           </uni-forms-item>
 
         </uni-forms>
@@ -90,7 +73,7 @@ export default {
       show: false,
       showContent: false,
       cateGoryDataLoading: false,
-      cateGoryData: [ ],
+      cateGoryData: [],
       formData: {
         // pid: '0'
       },
@@ -110,22 +93,6 @@ export default {
             {
               required: true,
               errorMessage: '请输入分类名称!',
-            },
-          ]
-        },
-        codingClass: {
-          rules: [
-            {
-              pattern: '^[A-Z\\d\\+\\-\\*\\/\\(\\)\\%（）]+$',
-              errorMessage: '只能输入大写字母或数字！'
-            },
-          ]
-        },
-        sort: {
-          rules: [
-            {
-              format: 'number',
-              errorMessage: '只能输入数字！'
             },
           ]
         },
@@ -203,7 +170,7 @@ export default {
 
       return list;
     },
-    onChange({id,name}) {
+    onChange({id, name}) {
       this.formData = {
         ...this.formData,
         pid: id,

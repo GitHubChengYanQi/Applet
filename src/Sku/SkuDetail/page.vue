@@ -100,8 +100,6 @@
             </view>
 
 
-
-
             <template v-if="!hidden">
 
 
@@ -335,11 +333,9 @@ export default {
         case 'maintenancePeriod':
           return `${data[key] || 0} 天`;
         case 'sku':
-          return SkuResultSkuJsons({
-            skuResult: data,
-            describe: true,
-            emptyText: '无',
-          });
+          return isArray(data.list).map((items) => {
+            return `${items.itemAttributeResult?.attribute || '-'}: ${items.attributeValues || '-'}`;
+          }).toString()
         case 'materialId':
           return materialResult.name;
         case 'brandIds':

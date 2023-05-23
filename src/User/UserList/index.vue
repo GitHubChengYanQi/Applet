@@ -2,7 +2,7 @@
   <Auth>
     <Page
         v-if="auth"
-        :checdUsers="checkUsers"
+        :defaultChecdUsers="checkUsers"
         :type="type"
         :show="show"
     />
@@ -21,11 +21,11 @@ export default {
   onLoad(option) {
     this.type = option.type // 选择用户
     this.show = !option.type // 查看用户列表
-    const curren = this
-    const eventChannel = curren.getOpenerEventChannel();
+    const _this = this
+    const eventChannel = _this.getOpenerEventChannel();
     if (typeof eventChannel.on === "function") {
       eventChannel.on('checkUsers', function (data) {
-        curren.checkUsers = data.checkUsers || []
+        _this.checkUsers = data.checkUsers || []
       })
     }
   },

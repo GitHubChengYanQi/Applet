@@ -16,8 +16,9 @@
             v-for="(brand,index) in brandList"
             :key="index"
             class="item"
-            @click="editbrand(brand)"
+            @click="type ? onCheck(brand) : editbrand(brand)"
         >
+          <Check v-if="type" :value="checkBrands.find(item=>item.brandId === brand.brandId)" />
           <view class="itemIon">
             <Icon icon="icon-a-pinpai1" size="35" />
           </view>
@@ -27,17 +28,37 @@
     </view>
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-      <view class="action">
+      <view class="action" v-if="!type">
         <LinkButton @click="addSkuClass">添加品牌</LinkButton>
-        <Modal ref="addbrandModal">
-          <u--input
-              placeholder="请输入品牌名称"
-              clearable
-              v-model="brandName"
-          />
-        </Modal>
       </view>
+      <template v-else>
+        <view class="checkBrands">
+          <Avatar
+              v-for="(brand,index) in checkBrands"
+              :key="index"
+              size="35"
+              :text="brand.brandName.substring(0,1)"
+              @click="onCheck(brand)"
+          />
+        </view>
+        <view class="actionButton">
+          <MyButton @click="addSkuClass">
+            新增
+          </MyButton>
+          <MyButton type="primary" @click="saveCheck" :disabled="checkBrands.length === 0">
+            确定 · {{ checkBrands.length }}
+          </MyButton>
+        </view>
+      </template>
     </view>
+
+    <Modal ref="addBrandModal">
+      <u--input
+          placeholder="请输入品牌名称"
+          clearable
+          v-model="brandName"
+      />
+    </Modal>
 
     <u-action-sheet
         cancelText="取消"
@@ -57,7 +78,7 @@ import Loading from "../../../components/Loading";
 import UserName from "../../../components/UserName";
 import Empty from "../../../components/Empty";
 import Avatar from "../../../components/Avatar";
-import {safeAreaHeight} from "../../../util/Tools";
+import {getLocalParmas, safeAreaHeight} from "../../../util/Tools";
 import MyButton from "../../../components/MyButton";
 import Check from "../../../components/Check";
 import Icon from "../../../components/Icon";
@@ -73,13 +94,20 @@ export default {
   options: {
     styleIsolation: 'shared'
   },
+  props: ['defaultChecdBrands', 'type'],
   name: 'SelectUser',
   components: {List, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
+  watch: {
+    defaultChecdBrands(checkBrands) {
+      this.checkBrands = [...checkBrands]
+    }
+  },
   data() {
     return {
       Sku,
+      checkBrands: [],
       brandList: [],
-      actionbrand: {},
+      actionBrand: {},
       safeAreaHeight,
       brandName: '',
       brandActionShow: false,
@@ -98,7 +126,7 @@ export default {
     }
   },
   mounted() {
-
+    this.checkBrands = [...this.defaultChecdBrands]
   },
   methods: {
     onSearch(value) {
@@ -106,11 +134,11 @@ export default {
     },
     brandActionSelect({key}) {
       const _this = this
-      const thisbrand = this.actionbrand
+      const thisbrand = this.actionBrand
       switch (key) {
         case 'edit':
           _this.brandName = thisbrand.brandName
-          _this.$refs.addbrandModal.dialog({
+          _this.$refs.addBrandModal.dialog({
             title: '修改品牌名',
             only: false,
             confirmText: '修改',
@@ -174,7 +202,7 @@ export default {
     addSkuClass() {
       const _this = this
       _this.brandName = ''
-      _this.$refs.addbrandModal.dialog({
+      _this.$refs.addBrandModal.dialog({
         title: '添加品牌',
         only: false,
         confirmText: '添加',
@@ -203,8 +231,36 @@ export default {
       })
     },
     editbrand(brand) {
-      this.actionbrand = brand
+      this.actionBrand = brand
       this.brandActionShow = true
+    },
+    onCheck(brand) {
+      const radio = this.type === 'radio'
+      if (this.checkBrands.find(item => item.brandId === brand.brandId)) {
+        if (radio) {
+          this.$emit('checkBrands', [])
+          this.checkBrands = []
+          return
+        }
+        const newCheckBrands = this.checkBrands.filter(item => item.brandId !== brand.brandId)
+        this.checkBrands = newCheckBrands
+        this.$emit('checkBrands', newCheckBrands)
+      } else {
+        if (radio) {
+          this.$emit('checkBrands', [brand])
+          this.checkBrands = [brand]
+          return
+        }
+        const newCheckBrands = [...this.checkBrands, brand]
+        this.checkBrands = newCheckBrands
+        this.$emit('checkBrands', newCheckBrands)
+      }
+    },
+    saveCheck() {
+      uni.$emit('checkBrands', {
+        checkBrands: this.checkBrands
+      })
+      uni.navigateBack();
     }
   }
 }
@@ -252,12 +308,21 @@ export default {
   background-color: #eee;
   width: calc(100% - 24px);
 
-  .checkUsers {
+  .checkBrands {
     height: 35px;
-    flex-grow: 1;
+    max-width: 50%;
     display: flex;
     align-items: center;
     gap: 4px;
+    overflow: auto;
+  }
+
+  .actionButton {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
   }
 
   .action {

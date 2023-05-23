@@ -7,12 +7,15 @@
         @open="$emit('showBefore')"
     >
       <view v-if="!noTitle" class='popupHeader' :style="{borderBottom:!noHeaderBorder ?'1px solid #EEEEEE' : 'none'}">
-        <span v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
+        <view v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></view>
         <slot name="title">{{ title || '' }}</slot>
-        <span class='popupRight' @click="!rightText && $emit('close')">
-          <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
+        <view class='popupRight' @click="!rightText && $emit('close')">
+          <template v-if="rightText">
+            <LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton>
+            <LinkButton v-if="confirmButton" @click="$emit('onConfirm')">确认</LinkButton>
+          </template>
           <u-icon v-else name="close" />
-        </span>
+        </view>
       </view>
       <slot></slot>
     </u-popup>
@@ -37,6 +40,7 @@ export default {
     'getContainer',
     'noTitle',
     'noHeaderBorder',
+    'confirmButton'
   ],
   watch: {
     show(value) {
@@ -66,6 +70,7 @@ export default {
     height: 100%;
     display: flex;
     align-items: center;
+    gap: 12px;
   }
 
   .popupLeft {

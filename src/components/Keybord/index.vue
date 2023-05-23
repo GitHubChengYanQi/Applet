@@ -3,7 +3,7 @@
     <u-popup
         :overlay="overlay"
         :show="visible"
-        @close="$emit('visiblChange',false)"
+        @close="$emit('close')"
     >
       <view class='content'>
         <view v-if="!noStepper" class='calculation'>
@@ -158,8 +158,6 @@ export default {
       this.numberChange(newValue);
     },
     ok() {
-      this.$emit('onConfirm')
-      this.$emit('visiblChange', false)
       this.save();
     },
     save() {
@@ -172,6 +170,8 @@ export default {
         newValue = this.max;
       }
       this.$emit('onChange', newValue)
+      this.$emit('onConfirm')
+      this.$emit('close')
     }
   }
 }
@@ -191,13 +191,13 @@ export default {
       align-items: center;
       justify-content: center;
       min-width: 40px;
-      padding: 4px;
-      max-width: 30%;
-      flex-grow: 1;
+      padding: 0 4px;
+      width: calc(50% - 10px);
       border-left: solid 1px #f5f5f5;
       border-right: solid 1px #f5f5f5;
       overflow: hidden;
       font-size: 24px;
+      height: 45px;
     }
 
     button {
@@ -211,6 +211,10 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+
+      &::after {
+        content: none
+      }
     }
   }
 

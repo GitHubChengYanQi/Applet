@@ -34,6 +34,11 @@ export const isArray = (array) => {
     return Array.isArray(array) ? array : [];
 };
 
+// 判断是否为空
+export const isNull = (str) => {
+    return !str && str !== 0;
+}
+
 // 返回空对象
 export const isObject = (object) => {
     return (object && typeof object === 'object') ? object : {};

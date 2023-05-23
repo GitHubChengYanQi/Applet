@@ -35,7 +35,7 @@
     <Keybord
         :decimal='decimal'
         :visible='visible'
-        @visiblChange="visiblChange"
+        @close="visiblChange(false)"
         :value='value'
         :min='min'
         :max='max'

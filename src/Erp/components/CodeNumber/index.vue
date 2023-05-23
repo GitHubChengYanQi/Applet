@@ -40,7 +40,7 @@
         no-mask
         noStepper
         :visible="open || visible"
-        @visiblChange="(value)=>visible = value"
+        @close="visible = false"
         @numberClick="numberClick"
         @onConfirm="onConfirm"
         @onBack="onBack"

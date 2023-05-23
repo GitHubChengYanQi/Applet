@@ -283,7 +283,7 @@ export default {
                 return true
               },
               onConfirm() {
-                _this.formData = {}
+                _this.formData = {pid: _this.pid}
                 _this.getPositionTree()
                 return true
               }
