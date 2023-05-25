@@ -22,6 +22,7 @@
         :tree="tree"
         :list="list"
         :page="page"
+        :itemHeight="itemHeight"
         :itemWidth="itemWidth"
         :movableViewY="movableViewY"
         :movableViewX="movableViewX"
@@ -29,6 +30,9 @@
         @onCheck="onCheck"
         @pageClick="pageClick"
         @treeChange="(newTree)=>tree = newTree"
+        @onDelete="(_this)=>del(_this,true)"
+        @onEdit="(_this)=>edit(_this,true)"
+        @bindSku="bind"
     />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -36,7 +40,7 @@
         <LinkButton @click="addPosition">添加子库位</LinkButton>
       </view>
       <view class="action">
-        <LinkButton :disabled="this.page.length <= 1" @click="actionShow = true">更多管理</LinkButton>
+        <LinkButton :disabled="page.length <= 1" @click="actionShow = true">更多管理</LinkButton>
         <u-action-sheet
             cancelText="取消"
             :actions="actionList"
@@ -90,16 +94,14 @@ import Icon from "../../components/Icon";
 import LinkButton from "../../components/LinkButton";
 import AddUser from "../../components/AddUser";
 import Modal from "../../components/Modal";
-import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
-import {Sku} from "MES-Apis/lib/Sku/promise";
 import {Position} from "MES-Apis/lib/Position/promise";
 import PositionManage from "./components/PositionManage";
-import {addChildren, delChildren} from "./index";
+import {delChildren} from "./index";
 
 export default {
   options: {
@@ -149,15 +151,6 @@ export default {
           key: 'add'
         },
         {
-          name: '修改库位',
-          key: 'edit',
-        },
-        {
-          name: '删除库位',
-          key: 'delete',
-          color: 'red',
-        },
-        {
           name: '设置权限',
           // color: '#007aff',
           key: 'auth',
@@ -173,6 +166,7 @@ export default {
       itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
+      itemHeight: 68,
     }
   },
   mounted() {
@@ -244,21 +238,22 @@ export default {
       })
     },
     allActionSelect({key}) {
+      const thisItem = {name: this.allActionData.title, key: this.allActionData.key}
       switch (key) {
         case 'add':
           this.addPosition(this.allActionData.key + '')
           break;
         case 'edit':
-          this.edit({name: this.allActionData.title, key: this.allActionData.key}, true)
+          this.edit(thisItem, true)
           break;
         case 'delete':
-          this.del({name: this.allActionData.title, key: this.allActionData.key}, true)
+          this.del(thisItem, true)
           break
         case 'bind':
-          this.bind({name: this.allActionData.title, key: this.allActionData.key})
+          this.bind(thisItem)
           break;
         case 'auth':
-          this.auth({name: this.allActionData.title, key: this.allActionData.key})
+          this.auth(thisItem)
           break;
       }
     },
@@ -461,10 +456,10 @@ export default {
     listChange(list) {
       this.list = list
       this.$nextTick(function () {
-        this.movableViewY = this.page.length > 1 ? 49 : 1
+        this.movableViewY = this.page.length > 1 ? this.itemHeight + 1 : 1
         this.movableViewX = this.itemWidth - 0.1
         setTimeout(() => {
-          this.movableViewY = this.page.length > 1 ? 48 : 0
+          this.movableViewY = this.page.length > 1 ? this.itemHeight : 0
           this.movableViewX = this.itemWidth
         }, 0)
       })
@@ -517,21 +512,30 @@ export default {
   .users {
     overflow: hidden auto;
     background-color: #fff;
-    padding: 0 12px;
   }
 
 }
 
 .item {
-  padding: 0 6px;
+  padding-left: 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 47px;
+  gap: 12px;
 
   .itemTitle {
     flex-grow: 1;
+
+    .itemDescribe {
+      padding-right: 12px;
+      font-size: 12px;
+      color: #808080;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
   }
 
   .userItem {
@@ -547,8 +551,6 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35px;
-    height: 35px;
     //margin-left: 32px;
   }
 

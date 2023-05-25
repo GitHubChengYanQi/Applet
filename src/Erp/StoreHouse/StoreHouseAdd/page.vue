@@ -169,8 +169,10 @@
           @close="classShow = false"
           @onLeft="classShow = false"
           @onRight="classShow = false"
+          max-height="50vh"
       >
-        <view style="padding: 12px">
+        <Loading skeleton v-if="categoryLoading" />
+        <view v-else style="padding: 12px">
           <Tree icon="icon-gaojizujian" :data="cateGoryData" :value="classList" @input="onClassList" />
         </view>
       </Popup>
@@ -238,6 +240,7 @@ export default {
       markId: 0,
       time: null,
       cateGoryData: [],
+      categoryLoading: false,
       storeHouseData: null,
       loading: false,
       classShow: false,
@@ -418,6 +421,7 @@ export default {
       await this.getStoreHouseTree()
       this.map = uni.createMapContext('myMap', this)
       if (this.storehouseId) {
+        uni.setNavigationBarTitle({title: '修改仓库'})
         await this.getDetail(this.storehouseId)
       } else {
         this.formData = {pid: this.pid || '0'}
@@ -519,11 +523,13 @@ export default {
 
     },
     async getCateGory() {
+      this.categoryLoading = true
       const response = await Sku.spuClassTreeView({data: {}});
       const {
         data
       } = response;
-      this.cateGoryData = data
+      this.cateGoryData = data || []
+      this.categoryLoading = false
     },
     format(data) {
       const list = [];

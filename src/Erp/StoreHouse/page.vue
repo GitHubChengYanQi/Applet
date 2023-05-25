@@ -20,6 +20,7 @@
         :tree="tree"
         :store-house-list="storeHouseList"
         :store-house-page="storeHousePage"
+        :itemHeight="itemHeight"
         :itemWidth="itemWidth"
         :movableViewY="movableViewY"
         :movableViewX="movableViewX"
@@ -27,6 +28,9 @@
         @onCheckStoreHouse="onCheckStoreHouse"
         @storeHousePageClick="storeHousePageClick"
         @treeChange="(newTree)=>tree = newTree"
+        @onDelete="(_this)=>del(_this,true)"
+        @onEdit="(_this)=>edit(_this,true)"
+        @bindClass="openBindSkuClass"
     />
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -34,7 +38,7 @@
         <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
       </view>
       <view class="action">
-        <LinkButton :disabled="this.storeHousePage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
+        <LinkButton :disabled="storeHousePage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
         <u-action-sheet
             cancelText="取消"
             :actions="actionList"
@@ -53,6 +57,24 @@
         @close="allActionShow = false"
         @select="allActionSelect"
     />
+
+    <Popup
+        title="绑定分类"
+        z-index="99"
+        :show="classShow"
+        left-text="取消"
+        right-text="保存"
+        @close="classShow = false"
+        @onLeft="classShow = false"
+        @onRight="saveBindSkuClass"
+    >
+      <Loading skeleton v-if="categoryLoading" />
+      <view v-else style="padding: 12px">
+        <Tree icon="icon-gaojizujian" :data="cateGoryData" v-model="classList" />
+      </view>
+    </Popup>
+
+    <Loading :loading="saveBindSkuClassLoading" />
 
     <Modal ref="modal" />
   </view>
@@ -77,6 +99,7 @@ import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
 import StoreHouseManage from "./components/StoreHouseManage";
 import {delStoreHouseChildren} from "./index";
+import {Sku} from "MES-Apis/lib/Sku/promise";
 
 export default {
   options: {
@@ -113,6 +136,12 @@ export default {
       error: false,
       safeAreaHeight,
       pageContainerShow: false,
+      saveBindSkuClassLoading: false,
+      classShow: false,
+      itemHeight: 68,
+      cateGoryData: [],
+      categoryLoading: false,
+      classList: [],
       admin: false,
       allActionList: [
         {
@@ -123,21 +152,13 @@ export default {
           name: '查看库位',
           key: 'position'
         },
-        {
-          name: '修改仓库',
-          key: 'edit',
-        },
-        {
-          name: '删除仓库',
-          key: 'delete',
-          color: 'red',
-        },
       ],
       allActionShow: false,
       allActionData: {},
       itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
+      storeId: null
     }
   },
   mounted() {
@@ -160,6 +181,8 @@ export default {
       })
     })
     this.getList()
+
+    this.getCateGory()
   },
   computed: {
     actionList() {
@@ -377,14 +400,50 @@ export default {
     listChange(storeHouseList) {
       this.storeHouseList = storeHouseList
       this.$nextTick(function () {
-        this.movableViewY = this.storeHousePage.length > 1 ? 49 : 1
+        this.movableViewY = this.storeHousePage.length > 1 ? this.itemHeight + 1 : 1
         this.movableViewX = this.itemWidth - 0.1
         setTimeout(() => {
-          this.movableViewY = this.storeHousePage.length > 1 ? 48 : 0
+          this.movableViewY = this.storeHousePage.length > 1 ? this.itemHeight : 0
           this.movableViewX = this.itemWidth
         }, 0)
       })
     },
+    async getCateGory() {
+      this.categoryLoading = true
+      const response = await Sku.spuClassTreeView({data: {}}).catch(() => {
+        this.categoryLoading = false
+      });
+      const {
+        data
+      } = response;
+      this.cateGoryData = data || []
+      this.categoryLoading = false
+    },
+    openBindSkuClass(store) {
+      this.classShow = true
+      this.classList = store.classList || []
+      this.storeId = store.key || []
+    },
+    saveBindSkuClass() {
+      this.saveBindSkuClassLoading = true
+      Storehouse.storeHouseEditV2_0({
+        data: {
+          storehouseId: this.storeId,
+          spuClassIds: isArray(this.classList).map(item => item.key),
+        }
+      }).then((res) => {
+        this.classShow = false
+        this.$refs.modal.dialog({
+          title: '保存成功！'
+        })
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: '保存失败！'
+        })
+      }).finally(() => {
+        this.saveBindSkuClassLoading = false
+      })
+    }
   }
 }
 </script>
@@ -433,21 +492,30 @@ export default {
   .users {
     overflow: hidden auto;
     background-color: #fff;
-    padding: 0 12px;
   }
 
 }
 
 .item {
-  padding: 0 6px;
+  padding-left: 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 47px;
+  gap: 12px;
 
   .itemTitle {
     flex-grow: 1;
+
+    .itemDescribe {
+      padding-right: 12px;
+      font-size: 12px;
+      color: #808080;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
   }
 
   .userItem {
@@ -463,8 +531,6 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35px;
-    height: 35px;
     //margin-left: 32px;
   }
 

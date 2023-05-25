@@ -5,7 +5,7 @@
 
       <scroll-view class="skuAdd">
 
-        <Uploader :size="70" @onChange="imgChange">
+        <Uploader @loading="onUploadLoading" :size="70" @onChange="imgChange">
           <view
               class="uploadSkuImg"
               :style="{
@@ -23,7 +23,7 @@
 
         <movable-area
             class="movableArea"
-            :style="{height: `calc(100vh - 20px + 213px + ${isArray(formRenderData.imageUrls).length > 0 ? 108 : 0}px)`}"
+            :style="{height: `calc(100vh - 20px + 213px + ${(uploadLoading || isArray(formRenderData.imageUrls).length > 0) ? 108 : 0}px)`}"
         >
           <movable-view
               :disabled="moveY === 0 && startMove === false"
@@ -43,7 +43,7 @@
 
               <scroll-view
                   :scroll-y="moveY === 0"
-                  :style="{maxHeight: `calc(100vh - 20px - 33px - 81px - ${Object.keys(formData).length > 0 ? (45+12) : 0}px - ${safeAreaHeight(this,8)}px)`}"
+                  :style="{maxHeight: `calc(100vh - 20px - 33px - 47px - ${Object.keys(formData).length > 0 ? (65+12) : 0}px - ${safeAreaHeight(this,8)}px)`}"
                   @touchstart="startMove = true"
                   @touchend="touchend"
               >
@@ -214,15 +214,15 @@
                       <view class="skuSize">
                         <view class="skuSizeItem" @click="keybordShow = 'skuSizeLength'">
                           长：
-                          <view class="skuSizeValue">{{ formData.skuSizeLength || 0 }}cm</view>
+                          <view class="skuSizeValue">{{ formData.skuSizeLength || 0 }}mm</view>
                         </view>
                         <view class="skuSizeItem" @click="keybordShow = 'skuSizeWidth'">
                           宽：
-                          <view class="skuSizeValue">{{ formData.skuSizeWidth || 0 }}cm</view>
+                          <view class="skuSizeValue">{{ formData.skuSizeWidth || 0 }}mm</view>
                         </view>
                         <view class="skuSizeItem" @click="keybordShow = 'skuSizeHeight'">
                           高：
-                          <view class="skuSizeValue">{{ formData.skuSizeHeight || 0 }}cm</view>
+                          <view class="skuSizeValue">{{ formData.skuSizeHeight || 0 }}mm</view>
                         </view>
                       </view>
                     </SkuFormItem>
@@ -281,6 +281,9 @@
                   </template>
                 </view>
 
+
+<!--                <MyButton class="addSkuName">增加型号</MyButton>-->
+
                 <view class="formDes">
                   注：
                   <u-badge isDot />
@@ -293,7 +296,7 @@
               <view class="expand" @click="open = !open">
                 <img :src="sku_expand" alt="">
                 <view class="icon">
-                  <Icon :icon="!open ? 'icon-shuangjiantouxia' : 'icon-shuangjiantoushang'" size="10" />
+                  <Icon :icon="!open ? 'icon-shuangjiantouxia' : 'icon-shuangjiantoushang'" size="24" />
                 </view>
               </view>
 
@@ -313,6 +316,10 @@
               :height="imgWidth"
               @click="previewImage(image)"
           />
+          <view v-if="uploadLoading" :style="{width:`${imgWidth}px`,height:`${imgWidth}px`}" class="imgLoading">
+            <u-loading-icon mode="circle" />
+          </view>
+
         </view>
 
         <view
@@ -346,13 +353,25 @@
           @onLeft="filedShow = ''"
           left-text="取消"
           right-text="新增"
-          confirmButton
-          @onRight="addClass"
           title="选择分类"
           @closeAfter="showContent = false"
           @showBefore="showContent = true"
-          @onConfirm="filedShow = ''"
       >
+        <template slot="rightButton">
+          <view class="skuClassPopupActions">
+            <MyButton
+                @click="addClass"
+                :customStyle="{height:'30px !important'}"
+            >新增
+            </MyButton>
+            <MyButton
+                @click="filedShow = ''"
+                :customStyle="{height:'30px !important'}"
+                type="primary"
+            >确认
+            </MyButton>
+          </view>
+        </template>
         <Loading skeleton v-if="getCateGoryLoading" />
         <Cascader
             v-else-if="showContent"
@@ -512,6 +531,7 @@ export default {
       formData: {},
       formRenderData: {},
       refreshLoading: false,
+      uploadLoading: false,
       filedShow: '',
       keybordShow: '',
       getCateGoryLoading: false,
@@ -650,15 +670,18 @@ export default {
         materialName: material.text
       })
     },
-    imgChange(value) {
-
-      if (this.moveY !== 321) {
+    onUploadLoading(loading) {
+      if (loading && this.moveY !== 321) {
         this.y = this.moveY
         this.$nextTick(function () {
           this.y = 321
           this.moveY = 321
         })
       }
+      this.uploadLoading = loading
+    },
+    imgChange(value) {
+
       this.saveFormData({
         images: this.formData.images ? [...this.formData.images.split(','), value.id].join(',') : value.id,
       }, {
@@ -730,6 +753,7 @@ export default {
         name: '顶级',
         children: list
       }]
+
       if (classId) {
         this.filedShow = ''
         this.saveFormData({
@@ -798,12 +822,15 @@ export default {
           ...this.formData,
           type: 0,
           isHidden: true,
-          spu: {name: this.formData.spu, coding: this.formData.spuCoding},
+          spu: {name: this.formData.spu},
           skuSize: `${(this.formData.skuSizeLength || 0)},${this.formData.skuSizeWidth || 0},${this.formData.skuSizeHeight || 0}`,
           // nationalStandard: this.formData.skuName,
           model: this.formData.skuName,
           // partNo: this.formData.skuName,
           generalFormDataParams: this.general,
+          skuSizeLength: undefined,
+          skuSizeWidth: undefined,
+          skuSizeHeight: undefined
         };
         this.loading = true
         const _this = this
@@ -942,6 +969,13 @@ export default {
     padding: 16px 12px 0;
     overflow: auto;
     z-index: 1;
+
+    .imgLoading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+    }
   }
 
   .content {
@@ -1004,20 +1038,20 @@ export default {
 
     .expand {
       padding-top: 32px;
-      height: 15px;
+      height: 25px;
       display: flex;
       align-items: center;
       justify-content: center;
 
       image {
         position: absolute;
-        width: 37px;
-        height: 15px;
+        width: 47px;
+        height: 25px;
       }
 
       .icon {
         z-index: 1;
-        margin-top: 2px;
+        margin-top: 6px;
       }
     }
 
@@ -1067,10 +1101,28 @@ export default {
   }
 }
 
+.addSkuName {
+  .myButton {
+    display: inline-block;
+    width: calc(100% - 24px);
+    padding: 12px;
+
+    > button {
+      width: 100% !important;
+    }
+  }
+}
+
 .skuDescribe {
   padding: 12px 24px;
   max-height: 50vh;
   overflow: hidden auto;
+}
+
+.skuClassPopupActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 </style>

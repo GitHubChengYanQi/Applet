@@ -6,7 +6,7 @@
           :loading-text="loadingText || 'loading...'"
           loading
       />
-      <u-loading-icon v-else mode="circle" :text="loadingText || 'loading...'" :vertical="true"></u-loading-icon>
+      <u-loading-icon v-else mode="circle" :text="loadingText || 'loading...'" :vertical="true" />
     </view>
     <view v-if="loading" class="loading">
       <u-loading-page

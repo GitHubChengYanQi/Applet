@@ -1,121 +1,147 @@
 <template>
   <view v-else class="selectUser">
-    <view class="header">
-      <uni-breadcrumb separator="/">
-        <uni-breadcrumb-item v-for="(route,index) in page" :key="index">
-          <view @click="$emit('pageClick',route)">
-            {{ route.name }}
-          </view>
-        </uni-breadcrumb-item>
-      </uni-breadcrumb>
-    </view>
-    <view
-        class="users"
-        :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
-    >
-      <movable-area
-          class="movableArea"
-          :style="{
-      height:`${list.length * itemHeight + (page.length > 1 ? 68 : 20)}px`,
+    <uni-swipe-action ref="uni-swipe-action">
+      <view class="header">
+        <uni-breadcrumb separator="/">
+          <uni-breadcrumb-item v-for="(route,index) in page" :key="index">
+            <view @click="$emit('pageClick',route)">
+              {{ route.name }}
+            </view>
+          </uni-breadcrumb-item>
+        </uni-breadcrumb>
+      </view>
+      <view
+          class="users"
+          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
+      >
+        <movable-area
+            class="movableArea"
+            :style="{
+      height:`${list.length * itemHeight + (page.length > 1 ? (20 + itemHeight) : 20)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
     }"
-      >
-        <movable-view
-            v-if="page.length > 1"
-            direction="all"
-            :x="movableViewX"
-            :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
-            :class="{movableView:true,inItem:inIndex === -1}"
-            :disabled="true"
-            @click="$emit('pageClick',page[page.length - 2])"
         >
-          <view class="item">
-            <view class="deptIcon">
-              <Icon icon="icon-fanhui" size="20" />
+          <movable-view
+              v-if="page.length > 1"
+              direction="all"
+              :x="movableViewX"
+              :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
+              :class="{movableView:true,inItem:inIndex === -1}"
+              :disabled="true"
+              @click="$emit('pageClick',page[page.length - 2])"
+          >
+            <view class="item" :style="{height:`${itemHeight - 1}px`}">
+              <view class="deptIcon">
+                <Icon icon="icon-fanhui" size="20" />
+              </view>
+              <view class="backDept">返回上级库位</view>
             </view>
-            <view class="backDept">返回上级仓库</view>
-          </view>
-        </movable-view>
+          </movable-view>
 
-        <Empty
-            :style="{paddingTop:`${itemHeight}px`}"
-            v-if="list.length === 0"
-            description="暂无数据"
-        />
+          <Empty
+              :style="{paddingTop:`${itemHeight}px`}"
+              v-if="list.length === 0"
+              description="暂无数据"
+          />
 
-        <movable-view
-            v-for="(item,index) in list"
-            :key="index"
-            @click="$emit('onCheck',item)"
-            :damping="0"
-            :out-of-bounds="true"
-            :animation="false"
-            :disabled="isMove !== index"
-            :style="{
+          <movable-view
+              v-for="(item,index) in list"
+              :key="index"
+              :damping="0"
+              :out-of-bounds="true"
+              :animation="false"
+              :disabled="isMove !== index"
+              :style="{
                 top:`${itemHeight * index+(page.length > 1 ? 0 : 10)}px`,
                 width: `${itemWidth}px`,
                 height:`${itemHeight}px`
                 }"
-            :y="movableViewY"
-            :x="movableViewX"
-            direction="all"
-            @change="(e)=>move(e,index)"
-            @touchend="(e)=>moveEnd(e,index)"
-            :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
-        >
-          <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
-          <view class="item">
-            <view class="deptIcon">
-              <Icon icon="icon-pandiankuwei1" size="30" />
-            </view>
-            <view class="itemTitle">
-              {{ item.title }}
-            </view>
-            <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
-              <u-icon name="list" />
-            </view>
-          </view>
-          <view
-              class="moveLine"
-              v-if="inIndex === null  && moveIndex === list.length && index === list.length-1"
-          />
-        </movable-view>
+              :y="movableViewY"
+              :x="movableViewX"
+              direction="all"
+              @change="(e)=>move(e,index)"
+              @touchend="(e)=>moveEnd(e,index)"
+              :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
+          >
+            <Swipe
+                :disabled="!admin || isMove !== null"
+                @click="(key)=>swipeClick(key,item)"
+            >
+              <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
+              <view class="item" :style="{height:`${itemHeight - 1}px`}" @click="$emit('onCheck',item)">
+                <view class="deptIcon">
+                  <Icon icon="icon-pandiankuwei1" size="55" />
+                </view>
+                <view class="itemTitle">
+                  <view>{{ item.title }}</view>
+                  <view class="itemOther" v-if="isArray(item.children).length === 0">
+                    <view
+                        class="itemDescribe"
+                        :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+                    >
+                      标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、
+                    </view>
+                    <view class="bindClass" @click.stop="bindSku($event,item)">
+                      <LinkButton>绑定分类</LinkButton>
+                    </view>
+                  </view>
+                </view>
+                <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
+                  <u-icon name="list" />
+                </view>
+              </view>
+              <view
+                  style="bottom: 0"
+                  class="moveLine"
+                  v-if="inIndex === null  && moveIndex === list.length && index === list.length-1"
+              />
+            </Swipe>
+          </movable-view>
 
-        <view
-            class="item moveFixItem" v-if="isMove !== null"
-            :style="{
+          <view
+              class="item moveFixItem" v-if="isMove !== null"
+              :style="{
                 top:`${itemHeight * isMove + (page.length > 1 ? itemHeight : 10)}px`,
                 left:`${itemWidth}px`,
                 height:`${itemHeight}px`
               }"
-        >
-          <view class="deptIcon" style="margin-left:0">
-            <Icon icon="icon-pandiankuwei1" size="30" />
+          >
+            <view class="deptIcon" style="margin-left:0">
+              <Icon icon="icon-pandiankuwei1" size="55" />
+            </view>
+            {{ list[isMove].title }}
           </view>
-          {{ list[isMove].title }}
-        </view>
-      </movable-area>
+        </movable-area>
 
-
-    </view>
+      </view>
+    </uni-swipe-action>
 
     <Modal ref="modal" />
   </view>
 </template>
 
 <script>
-import {safeAreaHeight} from "../../../../util/Tools";
+import {isArray, safeAreaHeight} from "../../../../util/Tools";
 import Empty from "../../../../components/Empty";
 import Icon from "../../../../components/Icon";
 import {Init} from "MES-Apis/lib/Init";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Modal from "../../../../components/Modal";
 import {addChildren, delChildren, sortChildren} from "../../index";
+import Swipe from "../../../../components/Swipe/index.vue";
+import Check from "../../../../components/Check/index.vue";
+import SkuItem from "../../../../components/SkuItem/index.vue";
+import Loading from "../../../../components/Loading/index.vue";
+import {Message} from "../../../../components/Message";
+import LinkButton from "../../../../components/LinkButton/index.vue";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: 'PositionManage',
-  components: {Modal, Icon, Empty},
+  components: {LinkButton, Loading, SkuItem, Check, Swipe, Modal, Icon, Empty},
   props: [
     'page',
     'list',
@@ -123,13 +149,14 @@ export default {
     'movableViewY',
     'movableViewX',
     'admin',
-    'tree'
+    'tree',
+    'itemHeight'
   ],
   data() {
     return {
+      isArray,
       safeAreaHeight,
       isMove: null,
-      itemHeight: 48,
       moveIndex: null,
       inIndex: null,
       startDrag: false
@@ -199,6 +226,7 @@ export default {
       this.movableView = e.detail.y
     },
     moveStart(e, index) {
+      this.$refs["uni-swipe-action"].closeAll()
       this.isMove = index
       this.startDrag = true
       setTimeout(() => {
@@ -314,16 +342,72 @@ export default {
       this.$emit('listChange', list)
       // this.resetSkuMove()
     },
+    swipeClick(key, item) {
+      switch (key) {
+        case 'delete':
+          this.$emit('onDelete', {name: item.title, key: item.key})
+          break;
+        case 'edit':
+          this.$emit('onEdit', {name: item.title, key: item.key})
+          break
+      }
+    },
+    skuSwipeClick(key, item) {
+      switch (key) {
+        case 'delete':
+          const _this = this
+          this.$refs.modal.dialog({
+            title: '删除后不可恢复，确定删除绑定吗？',
+            only: false,
+            onConfirm() {
+              return new Promise((resolve) => {
+                Storehouse.positionsBindDelete({
+                  data: {bindId: item.bindId}
+                }).then(() => {
+                  _this.skuList = _this.skuList.filter(listItem => listItem.bindId !== item.bindId)
+                  resolve(true)
+                }).catch(() => {
+                  Message.errorToast('删除失败！')
+                  resolve(false)
+                })
+              })
+            }
+          })
+          break;
+        case 'edit':
+
+          break
+      }
+    },
+    async bindSku(event, item) {
+      this.$emit('bindSku', {name: item.title, key: item.key})
+      event.stopPropagation();
+    },
   }
 }
 </script>
 
 <style lang="scss">
 .drag {
-  height: 47px;
+  height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 24px 0;
+  padding: 0 12px 0;
+}
+
+.itemOther {
+  display: flex;
+  align-items: center;
+
+  .bindClass {
+
+    .linkButton {
+
+      > button {
+        font-size: 14px !important;
+      }
+    }
+  }
 }
 
 .startDrag {

@@ -63,7 +63,7 @@
         :showFooter="showFooter"
         :depts="depts"
         :admin="admin"
-        @editUser="editUser"
+        @userClick="userClick"
         @onCheckUser="onCheckUser"
         :total="total"
         :waitJoinUserTotal="waitJoinUserTotal"
@@ -79,6 +79,10 @@
         @onCheckDept="onCheckDept"
         :users="users"
         @usersChange="(newUser)=>users = newUser"
+        @onDelete="(_this)=>del(_this,true)"
+        @onEdit="(_this)=>edit(_this,true)"
+        @userDelete="removeUser"
+        @userEdit="editUser"
     />
 
     <view v-if="showFooter" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -166,7 +170,9 @@ export default {
   },
   name: 'SelectUser',
   props: ['defaultChecdUsers', 'type', 'show'],
-  components: {UserManage, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search},
+  components: {
+    UserManage, Modal, AddUser, LinkButton, Icon, Check, MyButton, Avatar, Empty, UserName, Loading, Search
+  },
   data() {
     return {
       deptPage: [],
@@ -250,16 +256,6 @@ export default {
     userActionList() {
       return [
         {
-          name: '修改成员信息',
-          key: 'edit',
-          color: '#007aff',
-        },
-        {
-          name: '移出团队',
-          key: 'remove',
-          color: 'red'
-        },
-        {
           name: '移交管理员',
           key: 'admin',
           disabled: this.actionUser.isAdmin === 1,
@@ -337,42 +333,49 @@ export default {
         }, 0)
       })
     },
+    editUser(thisUser) {
+      uni.navigateTo({
+        url: '/User/UserEdit/index?userId=' + thisUser.userId
+      })
+    },
+    removeUser(thisUser) {
+      const _this = this
+      this.$refs.modal.dialog({
+        title: `确认要把【${thisUser.name || '-'}】移出团队吗？`,
+        only: false,
+        confirmText: '移除团队',
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Tenant.removeTenantUser({
+              data: {
+                tenantBindId: thisUser.tenantBindId
+              }
+            }).then(() => {
+              resolve(true)
+              const newUsers = _this.users.filter(user => user.userId !== thisUser.userId)
+              _this.users = newUsers
+              if (_this.noDept) {
+                _this.renderList(newUsers)
+              }
+            }).catch(() => {
+              resolve(true)
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '移出失败！'
+              })
+            })
+          })
+        }
+      })
+    },
     userActionSelect({key}) {
       const _this = this
       switch (key) {
         case 'edit':
-          uni.navigateTo({
-            url: '/User/UserEdit/index?userId=' + this.actionUser.userId
-          })
+
           break;
         case 'remove':
-          this.$refs.modal.dialog({
-            title: `确认要把【${_this.actionUser.name || '-'}】移出团队吗？`,
-            only: false,
-            confirmText: '移除团队',
-            confirmError: true,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Tenant.removeTenantUser({
-                  data: {
-                    tenantBindId: _this.actionUser.tenantBindId
-                  }
-                }).then(() => {
-                  resolve(true)
-                  const newUsers = _this.users.filter(user => user.userId !== _this.actionUser.userId)
-                  _this.users = newUsers
-                  if (_this.noDept) {
-                    _this.renderList(newUsers)
-                  }
-                }).catch(() => {
-                  resolve(true)
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage() || '移出失败！'
-                  })
-                })
-              })
-            }
-          })
+
           break;
         case 'admin':
           this.$refs.modal.dialog({
@@ -412,78 +415,101 @@ export default {
       const thisDept = this.deptPage[this.deptPage.length - 1]
       switch (key) {
         case 'edit':
-          _this.deptName = thisDept.name
-          _this.$refs.addDeptModal.dialog({
-            title: '修改当前部门名称',
-            only: false,
-            confirmText: '修改',
-            onConfirm() {
-              return new Promise((resolve) => {
-                if (!_this.deptName) {
-                  Message.toast('请输入部门名称！')
-                  resolve(false)
-                  return
-                }
-                Dept.deptEdit({
-                  data: {
-                    deptId: thisDept.key,
-                    simpleName: _this.deptName,
-                    fullName: _this.deptName,
-                    description: _this.deptName,
-                    pid: _this.deptPage[_this.deptPage.length - 2].key,
-                  }
-                }).then(() => {
-                  const newDept = {
-                    key: thisDept.key,
-                    title: _this.deptName
-                  }
-                  _this.deptPage = _this.deptPage.map(item => {
-                    if (item.key === newDept.key) {
-                      return {...item, name: newDept.title}
-                    }
-                    return item
-                  })
-                  _this.deptTree = _this.editDeptChildren(newDept, _this.deptTree)
-                  resolve(true)
-                }).catch(() => {
-                  Message.errorToast('修改失败！')
-                  resolve(false)
-                })
-              })
-            }
-          })
+          this.edit(thisDept)
           break;
         case 'delete':
-          _this.$refs.modal.dialog({
-            title: '删除后不可恢复，是否确认删除？',
-            content: '删除部门【' + thisDept.name + '】',
-            only: false,
-            confirmError: true,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Dept.deptDelete({
-                  data: {
-                    deptId: thisDept.key
-                  }
-                }).then(() => {
-                  const newDeptTree = delDeptChildren(thisDept.key, _this.deptTree)
-                  if (newDeptTree[0]?.children.length === 0) {
-                    _this.getList()
-                  } else {
-                    _this.deptTree = newDeptTree
-                    _this.deptPageClick(_this.deptPage[_this.deptPage.length - 2])
-                  }
-
-                  resolve(true)
-                }).catch(() => {
-                  Message.errorToast('删除失败！')
-                  resolve(false)
-                })
-              })
-            }
-          })
+          this.del(thisDept)
           break
       }
+    },
+    edit(thisDept, current) {
+      const _this = this
+      this.deptName = thisDept.name
+      this.$refs.addDeptModal.dialog({
+        title: '修改当前部门名称',
+        only: false,
+        confirmText: '修改',
+        onConfirm() {
+          return new Promise((resolve) => {
+            if (!_this.deptName) {
+              Message.toast('请输入部门名称！')
+              resolve(false)
+              return
+            }
+            Dept.deptEdit({
+              data: {
+                deptId: thisDept.key,
+                simpleName: _this.deptName,
+                fullName: _this.deptName,
+                description: _this.deptName,
+                pid: _this.deptPage[_this.deptPage.length - (current ? 1 : 2)].key,
+              }
+            }).then(() => {
+              const newDept = {
+                key: thisDept.key,
+                title: _this.deptName
+              }
+              if (current) {
+                _this.deptsChange(_this.depts.map(item => {
+                  if (item.key === newDept.key) {
+                    return {...item, title: newDept.title}
+                  }
+                  return item
+                }))
+              } else {
+                _this.deptPage = _this.deptPage.map(item => {
+                  if (item.key === newDept.key) {
+                    return {...item, name: newDept.title}
+                  }
+                  return item
+                })
+              }
+              _this.deptTree = _this.editDeptChildren(newDept, _this.deptTree)
+              resolve(true)
+            }).catch(() => {
+              Message.errorToast('修改失败！')
+              resolve(false)
+            })
+          })
+        }
+      })
+    },
+    del(thisDept, current) {
+      const _this = this
+      _this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        content: '删除部门【' + thisDept.name + '】',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Dept.deptDelete({
+              data: {
+                deptId: thisDept.key
+              }
+            }).then(() => {
+
+              const newDeptTree = delDeptChildren(thisDept.key, _this.deptTree)
+              if (newDeptTree[0]?.children.length === 0) {
+                _this.getList()
+              } else {
+                if (current) {
+                  _this.deptsChange(_this.depts.filter(item => item.key !== thisDept.key))
+                } else {
+                  _this.deptTree = newDeptTree
+                  _this.deptPageClick(_this.deptPage[_this.deptPage.length - 2])
+                }
+              }
+
+
+              resolve(true)
+            }).catch(() => {
+              Message.errorToast('删除失败！')
+              resolve(false)
+            })
+          })
+        }
+      })
     },
     afterleave() {
       if (this.addUserShow || this.actionShow || this.userActionShow || this.$refs.addDeptModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.userManage.showStatus()) {
@@ -714,7 +740,7 @@ export default {
         }
       })
     },
-    editUser(user) {
+    userClick(user) {
       this.actionUser = user
       this.userActionShow = true
     },

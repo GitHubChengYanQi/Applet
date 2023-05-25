@@ -3,9 +3,9 @@ import {ReceiptsEnums} from "./Erp/Receipt/ReceiptsEnums";
 
 export const routes = [
     {
-        name: '物料添加',
+        name: '物料管理',
         key: 'miniapp-skuAdd',
-        url: '/Sku/Manage/index'
+        url: '/Sku/SkuClass/SkuClassList/index'
     },
     {
         name: '仓储管理',

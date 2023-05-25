@@ -28,3 +28,13 @@ export const delSkuClassChildren = (key, skuClassList = []) => {
     })
     return newSkuClassList
 };
+
+export const delSkuClassIdsChildren = (keys = [], skuClassList = []) => {
+    const newSkuClassList = []
+    skuClassList.map(item => {
+        if (keys.findIndex(id => (id + '') === (item.key + '')) === -1) {
+            newSkuClassList.push({...item, children: delSkuClassChildren(key, item.children || [])})
+        }
+    })
+    return newSkuClassList
+};

@@ -37,7 +37,6 @@
 
           </view>
 
-
           <view class="box">
             <FormItem label="库位结构" name="pid">
 
@@ -157,6 +156,7 @@ export default {
     })
     this.formData = {pid: this.pid}
     if (this.storehousePositionsId) {
+      uni.setNavigationBarTitle({title:'修改库位'})
       this.getDetail(this.storehousePositionsId)
     } else {
       this.getPositionTree()
@@ -373,6 +373,11 @@ export default {
     background-color: #fff;
     border-radius: 8px;
   }
+}
+
+.deptTree {
+  max-height: 50vh;
+  overflow: auto;
 }
 
 </style>

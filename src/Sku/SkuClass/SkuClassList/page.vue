@@ -23,32 +23,74 @@
           :tree="tree"
           @skuClassPageClick="skuClassPageClick"
           @onCheckSkuClass="onCheckSkuClass"
+          @onCheckSkus="onCheckSkus"
+          @skuClassClick="skuClassClick"
           @skuClassListChange="skuClassListChange"
           @treeChange="(newTree)=>tree = newTree"
+          @onDelete="(_this)=>del(_this,true)"
+          @onEdit="(_this)=>edit(_this,true)"
+          @skuListChange="(list)=>skuList = list"
+          :checkSkus="checkSkus"
+          :skuList="skuList"
+          :sys="sys"
+          :checkSkuClass="checkSkuClass"
       />
     </view>
 
     <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-      <view class="action">
-        <LinkButton @click="addSkuClass()">添加子分类</LinkButton>
-        <Modal ref="addSkuClassModal">
-          <u--input
-              placeholder="请输入分类名称"
-              clearable
-              v-model="skuClassName"
+      <template v-if="sys">
+        <view class="sys">
+          <view class="total">
+            已选
+            <view class="num">{{ checkSkuClass.length + checkSkus.length }}</view>
+            个
+          </view>
+          <view class="sysActions">
+            <MyButton
+                :loading="delLoading"
+                type="error"
+                :disabled="checkSkuClass.length === 0 && checkSkus.length === 0"
+                @click="batchDelete"
+            >
+              删除
+            </MyButton>
+            <MyButton type="primary" @click="sys = false">退出管理</MyButton>
+          </view>
+        </view>
+      </template>
+      <template v-else>
+        <view class="action">
+          <LinkButton @click="addSkuClass()">添加子分类</LinkButton>
+          <Modal ref="addSkuClassModal">
+            <u--input
+                placeholder="请输入分类名称"
+                clearable
+                v-model="skuClassName"
+            />
+          </Modal>
+        </view>
+        <view class="action">
+          <LinkButton @click="addSku">添加物料</LinkButton>
+          <Modal ref="addSkuClassModal">
+            <u--input
+                placeholder="请输入分类名称"
+                clearable
+                v-model="skuClassName"
+            />
+          </Modal>
+        </view>
+        <view class="action">
+          <LinkButton @click="actionShow = true">更多管理</LinkButton>
+          <u-action-sheet
+              cancelText="取消"
+              :actions="actionList"
+              :show="actionShow"
+              @close="actionShow = false"
+              @select="actionSelect"
           />
-        </Modal>
-      </view>
-      <view class="action">
-        <LinkButton @click="actionShow = true">更多管理</LinkButton>
-        <u-action-sheet
-            cancelText="取消"
-            :actions="actionList"
-            :show="actionShow"
-            @close="actionShow = false"
-            @select="actionSelect"
-        />
-      </view>
+        </view>
+      </template>
+
     </view>
 
     <u-action-sheet
@@ -81,7 +123,7 @@ import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuManage from "../components/SkuManage";
-import {addSkuClassChildren, delSkuClassChildren} from "./index";
+import {addSkuClassChildren, delSkuClassChildren, delSkuClassIdsChildren} from "./index";
 
 export default {
   options: {
@@ -105,7 +147,12 @@ export default {
       tenant: {},
       pageContainerShow: false,
       skuClassName: '',
+      skuList: [],
+      checkSkuClass: [],
+      checkSkus: [],
+      delLoading: false,
       admin: false,
+      sys: false,
       allActionList: [
         {
           name: '添加子分类',
@@ -141,11 +188,12 @@ export default {
           name: '删除当前分类',
           key: 'delete',
           color: 'red',
-          disabled: this.skuClassPage.length <= 1
+          disabled: this.skuClassPage.length <= 1 || this.skuList.length > 0
         },
         {
-          name: '添加物料',
-          key: 'addSku',
+          name: '管理',
+          key: 'sys',
+          color: '#007aff',
         },
       ]
     }
@@ -161,7 +209,7 @@ export default {
           break;
         case 'delete':
           this.del({name: this.allActionData.title, key: this.allActionData.key}, true)
-          break
+          break;
       }
     },
     edit(thisSkuClass, current) {
@@ -256,15 +304,19 @@ export default {
         case 'delete':
           this.del(thisSkuClass)
           break
-        case 'addSku':
-          uni.navigateTo({
-            url: `/Sku/SkuAdd/index?classId=${thisSkuClass.key}`
-          })
+        case 'sys':
+          this.sys = true
           break;
       }
     },
+    addSku() {
+      const thisSkuClass = this.skuClassPage[this.skuClassPage.length - 1]
+      uni.navigateTo({
+        url: `/Sku/SkuAdd/index?classId=${thisSkuClass.key}`
+      })
+    },
     afterleave() {
-      if (this.actionShow || this.allActionShow|| this.$refs.addSkuClassModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.skuManage.showStatus()) {
+      if (this.actionShow || this.allActionShow || this.$refs.addSkuClassModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.skuManage.showStatus()) {
         this.pageContainerShow = false
         this.actionShow = false
         this.allActionShow = false
@@ -304,9 +356,9 @@ export default {
 
       this.tree = res?.data || []
       this.skuClassListChange(res?.data || [])
-      this.skuClassPage = [{key: '0', name: '分类管理'}]
+      this.skuClassPage = [{key: '0', name: '分类'}]
     },
-    async onCheckSkuClass(skuClass) {
+    async skuClassClick(skuClass) {
       const thisSkuClass = this.findSkuClass(skuClass.key, this.tree) || {}
       const children = thisSkuClass.children || []
       this.skuClassListChange(children)
@@ -407,6 +459,47 @@ export default {
           return {...item, children: this.editSkuClassChildren(skuClass, item.children || [])}
         }
       })
+    },
+    async onCheckSkuClass(skuClass) {
+      if (this.checkSkuClass.find(item => item.key === skuClass.key)) {
+        this.checkSkuClass = this.checkSkuClass.filter(item => item.key !== skuClass.key)
+      } else {
+        this.checkSkuClass = [...this.checkSkuClass, skuClass]
+      }
+    },
+    async onCheckSkus(sku) {
+      if (this.checkSkus.find(item => item.skuId === sku.skuId)) {
+        this.checkSkus = this.checkSkus.filter(item => item.skuId !== sku.skuId)
+      } else {
+        this.checkSkus = [...this.checkSkus, sku]
+      }
+    },
+    batchDelete() {
+      this.delLoading = true
+      const skuIds = this.checkSkus.map(item => item.skuId)
+      const classIds = this.checkSkuClass.map(item => item.key)
+      Sku.batchDelete({
+        data: {id: skuIds}
+      }).then(() => {
+        this.$refs.skuManage.setRemoveSkuIds(skuIds)
+        this.skuList = this.skuList.filter(item => !skuIds.find(skuId => skuId === item.skuId))
+        Sku.spuClassBatchDelete({
+          data: {id: classIds}
+        }).then(() => {
+          this.skuClassListChange(this.skuClassList.filter(item => !classIds.find(classId => classId === item.key)))
+          this.tree = delSkuClassIdsChildren(classIds, this.tree)
+          this.delLoading = false
+        }).catch(() => {
+          this.$refs.modal.dialog({
+            title: Init.getNewErrorMessage() || '删除失败！'
+          })
+        })
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: Init.getNewErrorMessage() || '删除失败！'
+        })
+        this.delLoading = false
+      })
     }
   }
 }
@@ -495,10 +588,11 @@ export default {
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
-  gap: 8px;
 
   .itemTitle {
     flex-grow: 1;
+    display: flex;
+    align-items: center;
   }
 
   .userItem {
@@ -557,6 +651,33 @@ export default {
     align-items: center;
     height: 35px;
   }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+
+    .total {
+      flex-grow: 1;
+      margin-top: -4px;
+
+      .num {
+        display: inline-block;
+        color: $primary-color;
+        padding: 0 4px;
+        font-size: 20px;
+      }
+    }
+
+    .sysActions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+  }
+
 }
 
 

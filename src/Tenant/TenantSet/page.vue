@@ -199,7 +199,7 @@ export default {
     },
     skuManage() {
       uni.navigateTo({
-        url: '/Sku/Manage/index'
+        url: '/Sku/SkuClass/SkuClassList/index'
       })
     },
     stock() {

@@ -8,7 +8,7 @@
     </view>
     <Loading :skeleton="true" v-if="list.length === 0 && loading" />
     <Empty description="暂无绑定物料，请添加" v-else-if="list.length === 0" />
-    <view v-else :style="{maxHeight:`calc(100vh - 43px - 60px - ${safeAreaHeight(this)}px)`}">
+    <view v-else :style="{maxHeight:`calc(100vh - 43px - 60px - ${safeAreaHeight(this)}px)`,overflow:'auto'}">
       <view class="bindSkus">
         <view
             v-for="(item,index) in list"
@@ -87,6 +87,7 @@ import {Sku} from "MES-Apis/lib/Sku/promise";
 import Loading from "../../../components/Loading";
 import Empty from "../../../components/Empty";
 import Modal from "../../../components/Modal";
+import {itoc} from "core-js/internals/base64-map";
 
 export default {
   components: {Modal, Empty, Loading, Popup, Remove, BottomButton, Icon, SkuItem, List, Search},
@@ -149,13 +150,14 @@ export default {
               Storehouse.positionsBindDelete({
                 data: {bindId: item.bindId}
               }).then(() => {
-                _this.list = _this.list.filter(listItem => listItem.bindId !== item.bindId)
+                const list = _this.list.filter(listItem => listItem.bindId !== item.bindId)
+                _this.list = list
+                uni.$emit('onPositionBindSkus', list)
                 resolve(true)
               }).catch(() => {
                 Message.errorToast('删除失败！')
                 resolve(false)
               })
-
             })
           }
         })
@@ -178,7 +180,6 @@ export default {
       })
     },
     addSku(sku) {
-      const _this = this
       if (this.storehousePositionsId) {
         this.addLoading = true
         Storehouse.positionsBindAdd({
@@ -187,15 +188,10 @@ export default {
             skuId: sku.skuId,
             spuId: sku.skuId
           }
-        }).then(() => {
-          this.$refs.modal.dialog({
-            title: '添加成功！',
-            onConfirm() {
-              _this.show = false
-              _this.getList()
-              return true
-            }
-          })
+        }).then((res) => {
+          const list = [...this.list, {skuResult: sku, skuId: sku.skuId, bindId: res.data.bindId}]
+          this.list = list
+          uni.$emit('onPositionBindSkus', list)
         }).catch(() => {
           this.$refs.modal.dialog({
             title: '添加失败！'

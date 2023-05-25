@@ -8,6 +8,7 @@
         :plain="plain"
         :disabled="disabled"
         @click="$emit('click')"
+        :customStyle="customStyle"
     >
       <slot>按钮</slot>
     </u-button>
@@ -31,6 +32,7 @@ export default {
     plain: Boolean,
     disabled: Boolean,
     size: String,
+    customStyle: Object
   }
 }
 </script>
@@ -46,7 +48,7 @@ export default {
     font-size: 14px;
 
     &::after, &::before {
-      content: none;
+      content: none !important;
     }
   }
 }

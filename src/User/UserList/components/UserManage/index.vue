@@ -1,66 +1,66 @@
 <template>
   <view class="selectUser">
-    <view class="header" v-if="userIsMove === null">
-      <view style="padding-top: 8px">
-        <uni-breadcrumb separator="/">
-          <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
-            <view @click="$emit('deptPageClick',route)">
-              {{ route.name }}
-            </view>
-          </uni-breadcrumb-item>
-        </uni-breadcrumb>
-      </view>
-      <Search
-          placeholder="请输入成员姓名"
-          :value="searchValue"
-          no-search-button
-          @onChange="(value)=>$emit('searchOnChange',value)"
-      />
-    </view>
-
-    <view
-        v-if="userIsMove !== null"
-        class="moveUserBox"
-    >
-      <view class="make"></view>
-      <u-transition mode="fade" :show="userIsMove !== null" :duration="500">
-        <view :class="{removeUser:true,startRemoveUser:removeUser}">
-          <u-icon name="trash" :color="removeUser ? 'red' : '#fff'" size="28" />
+    <uni-swipe-action ref="uni-swipe-action">
+      <view class="header" v-if="userIsMove === null">
+        <view style="padding-top: 8px">
+          <uni-breadcrumb separator="/">
+            <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
+              <view @click="$emit('deptPageClick',route)">
+                {{ route.name }}
+              </view>
+            </uni-breadcrumb-item>
+          </uni-breadcrumb>
         </view>
-        <view class="moveUserBoxUserClass">
-          <view
-              v-if="deptPage.length > 1"
-              :class="{item:true,userMove:userMoveIndex === 0}"
-              :style="{border:deptPage.length ===0 && 'none'}"
-          >
-            <view class="deptIcon">
-              <Icon icon="icon-bumen1" size="30" />
-            </view>
-            <view class="itemTitle">
-              {{
-                deptPage[deptPage.length - 2].name
-              }}
-            </view>
+        <Search
+            placeholder="请输入成员姓名"
+            :value="searchValue"
+            no-search-button
+            @onChange="(value)=>$emit('searchOnChange',value)"
+        />
+      </view>
+      <view
+          v-if="userIsMove !== null"
+          class="moveUserBox"
+      >
+        <view class="make"></view>
+        <u-transition mode="fade" :show="userIsMove !== null" :duration="500">
+          <view :class="{removeUser:true,startRemoveUser:removeUser}">
+            <u-icon name="trash" :color="removeUser ? 'red' : '#fff'" size="28" />
           </view>
-          <view
-              v-for="(item,index) in depts"
-              :key="index"
-          >
+          <view class="moveUserBoxUserClass">
             <view
-                :class="{item:true,userMove:userMoveIndex === (deptPage.length > 1 ? index + 1 : index)}"
-                :style="{border:index === depts.length - 1 && 'none'}"
+                v-if="deptPage.length > 1"
+                :class="{item:true,userMove:userMoveIndex === 0}"
+                :style="{border:deptPage.length ===0 && 'none'}"
             >
               <view class="deptIcon">
                 <Icon icon="icon-bumen1" size="30" />
               </view>
               <view class="itemTitle">
-                {{ item.title }}
+                {{
+                  deptPage[deptPage.length - 2].name
+                }}
+              </view>
+            </view>
+            <view
+                v-for="(item,index) in depts"
+                :key="index"
+            >
+              <view
+                  :class="{item:true,userMove:userMoveIndex === (deptPage.length > 1 ? index + 1 : index)}"
+                  :style="{border:index === depts.length - 1 && 'none'}"
+              >
+                <view class="deptIcon">
+                  <Icon icon="icon-bumen1" size="30" />
+                </view>
+                <view class="itemTitle">
+                  {{ item.title }}
+                </view>
               </view>
             </view>
           </view>
-        </view>
-      </u-transition>
-    </view>
+        </u-transition>
+      </view>
 
     <Empty
         v-if="deptUsers.length === 0 && searchValue"
@@ -127,7 +127,6 @@
         <movable-view
             v-for="(item,index) in depts"
             :key="index"
-            @click="$emit('onCheckDept',item)"
             :damping="0"
             :out-of-bounds="true"
             :animation="false"
@@ -144,22 +143,28 @@
             @touchend="(e)=>moveEnd(e,index)"
             :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
         >
-          <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
-          <view class="item">
-            <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
-              <Icon icon="icon-bumen1" size="35" />
+          <Swipe
+              :disabled="!admin || isMove !== null"
+              @click="(key)=>swipeClick(key,item)"
+          >
+            <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
+            <view class="item" @click="$emit('onCheckDept',item)">
+              <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
+                <Icon icon="icon-bumen1" size="35" />
+              </view>
+              <view class="itemTitle">
+                {{ item.title }}
+              </view>
+              <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
+                <u-icon name="list" />
+              </view>
             </view>
-            <view class="itemTitle">
-              {{ item.title }}
-            </view>
-            <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
-              <u-icon name="list" />
-            </view>
-          </view>
-          <view
-              class="moveLine"
-              v-if="inIndex === null  && moveIndex === depts.length && index === depts.length-1"
-          />
+            <view
+                class="moveLine"
+                v-if="inIndex === null  && moveIndex === depts.length && index === depts.length-1"
+            />
+          </Swipe>
+
         </movable-view>
         <view
             class="item moveFixItem" v-if="isMove !== null"
@@ -174,8 +179,6 @@
           </view>
           {{ depts[isMove].title }}
         </view>
-
-
       </movable-area>
 
 
@@ -204,26 +207,29 @@
             @change="(e)=>userMove(e,index)"
             @touchend="(e)=>userMoveEnd(e,index)"
             :class="{userMoveIng:userIsMove === index}"
-            @click="admin ? $emit('editUser',user) : $emit('onCheckUser',user)"
         >
-          <view class="item">
-            <view class="userItem">
-              <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
-              <UserName :user="user" showRole />
+          <Swipe
+              :disabled="!admin || isMove !== null"
+              @click="(key)=>userSwipeClick(key,user)"
+          >
+            <view class="item" @click="admin ? $emit('userClick',user) : $emit('onCheckUser',user)">
+              <view class="userItem">
+                <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
+                <UserName :user="user" showRole />
+              </view>
+              <view v-if="user.isAdmin === 1">
+                <u-tag text="管理员" plain />
+              </view>
+              <view
+                  v-if="admin"
+                  class="drag"
+                  @longpress="userMoveStart(e,index)"
+                  :id="`userMoveItem${index}`"
+              >
+                <u-icon name="list" />
+              </view>
             </view>
-            <view v-if="user.isAdmin === 1">
-              <u-tag text="管理员" plain />
-            </view>
-            <view
-                v-if="admin"
-                class="drag"
-                @longpress="userMoveStart(e,index)"
-                :id="`userMoveItem${index}`"
-            >
-              <u-icon name="list" />
-            </view>
-          </view>
-
+          </Swipe>
         </movable-view>
       </movable-area>
 
@@ -235,7 +241,7 @@
         </template>
       </view>
     </view>
-
+    </uni-swipe-action>
     <Modal ref="modal" />
 
   </view>
@@ -254,10 +260,11 @@ import {Init} from "MES-Apis/lib/Init";
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {User} from "MES-Apis/lib/User/promise";
 import {Dept} from "MES-Apis/lib/Dept/promise";
+import Swipe from "../../../../components/Swipe/index.vue";
 
 export default {
   name: 'UserManage',
-  components: {Modal, UserName, Check, Icon, Search, Empty},
+  components: {Swipe, Modal, UserName, Check, Icon, Search, Empty},
   props: [
     'deptPage',
     'searchValue',
@@ -366,6 +373,7 @@ export default {
       this.movableView = e.detail.y
     },
     moveStart(e, index) {
+      this.$refs["uni-swipe-action"].closeAll()
       this.isMove = index
     },
     moveEnd(e) {
@@ -630,7 +638,27 @@ export default {
 
         })
       }
-    }
+    },
+    swipeClick(key, item) {
+      switch (key) {
+        case 'delete':
+          this.$emit('onDelete', {name: item.title, key: item.key})
+          break;
+        case 'edit':
+          this.$emit('onEdit', {name: item.title, key: item.key})
+          break
+      }
+    },
+    userSwipeClick(key, item) {
+      switch (key) {
+        case 'delete':
+          this.$emit('userDelete', item)
+          break;
+        case 'edit':
+          this.$emit('userEdit', item)
+          break
+      }
+    },
   }
 }
 </script>
