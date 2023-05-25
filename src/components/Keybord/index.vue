@@ -5,38 +5,38 @@
         :show="visible"
         @close="$emit('close')"
     >
-      <view class='content'>
-        <view v-if="!noStepper" class='calculation'>
+      <view class='Keybord-content'>
+        <view v-if="!noStepper" class='Keybord-calculation'>
           <button :disabled="Number(showNumber() || 0) <= min" @click="jianClick">
             <u-icon name="minus" />
           </button>
-          <view class='value'>
-            {{ showNumber() }}<span v-if="!defaultNumber" class='line'>|</span>
+          <view class='Keybord-value'>
+            {{ showNumber() }}<span v-if="!defaultNumber" class='Keybord-line'>|</span>
           </view>
           <button :disabled="Number(showNumber() || 0) >= max" @click="jiaClick">
             <u-icon name="plus" />
           </button>
         </view>
-        <view class='numberKeyboard'>
-          <view class='keyboard'>
+        <view class='Keybord-numberKeyboard'>
+          <view class='Keybord-keyboard'>
             <view
                 v-for="(item,index) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]"
                 :key="index"
-                :class="['numberButton',item === 0 && 'zero']"
+                :class="['Keybord-numberButton',item === 0 && 'Keybord-zero']"
             >
               <button @click="numClick(item)">{{ item }}</button>
             </view>
-            <view class='numberButton'>
+            <view class='Keybord-numberButton'>
               <button :disabled="!decimal" @click="dianClick">.</button>
             </view>
           </view>
-          <view class='actions'>
-            <view class='numberButton'>
+          <view class='Keybord-actions'>
+            <view class='Keybord-numberButton'>
               <button @click="back">
                 <u-icon name="arrow-left" size="24" />
               </button>
             </view>
-            <view :class="['numberButton', 'ok']">
+            <view :class="['Keybord-numberButton', 'Keybord-ok']">
               <button @click="ok">
                 确定
               </button>
@@ -178,15 +178,15 @@ export default {
 </script>
 
 <style lang="scss">
-.content {
+.Keybord-content {
   background-color: $body-color;
 
-  .calculation {
+  .Keybord-calculation {
     display: flex;
     align-items: center;
     background-color: #fff;
 
-    .value {
+    .Keybord-value {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -218,22 +218,22 @@ export default {
     }
   }
 
-  .numberKeyboard {
+  .Keybord-numberKeyboard {
     display: flex;
     align-items: flex-start;
     padding: 12px 0;
 
-    .keyboard {
+    .Keybord-keyboard {
       display: flex;
       flex-wrap: wrap;
       width: 75%;
     }
 
-    .actions {
+    .Keybord-actions {
       width: 25%;
       padding-right: 10px;
 
-      .numberButton {
+      .Keybord-numberButton {
         width: 100%;
 
         button {
@@ -242,7 +242,7 @@ export default {
       }
     }
 
-    .numberButton {
+    .Keybord-numberButton {
       width: calc((100% - 24px) / 3);
       padding: 4px;
 
@@ -268,7 +268,7 @@ export default {
       }
     }
 
-    .ok {
+    .Keybord-ok {
       button {
         display: flex;
         height: 166px;
@@ -277,7 +277,7 @@ export default {
       }
     }
 
-    .zero {
+    .Keybord-zero {
       width: calc((100% - 24px) / 3 * 2 + 8px)
     }
   }
@@ -300,7 +300,7 @@ export default {
   }
 }
 
-.line {
+.Keybord-line {
   animation: cursor-blinks 1.5s infinite steps(1, start);
   font-size: 24px;
   margin-top: -4px;

@@ -25,7 +25,7 @@
 
       </view>
     </view>
-    <Uploader file @onChange="onChange">
+    <Uploader @loading="(loading)=>$emit('onLoading',loading)" file @onChange="onChange">
       <slot>
         <u-button size="small" customStyle="width:100px">
           <view class="uploadFile">

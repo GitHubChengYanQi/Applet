@@ -5,6 +5,16 @@
 
       <scroll-view class="skuAdd">
 
+        <view
+            v-if="Object.keys(formData).length > 0"
+            class="saveButton"
+            :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
+        >
+          <MyButton type="primary" @click="formSubmit">
+            保存
+          </MyButton>
+        </view>
+
         <Uploader @loading="onUploadLoading" :size="70" @onChange="imgChange">
           <view
               class="uploadSkuImg"
@@ -71,31 +81,12 @@
 
 
                   <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-xinghao"
-                      label="型号"
-                      @click="inputFiled = 'skuName'"
-                      :value="formData.skuName"
-                  />
-
-                  <view class="space" />
-
-                  <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-guige"
-                      label="规格"
-                      @click="inputFiled = 'specifications'"
-                      :value="formData.specifications"
-                  />
-
-
-                  <SkuFormItem
                       required
                       class="skuFormItemComponent"
                       icon="icon-jidanwei"
                       label="单位"
                       :value="formRenderData.unitName"
-                      @click="filedShow = 'unitId'"
+                      @click="inputFiled = 'unitId'"
                   />
 
                   <view class="space" />
@@ -109,180 +100,21 @@
                       @click="filedShow = 'batch'"
                   />
 
-
-                  <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-qichukucun"
-                      label="期初库存"
-                      :value="formData.initialNumber"
-                      @click="keybordShow = 'initialNumber'"
+                  <SkuName
+                      v-for="(skuName,index) in skuNames"
+                      :key="index"
+                      style="width: 100%"
+                      :open="open"
+                      :index="index"
+                      :skuNames="skuNames"
                   />
 
-                  <view class="space" />
-
-                  <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-caigoujiage"
-                      label="采购价格"
-                      :value="`￥${formData.inPrice || 0}`"
-                      @click="keybordShow = 'inPrice'"
-                  />
-
-
-                  <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-xiaoshoujiage"
-                      label="销售价格"
-                      :value="`￥${formData.outPrice || 0}`"
-                      @click="keybordShow = 'outPrice'"
-                  />
-
-                  <template v-if="open">
-                    <view class="otherFormItem" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="养护周期"
-                        :value="(formData.maintenancePeriod || 0)+'天'"
-                        @click="keybordShow = 'maintenancePeriod'"
-                    />
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="规格参数"
-                        @click="skuShow = true"
-                        :value="isArray(formData.sku).map(item=>{
-                          return (item.label || '-')+':'+(item.value || '-')
-                        }).join(',')"
-                    />
-
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="品牌"
-                        @click="selectBrand"
-                        :value="isArray(formRenderData.brands).map(item=>item.brandName).join('、')"
-                    />
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="材质"
-                        :value="formRenderData.materialName"
-                        @click="filedShow = 'materialId'"
-                    />
-
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="重量"
-                        :value="(formData.weight || 0)+'kg'"
-                        @click="keybordShow = 'weight'"
-                    />
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="级别"
-                        @click="inputFiled = 'level'"
-                        :value="formData.level"
-                    />
-
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="表色"
-                        @click="inputFiled = 'color'"
-                        :value="formData.color"
-                    />
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="热处理"
-                        @click="inputFiled = 'heatTreatment'"
-                        :value="formData.heatTreatment"
-                    />
-
-
-                    <SkuFormItem style="width: 100%" label="尺寸">
-                      <view class="skuSize">
-                        <view class="skuSizeItem" @click="keybordShow = 'skuSizeLength'">
-                          长：
-                          <view class="skuSizeValue">{{ formData.skuSizeLength || 0 }}mm</view>
-                        </view>
-                        <view class="skuSizeItem" @click="keybordShow = 'skuSizeWidth'">
-                          宽：
-                          <view class="skuSizeValue">{{ formData.skuSizeWidth || 0 }}mm</view>
-                        </view>
-                        <view class="skuSizeItem" @click="keybordShow = 'skuSizeHeight'">
-                          高：
-                          <view class="skuSizeValue">{{ formData.skuSizeHeight || 0 }}mm</view>
-                        </view>
-                      </view>
-                    </SkuFormItem>
-
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="图纸"
-                        @click="fileShow = 'drawing'"
-                    >
-                      <view class="fileRender" v-if="isArray(formData.drawing).length > 0">
-                        <u-icon name="file-text" size="24" color="#007aff" />
-                        x {{ formData.drawing.length }}
-                      </view>
-                    </SkuFormItem>
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="附件"
-                        @click="fileShow = 'fileId'"
-                    >
-                      <view class="fileRender" v-if="isArray(formData.fileId).length > 0">
-                        <u-icon name="file-text" size="24" color="#007aff" />
-                        x {{ formData.fileId.length }}
-                      </view>
-                    </SkuFormItem>
-
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="包装方式"
-                        @click="inputFiled = 'packaging'"
-                        :value="formData.packaging"
-                    />
-
-                    <view class="space" />
-
-                    <SkuFormItem
-                        class="skuFormItemComponent"
-                        label="图幅"
-                        @click="inputFiled = 'viewFrame'"
-                        :value="formData.viewFrame"
-                    />
-
-
-                    <SkuFormItem
-                        style="width: 100%"
-                        class="skuFormItemComponent"
-                        label="备注"
-                        @click="inputFiled = 'remarks'"
-                        :value="formData.remarks"
-                    />
-
-                  </template>
                 </view>
 
-
-<!--                <MyButton class="addSkuName">增加型号</MyButton>-->
+                <MyButton class="addSkuName" plain type="primary" @click="addSkuName">
+                  <u-icon name="plus" color="#3c9cff" />
+                  增加型号
+                </MyButton>
 
                 <view class="formDes">
                   注：
@@ -320,16 +152,6 @@
             <u-loading-icon mode="circle" />
           </view>
 
-        </view>
-
-        <view
-            v-if="Object.keys(formData).length > 0"
-            class="saveButton"
-            :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
-        >
-          <MyButton type="primary" @click="formSubmit">
-            保存
-          </MyButton>
         </view>
       </scroll-view>
 
@@ -398,57 +220,7 @@
           @select="selectBatch"
       />
 
-      <!--        材质-->
-      <SelectMaterial
-          :value="formData.materialId"
-          :show="filedShow === 'materialId'"
-          @close="filedShow = ''"
-          @select="selectMaterial"
-      />
-
-      <!--        数量、价格-->
-      <Keybord
-          :visible="!!keybordShow"
-          @close="keybordShow = ''"
-          :value="formData[keybordShow]"
-          :min='0'
-          :decimal="['initialNumber'].includes(keybordShow) ? 0 : 2"
-          @onChange="(val)=>formData[keybordShow] = val"
-      />
-
-      <!--      图纸、附件-->
-      <Popup
-          :show="!!fileShow"
-          :title="fileShow === 'fileId' ? '附件' : '图纸'"
-          @close="fileShow = ''"
-          :destroy-on-close="false"
-      >
-        <view class="fileShow">
-          <FileUpload v-model="formData[fileShow]">
-            <MyButton type="primary">
-              <view class="uploadFile">
-                <uni-icons type="upload" color="#ffffff" />
-                上传
-              </view>
-            </MyButton>
-          </FileUpload>
-        </view>
-      </Popup>
-
-
-      <!--      sku物料描述-->
-      <Popup
-          :show="skuShow"
-          title="物料描述"
-          @close="skuShow = false"
-      >
-        <view class="skuDescribe">
-          <SkuDescribe v-model="formData.sku" />
-        </view>
-      </Popup>
-
       <Loading :loading="loading" />
-
 
       <view style="height:80px" v-if="false" />
 
@@ -491,12 +263,14 @@ import Keybord from "../../components/Keybord/index.vue";
 import SelectMaterial from "./components/SelectMaterial/index.vue";
 import FileUpload from "../../components/Uploader/FileUpload/index.vue";
 import SkuDescribe from "./components/SkuDescribe/index.vue";
+import SkuName from "./components/SkuName/index.vue";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   components: {
+    SkuName,
     SkuDescribe,
     FileUpload,
     SelectMaterial,
@@ -528,6 +302,7 @@ export default {
       windowWidth: 0,
       cateGoryData: [],
       general: [],
+      skuNames: [{}],
       formData: {},
       formRenderData: {},
       refreshLoading: false,
@@ -869,6 +644,9 @@ export default {
           this.loading = false
         })
       }
+    },
+    addSkuName(){
+      this.skuNames = [...this.skuNames,{}]
     }
   },
 }
@@ -992,7 +770,7 @@ export default {
       flex-wrap: wrap;
 
       .skuFormItemComponent {
-        width: calc(50% - 8px)
+        width: calc(50% - 8px);
       }
 
       .space {
@@ -1109,6 +887,9 @@ export default {
 
     > button {
       width: 100% !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
   }
 }
