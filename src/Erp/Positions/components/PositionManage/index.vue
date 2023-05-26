@@ -12,7 +12,7 @@
       </view>
       <view
           class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
+          :style="{height: `calc(100vh - ${admin ? 47+safeAreaHeight(this,8) : 0}px - 36px)`}"
       >
         <movable-area
             class="movableArea"
@@ -29,7 +29,7 @@
               :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
               :class="{movableView:true,inItem:inIndex === -1}"
               :disabled="true"
-              @click="$emit('pageClick',page[page.length - 2])"
+              @click="!sys && $emit('pageClick',page[page.length - 2])"
           >
             <view class="item" :style="{height:`${itemHeight - 1}px`}">
               <view class="deptIcon">
@@ -69,7 +69,16 @@
                 @click="(key)=>swipeClick(key,item)"
             >
               <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
-              <view class="item" :style="{height:`${itemHeight - 1}px`}" @click="$emit('onCheck',item)">
+              <view
+                  class="item"
+                  :style="{height:`${itemHeight - 1}px`}"
+                  @click="sys ? $emit('onCheckList',item) :$emit('onCheck',item)"
+              >
+                <Check
+                    :disabled="item.number > 0"
+                    v-if="sys"
+                    :value="checkList.find(checkItem=>checkItem.key === item.key)"
+                />
                 <view class="deptIcon">
                   <Icon icon="icon-pandiankuwei1" size="55" />
                 </view>
@@ -77,17 +86,18 @@
                   <view>{{ item.title }}</view>
                   <view class="itemOther" v-if="isArray(item.children).length === 0">
                     <view
+                        v-if="isArray(item.object).length > 0"
                         class="itemDescribe"
-                        :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+                        :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + (admin ? 40 : 0) + ((sys || !admin) ? 0 : 56) + 12 + (sys ? (24 + 12) : 0)}px)`}"
                     >
-                      标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、
+                      {{ isArray(item.object).join('、') }}
                     </view>
-                    <view class="bindClass" @click.stop="bindSku($event,item)">
-                      <LinkButton>绑定分类</LinkButton>
+                    <view v-if="admin && !sys" class="bindClass" @click.stop="bindSku($event,item)">
+                      <LinkButton>绑定物料</LinkButton>
                     </view>
                   </view>
                 </view>
-                <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
+                <view v-if="admin && !sys" class="drag" @longpress="moveStart(e,index)">
                   <u-icon name="list" />
                 </view>
               </view>
@@ -150,7 +160,9 @@ export default {
     'movableViewX',
     'admin',
     'tree',
-    'itemHeight'
+    'itemHeight',
+    'checkList',
+    'sys'
   ],
   data() {
     return {

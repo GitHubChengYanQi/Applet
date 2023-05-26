@@ -12,7 +12,7 @@
       </view>
       <view
           class="users"
-          :style="{height: `calc(100vh - ${47+safeAreaHeight(this,8)}px - 36px)`}"
+          :style="{height: `calc(100vh - ${admin ? (47+safeAreaHeight(this,8)) : 0}px - 36px)`}"
       >
         <movable-area
             class="movableArea"
@@ -29,7 +29,7 @@
               :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
               :class="{movableView:true,inItem:inIndex === -1}"
               :disabled="true"
-              @click="$emit('storeHousePageClick',storeHousePage[storeHousePage.length - 2])"
+              @click="!sys && $emit('storeHousePageClick',storeHousePage[storeHousePage.length - 2])"
           >
             <view class="item" :style="{height:`${itemHeight - 1}px`}">
               <view class="deptIcon">
@@ -69,23 +69,35 @@
                 @click="(key)=>swipeClick(key,item)"
             >
               <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
-              <view class="item" :style="{height:`${itemHeight - 1}px`}" @click="$emit('onCheckStoreHouse',item)">
+              <view
+                  class="item"
+                  :style="{height:`${itemHeight - 1}px`}"
+                  @click="sys ? $emit('onCheckList',item) :$emit('onCheckStoreHouse',item)"
+              >
+                <Check
+                    :disabled="item.number > 0"
+                    v-if="sys"
+                    :value="checkList.find(checkItem=>checkItem.key === item.key)"
+                />
                 <view class="deptIcon">
                   <Icon icon="icon-cangkutubiao" size="55" />
                 </view>
                 <view class="itemTitle">
                   <view>{{ item.title }}</view>
                   <view class="itemOther">
-                    <view class="itemDescribe"
-                          :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}">
-                      标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、标准件、外购件、
+                    <view
+                        v-if="isArray(item.objects).length > 0"
+                        class="itemDescribe"
+                        :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + (admin ? 40 : 0) + ((sys || !admin) ? 0 : 56) + 12 + (sys ? (24 + 12) : 0)}px)`}"
+                    >
+                      {{ isArray(item.objects).join('、') }}
                     </view>
-                    <view class="bindClass" @click.stop="bindClass($event,item)">
+                    <view v-if="admin && !sys" class="bindClass" @click.stop="bindClass($event,item)">
                       <LinkButton>绑定分类</LinkButton>
                     </view>
                   </view>
                 </view>
-                <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
+                <view v-if="admin && !sys" class="drag" @longpress="moveStart(e,index)">
                   <u-icon name="list" />
                 </view>
               </view>
@@ -136,13 +148,14 @@ import Swipe from "../../../../components/Swipe/index.vue";
 import Loading from "../../../../components/Loading/index.vue";
 import SkuItem from "../../../../components/SkuItem/index.vue";
 import LinkButton from "../../../../components/LinkButton/index.vue";
+import Check from "../../../../components/Check/index.vue";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'StoreHouseManage',
-  components: {LinkButton, SkuItem, Loading, Swipe, Modal, Icon, Empty},
+  components: {Check, LinkButton, SkuItem, Loading, Swipe, Modal, Icon, Empty},
   props: [
     'storeHousePage',
     'storeHouseList',
@@ -151,10 +164,13 @@ export default {
     'movableViewX',
     'admin',
     'tree',
-    'itemHeight'
+    'itemHeight',
+    'checkList',
+    'sys'
   ],
   data() {
     return {
+      isArray,
       safeAreaHeight,
       isMove: null,
       moveIndex: null,

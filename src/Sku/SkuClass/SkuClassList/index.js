@@ -33,7 +33,7 @@ export const delSkuClassIdsChildren = (keys = [], skuClassList = []) => {
     const newSkuClassList = []
     skuClassList.map(item => {
         if (keys.findIndex(id => (id + '') === (item.key + '')) === -1) {
-            newSkuClassList.push({...item, children: delSkuClassChildren(key, item.children || [])})
+            newSkuClassList.push({...item, children: delSkuClassChildren(keys, item.children || [])})
         }
     })
     return newSkuClassList

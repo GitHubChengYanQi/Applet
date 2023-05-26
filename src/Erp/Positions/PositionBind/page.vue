@@ -25,7 +25,7 @@
       </view>
     </view>
 
-    <Loading :loading="loading || addLoading" />
+    <Loading :loading="addLoading" />
 
     <BottomButton
         only
@@ -152,7 +152,7 @@ export default {
               }).then(() => {
                 const list = _this.list.filter(listItem => listItem.bindId !== item.bindId)
                 _this.list = list
-                uni.$emit('onPositionBindSkus', list)
+                uni.$emit('onPositionBindSkus', {id: _this.storehousePositionsId, list})
                 resolve(true)
               }).catch(() => {
                 Message.errorToast('删除失败！')
@@ -191,7 +191,7 @@ export default {
         }).then((res) => {
           const list = [...this.list, {skuResult: sku, skuId: sku.skuId, bindId: res.data.bindId}]
           this.list = list
-          uni.$emit('onPositionBindSkus', list)
+          uni.$emit('onPositionBindSkus', {id: this.storehousePositionsId, list})
         }).catch(() => {
           this.$refs.modal.dialog({
             title: '添加失败！'

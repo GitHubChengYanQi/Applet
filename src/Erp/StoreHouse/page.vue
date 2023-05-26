@@ -31,22 +31,47 @@
         @onDelete="(_this)=>del(_this,true)"
         @onEdit="(_this)=>edit(_this,true)"
         @bindClass="openBindSkuClass"
+        :checkList="checkList"
+        @onCheckList="onCheckList"
+        :sys="sys"
     />
 
-    <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-      <view class="action">
-        <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
-      </view>
-      <view class="action">
-        <LinkButton :disabled="storeHousePage.length <= 1" @click="actionShow = true">更多管理</LinkButton>
-        <u-action-sheet
-            cancelText="取消"
-            :actions="actionList"
-            :show="actionShow"
-            @close="actionShow = false"
-            @select="actionSelect"
-        />
-      </view>
+    <view v-if="admin" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+      <template v-if="sys">
+        <view class="sys">
+          <view class="total">
+            已选
+            <view class="num">{{ checkList.length }}</view>
+            个
+          </view>
+          <view class="sysActions">
+            <MyButton
+                :loading="delLoading"
+                type="error"
+                :disabled="checkList.length === 0"
+                @click="batchDelete"
+            >
+              批量删除
+            </MyButton>
+            <MyButton type="primary" @click="sys = false">退出管理</MyButton>
+          </view>
+        </view>
+      </template>
+      <template v-else>
+        <view class="action">
+          <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
+        </view>
+        <view class="action">
+          <LinkButton @click="actionShow = true;checkList=[]">更多管理</LinkButton>
+          <u-action-sheet
+              cancelText="取消"
+              :actions="actionList"
+              :show="actionShow"
+              @close="actionShow = false"
+              @select="actionSelect"
+          />
+        </view>
+      </template>
     </view>
 
     <u-action-sheet
@@ -70,7 +95,7 @@
     >
       <Loading skeleton v-if="categoryLoading" />
       <view v-else style="padding: 12px">
-        <Tree icon="icon-gaojizujian" :data="cateGoryData" v-model="classList" />
+        <Tree icon="icon-gaojizujian" :data="cateGoryData" v-model="classList" multiple />
       </view>
     </Popup>
 
@@ -98,7 +123,7 @@ import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import Popup from "../../components/Popup";
 import Tree from "../../components/Tree";
 import StoreHouseManage from "./components/StoreHouseManage";
-import {delStoreHouseChildren} from "./index";
+import {delStoreHouseChildren, delStoreIdsChildren} from "./index";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 
 export default {
@@ -158,7 +183,10 @@ export default {
       itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
-      storeId: null
+      storeId: null,
+      sys: false,
+      checkList: [],
+      delLoading: false
     }
   },
   mounted() {
@@ -190,15 +218,23 @@ export default {
         {
           name: '查看当前仓库库位',
           key: 'position',
+          disabled: this.storeHousePage.length <= 1
         },
         {
           name: '修改当前仓库',
           key: 'edit',
+          disabled: this.storeHousePage.length <= 1
         },
         {
           name: '删除当前仓库',
           key: 'delete',
           color: 'red',
+          disabled: this.storeHousePage.length <= 1
+        },
+        {
+          name: '管理',
+          key: 'sys',
+          color: '#007aff',
         },
       ]
     }
@@ -265,19 +301,19 @@ export default {
         case 'delete':
           this.del(thisStoreHouse)
           break
-        case 'bind':
-          this.bind(thisStoreHouse)
-          break;
-        case 'auth':
-          this.bind(thisStoreHouse)
-          break;
         case 'position':
-          this.allActionSelect({key})
+          uni.navigateTo({
+            url: `/Erp/Positions/index?storehouseId=${thisStoreHouse.key}&store=${thisStoreHouse.name}`
+          })
+          break;
+        case 'sys':
+          this.sys = true
           break;
       }
     },
     afterleave() {
-      if (this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
+      if (this.sys || this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.storeHouseManage.showStatus()) {
+        this.sys = false
         this.pageContainerShow = false
         this.actionShow = false
         this.allActionShow = false
@@ -322,7 +358,8 @@ export default {
       data.forEach(item => {
         const obj = {
           title: item.name,
-          key: item.storehouseId
+          key: item.storehouseId,
+          objects: isArray(item.spuClassResults).map(item => item.name)
         }
         if (isArray(item.childrenList).length > 0) {
           obj.children = this.format(item.childrenList || []);
@@ -338,6 +375,9 @@ export default {
       const thisStoreHouse = this.findStoreHouse(storeHouse.key, this.tree) || {}
       const children = thisStoreHouse.children || []
       if (children.length === 0) {
+        if (!this.admin) {
+          return
+        }
         this.allActionShow = true
         this.allActionData = storeHouse
         return
@@ -429,10 +469,20 @@ export default {
       Storehouse.storeHouseEditV2_0({
         data: {
           storehouseId: this.storeId,
-          spuClassIds: isArray(this.classList).map(item => item.key),
+          spuClassIds: this.classList.map(item => item.key),
         }
       }).then((res) => {
         this.classShow = false
+        this.storeHouseList = this.storeHouseList.map(item => {
+          if (item.key === this.storeId) {
+            return {...item, objects: this.classList.map(item => item.title)}
+          }
+          return item
+        })
+        this.tree = this.editStoreHouseChildren({
+          key: this.storeId,
+          objects: this.classList.map(item => item.title)
+        }, this.tree)
         this.$refs.modal.dialog({
           title: '保存成功！'
         })
@@ -442,6 +492,41 @@ export default {
         })
       }).finally(() => {
         this.saveBindSkuClassLoading = false
+      })
+    },
+    onCheckList(checkItem) {
+      if (this.checkList.find(item => item.key === checkItem.key)) {
+        this.checkList = this.checkList.filter(item => item.key !== checkItem.key)
+      } else {
+        this.checkList = [...this.checkList, checkItem]
+      }
+    },
+    batchDelete() {
+      const ids = this.checkList.map(item => item.key)
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Storehouse.storeHouseDeleteBatch({
+              data: {
+                storehouseIds: ids
+              }
+            }).then(() => {
+              _this.listChange(_this.storeHouseList.filter(item => !ids.find(id => id === item.key)))
+              _this.tree = delStoreIdsChildren(ids, _this.tree)
+              _this.checkList = []
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败！'
+              })
+              resolve(true)
+            })
+          })
+        }
       })
     }
   }
@@ -563,6 +648,32 @@ export default {
     justify-content: center;
     align-items: center;
     height: 35px;
+  }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+
+    .total {
+      flex-grow: 1;
+      margin-top: -4px;
+
+      .num {
+        display: inline-block;
+        color: $primary-color;
+        padding: 0 4px;
+        font-size: 20px;
+      }
+    }
+
+    .sysActions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
   }
 }
 

@@ -16,11 +16,13 @@
       <SkuManage
           ref="skuManage"
           :itemWidth="itemWidth"
+          :itemHeight="itemHeight"
           :movableViewX="movableViewX"
           :movableViewY="movableViewY"
           :sku-class-list="skuClassList"
           :sku-class-page="skuClassPage"
           :tree="tree"
+          :admin="admin"
           @skuClassPageClick="skuClassPageClick"
           @onCheckSkuClass="onCheckSkuClass"
           @onCheckSkus="onCheckSkus"
@@ -37,7 +39,7 @@
       />
     </view>
 
-    <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+    <view v-if="admin" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <template v-if="sys">
         <view class="sys">
           <view class="total">
@@ -52,7 +54,7 @@
                 :disabled="checkSkuClass.length === 0 && checkSkus.length === 0"
                 @click="batchDelete"
             >
-              删除
+              批量删除
             </MyButton>
             <MyButton type="primary" @click="sys = false">退出管理</MyButton>
           </view>
@@ -80,7 +82,7 @@
           </Modal>
         </view>
         <view class="action">
-          <LinkButton @click="actionShow = true">更多管理</LinkButton>
+          <LinkButton @click="actionShow = true;checkSkus=[];checkSkuClass=[]">更多管理</LinkButton>
           <u-action-sheet
               cancelText="取消"
               :actions="actionList"
@@ -137,6 +139,7 @@ export default {
       loading: true,
       skuClassList: [],
       itemWidth: 0,
+      itemHeight: 55,
       movableViewY: 0,
       movableViewX: 0,
       tree: [],
@@ -144,7 +147,6 @@ export default {
       actionShow: false,
       error: false,
       safeAreaHeight,
-      tenant: {},
       pageContainerShow: false,
       skuClassName: '',
       skuList: [],
@@ -173,6 +175,7 @@ export default {
     }
   },
   mounted() {
+    this.admin = this.$store.state.userInfo.tenant.admin
     this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
     this.getList()
   },
@@ -316,11 +319,12 @@ export default {
       })
     },
     afterleave() {
-      if (this.actionShow || this.allActionShow || this.$refs.addSkuClassModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.skuManage.showStatus()) {
+      if (this.sys || this.actionShow || this.allActionShow || this.$refs.addSkuClassModal?.showStatus() || this.$refs.modal.showStatus() || this.$refs.skuManage.showStatus()) {
+        this.sys = false
         this.pageContainerShow = false
         this.actionShow = false
         this.allActionShow = false
-        this.$refs.addSkuClassModal.close()
+        this.$refs.addSkuClassModal?.close()
         this.$refs.modal.close()
         this.$refs.skuManage.close()
         setTimeout(() => {
@@ -339,10 +343,10 @@ export default {
     skuClassListChange(skuClassList) {
       this.skuClassList = skuClassList
       this.$nextTick(function () {
-        this.movableViewY = this.skuClassPage.length > 1 ? 49 : 1
+        this.movableViewY = this.skuClassPage.length > 1 ? this.itemHeight + 1 : 1
         this.movableViewX = this.itemWidth - 0.1
         setTimeout(() => {
-          this.movableViewY = this.skuClassPage.length > 1 ? 48 : 0
+          this.movableViewY = this.skuClassPage.length > 1 ? this.itemHeight : 0
           this.movableViewX = this.itemWidth
         }, 0)
       })
@@ -475,30 +479,35 @@ export default {
       }
     },
     batchDelete() {
-      this.delLoading = true
       const skuIds = this.checkSkus.map(item => item.skuId)
       const classIds = this.checkSkuClass.map(item => item.key)
-      Sku.batchDelete({
-        data: {id: skuIds}
-      }).then(() => {
-        this.$refs.skuManage.setRemoveSkuIds(skuIds)
-        this.skuList = this.skuList.filter(item => !skuIds.find(skuId => skuId === item.skuId))
-        Sku.spuClassBatchDelete({
-          data: {id: classIds}
-        }).then(() => {
-          this.skuClassListChange(this.skuClassList.filter(item => !classIds.find(classId => classId === item.key)))
-          this.tree = delSkuClassIdsChildren(classIds, this.tree)
-          this.delLoading = false
-        }).catch(() => {
-          this.$refs.modal.dialog({
-            title: Init.getNewErrorMessage() || '删除失败！'
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Sku.spuClassBatchDelete({
+              data: {skuIds: classIds, spuClassificationIds: classIds}
+            }).then(() => {
+              _this.skuClassListChange(_this.skuClassList.filter(item => !classIds.find(classId => classId === item.key)))
+
+              _this.$refs.skuManage.setRemoveSkuIds(skuIds)
+              _this.skuList = _this.skuList.filter(item => !skuIds.find(skuId => skuId === item.skuId))
+
+              _this.tree = delSkuClassIdsChildren(classIds, _this.tree)
+              _this.checkSkus = []
+              _this.checkSkuClass = []
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败！'
+              })
+              resolve(true)
+            })
           })
-        })
-      }).catch(() => {
-        this.$refs.modal.dialog({
-          title: Init.getNewErrorMessage() || '删除失败！'
-        })
-        this.delLoading = false
+        }
       })
     }
   }
@@ -515,7 +524,6 @@ export default {
 
 .movableView {
   width: 100%;
-  height: 48px;
 }
 
 .inItem {
@@ -574,6 +582,8 @@ export default {
 }
 
 .selectUser {
+  height: 100vh;
+  background-color: #fff;
 
   .header {
     padding: 8px 12px;
@@ -584,7 +594,7 @@ export default {
 }
 
 .item {
-  padding: 6px 0 6px 12px;
+  padding-left: 12px;
   border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
@@ -593,6 +603,7 @@ export default {
     flex-grow: 1;
     display: flex;
     align-items: center;
+    padding-left: 12px;
   }
 
   .userItem {

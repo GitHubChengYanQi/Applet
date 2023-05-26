@@ -33,22 +33,47 @@
         @onDelete="(_this)=>del(_this,true)"
         @onEdit="(_this)=>edit(_this,true)"
         @bindSku="bind"
+        :checkList="checkList"
+        @onCheckList="onCheckList"
+        :sys="sys"
     />
 
-    <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-      <view class="action">
-        <LinkButton @click="addPosition">添加子库位</LinkButton>
-      </view>
-      <view class="action">
-        <LinkButton :disabled="page.length <= 1" @click="actionShow = true">更多管理</LinkButton>
-        <u-action-sheet
-            cancelText="取消"
-            :actions="actionList"
-            :show="actionShow"
-            @close="actionShow = false"
-            @select="actionSelect"
-        />
-      </view>
+    <view v-if="admin" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+      <template v-if="sys">
+        <view class="sys">
+          <view class="total">
+            已选
+            <view class="num">{{ checkList.length }}</view>
+            个
+          </view>
+          <view class="sysActions">
+            <MyButton
+                :loading="delLoading"
+                type="error"
+                :disabled="checkList.length === 0"
+                @click="batchDelete"
+            >
+              批量删除
+            </MyButton>
+            <MyButton type="primary" @click="sys = false">退出管理</MyButton>
+          </view>
+        </view>
+      </template>
+      <template v-else>
+        <view class="action">
+          <LinkButton @click="addPosition">添加子库位</LinkButton>
+        </view>
+        <view class="action">
+          <LinkButton @click="actionShow = true;checkList=[]">更多管理</LinkButton>
+          <u-action-sheet
+              cancelText="取消"
+              :actions="actionList"
+              :show="actionShow"
+              @close="actionShow = false"
+              @select="actionSelect"
+          />
+        </view>
+      </template>
     </view>
 
     <Popup
@@ -101,7 +126,9 @@ import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
 import {Position} from "MES-Apis/lib/Position/promise";
 import PositionManage from "./components/PositionManage";
-import {delChildren} from "./index";
+import {delChildren, delIdsChildren} from "./index";
+import {SkuFormat, SkuResultSkuJsons} from "../../Sku/sku";
+import StoreHouseManage from "../StoreHouse/components/StoreHouseManage/index.vue";
 
 export default {
   options: {
@@ -110,6 +137,7 @@ export default {
   props: ['storehouseId', 'store'],
   name: 'SelectUser',
   components: {
+    StoreHouseManage,
     PositionManage,
     Tree,
     Popup,
@@ -167,6 +195,9 @@ export default {
       movableViewY: 0,
       movableViewX: 0,
       itemHeight: 68,
+      sys: false,
+      checkList: [],
+      delLoading: false
     }
   },
   mounted() {
@@ -177,6 +208,19 @@ export default {
     this.getDeptTree()
 
     const _this = this
+
+    uni.$on('onPositionBindSkus', ({id, list}) => {
+      _this.list = _this.list.map(item => {
+        if (item.key === id) {
+          return {...item, object: list.map(item => SkuResultSkuJsons({skuResult: item.skuResult}))}
+        }
+        return item
+      })
+      _this.tree = _this.editPositionChildren({
+        key: id,
+        object: list.map(item => SkuResultSkuJsons({skuResult: item.skuResult}))
+      }, _this.tree)
+    })
 
     uni.$on('positionsAddSuccess', () => {
       _this.getList(true, _this.page[_this.page.length - 1].key)
@@ -215,6 +259,11 @@ export default {
           color: '#007aff',
           key: 'bind',
           disabled: this.list.length > 0
+        },
+        {
+          name: '管理',
+          key: 'sys',
+          color: '#007aff',
         },
       ]
     }
@@ -315,6 +364,9 @@ export default {
         case 'auth':
           this.auth(thisPosition)
           break;
+        case 'sys':
+          this.sys = true
+          break;
       }
     },
     getPositionAuths(positionId) {
@@ -330,7 +382,8 @@ export default {
       })
     },
     afterleave() {
-      if (this.authShow || this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.positionManage.showStatus()) {
+      if (this.sys || this.authShow || this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.positionManage.showStatus()) {
+        this.sys = false
         this.pageContainerShow = false
         this.authShow = false
         this.actionShow = false
@@ -376,7 +429,7 @@ export default {
       })
       this.loading = false
 
-      this.tree = res.data || []
+      this.tree = this.format(res.data || [])
 
       if (refresh) {
         if (topKey === '0') {
@@ -386,14 +439,35 @@ export default {
           this.listChange(thisStoreHouse.children)
         }
       } else {
-        this.listChange(res.data || [])
+        this.listChange(this.tree)
         this.page = [{key: '0', name: this.store}]
       }
+    },
+    format(data) {
+      const list = [];
+      data.forEach(item => {
+        const obj = {
+          title: item.title,
+          key: item.key,
+          object: isArray(item.object).map(item => SkuFormat(item))
+        }
+        if (isArray(item.children).length > 0) {
+          obj.children = this.format(item.children || []);
+        } else {
+          obj.children = []
+        }
+        list.push(obj);
+      })
+
+      return list;
     },
     async onCheck(position) {
       const thisPosition = this.findPosition(position.key, this.tree) || {}
       const children = thisPosition.children || []
       if (children.length === 0) {
+        if (!this.admin) {
+          return
+        }
         this.allActionShow = true
         this.allActionData = position
         return
@@ -464,6 +538,41 @@ export default {
         }, 0)
       })
     },
+    onCheckList(checkItem) {
+      if (this.checkList.find(item => item.key === checkItem.key)) {
+        this.checkList = this.checkList.filter(item => item.key !== checkItem.key)
+      } else {
+        this.checkList = [...this.checkList, checkItem]
+      }
+    },
+    batchDelete() {
+      const ids = this.checkList.map(item => item.key)
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Storehouse.positionsDeleteBatch({
+              data: {
+                positionIds: ids
+              }
+            }).then(() => {
+              _this.listChange(_this.list.filter(item => !ids.find(id => id === item.key)))
+              _this.tree = delIdsChildren(ids, _this.tree)
+              _this.checkList = []
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败！'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    }
   }
 }
 </script>
@@ -583,6 +692,32 @@ export default {
     justify-content: center;
     align-items: center;
     height: 35px;
+  }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+
+    .total {
+      flex-grow: 1;
+      margin-top: -4px;
+
+      .num {
+        display: inline-block;
+        color: $primary-color;
+        padding: 0 4px;
+        font-size: 20px;
+      }
+    }
+
+    .sysActions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
   }
 }
 
