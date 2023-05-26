@@ -5,16 +5,6 @@
 
       <scroll-view class="skuAdd">
 
-        <view
-            v-if="Object.keys(formData).length > 0"
-            class="saveButton"
-            :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
-        >
-          <MyButton type="primary" @click="formSubmit">
-            保存
-          </MyButton>
-        </view>
-
         <Uploader @loading="onUploadLoading" :size="70" @onChange="imgChange">
           <view
               class="uploadSkuImg"
@@ -152,8 +142,19 @@
             <u-loading-icon mode="circle" />
           </view>
 
+          <view
+              v-if="Object.keys(formData).length > 0 && !keyboardShow"
+              class="saveButton"
+              :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
+          >
+            <MyButton type="primary" @click="formSubmit">
+              保存
+            </MyButton>
+          </view>
+
         </view>
       </scroll-view>
+
 
 
       <!--        其他输入字段-->
@@ -316,6 +317,11 @@ export default {
       skuShow: false,
       inputFiled: '',
       fileShow: ''
+    }
+  },
+  computed:{
+    keyboardShow(){
+      return this.$store.state.keyboard.numberKeyboardShow
     }
   },
   mounted() {

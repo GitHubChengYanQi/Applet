@@ -79,6 +79,7 @@ export default {
   },
   watch: {
     visible(visible) {
+      this.$store.commit('keyboard/numberKeyboardChange', visible)
       if (visible) {
         this.number = ''
         this.defaultNumber = this.value || ''

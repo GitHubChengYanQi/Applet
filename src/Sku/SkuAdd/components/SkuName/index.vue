@@ -7,6 +7,10 @@
       </Divider>
     </view>
 
+    <view style="position: fixed;top: 0">
+      <MyButton>13231232</MyButton>
+    </view>
+
 
     <SkuFormItem
         class="skuFormItemComponent"
