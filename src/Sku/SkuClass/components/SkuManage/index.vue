@@ -129,7 +129,11 @@
                   :class="{item:true,inItem:inIndex === index}"
                   @click="sys ? $emit('onCheckSkuClass',item) :$emit('skuClassClick',item)"
               >
-                <Check v-if="sys" :value="checkSkuClass.find(checkSkuClas=>checkSkuClas.key === item.key)" />
+                <Check
+                    :disabled="item.number > 0"
+                    v-if="sys"
+                    :value="checkSkuClass.find(checkSkuClas=>checkSkuClas.key === item.key)"
+                />
                 <view class="deptIcon">
                   <Icon icon="icon-gaojizujian" size="20" />
                 </view>
