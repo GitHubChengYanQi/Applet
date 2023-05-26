@@ -100,6 +100,10 @@
                       :index="index"
                       :skuNames="skuNames"
                       @inputFiled="(filed)=>onInputFiled(filed,index)"
+                      @keyboardShow="(filed)=>onkeyboardShow(filed,index)"
+                      @skuShow="onSkuShow(index)"
+                      @selectBrand="onSelectBrand(index)"
+                      @fileShow="(filed)=>onFileShow(filed,index)"
                   />
 
                 </view>
@@ -146,7 +150,7 @@
           </view>
 
           <view
-              v-if="Object.keys(formData).length > 0 && !keyboardShow"
+              v-if="Object.keys(formData).length > 0"
               class="saveButton"
               :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
           >
@@ -234,12 +238,11 @@
 
       <!--        数量、价格-->
       <Keybord
-          :visible="!!keybordShow"
-          @close="keybordShow = ''"
-          :value="formData[keybordShow]"
+          :visible="!!keyboardShow"
+          @close="keyboardShow = ''"
+          v-model="skuNames[clickIndex].formData[keyboardShow]"
           :min='0'
-          :decimal="['initialNumber'].includes(keybordShow) ? 0 : 2"
-          @onChange="(val)=>formData[keybordShow] = val"
+          :decimal="['initialNumber'].includes(keyboardShow) ? 0 : 2"
       />
 
       <!--      图纸、附件-->
@@ -250,7 +253,10 @@
           :destroy-on-close="false"
       >
         <view class="fileShow">
-          <FileUpload @onLoading="(load)=>uploadLoading = load" v-model="formData[fileShow]">
+          <FileUpload
+              @onLoading="(load)=>uploadFileLoading = load"
+              v-model="skuNames[clickIndex].formData[fileShow]"
+          >
             <MyButton type="primary">
               <view class="uploadFile">
                 <uni-icons type="upload" color="#ffffff" />
@@ -269,11 +275,11 @@
           @close="skuShow = false"
       >
         <view class="skuDescribe">
-          <SkuDescribe v-model="formData.sku" />
+          <SkuDescribe v-if="skuShow" v-model="skuNames[clickIndex].formData.sku" />
         </view>
       </Popup>
 
-      <Loading :loading="loading" />
+      <Loading :loading="loading || uploadFileLoading" />
 
       <view style="height:80px" v-if="false" />
 
@@ -360,8 +366,9 @@ export default {
       formRenderData: {},
       refreshLoading: false,
       uploadLoading: false,
+      uploadFileLoading: false,
       filedShow: '',
-      keybordShow: '',
+      keyboardShow: '',
       getCateGoryLoading: false,
       showContent: false,
       open: false,
@@ -372,21 +379,22 @@ export default {
       clickIndex: null
     }
   },
-  computed: {
-    keyboardShow() {
-      return this.$store.state.keyboard.numberKeyboardShow
-    }
-  },
+  computed: {},
   mounted() {
     this.windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth
     this.imgWidth = (this.windowWidth - 60) / 4
     const _this = this
 
     // 选择品牌
-    uni.$on('checkBrands', ({checkBrands = []}) => {
-      _this.saveFormData({brandIds: checkBrands.map(item => item.brandId)}, {
+    uni.$on('checkBrands', ({id, checkBrands = []}) => {
+      this.skuNames[parseInt(id)].formData = {
+        ...this.skuNames[parseInt(id)].formData,
+        brandIds: checkBrands.map(item => item.brandId)
+      }
+      this.skuNames[parseInt(id)].formRenderData = {
+        ...this.skuNames[parseInt(id)].formRenderData,
         brands: checkBrands
-      })
+      }
     })
 
     // 添加分类
@@ -396,18 +404,6 @@ export default {
     _this.getCateGory();
   },
   methods: {
-    selectBrand() {
-      const _this = this
-      uni.navigateTo({
-        url: `/Sku/Brand/BrandList/index?type=multiple`,
-        success: function (res) {
-          // 通过eventChannel向被打开页面传送数据
-          res.eventChannel.emit('checkBrands', {
-            checkBrands: _this.formRenderData.brands,
-          })
-        }
-      })
-    },
     reset() {
       this.formData = {}
       this.formRenderData = {}
@@ -710,7 +706,31 @@ export default {
     onInputFiled(filed, index) {
       this.clickIndex = index
       this.inputFiled = filed
-    }
+    },
+    onkeyboardShow(filed, index) {
+      this.clickIndex = index
+      this.keyboardShow = filed
+    },
+    onSkuShow(index) {
+      this.clickIndex = index
+      this.skuShow = true
+    },
+    onFileShow(filed, index) {
+      this.clickIndex = index
+      this.fileShow = filed
+    },
+    onSelectBrand(index) {
+      const _this = this
+      uni.navigateTo({
+        url: `/Sku/Brand/BrandList/index?type=multiple&id=${index}`,
+        success: function (res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('checkBrands', {
+            checkBrands: _this.skuNames[index].formRenderData.brands || [],
+          })
+        }
+      })
+    },
   },
 }
 </script>

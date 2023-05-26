@@ -171,6 +171,7 @@ export default {
         newValue = this.max;
       }
       this.$emit('onChange', newValue)
+      this.$emit('input', newValue)
       this.$emit('onConfirm')
       this.$emit('close')
     }

@@ -22,8 +22,27 @@
         class="skuFormItemComponent"
         icon="icon-guige"
         label="规格"
-        @click="inputFiled = 'specifications'"
+        @click="$emit('inputFiled','specifications')"
         :value="formData.specifications"
+    />
+
+
+    <SkuFormItem
+        class="skuFormItemComponent"
+        icon="icon-caigoujiage"
+        label="采购价格"
+        :value="`￥${formData.inPrice || 0}`"
+        @click="$emit('keyboardShow','inPrice')"
+    />
+
+    <view class="space" />
+
+    <SkuFormItem
+        class="skuFormItemComponent"
+        icon="icon-xiaoshoujiage"
+        label="销售价格"
+        :value="`￥${formData.outPrice || 0}`"
+        @click="$emit('keyboardShow','outPrice')"
     />
 
 
@@ -32,27 +51,9 @@
         icon="icon-qichukucun"
         label="期初库存"
         :value="formData.initialNumber"
-        @click="keybordShow = 'initialNumber'"
+        @click="$emit('keyboardShow','initialNumber')"
     />
 
-    <view class="space" />
-
-    <SkuFormItem
-        class="skuFormItemComponent"
-        icon="icon-caigoujiage"
-        label="采购价格"
-        :value="`￥${formData.inPrice || 0}`"
-        @click="keybordShow = 'inPrice'"
-    />
-
-
-    <SkuFormItem
-        class="skuFormItemComponent"
-        icon="icon-xiaoshoujiage"
-        label="销售价格"
-        :value="`￥${formData.outPrice || 0}`"
-        @click="keybordShow = 'outPrice'"
-    />
 
     <template v-if="open">
       <view class="otherFormItem" />
@@ -61,7 +62,7 @@
           class="skuFormItemComponent"
           label="养护周期"
           :value="(formData.maintenancePeriod || 0)+'天'"
-          @click="keybordShow = 'maintenancePeriod'"
+          @click="$emit('keyboardShow','maintenancePeriod')"
       />
 
       <view class="space" />
@@ -69,7 +70,7 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="规格参数"
-          @click="skuShow = true"
+          @click="$emit('skuShow')"
           :value="isArray(formData.sku).map(item=>{
                           return (item.label || '-')+':'+(item.value || '-')
                         }).join(',')"
@@ -79,7 +80,7 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="品牌"
-          @click="selectBrand"
+          @click="$emit('selectBrand')"
           :value="isArray(formRenderData.brands).map(item=>item.brandName).join('、')"
       />
 
@@ -89,7 +90,7 @@
           class="skuFormItemComponent"
           label="材质"
           :value="formRenderData.materialName"
-          @click="filedShow = 'materialId'"
+          @click="$emit('filedShow','materialId')"
       />
 
 
@@ -97,7 +98,7 @@
           class="skuFormItemComponent"
           label="重量"
           :value="(formData.weight || 0)+'kg'"
-          @click="keybordShow = 'weight'"
+          @click="$emit('keyboardShow','weight')"
       />
 
       <view class="space" />
@@ -105,16 +106,16 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="级别"
-          @click="inputFiled = 'level'"
           :value="formData.level"
+          @click="$emit('inputFiled','level')"
       />
 
 
       <SkuFormItem
           class="skuFormItemComponent"
           label="表色"
-          @click="inputFiled = 'color'"
           :value="formData.color"
+          @click="$emit('inputFiled','color')"
       />
 
       <view class="space" />
@@ -122,22 +123,22 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="热处理"
-          @click="inputFiled = 'heatTreatment'"
           :value="formData.heatTreatment"
+          @click="$emit('inputFiled','heatTreatment')"
       />
 
 
       <SkuFormItem style="width: 100%" label="尺寸">
         <view class="skuSize">
-          <view class="skuSizeItem" @click="keybordShow = 'skuSizeLength'">
+          <view class="skuSizeItem" @click="$emit('keyboardShow','skuSizeLength')">
             长：
             <view class="skuSizeValue">{{ formData.skuSizeLength || 0 }}mm</view>
           </view>
-          <view class="skuSizeItem" @click="keybordShow = 'skuSizeWidth'">
+          <view class="skuSizeItem" @click="$emit('keyboardShow','skuSizeWidth')">
             宽：
             <view class="skuSizeValue">{{ formData.skuSizeWidth || 0 }}mm</view>
           </view>
-          <view class="skuSizeItem" @click="keybordShow = 'skuSizeHeight'">
+          <view class="skuSizeItem" @click="$emit('keyboardShow','skuSizeHeight')">
             高：
             <view class="skuSizeValue">{{ formData.skuSizeHeight || 0 }}mm</view>
           </view>
@@ -148,7 +149,7 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="图纸"
-          @click="fileShow = 'drawing'"
+          @click="$emit('fileShow','drawing')"
       >
         <view class="fileRender" v-if="isArray(formData.drawing).length > 0">
           <u-icon name="file-text" size="24" color="#007aff" />
@@ -161,7 +162,7 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="附件"
-          @click="fileShow = 'fileId'"
+          @click="$emit('fileShow','fileId')"
       >
         <view class="fileRender" v-if="isArray(formData.fileId).length > 0">
           <u-icon name="file-text" size="24" color="#007aff" />
@@ -173,8 +174,8 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="包装方式"
-          @click="inputFiled = 'packaging'"
           :value="formData.packaging"
+          @click="$emit('inputFiled','packaging')"
       />
 
       <view class="space" />
@@ -182,8 +183,8 @@
       <SkuFormItem
           class="skuFormItemComponent"
           label="图幅"
-          @click="inputFiled = 'viewFrame'"
           :value="formData.viewFrame"
+          @click="$emit('inputFiled','viewFrame')"
       />
 
 
@@ -191,8 +192,8 @@
           style="width: 100%"
           class="skuFormItemComponent"
           label="备注"
-          @click="inputFiled = 'remarks'"
           :value="formData.remarks"
+          @click="$emit('inputFiled','remarks')"
       />
 
     </template>
@@ -260,7 +261,7 @@ export default {
       refreshLoading: false,
       uploadLoading: false,
       filedShow: '',
-      keybordShow: '',
+      keyboardShow: '',
       showContent: false,
       loading: false,
       skuShow: false,
@@ -272,18 +273,6 @@ export default {
 
   },
   methods: {
-    selectBrand() {
-      const _this = this
-      uni.navigateTo({
-        url: `/Sku/Brand/BrandList/index?type=multiple`,
-        success: function (res) {
-          // 通过eventChannel向被打开页面传送数据
-          res.eventChannel.emit('checkBrands', {
-            checkBrands: _this.formRenderData.brands,
-          })
-        }
-      })
-    },
     generalFormData(key, value) {
       let exits = false;
       const newFormData = this.general.map(formDataItem => {
