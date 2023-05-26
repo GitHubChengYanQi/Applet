@@ -93,10 +93,13 @@
                   <SkuName
                       v-for="(skuName,index) in skuNames"
                       :key="index"
+                      :form-data="skuName.formData"
+                      :form-render-data="skuName.formRenderData"
                       style="width: 100%"
                       :open="open"
                       :index="index"
                       :skuNames="skuNames"
+                      @inputFiled="(filed)=>onInputFiled(filed,index)"
                   />
 
                 </view>
@@ -156,12 +159,11 @@
       </scroll-view>
 
 
-
       <!--        其他输入字段-->
       <SkuInput
           :show="inputFiled"
           @close="inputFiled = ''"
-          v-model="formData[inputFiled]"
+          v-model="skuNames[clickIndex].formData[inputFiled]"
           :params="{spuClassId:this.formData.spuClass}"
           @checked="checked"
           :textarea="inputFiled === 'remarks'"
@@ -220,6 +222,56 @@
           @close="filedShow = ''"
           @select="selectBatch"
       />
+
+
+      <!--        材质-->
+      <SelectMaterial
+          :value="formData.materialId"
+          :show="filedShow === 'materialId'"
+          @close="filedShow = ''"
+          @select="selectMaterial"
+      />
+
+      <!--        数量、价格-->
+      <Keybord
+          :visible="!!keybordShow"
+          @close="keybordShow = ''"
+          :value="formData[keybordShow]"
+          :min='0'
+          :decimal="['initialNumber'].includes(keybordShow) ? 0 : 2"
+          @onChange="(val)=>formData[keybordShow] = val"
+      />
+
+      <!--      图纸、附件-->
+      <Popup
+          :show="!!fileShow"
+          :title="fileShow === 'fileId' ? '附件' : '图纸'"
+          @close="fileShow = ''"
+          :destroy-on-close="false"
+      >
+        <view class="fileShow">
+          <FileUpload @onLoading="(load)=>uploadLoading = load" v-model="formData[fileShow]">
+            <MyButton type="primary">
+              <view class="uploadFile">
+                <uni-icons type="upload" color="#ffffff" />
+                上传
+              </view>
+            </MyButton>
+          </FileUpload>
+        </view>
+      </Popup>
+
+
+      <!--      sku物料描述-->
+      <Popup
+          :show="skuShow"
+          title="物料描述"
+          @close="skuShow = false"
+      >
+        <view class="skuDescribe">
+          <SkuDescribe v-model="formData.sku" />
+        </view>
+      </Popup>
 
       <Loading :loading="loading" />
 
@@ -303,7 +355,7 @@ export default {
       windowWidth: 0,
       cateGoryData: [],
       general: [],
-      skuNames: [{}],
+      skuNames: [{formData: {}, formRenderData: {}}],
       formData: {},
       formRenderData: {},
       refreshLoading: false,
@@ -316,11 +368,12 @@ export default {
       loading: false,
       skuShow: false,
       inputFiled: '',
-      fileShow: ''
+      fileShow: '',
+      clickIndex: null
     }
   },
-  computed:{
-    keyboardShow(){
+  computed: {
+    keyboardShow() {
       return this.$store.state.keyboard.numberKeyboardShow
     }
   },
@@ -651,8 +704,12 @@ export default {
         })
       }
     },
-    addSkuName(){
-      this.skuNames = [...this.skuNames,{}]
+    addSkuName() {
+      this.skuNames = [...this.skuNames, {formData: {}, formRenderData: {}}]
+    },
+    onInputFiled(filed, index) {
+      this.clickIndex = index
+      this.inputFiled = filed
     }
   },
 }

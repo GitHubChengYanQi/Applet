@@ -7,16 +7,12 @@
       </Divider>
     </view>
 
-    <view style="position: fixed;top: 0">
-      <MyButton>13231232</MyButton>
-    </view>
-
 
     <SkuFormItem
         class="skuFormItemComponent"
         icon="icon-xinghao"
         label="型号"
-        @click="inputFiled = 'skuName'"
+        @click="$emit('inputFiled','skuName')"
         :value="formData.skuName"
     />
 
@@ -201,67 +197,6 @@
 
     </template>
 
-
-    <!--        其他输入字段-->
-    <SkuInput
-        :show="inputFiled"
-        @close="inputFiled = ''"
-        v-model="formData[inputFiled]"
-        :params="{spuClassId:this.formData.spuClass}"
-        :textarea="inputFiled === 'remarks'"
-        @change="(val)=>generalFormData(inputFiled,val)"
-    />
-
-
-    <!--        材质-->
-    <SelectMaterial
-        :value="formData.materialId"
-        :show="filedShow === 'materialId'"
-        @close="filedShow = ''"
-        @select="selectMaterial"
-    />
-
-    <!--        数量、价格-->
-    <Keybord
-        :visible="!!keybordShow"
-        @close="keybordShow = ''"
-        :value="formData[keybordShow]"
-        :min='0'
-        :decimal="['initialNumber'].includes(keybordShow) ? 0 : 2"
-        @onChange="(val)=>formData[keybordShow] = val"
-    />
-
-    <!--      图纸、附件-->
-    <Popup
-        :show="!!fileShow"
-        :title="fileShow === 'fileId' ? '附件' : '图纸'"
-        @close="fileShow = ''"
-        :destroy-on-close="false"
-    >
-      <view class="fileShow">
-        <FileUpload @onLoading="(load)=>uploadLoading = load" v-model="formData[fileShow]">
-          <MyButton type="primary">
-            <view class="uploadFile">
-              <uni-icons type="upload" color="#ffffff" />
-              上传
-            </view>
-          </MyButton>
-        </FileUpload>
-      </view>
-    </Popup>
-
-
-    <!--      sku物料描述-->
-    <Popup
-        :show="skuShow"
-        title="物料描述"
-        @close="skuShow = false"
-    >
-      <view class="skuDescribe">
-        <SkuDescribe v-model="formData.sku" />
-      </view>
-    </Popup>
-
     <Loading :loading="uploadLoading" />
   </view>
 </template>
@@ -316,14 +251,12 @@ export default {
     Loading,
     Uploader,
   },
-  props: ['open', 'index', 'skuNames'],
+  props: ['open', 'index', 'skuNames', 'formData', 'formRenderData'],
   data() {
     return {
       safeAreaHeight,
       isArray,
       general: [],
-      formData: {},
-      formRenderData: {},
       refreshLoading: false,
       uploadLoading: false,
       filedShow: '',
@@ -336,14 +269,7 @@ export default {
     }
   },
   mounted() {
-    const _this = this
 
-    // 选择品牌
-    uni.$on('checkBrands', ({checkBrands = []}) => {
-      _this.saveFormData({brandIds: checkBrands.map(item => item.brandId)}, {
-        brands: checkBrands
-      })
-    })
   },
   methods: {
     selectBrand() {
@@ -358,20 +284,6 @@ export default {
         }
       })
     },
-    reset() {
-      this.formData = {}
-      this.formRenderData = {}
-    },
-    saveFormData(value, label) {
-      this.formData = {
-        ...this.formData,
-        ...value
-      }
-      this.formRenderData = {
-        ...this.formRenderData,
-        ...label
-      }
-    },
     generalFormData(key, value) {
       let exits = false;
       const newFormData = this.general.map(formDataItem => {
@@ -385,20 +297,6 @@ export default {
         newFormData.push({fieldName: key, value});
       }
       this.general = newFormData
-    },
-    selectBatch(batch) {
-      this.saveFormData({
-        batch: batch.key
-      }, {
-        batchName: batch.text
-      })
-    },
-    selectMaterial(material) {
-      this.saveFormData({
-        materialId: material.key
-      }, {
-        materialName: material.text
-      })
     },
   },
 }
