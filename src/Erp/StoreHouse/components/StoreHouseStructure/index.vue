@@ -96,7 +96,7 @@
         </movable-view>
 
         <view
-            class="moveFixItem"
+            class="storeItemContent moveFixItem"
             v-if="isMove !== null"
             :style="{
                 top:`${itemHeight * isMove + itemHeight}px`,
@@ -106,9 +106,27 @@
                 paddingLeft:'10px'
               }"
         >
-          <view class="storeItem">
-            <Icon icon="icon-cangkutubiao" size="20" />
-            {{ childrenList[isMove].name }}
+          <view class="deptIcon">
+            <Icon icon="icon-cangkutubiao" size="55" />
+          </view>
+          <view class="itemTitle">
+            <view>{{ childrenList[isMove].name }}</view>
+            <view class="itemOther">
+              <view
+                  v-if="isArray(childrenList[isMove].objects).length > 0"
+                  class="itemDescribe"
+                  :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+              >
+                {{ isArray(childrenList[isMove].objects).join('、') }}
+              </view>
+              <view
+                  v-if="classList.length > 0 && childrenList[isMove].storehouseId === newStorehouseId"
+                  class="itemDescribe"
+                  :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+              >
+                {{ classList.map(item => item.title).join('、') }}
+              </view>
+            </view>
           </view>
         </view>
       </movable-area>

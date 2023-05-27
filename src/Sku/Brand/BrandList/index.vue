@@ -3,7 +3,6 @@
     <Page
         v-if="auth"
         :type="type"
-        :id="id"
         :default-checd-brands="checkBrands"
     />
   </Auth>
@@ -18,13 +17,11 @@ export default {
   data() {
     return {
       type: '',
-      id: '',
       checkBrands: []
     }
   },
   onLoad(option) {
     this.type = option.type
-    this.id = option.id
     const _this = this
     const eventChannel = _this.getOpenerEventChannel();
     if (typeof eventChannel.on === "function") {
