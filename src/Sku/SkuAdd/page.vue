@@ -14,7 +14,7 @@
           >
             <view :class="{box:isArray(formRenderData.imageUrls).length > 0}">
               <view class="imgTitle" :style="{color:isArray(formRenderData.imageUrls).length > 0 && '#fff'}">
-                <u-icon size="60" color="#dcdee0" name="camera-fill" />
+                <Icon size="40" icon="icon-shangchuanwuliaotubiao" />
                 上传物料图片
               </view>
             </view>
@@ -959,6 +959,7 @@ export default {
       justify-content: center;
       flex-direction: column;
       z-index: 1;
+      gap: 12px;
       color: #3D3D3D;
     }
   }
