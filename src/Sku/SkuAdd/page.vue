@@ -71,25 +71,6 @@
 
 
                   <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-xinghao"
-                      label="型号"
-                      @click="inputFiled = 'skuName'"
-                      :value="formData.skuName"
-                  />
-
-                  <view class="space" />
-
-                  <SkuFormItem
-                      class="skuFormItemComponent"
-                      icon="icon-guige"
-                      label="规格"
-                      @click="inputFiled = 'specifications'"
-                      :value="formData.specifications"
-                  />
-
-
-                  <SkuFormItem
                       required
                       class="skuFormItemComponent"
                       icon="icon-jidanwei"
@@ -112,13 +93,24 @@
 
                   <SkuFormItem
                       class="skuFormItemComponent"
-                      icon="icon-qichukucun"
-                      label="期初库存"
-                      :value="formData.initialNumber"
-                      @click="keybordShow = 'initialNumber'"
+                      icon="icon-xinghao"
+                      label="型号"
+                      @click="inputFiled = 'skuName'"
+                      :value="formData.skuName"
                   />
 
                   <view class="space" />
+
+                  <SkuFormItem
+                      class="skuFormItemComponent"
+                      icon="icon-guige"
+                      label="规格"
+                      @click="inputFiled = 'specifications'"
+                      :value="formData.specifications"
+                  />
+
+
+
 
                   <SkuFormItem
                       class="skuFormItemComponent"
@@ -128,6 +120,7 @@
                       @click="keybordShow = 'inPrice'"
                   />
 
+                  <view class="space" />
 
                   <SkuFormItem
                       class="skuFormItemComponent"
@@ -135,6 +128,14 @@
                       label="销售价格"
                       :value="`￥${formData.outPrice || 0}`"
                       @click="keybordShow = 'outPrice'"
+                  />
+
+                  <SkuFormItem
+                      class="skuFormItemComponent"
+                      icon="icon-qichukucun"
+                      label="期初库存"
+                      :value="formData.initialNumber"
+                      @click="keybordShow = 'initialNumber'"
                   />
 
                   <template v-if="open">

@@ -111,7 +111,7 @@ import Loading from "../../components/Loading";
 import UserName from "../../components/UserName";
 import Empty from "../../components/Empty";
 import Avatar from "../../components/Avatar";
-import {isArray, safeAreaHeight} from "../../util/Tools";
+import {findThisInTree, isArray, safeAreaHeight} from "../../util/Tools";
 import MyButton from "../../components/MyButton";
 import Check from "../../components/Check";
 import Icon from "../../components/Icon";
@@ -344,7 +344,7 @@ export default {
         if (topKey === '0') {
           this.listChange(this.tree)
         } else {
-          const thisStoreHouse = this.findStoreHouse(topKey, this.tree)
+          const thisStoreHouse = this.findThisInTree(topKey, this.tree)
           this.listChange(thisStoreHouse.children)
         }
 
@@ -359,7 +359,7 @@ export default {
         const obj = {
           title: item.name,
           key: item.storehouseId,
-          objects: isArray(item.spuClassResults).map(item => item.name)
+          objects: isArray(item.spuClassResults).filter(item => item).map(item => item.name)
         }
         if (isArray(item.childrenList).length > 0) {
           obj.children = this.format(item.childrenList || []);
@@ -372,7 +372,7 @@ export default {
       return list;
     },
     async onCheckStoreHouse(storeHouse) {
-      const thisStoreHouse = this.findStoreHouse(storeHouse.key, this.tree) || {}
+      const thisStoreHouse = findThisInTree(storeHouse.key, this.tree) || {}
       const children = thisStoreHouse.children || []
       if (children.length === 0) {
         if (!this.admin) {
@@ -390,7 +390,7 @@ export default {
       if (route.key === '0') {
         this.listChange(this.tree)
       } else {
-        const thisStoreHouse = this.findStoreHouse(route.key, this.tree) || {}
+        const thisStoreHouse = findThisInTree(route.key, this.tree) || {}
         this.listChange(thisStoreHouse.children || [])
       }
 
@@ -413,20 +413,6 @@ export default {
       uni.navigateTo({
         url: `/Erp/StoreHouse/StoreHouseAdd/index?pid=${pid || this.storeHousePage[this.storeHousePage.length - 1].key}`
       })
-    },
-    findStoreHouse(key, storeHouseList = []) {
-      let storeHouse = null
-      storeHouseList.forEach(item => {
-        if ((key + '') === (item.key + '')) {
-          storeHouse = item
-        } else {
-          const children = this.findStoreHouse(key, item.children)
-          if (children) {
-            storeHouse = children
-          }
-        }
-      })
-      return storeHouse
     },
     editStoreHouseChildren(storeHouse, storeHouseList = []) {
       return storeHouseList.map(item => {

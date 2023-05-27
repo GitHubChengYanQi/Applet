@@ -29,7 +29,7 @@
               :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
               :class="{movableView:true,inItem:inIndex === -1}"
               :disabled="true"
-              @click="!sys && $emit('pageClick',page[page.length - 2])"
+              @click="!sys && isMove===null && $emit('pageClick',page[page.length - 2])"
           >
             <view class="item" :style="{height:`${itemHeight - 1}px`}">
               <view class="deptIcon">
@@ -72,7 +72,7 @@
               <view
                   class="item"
                   :style="{height:`${itemHeight - 1}px`}"
-                  @click="sys ? $emit('onCheckList',item) :$emit('onCheck',item)"
+                  @click="sys ? $emit('onCheckList',item) :(isMove===null && $emit('onCheck',item))"
               >
                 <Check
                     :disabled="item.number > 0"
@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import {isArray, safeAreaHeight} from "../../../../util/Tools";
+import {findThisInTree, isArray, safeAreaHeight} from "../../../../util/Tools";
 import Empty from "../../../../components/Empty";
 import Icon from "../../../../components/Icon";
 import {Init} from "MES-Apis/lib/Init";
@@ -250,7 +250,9 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      this.isMove = null
+      setTimeout(() => {
+        this.isMove = null
+      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -259,7 +261,7 @@ export default {
         newY = y
       }
       let moveIndex = parseInt(newY / this.itemHeight)
-      const moveItem = this.list[thisIndex]
+      const moveItem = findThisInTree(this.list[thisIndex].key, this.tree)
       this.$nextTick(function () {
         if (this.inIndex !== null) {
           const inIndex = this.inIndex

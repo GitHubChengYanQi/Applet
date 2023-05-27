@@ -449,7 +449,7 @@ export default {
         const obj = {
           title: item.title,
           key: item.key,
-          object: isArray(item.object).map(item => SkuFormat(item))
+          object: isArray(item.object).filter(item => item).map(item => SkuFormat(item))
         }
         if (isArray(item.children).length > 0) {
           obj.children = this.format(item.children || []);

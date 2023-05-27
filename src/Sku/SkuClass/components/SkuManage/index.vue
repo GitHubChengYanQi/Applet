@@ -90,7 +90,7 @@
               :style="{ width: `${itemWidth}px`,  height:`${itemHeight}px`}"
               :class="{movableView:true,inItem:inIndex === -1}"
               :disabled="true"
-              @click="!sys && $emit('skuClassPageClick',skuClassPage[skuClassPage.length - 2])"
+              @click="!sys && isMove===null && skuIsMove===null && $emit('skuClassPageClick',skuClassPage[skuClassPage.length - 2])"
           >
             <view class="item" :style="{height:`${itemHeight - 1}px`}">
               <view class="deptIcon">
@@ -127,7 +127,7 @@
               <view
                   :style="{height:`${itemHeight - 1}px`}"
                   :class="{item:true,inItem:inIndex === index}"
-                  @click="sys ? (!(item.number > 0) && $emit('onCheckSkuClass',item)) :$emit('skuClassClick',item)"
+                  @click="sys ? (!(item.number > 0) && $emit('onCheckSkuClass',item)) :(isMove===null && skuIsMove===null &&  $emit('skuClassClick',item))"
               >
                 <Check
                     :disabled="item.number > 0"
@@ -260,7 +260,7 @@ import {addSkuClassChildren, delSkuClassChildren, sortSkuClassChildren} from "..
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuItem from "../../../../components/SkuItem";
 import Loading from "../../../../components/Loading";
-import {isArray, safeAreaHeight} from "../../../../util/Tools";
+import {findThisInTree, isArray, safeAreaHeight} from "../../../../util/Tools";
 import Modal from "../../../../components/Modal";
 import {SkuResultSkuJsons} from "../../../sku";
 import List from "../../../../components/List/indx";
@@ -554,7 +554,9 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      this.isMove = null
+      setTimeout(() => {
+        this.isMove = null
+      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -567,7 +569,11 @@ export default {
       this.$nextTick(function () {
         if (this.inIndex !== null) {
           this.moveActionShow = true
-          this.moveActionData = {...this.skuClassList[thisIndex], thisIndex, inIndex: this.inIndex}
+          this.moveActionData = {
+            ...findThisInTree(this.skuClassList[thisIndex].key, this.tree),
+            thisIndex,
+            inIndex: this.inIndex
+          }
           this.skuClassListChange(this.skuClassList)
         } else if (this.moveEndIndex !== null) {
           const skuClassList = this.skuClassList.map((item, index) => {
@@ -721,7 +727,7 @@ export default {
                 _this.$refs.modal.dialog({
                   title: '当前物料已被使用！'
                 })
-              }else {
+              } else {
                 this.setRemoveSkuIds([_this.skuList[thisIndex].skuId])
                 _this.$emit('skuListChange', _this.skuList.filter(item => item.skuId !== _this.skuList[thisIndex].skuId))
               }

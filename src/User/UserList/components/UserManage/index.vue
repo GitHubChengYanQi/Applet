@@ -62,185 +62,185 @@
         </u-transition>
       </view>
 
-    <Empty
-        v-if="deptUsers.length === 0 && searchValue"
-        description="暂无人员信息"
-    />
+      <Empty
+          v-if="deptUsers.length === 0 && searchValue"
+          description="暂无人员信息"
+      />
 
-    <view
-        v-else
-        class="users"
-        :style="{
+      <view
+          v-else
+          class="users"
+          :style="{
       height: `calc(100vh - ${showFooter ? (47+safeAreaHeight(this,8)) : 0}px - ${userIsMove === null ?85:0}px)`
     }"
-    >
+      >
 
-      <view class="header" v-if="userIsMove !== null">
-        <view style="padding-top: 8px">
-          <uni-breadcrumb separator="/">
-            <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
-              <view @click="$emit('deptPageClick',route)">
-                {{ route.name }}
-              </view>
-            </uni-breadcrumb-item>
-          </uni-breadcrumb>
+        <view class="header" v-if="userIsMove !== null">
+          <view style="padding-top: 8px">
+            <uni-breadcrumb separator="/">
+              <uni-breadcrumb-item v-for="(route,index) in deptPage" :key="index">
+                <view @click="$emit('deptPageClick',route)">
+                  {{ route.name }}
+                </view>
+              </uni-breadcrumb-item>
+            </uni-breadcrumb>
+          </view>
+          <Search
+              placeholder="请输入成员姓名"
+              :value="searchValue"
+              no-search-button
+              @onChange="(value)=>$emit('searchOnChange',value)"
+          />
         </view>
-        <Search
-            placeholder="请输入成员姓名"
-            :value="searchValue"
-            no-search-button
-            @onChange="(value)=>$emit('searchOnChange',value)"
-        />
-      </view>
 
-      <movable-area
-          v-if="!searchValue"
-          class="movableArea"
-          :style="{
+        <movable-area
+            v-if="!searchValue"
+            class="movableArea"
+            :style="{
       height:`${depts.length * itemHeight + (deptPage.length > 1 ? 68 : 20)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
     }"
-      >
-        <movable-view
-            v-if="deptPage.length > 1"
-            direction="all"
-            :x="movableViewX"
-            :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
-            :class="{movableView:true,inItem:inIndex === -1}"
-            :disabled="true"
-            @click="$emit('deptPageClick',deptPage[deptPage.length - 2])"
         >
-          <view class="item">
-            <view class="deptIcon" style="margin-left:0">
-              <Icon icon="icon-fanhui" size="20" />
+          <movable-view
+              v-if="deptPage.length > 1"
+              direction="all"
+              :x="movableViewX"
+              :style="{ width: `${itemWidth}px`,height:`${itemHeight}px`}"
+              :class="{movableView:true,inItem:inIndex === -1}"
+              :disabled="true"
+              @click="isMove === null && userIsMove === null && $emit('deptPageClick',deptPage[deptPage.length - 2])"
+          >
+            <view class="item">
+              <view class="deptIcon" style="margin-left:0">
+                <Icon icon="icon-fanhui" size="20" />
+              </view>
+              <view class="backDept">返回上级部门</view>
             </view>
-            <view class="backDept">返回上级部门</view>
-          </view>
-        </movable-view>
-        <Empty
-            style="padding-top: 48px"
-            v-if="deptUsers.length === 0 && depts.length === 0"
-            description="暂无数据"
-        />
+          </movable-view>
+          <Empty
+              style="padding-top: 48px"
+              v-if="deptUsers.length === 0 && depts.length === 0"
+              description="暂无数据"
+          />
 
-        <movable-view
-            v-for="(item,index) in depts"
-            :key="index"
-            :damping="0"
-            :out-of-bounds="true"
-            :animation="false"
-            :disabled="isMove !== index"
-            :style="{
+          <movable-view
+              v-for="(item,index) in depts"
+              :key="index"
+              :damping="0"
+              :out-of-bounds="true"
+              :animation="false"
+              :disabled="isMove !== index"
+              :style="{
                 top:`${itemHeight * index+(deptPage.length > 1 ? 0 : 10)}px`,
                 width: `${itemWidth}px`,
                 height:`${itemHeight}px`
                 }"
-            :y="movableViewY"
-            :x="movableViewX"
-            direction="all"
-            @change="(e)=>move(e,index)"
-            @touchend="(e)=>moveEnd(e,index)"
-            :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
-        >
-          <Swipe
-              :disabled="!admin || isMove !== null"
-              @click="(key)=>swipeClick(key,item)"
+              :y="movableViewY"
+              :x="movableViewX"
+              direction="all"
+              @change="(e)=>move(e,index)"
+              @touchend="(e)=>moveEnd(e,index)"
+              :class="{movableView:true,inItem:inIndex === index,moveItem:isMove === index}"
           >
-            <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
-            <view class="item" @click="$emit('onCheckDept',item)">
-              <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
-                <Icon icon="icon-bumen1" size="35" />
+            <Swipe
+                :disabled="!admin || isMove !== null"
+                @click="(key)=>swipeClick(key,item)"
+            >
+              <view class="moveLine" v-if="inIndex === null && moveIndex === index" />
+              <view class="item" @click="isMove === null && userIsMove === null && $emit('onCheckDept',item)">
+                <view class="deptIcon" :style="{marginLeft:show ? 0 : 32}">
+                  <Icon icon="icon-bumen1" size="35" />
+                </view>
+                <view class="itemTitle">
+                  {{ item.title }}
+                </view>
+                <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
+                  <u-icon name="list" />
+                </view>
               </view>
-              <view class="itemTitle">
-                {{ item.title }}
-              </view>
-              <view v-if="admin" class="drag" @longpress="moveStart(e,index)">
-                <u-icon name="list" />
-              </view>
-            </view>
-            <view
-                class="moveLine"
-                v-if="inIndex === null  && moveIndex === depts.length && index === depts.length-1"
-            />
-          </Swipe>
+              <view
+                  class="moveLine"
+                  v-if="inIndex === null  && moveIndex === depts.length && index === depts.length-1"
+              />
+            </Swipe>
 
-        </movable-view>
-        <view
-            class="item moveFixItem" v-if="isMove !== null"
-            :style="{
+          </movable-view>
+          <view
+              class="item moveFixItem" v-if="isMove !== null"
+              :style="{
                 top:`${itemHeight * isMove + (deptPage.length > 1 ? itemHeight : 10)}px`,
                 left:`${itemWidth}px`,
                 height:`${itemHeight}px`
               }"
-        >
-          <view class="deptIcon" style="margin-left:0">
-            <Icon icon="icon-bumen1" size="30" />
+          >
+            <view class="deptIcon" style="margin-left:0">
+              <Icon icon="icon-bumen1" size="30" />
+            </view>
+            {{ depts[isMove].title }}
           </view>
-          {{ depts[isMove].title }}
-        </view>
-      </movable-area>
+        </movable-area>
 
 
-      <movable-area
-          v-if="!loading"
-          :style="{
+        <movable-area
+            v-if="!loading"
+            :style="{
       height:`${(depts.length * itemHeight) + (deptPage.length > 1 ? itemHeight : 0) + 20 + (deptUsers.length * userItemHeight) + 85}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
       marginTop:`-${((depts.length * itemHeight) + (deptPage.length > 1 ? itemHeight : 0) + 20 + 85)}px`,
       minHeight:`calc(100vh - ${showFooter ? (47+safeAreaHeight(this,8)) : 0}px - 85px)`
     }"
-      >
-        <movable-view
-            v-for="(user,index) in deptUsers"
-            :key="index"
-            :disabled="userIsMove !== index"
-            :style="{
+        >
+          <movable-view
+              v-for="(user,index) in deptUsers"
+              :key="index"
+              :disabled="userIsMove !== index"
+              :style="{
             top:`${userItemHeight * index + (depts.length * itemHeight + (deptPage.length > 1 ? itemHeight : 0) + (deptPage.length > 1 ? 0 : 10) + 85)}px`,
             width: `${itemWidth}px`,
             height:`${userItemHeight}px`
           }"
-            :y="userMovableViewY"
-            :x="userMovableViewX"
-            direction="all"
-            @change="(e)=>userMove(e,index)"
-            @touchend="(e)=>userMoveEnd(e,index)"
-            :class="{userMoveIng:userIsMove === index}"
-        >
-          <Swipe
-              :disabled="!admin || isMove !== null"
-              @click="(key)=>userSwipeClick(key,user)"
+              :y="userMovableViewY"
+              :x="userMovableViewX"
+              direction="all"
+              @change="(e)=>userMove(e,index)"
+              @touchend="(e)=>userMoveEnd(e,index)"
+              :class="{userMoveIng:userIsMove === index}"
           >
-            <view class="item" @click="admin ? $emit('userClick',user) : $emit('onCheckUser',user)">
-              <view class="userItem">
-                <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
-                <UserName :user="user" showRole />
+            <Swipe
+                :disabled="!admin || isMove !== null"
+                @click="(key)=>userSwipeClick(key,user)"
+            >
+              <view class="item" @click="admin ? $emit('userClick',user) : $emit('onCheckUser',user)">
+                <view class="userItem">
+                  <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
+                  <UserName :user="user" showRole />
+                </view>
+                <view v-if="user.isAdmin === 1">
+                  <u-tag text="管理员" plain />
+                </view>
+                <view
+                    v-if="admin"
+                    class="drag"
+                    @longpress="userMoveStart(e,index)"
+                    :id="`userMoveItem${index}`"
+                >
+                  <u-icon name="list" />
+                </view>
               </view>
-              <view v-if="user.isAdmin === 1">
-                <u-tag text="管理员" plain />
-              </view>
-              <view
-                  v-if="admin"
-                  class="drag"
-                  @longpress="userMoveStart(e,index)"
-                  :id="`userMoveItem${index}`"
-              >
-                <u-icon name="list" />
-              </view>
-            </view>
-          </Swipe>
-        </movable-view>
-      </movable-area>
+            </Swipe>
+          </movable-view>
+        </movable-area>
 
-      <view class="total">
-        共 {{ total }} 人
-        <template v-if="waitJoinUserTotal > 0">
-          ，
-          <span style="color: #007aff" @click="$emit('joinUserList')">{{ waitJoinUserTotal }}人待加入</span>
-        </template>
+        <view class="total">
+          共 {{ total }} 人
+          <template v-if="waitJoinUserTotal > 0">
+            ，
+            <span style="color: #007aff" @click="$emit('joinUserList')">{{ waitJoinUserTotal }}人待加入</span>
+          </template>
+        </view>
       </view>
-    </view>
     </uni-swipe-action>
     <Modal ref="modal" />
 
@@ -250,7 +250,7 @@
 <script>
 import Empty from "../../../../components/Empty";
 import Search from "../../../../components/Search";
-import {isArray, safeAreaHeight} from "../../../../util/Tools";
+import {findThisInTree, isArray, safeAreaHeight} from "../../../../util/Tools";
 import Icon from "../../../../components/Icon";
 import Check from "../../../../components/Check";
 import UserName from "../../../../components/UserName";
@@ -381,7 +381,9 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      this.isMove = null
+      setTimeout(() => {
+        this.isMove = null
+      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -390,7 +392,7 @@ export default {
         newY = y
       }
       let moveIndex = parseInt(newY / this.itemHeight)
-      const moveDept = this.depts[thisIndex]
+      const moveDept = findThisInTree(this.depts[thisIndex].key, this.deptTree)
       this.$nextTick(function () {
         if (this.inIndex !== null) {
           const inDept = this.depts[this.inIndex]
