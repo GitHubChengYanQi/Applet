@@ -63,7 +63,7 @@ import Loading from "../../../../components/Loading/index.vue";
 export default {
   name: "SkuInput",
   components: {Loading, LinkButton},
-  props: ['show', 'value', 'params', 'textarea'],
+  props: ['show', 'value', 'params', 'textarea','inputFiled'],
   data() {
     return {
       list: [],
@@ -101,7 +101,7 @@ export default {
         return
       }
       this.loading = true
-      switch (this.show) {
+      switch (this.inputFiled) {
         case 'spu':
           await Sku.spuList({
             data: {
@@ -122,7 +122,7 @@ export default {
           await Sku.generalFormDataList({
             data: {
               value,
-              fieldName: this.show
+              fieldName: this.inputFiled
             }
           }).then((response) => {
             const {data} = response;

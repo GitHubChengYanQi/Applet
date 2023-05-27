@@ -71,6 +71,7 @@ export default {
       } else {
         callback(await this.uploadFile(file.url));
       }
+
     },
     async batchUpload(files) {
       await this.uploadFile(files[this.uploadCount].url).then(() => {

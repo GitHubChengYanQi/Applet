@@ -21,7 +21,7 @@
           </view>
           <view class="customIndicator">{{ customIndicator }}/{{ total }}</view>
         </view>
-        <view class="header">
+        <view class="skuData">
           <view class="flexCenter sku">
             <view class="flexGrow">
               <view class="standard">{{ skuDetail.standard || '无' }}</view>
@@ -50,19 +50,13 @@
           </view>
           <view class="actions flexCenter">
             <view class="action flexGrow">
-              <view class="list" @click="showList">
+              <view class="list" @click="showSkuDetail = true">
                 <uni-icons type="list" color="#2680EB" size="12"></uni-icons>
                 库存明细
               </view>
             </view>
-            <!--            <view class="action flexGrow">-->
-            <!--              <view class="list">-->
-            <!--                <uni-icons type="flag" Combox="#2680EB" size="12"></uni-icons>-->
-            <!--                关联任务-->
-            <!--              </view>-->
-            <!--            </view>-->
             <view class="action flexGrow">
-              <view class="list" @click="showRecord">
+              <view class="list" @click="showOperationRecord = true">
                 <uni-icons type="info" color="#2680EB" size="12"></uni-icons>
                 操作记录
               </view>
@@ -189,7 +183,27 @@
               <uni-icons :type=" !hidden ? 'top' : 'bottom' "></uni-icons>
             </Divider>
           </view>
+        </view>
 
+        <view class="skuData" v-if="isArray(skuDetail.filedResults).length > 0">
+          <view style="padding-bottom: 8px">
+            附件
+          </view>
+          <FileUpload
+              :value="skuDetail.filedResults.map(item=>({url:item.url,name:item.filedName,type:item.type}))"
+              show
+          />
+        </view>
+
+
+        <view class="skuData" v-if="isArray(skuDetail.drawingResults).length > 0">
+          <view style="padding-bottom: 8px">
+            图纸
+          </view>
+          <FileUpload
+              :value="skuDetail.drawingResults.map(item=>({url:item.url,name:item.filedName,type:item.type}))"
+              show
+          />
         </view>
 
       </view>
@@ -217,27 +231,28 @@
 
 import Search from "@/components/Search";
 import {Sku} from "MES-Apis/lib/Sku/promise";
-import SkuLog from "@/Sku/components/SkuLog/index";
-import InkindItem from "@/Sku/components/InkindItem/index";
+import SkuLog from "../../Sku/components/SkuLog/index";
+import InkindItem from "../../Sku/components/InkindItem/index";
 import Supply from "@/Sku/components/Supply/index";
 import {SkuResultSkuJsons} from "../sku";
 import UQRCode from "uqrcodejs";
-import {request} from "MES-Apis/lib/Service/request";
 import {getLocalParmas, isArray} from "../../util/Tools";
 import Loading from "../../components/Loading";
 import Empty from "../../components/Empty";
 import Popup from "../../components/Popup";
 import Icon from "../../components/Icon";
 import Divider from "../../components/Divider";
+import FileUpload from "../../components/Uploader/FileUpload/index.vue";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: "SkuDetail",
-  components: {Divider, Icon, Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
+  components: {FileUpload, Divider, Icon, Popup, Empty, Loading, Supply, InkindItem, SkuLog, Search},
   data() {
     return {
+      isArray,
       skuDetail: {},
       typeSettings: {},
       customIndicator: 1,
@@ -348,12 +363,6 @@ export default {
     },
     more() {
       this.show = true
-    },
-    showList() {
-      this.showSkuDetail = true
-    },
-    showRecord() {
-      this.showOperationRecord = true
     },
     cancel() {
       this.show = false
@@ -472,11 +481,12 @@ export default {
     border-bottom: 1px solid #fff;
   }
 
-  .header {
-    margin: 8px;
-    padding: 0 12px;
-    background-color: #FFFFFF;
+  .skuData {
+    padding: 12px;
+    background: #FFFFFF;
     border-radius: 6px;
+    font-size: 14px;
+    margin: 8px 8px 0;
 
     .otherData {
       display: flex;
@@ -542,14 +552,6 @@ export default {
         text-align: center;
       }
     }
-  }
-
-  .skuData {
-    margin: 0 8px;
-    padding: 12px;
-    background: #FFFFFF;
-    border-radius: 6px;
-    font-size: 14px;
 
     .lable {
       min-width: 80px;

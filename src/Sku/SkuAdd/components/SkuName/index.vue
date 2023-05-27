@@ -3,7 +3,10 @@
 
     <view class="skuNameSpace" v-if="skuNames.length > 1">
       <Divider color="#007aff">
-        型号{{ index + 1 }}
+        <view class="skuNameTitle">
+          <u-icon name="minus-circle" color="#dd524d" @click="$emit('remove')" />
+          型号{{ index + 1 }}
+        </view>
       </Divider>
     </view>
 
@@ -296,6 +299,12 @@ export default {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+
+  .skuNameTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
   .skuNameSpace {
     margin-top: 24px;

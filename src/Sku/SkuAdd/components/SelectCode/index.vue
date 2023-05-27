@@ -18,19 +18,16 @@ export default {
   data() {
     return {
       columns: [[{
-        text: '一物一码',
-        key: 0
-      }, {
         text: '一批一码',
         key: 1
+      }, {
+        text: '一物一码',
+        key: 0
       }]],
       defaultIndex: 0
     }
   },
-  props: {
-    value: Number,
-    show: Boolean,
-  },
+  props: ['value', 'show'],
   watch: {
     show() {
       const findIndex = this.columns[0].findIndex((item) => item.key === this.value)

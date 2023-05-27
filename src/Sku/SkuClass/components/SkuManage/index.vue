@@ -414,6 +414,11 @@ export default {
                 newTree = addSkuClassChildren(skuClassKey, thisSkuClass, tree)
               }
               this.skuClassListChange(this.skuClassList.filter((item, index) => index !== this.moveActionData.thisIndex))
+              const newSkuList = this.skuList
+              this.$emit('skuListChange', [])
+              setTimeout(() => {
+                this.$emit('skuListChange', newSkuList)
+              }, 0)
             }).catch(() => {
               this.$refs.modal.dialog({
                 title: Init.getNewErrorMessage() || '移动失败!'
@@ -429,6 +434,11 @@ export default {
             }).then(() => {
               newTree = addSkuClassChildren(skuClass.key, thisSkuClass, tree)
               this.skuClassListChange(this.skuClassList.filter((item, index) => index !== this.moveActionData.thisIndex))
+              const newSkuList = this.skuList
+              this.$emit('skuListChange', [])
+              setTimeout(() => {
+                this.$emit('skuListChange', newSkuList)
+              }, 0)
             }).catch(() => {
               this.$refs.modal.dialog({
                 title: Init.getNewErrorMessage() || '移动失败!'
@@ -686,8 +696,8 @@ export default {
                   skuName: sku.skuName
                 }
               }).then(() => {
-                this.setRemoveSkuIds([sku.skuId])
-                _this.$emit('skuListChange', _this.skuList.filter(item => item.skuId !== sku.skuId))
+                this.setRemoveSkuIds(_this.skuList.filter(item => item.spuId === sku.spuId).map(item => item.skuId))
+                _this.$emit('skuListChange', _this.skuList.filter(item => item.spuId !== sku.spuId))
                 resolve(true)
               }).catch(() => {
                 resolve(false)

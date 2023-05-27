@@ -5,6 +5,7 @@
           v-for="(file,index) in value"
           :key="index"
           class="fileItem"
+          :style="{marginBottom:(index === value.length - 1) ? 0 : 8}"
       >
         <u--image
             v-if="['jpg', 'jpeg', 'png', 'webp'].includes(file.type)"
@@ -16,18 +17,18 @@
         <u-icon v-else name="file-text" color="#2979ff" size="30" />
         <view class="fileName">
           <view class="name" :style="{width:nameWidth}">
-            {{ file.name }}
+            {{ file.name || '' }}
           </view>
         </view>
-        <LinkButton @click="remove(file)">
+        <LinkButton v-if="!show" @click="remove(file)">
           <u-icon color="#dd524d" name="trash"></u-icon>
         </LinkButton>
 
       </view>
     </view>
-    <Uploader @loading="(loading)=>$emit('onLoading',loading)" file @onChange="onChange">
+    <Uploader v-if="!show" @loading="(loading)=>$emit('onLoading',loading)" file @onChange="onChange">
       <slot>
-        <u-button size="small" customStyle="width:100px">
+        <u-button size="small" customStyle="width:100px;margin-top:12px">
           <view class="uploadFile">
             <uni-icons type="upload"></uni-icons>
             上传
@@ -50,6 +51,7 @@ export default {
     LinkButton
   },
   props: {
+    show: Boolean,
     nameWidth: String,
     value: {
       type: Array,
@@ -76,10 +78,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-.files {
-  padding-bottom: 8px;
-}
 
 .fileItem {
   display: flex;

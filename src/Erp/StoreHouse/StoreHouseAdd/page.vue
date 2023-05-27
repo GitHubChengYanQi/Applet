@@ -144,6 +144,7 @@
                     :classList="classList"
                     @openClass="classShow = true"
                     ref="storeHouseStructure"
+                    @bindClass="openBindSkuClass"
                 />
                 <Tree v-else radio :data="isArray(storeHouseData)" :value="{key:formData.pid}" @input="onPStoreHouse" />
               </FormItem>
@@ -173,7 +174,24 @@
       >
         <Loading skeleton v-if="categoryLoading" />
         <view v-else style="padding: 12px">
-          <Tree icon="icon-gaojizujian" :data="cateGoryData" :value="classList" @input="onClassList" multiple />
+          <Tree icon="icon-gaojizujian" :data="cateGoryData" v-model="classList" multiple />
+        </view>
+      </Popup>
+
+
+      <Popup
+          z-index="99"
+          :show="otherClassShow"
+          left-text="取消"
+          right-text="保存"
+          @close="otherClassShow = false"
+          @onLeft="otherClassShow = false"
+          @onRight="onOtherClassList"
+          max-height="50vh"
+      >
+        <Loading skeleton v-if="categoryLoading" />
+        <view v-else style="padding: 12px">
+          <Tree icon="icon-gaojizujian" :data="cateGoryData" v-model="otherClassList" multiple />
         </view>
       </Popup>
 
@@ -198,6 +216,7 @@ import {erp_map} from "../../../images/erp/map";
 import BottomButton from "../../../components/BottomButton";
 import StoreHouseStructure from "../components/StoreHouseStructure";
 import FormItem from "../../../components/FormItem";
+import StoreHouseManage from "../components/StoreHouseManage/index.vue";
 
 export default {
   options: {
@@ -205,6 +224,7 @@ export default {
   },
   props: ['storehouseId', 'pid'],
   components: {
+    StoreHouseManage,
     FormItem,
     StoreHouseStructure,
     BottomButton,
@@ -237,6 +257,7 @@ export default {
       location: {},
       formData: {pid: '0',},
       classList: [],
+      otherClassList: [],
       markId: 0,
       time: null,
       cateGoryData: [],
@@ -244,9 +265,11 @@ export default {
       storeHouseData: null,
       loading: false,
       classShow: false,
+      otherClassShow: false,
       windows: false,
       inputStoreName: false,
       inputStoreDescribe: false,
+      storeId: null,
       rules: {
         name: {
           rules: [
@@ -429,7 +452,6 @@ export default {
         uni.getLocation({
           type: 'gcj02',
           success(res) {
-            console.log(res)
             _this.location = {
               longitude: res.longitude,
               latitude: res.latitude,
@@ -509,14 +531,22 @@ export default {
       } = response;
       if (this.pid) {
         if (this.pid === '0') {
-          this.storeHouseData = {key: '0', name: '顶级', childrenList: data}
+          this.storeHouseData = {
+            storehouseId: '0',
+            name: '顶级',
+            childrenList: data.map(item => ({
+              name: item.name,
+              storehouseId: item.storehouseId,
+              objects: isArray(item.spuClassResults).filter(item => item).map(item => item.name)
+            })),
+          }
         } else {
           this.storeHouseData = this.findStoreHouse(data || [], this.pid)
         }
       } else {
         this.storeHouseData = [{
           title: '顶级',
-          key: '0',
+          storehouseId: '0',
           children: this.format(data || [])
         }];
       }
@@ -549,7 +579,15 @@ export default {
       let storeHouse = null
       data.forEach(item => {
         if (item.storehouseId === key) {
-          storeHouse = item
+          storeHouse = {
+            storehouseId: item.storehouseId,
+            name: item.name,
+            childrenList: data.map(item => ({
+              name: item.name,
+              storehouseId: item.storehouseId,
+              objects: isArray(item.spuClassResults).filter(item => item).map(item => item.name)
+            })),
+          }
         } else {
           const childrenStoreHouse = this.findStoreHouse(item.childrenList || [], key, storeHouse);
           if (childrenStoreHouse) {
@@ -622,8 +660,34 @@ export default {
         pid: storeHouse.key,
       }
     },
-    onClassList(classList) {
-      this.classList = classList
+    onOtherClassList() {
+      this.saveBindSkuClassLoading = true
+      Storehouse.storeHouseEditV2_0({
+        data: {
+          storehouseId: this.storeId,
+          spuClassIds: this.otherClassList.map(item => item.key),
+        }
+      }).then(() => {
+        this.otherClassShow = false
+        this.storeHouseData = this.storeHouseData = {
+          ...this.storeHouseData,
+          childrenList: this.storeHouseData.childrenList.map(item => {
+            if (item.storehouseId === this.storeId) {
+              return {...item, objects: this.otherClassList.map(item => item.title)}
+            }
+            return item
+          })
+        }
+        this.$refs.modal.dialog({
+          title: '保存成功！'
+        })
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: '保存失败！'
+        })
+      }).finally(() => {
+        this.saveBindSkuClassLoading = false
+      })
     },
     save() {
       this.$refs.form.validate((err) => {
@@ -702,6 +766,11 @@ export default {
           })
         }
       })
+    },
+    openBindSkuClass(store) {
+      this.otherClassShow = true
+      this.otherClassList = store.classList || []
+      this.storeId = store.storehouseId || []
     },
   },
 }

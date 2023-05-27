@@ -20,9 +20,16 @@
                 height:`${itemHeight}px`
                 }"
         >
-          <view class="storeItem">
-            <Icon icon="icon-cangkutubiao" size="20" />
-            {{ storeHouseData.name }}
+          <view class="storeItemContent" :style="{height:`${itemHeight - 1}px`}">
+            <view class="deptIcon">
+              <Icon icon="icon-cangkutubiao" size="55" />
+            </view>
+            <view class="itemTitle">
+              <view> {{ storeHouseData.name }}</view>
+            </view>
+            <view class="drag" @longpress="moveStart(e,index)" :style="{height:`${itemHeight}px`}">
+              <u-icon name="list" />
+            </view>
           </view>
         </movable-view>
         <movable-view
@@ -46,18 +53,37 @@
             :class="{moveItem:isMove === index}"
         >
           <view class="moveLine" v-if="moveIndex === index" />
-          <view class="storeItem">
-            <view class="storeItemContent">
-              <Icon icon="icon-cangkutubiao" size="20" />
-              {{ item.name }}
-              <MyButton
-                  v-if="item.storehouseId === newStorehouseId"
-                  plain
-                  type="primary"
-                  @click="$emit('openClass')"
-              >
-                绑定物料分类
-              </MyButton>
+          <view class="storeItemContent" :style="{height:`${itemHeight - 1}px`}">
+            <view class="deptIcon">
+              <Icon icon="icon-cangkutubiao" size="55" />
+            </view>
+            <view class="itemTitle">
+              <view>{{ item.name }}</view>
+              <view class="itemOther">
+                <view
+                    v-if="isArray(item.objects).length > 0"
+                    class="itemDescribe"
+                    :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+                >
+                  {{ isArray(item.objects).join('、') }}
+                </view>
+                <view
+                    v-if="classList.length > 0 && item.storehouseId === newStorehouseId"
+                    class="itemDescribe"
+                    :style="{maxWidth:`calc(100vw - ${12 + 55 + 12 + 12 + 40 + 56 + 12}px)`}"
+                >
+                  {{ classList.map(item => item.title).join('、') }}
+                </view>
+                <view class="bindClass">
+                  <LinkButton
+                      v-if="item.storehouseId !== newStorehouseId"
+                      @click="bindClass(item)"
+                  >
+                    绑定分类
+                  </LinkButton>
+                  <LinkButton v-else @click="$emit('openClass')">绑定分类</LinkButton>
+                </view>
+              </view>
             </view>
             <view class="drag" @longpress="moveStart(e,index)" :style="{height:`${itemHeight}px`}">
               <u-icon name="list" />
@@ -88,6 +114,7 @@
       </movable-area>
     </view>
     <Modal ref="modal" />
+    <Loading :loading="getDetailLoading" />
   </view>
 </template>
 
@@ -99,10 +126,15 @@ import MyButton from "../../../../components/MyButton";
 import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import {Init} from "MES-Apis/lib/Init";
 import Modal from "../../../../components/Modal";
+import LinkButton from "../../../../components/LinkButton/index.vue";
+import Loading from "../../../../components/Loading/index.vue";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   name: 'StoreHouseStructure',
-  components: {Modal, MyButton, Icon},
+  components: {Loading, LinkButton, Modal, MyButton, Icon},
   props: {
     storeHouseData: {
       default: _ => {
@@ -115,6 +147,15 @@ export default {
     cateGoryData: Array,
     classList: Array,
     storehouseId: String,
+  },
+  watch: {
+    storeHouseData(storeHouseData) {
+      const list = storeHouseData.childrenList || []
+      this.sorts = this.sorts.map(item => {
+        const store = list.find(listItem => listItem.storehouseId === item.storehouseId)
+        return store || item
+      })
+    }
   },
   created() {
     this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth - 24 - 10
@@ -153,14 +194,15 @@ export default {
       isArray,
       show: false,
       isMove: null,
-      itemHeight: 54,
+      itemHeight: 68,
       itemWidth: 100,
       moveIndex: null,
       movableViewY: 0,
       movableViewX: 0,
       moveEndIndex: null,
       sorts: [],
-      newStorehouseId: null
+      newStorehouseId: null,
+      getDetailLoading: false,
     }
   },
   methods: {
@@ -279,6 +321,17 @@ export default {
 
       })
     },
+    async bindClass(item) {
+      this.getDetailLoading = true
+      const res = await Storehouse.storeHouseDetailV2_0({data: {storehouseId: item.storehouseId}}).catch(() => {
+        this.getDetailLoading = false
+      })
+      this.getDetailLoading = false
+      this.$emit('bindClass', {
+        ...item,
+        classList: isArray(res.data?.spuClassResults).map(item => ({key: item.spuClassificationId, title: item.name}))
+      })
+    },
   }
 }
 </script>
@@ -289,19 +342,48 @@ export default {
   background-color: #FFFFFF;
 }
 
-.storeItem {
-  //padding: 12px 0;
-  height: 54px;
-  border-bottom: 1px solid #EDEDED;
+.storeItemContent {
+  border-bottom: solid 1px #f5f5f5;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 
-  .storeItemContent {
+  .itemTitle {
     flex-grow: 1;
+
+    .itemDescribe {
+      padding-right: 12px;
+      font-size: 12px;
+      color: #808080;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .itemOther {
+      display: flex;
+      align-items: center;
+
+      .bindClass {
+
+        .linkButton {
+
+          > button {
+            font-size: 14px !important;
+          }
+        }
+      }
+    }
+  }
+
+
+  .deptIcon {
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
   }
 }
 

@@ -31,6 +31,8 @@
               :y="y"
               direction="vertical"
               @change="change"
+              :inertia="true"
+              :friction="1"
           >
 
             <view class="content">
@@ -65,7 +67,7 @@
                       class="skuFormItemComponent"
                       icon="icon-chanpinmingcheng"
                       label="产品名称"
-                      @click="inputFiled = 'spu'"
+                      @click="inputFiled = 'spu';clickIndex=null"
                       :value="formData.spu"
                   />
 
@@ -104,6 +106,8 @@
                       @skuShow="onSkuShow(index)"
                       @selectBrand="onSelectBrand(index)"
                       @fileShow="(filed)=>onFileShow(filed,index)"
+                      @filedShow="(filed)=>onFiledShow(filed,index)"
+                      @remove="remove(index)"
                   />
 
                 </view>
@@ -166,7 +170,19 @@
 
       <!--        其他输入字段-->
       <SkuInput
-          :show="inputFiled"
+          :show="inputFiled && clickIndex === null"
+          :inputFiled="inputFiled"
+          @close="inputFiled = ''"
+          v-model="formData[inputFiled]"
+          :params="{spuClassId:this.formData.spuClass}"
+          @checked="checked"
+          :textarea="inputFiled === 'remarks'"
+      />
+
+      <!--        skuName其他输入字段-->
+      <SkuInput
+          :show="inputFiled && clickIndex !== null"
+          :inputFiled="inputFiled"
           @close="inputFiled = ''"
           v-model="skuNames[clickIndex].formData[inputFiled]"
           :params="{spuClassId:this.formData.spuClass}"
@@ -174,6 +190,7 @@
           :textarea="inputFiled === 'remarks'"
           @change="(val)=>generalFormData(inputFiled,val)"
       />
+
 
       <!--        分类-->
       <Popup
@@ -232,7 +249,8 @@
 
       <!--        材质-->
       <SelectMaterial
-          :value="formData.materialId"
+          :label="skuNames[clickIndex].formRenderData.materialName"
+          :value="skuNames[clickIndex].formData.materialId"
           :show="filedShow === 'materialId'"
           @close="filedShow = ''"
           @select="selectMaterial"
@@ -325,7 +343,6 @@ import SelectMaterial from "./components/SelectMaterial/index.vue";
 import FileUpload from "../../components/Uploader/FileUpload/index.vue";
 import SkuDescribe from "./components/SkuDescribe/index.vue";
 import SkuName from "./components/SkuName/index.vue";
-import Log from "../../Erp/Receipt/ReceiptDetail/components/Log/index.vue";
 
 export default {
   options: {
@@ -412,6 +429,7 @@ export default {
     reset() {
       this.formData = {}
       this.formRenderData = {}
+      this.skuNames = [{formData: {}, formRenderData: {}}]
     },
     saveFormData(value, label) {
       this.formData = {
@@ -459,8 +477,12 @@ export default {
       this.move = false
     },
     generalFormData(key, value) {
+      if (key === 'spu' || key === 'remarks') {
+        return
+      }
+      const general = this.skuNames[this.clickIndex].general || []
       let exits = false;
-      const newFormData = this.general.map(formDataItem => {
+      const newFormData = general.map(formDataItem => {
         if (formDataItem.fieldName === key) {
           exits = true;
           return {...formDataItem, value};
@@ -470,7 +492,7 @@ export default {
       if (!exits && value) {
         newFormData.push({fieldName: key, value});
       }
-      this.general = newFormData
+      this.skuNames[this.clickIndex].general = newFormData
     },
     addClass() {
       uni.navigateTo({
@@ -499,11 +521,14 @@ export default {
       })
     },
     selectMaterial(material) {
-      this.saveFormData({
-        materialId: material.key
-      }, {
-        materialName: material.text
-      })
+      this.skuNames[this.clickIndex].formData = {
+        ...this.skuNames[this.clickIndex].formData,
+        materialId: material.value
+      }
+      this.skuNames[this.clickIndex].formRenderData = {
+        ...this.skuNames[this.clickIndex].formRenderData,
+        materialName: material.label
+      }
     },
     onUploadLoading(loading) {
       if (loading && this.moveY !== 321) {
@@ -533,8 +558,8 @@ export default {
           value
         ]
       })
+      this.uploadLoading = false
       setTimeout(() => {
-        this.uploadLoading = false
         this.scrollLeft = this.skuImgsScrollLeft
         this.$nextTick(function () {
           if (isArray(this.formRenderData.imageUrls).length > 4) {
@@ -673,46 +698,42 @@ export default {
       } else if (isNull(this.formData.batch)) {
         this.$refs.modal.dialog({title: '请选择二维码生成方式!'})
       } else {
-        const newValue = {
-          ...this.formData,
-          type: 0,
-          isHidden: true,
-          spu: {name: this.formData.spu},
-          skuSize: `${(this.formData.skuSizeLength || 0)},${this.formData.skuSizeWidth || 0},${this.formData.skuSizeHeight || 0}`,
-          // nationalStandard: this.formData.skuName,
-          model: this.formData.skuName,
-          // partNo: this.formData.skuName,
-          generalFormDataParams: this.general,
-          skuSizeLength: undefined,
-          skuSizeWidth: undefined,
-          skuSizeHeight: undefined
-        };
+        const skuList = this.skuNames.map(item => {
+          return {
+            ...this.formData,
+            type: 0,
+            isHidden: true,
+            spu: {name: this.formData.spu},
+            ...item.formData,
+            skuSize: `${(item.formData.skuSizeLength || 0)},${item.formData.skuSizeWidth || 0},${item.formData.skuSizeHeight || 0}`,
+            model: item.formData.skuName,
+            drawing: isArray(item.formData.drawing).map(item => item.id).toString(),
+            fileId: isArray(item.formData.fileId).map(item => item.id).toString(),
+            generalFormDataParams: item.general,
+            skuSizeLength: undefined,
+            skuSizeWidth: undefined,
+            skuSizeHeight: undefined
+          }
+        })
         this.loading = true
         const _this = this
-        Sku.addV2_0({data: newValue}).then((res) => {
+        Sku.batchAdd({data: {skuList}}).then((res) => {
           uni.$emit('skuAddSuccess')
           this.$refs.modal.dialog({
             only: false,
             title: '添加成功！',
-            cancelText: '继续添加',
-            confirmText: '查看详情',
+            cancelText: '返回',
+            confirmText: '继续添加',
             onConfirm() {
               _this.reset()
               _this.refreshLoading = true
               setTimeout(() => {
                 _this.refreshLoading = false
               }, 1000)
-              uni.redirectTo({
-                url: `/Sku/SkuDetail/index?skuId=${res.data}`
-              })
               return true
             },
             onCancel() {
-              _this.reset()
-              _this.refreshLoading = true
-              setTimeout(() => {
-                _this.refreshLoading = false
-              }, 1000)
+              uni.navigateBack()
               return true
             }
           })
@@ -743,6 +764,23 @@ export default {
     onFileShow(filed, index) {
       this.clickIndex = index
       this.fileShow = filed
+    },
+    onFiledShow(filed, index) {
+      this.clickIndex = index
+      this.filedShow = filed
+    },
+    remove(_thisIndex) {
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '确定要删除掉【型号' + (_thisIndex + 1) + '】吗？',
+        only: false,
+        confirmError: true,
+        cancelText: '删除',
+        onConfirm() {
+          _this.skuNames = _this.skuNames.filter((item, index) => _thisIndex !== index)
+          return true
+        }
+      })
     },
     onSelectBrand(index) {
       const _this = this

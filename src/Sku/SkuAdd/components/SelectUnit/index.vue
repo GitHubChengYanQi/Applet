@@ -97,7 +97,7 @@ export default {
         Sku.unitAdd({
           data: {unitName: this.name}
         }).then((res) => {
-          this.$emit('select', {label: this.name, value: res.da})
+          this.$emit('select', {label: this.name, value: res.data})
           this.close()
         }).catch(() => {
           this.$refs.modal.dialog({
