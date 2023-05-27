@@ -24,10 +24,14 @@ export default {
     LinkButton,
     SkuList
   },
+  props: ['value'],
   data() {
     return {
       list: []
     }
+  },
+  mounted() {
+    this.list = this.value || []
   },
   watch: {},
   methods: {

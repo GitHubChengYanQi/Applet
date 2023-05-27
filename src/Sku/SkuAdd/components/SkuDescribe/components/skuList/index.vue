@@ -46,8 +46,9 @@ export default {
       this.content = this.value.value;
     }
   },
-  mounted() {
-
+  created() {
+    this.label = this.value.label;
+    this.content = this.value.value;
   },
   methods: {
     del() {

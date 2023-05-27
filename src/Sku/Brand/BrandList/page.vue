@@ -258,6 +258,7 @@ export default {
     },
     saveCheck() {
       uni.$emit('checkBrands', {
+        id: getLocalParmas().search.id,
         checkBrands: this.checkBrands
       })
       uni.navigateBack();

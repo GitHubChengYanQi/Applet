@@ -189,7 +189,7 @@
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
       marginTop:`-${((depts.length * itemHeight) + (deptPage.length > 1 ? itemHeight : 0) + 20 + 85)}px`,
-      minHeight:`calc(100vh - ${showFooter ? (47+safeAreaHeight(this,8)) : 0}px - 85px)`
+      // minHeight:`calc(100vh - ${showFooter ? (47+safeAreaHeight(this,8)) : 0}px - 85px)`
     }"
         >
           <movable-view
