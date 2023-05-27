@@ -20,11 +20,21 @@ export const sortChildren = (key, children, list = []) => {
 
 
 export const delChildren = (key, list = []) => {
-    const newStoreHouseList = []
+    const newList = []
     list.map(item => {
         if ((key + '') !== (item.key + '')) {
-            newStoreHouseList.push({...item, children: delChildren(key, item.children || [])})
+            newList.push({...item, children: delChildren(key, item.children || [])})
         }
     })
-    return newStoreHouseList
+    return newList
+};
+
+export const delIdsChildren = (keys = [], list = []) => {
+    const newList = []
+    list.map(item => {
+        if (keys.findIndex(id => (id + '') === (item.key + '')) === -1) {
+            newList.push({...item, children: delIdsChildren(keys, item.children || [])})
+        }
+    })
+    return newList
 };

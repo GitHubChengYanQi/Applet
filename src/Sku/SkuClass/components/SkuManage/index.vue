@@ -19,7 +19,7 @@
           @onLoading="(newLoading)=> skuListLoading = newLoading"
           ref="skuList"
           @listSource="skuListSource"
-          :height="`calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`"
+          :maxHeight="`calc(100vh - ${admin ? (47+safeAreaHeight(this,8)) : 0}px - ${skuIsMove === null ?36:0}px)`"
           width="100%"
           :default-params="{categoryId:'0'}"
       >
@@ -37,7 +37,7 @@
             class="moveSkuBox"
         >
           <view class="make"></view>
-          <u-transition mode="fade" :show="skuIsMove !== null" :duration="500">
+          <u-transition mode="fade" :show="true" :duration="500">
             <view :class="{removeSku:true,startRemoveSku:removeSku}">
               <u-icon name="trash" :color="removeSku ? 'red' : '#fff'" size="28" />
             </view>
@@ -45,10 +45,10 @@
               <view
                   v-if="skuClassPage.length > 1"
                   :class="{item:true,skuMove:skuMoveIndex === 0}"
-                  :style="{border:skuClassList.length ===0 && 'none'}"
+                  :style="{border:skuClassList.length ===0 && 'none',height:`${itemHeight - 1}px`}"
               >
                 <view class="deptIcon">
-                  <Icon icon="icon-gaojizujian" size="20" />
+                  <Icon icon="icon-fenlei1" size="30" />
                 </view>
                 <view class="itemTitle">
                   {{
@@ -62,10 +62,10 @@
               >
                 <view
                     :class="{item:true,skuMove:skuMoveIndex === (skuClassPage.length > 1 ? index + 1 : index)}"
-                    :style="{border:index === skuClassList.length - 1 && 'none'}"
+                    :style="{border:index === skuClassList.length - 1 && 'none',height:`${itemHeight - 1}px`}"
                 >
                   <view class="deptIcon">
-                    <Icon icon="icon-gaojizujian" size="20" />
+                    <Icon icon="icon-fenlei1" size="30" />
                   </view>
                   <view class="itemTitle">
                     {{ item.title }}
@@ -78,7 +78,7 @@
         <movable-area
             class="movableArea"
             :style="{
-      height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? 68 : 20)}px`,
+      height:`${skuClassList.length * itemHeight + (skuClassPage.length > 1 ? (20 + itemHeight) : 20)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
     }"
@@ -87,23 +87,18 @@
               v-if="skuClassPage.length > 1"
               direction="all"
               :x="movableViewX"
-              :style="{ width: `${itemWidth}px`,}"
+              :style="{ width: `${itemWidth}px`,  height:`${itemHeight}px`}"
               :class="{movableView:true,inItem:inIndex === -1}"
               :disabled="true"
-              @click="$emit('skuClassPageClick',skuClassPage[skuClassPage.length - 2])"
+              @click="!sys && isMove===null && skuIsMove===null && $emit('skuClassPageClick',skuClassPage[skuClassPage.length - 2])"
           >
-            <view class="item">
+            <view class="item" :style="{height:`${itemHeight - 1}px`}">
               <view class="deptIcon">
                 <Icon icon="icon-fanhui" size="20" />
               </view>
               <view class="backDept">返回上级分类</view>
             </view>
           </movable-view>
-          <Empty
-              style="padding-top: 48px"
-              v-if="!skuListLoading && skuClassList.length === 0 && skuList.length === 0"
-              description="暂无数据"
-          />
           <movable-view
               :damping="0"
               :out-of-bounds="true"
@@ -112,7 +107,11 @@
               :key="index"
               :disabled="isMove !== index"
               :id="`movableView${index}`"
-              :style="{top:`${itemHeight * index+(skuClassPage.length > 1 ? 0 : 10)}px`, width: `${itemWidth}px`,}"
+              :style="{
+                top:`${itemHeight * index+(skuClassPage.length > 1 ? 0 : 10)}px`,
+                 width: `${itemWidth}px`,
+                 height:`${itemHeight}px`
+                 }"
               :y="movableViewY"
               :x="movableViewX"
               direction="all"
@@ -121,24 +120,30 @@
               :class="{movableView:true,moveItem:isMove === index}"
           >
             <Swipe
-                :disabled="!tenantAdmin || isMove !== null"
+                :disabled="!admin || isMove !== null"
                 @click="(key)=>swipeClick(key,item)"
             >
               <view class="moveLine" style="top:0" v-if="inIndex === null && moveIndex === index" />
               <view
+                  :style="{height:`${itemHeight - 1}px`}"
                   :class="{item:true,inItem:inIndex === index}"
-                  @click="sys ? $emit('onCheckSkuClass',item) :$emit('skuClassClick',item)"
+                  @click="sys ? (!(item.number > 0) && $emit('onCheckSkuClass',item)) :(isMove===null && skuIsMove===null &&  $emit('skuClassClick',item))"
               >
-                <Check v-if="sys" :value="checkSkuClass.find(checkSkuClas=>checkSkuClas.key === item.key)" />
+                <Check
+                    :disabled="item.number > 0"
+                    v-if="sys"
+                    :value="checkSkuClass.find(checkSkuClas=>checkSkuClas.key === item.key)"
+                />
                 <view class="deptIcon">
-                  <Icon icon="icon-gaojizujian" size="20" />
+                  <Icon icon="icon-fenlei1" size="40" />
                 </view>
                 <view class="itemTitle">
                   {{ item.title }}
                 </view>
                 <view
-                    v-if="tenantAdmin && !sys"
-                    :style="{height:itemHeight}" class="drag"
+                    v-if="admin && !sys"
+                    :style="{height:`${itemHeight - 1}px`}"
+                    class="drag"
                     @longpress="moveStart(e,index)"
                 >
                   <u-icon name="list" />
@@ -162,21 +167,21 @@
               :style="{top:`${itemHeight * isMove + (skuClassPage.length > 1 ? itemHeight : 10)}px`,left:`${itemWidth}px`}"
           >
             <view class="deptIcon">
-              <Icon icon="icon-gaojizujian" size="20" />
+              <Icon icon="icon-fenlei1" size="40" />
             </view>
             {{ skuClassList[isMove].title }}
           </view>
         </movable-area>
 
-        <Loading skeleton v-if="skuList.length === 0 && skuListLoading" />
+
         <movable-area
             :class="{skuMovableArea:true}"
             :style="{
-      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 46 + (skuList.length * skuItemHeight)}px`,
+      height:`${(skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 36 + 20 + (skuList.length * skuItemHeight)}px`,
       width: `${itemWidth * 3}px`,
       marginLeft:`-${itemWidth}px`,
-      marginTop:`-${((skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 56)}px`,
-      minHeight:`calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`
+      marginTop:`-${((skuClassList.length * itemHeight) + (skuClassPage.length > 1 ? itemHeight : 0) + 36 + 20)}px`,
+      // minHeight:`calc(100vh - ${47+safeAreaHeight(this,8)}px - ${skuIsMove === null ?36:0}px)`
     }"
         >
           <movable-view
@@ -186,7 +191,7 @@
               :key="index"
               :disabled="skuIsMove !== index"
               :style="{
-            top:`${skuItemHeight * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? itemHeight : 0) + 46)}px`,
+            top:`${skuItemHeight * index + (skuClassList.length * itemHeight + (skuClassPage.length > 1 ? itemHeight : 10) + 36)}px`,
             width: `${itemWidth}px`,
             height:`${skuItemHeight}px`
           }"
@@ -199,7 +204,7 @@
           >
             <Swipe
                 noEdit
-                :disabled="!tenantAdmin || isMove !== null"
+                :disabled="!admin || skuIsMove !== null"
                 @click="(key)=>skuSwipeClick(key,index)"
             >
               <view class="skuItem" @click="!(item.stockNum > 0) && $emit('onCheckSkus',item)">
@@ -209,10 +214,10 @@
                     :value="checkSkus.find(checkSku=>checkSku.skuId === item.skuId)"
                 />
                 <view class="sku">
-                  <SkuItem :no-view="sys" hidden-number :sku-result="skuResultFormat(item)" img-size="40" />
+                  <SkuItem extra-width="76px" :no-view="sys" :sku-result="skuResultFormat(item)" img-size="40" />
                 </view>
                 <view
-                    v-if="tenantAdmin && !sys"
+                    v-if="admin && !sys"
                     :style="{height:skuItemHeight}"
                     class="drag"
                     :id="`skuMoveItem${index}`"
@@ -226,6 +231,11 @@
         </movable-area>
       </List>
     </uni-swipe-action>
+
+    <Empty
+        v-if="!skuListLoading && skuClassList.length === 0 && skuList.length === 0"
+        description="暂无数据"
+    />
 
     <u-action-sheet
         :title="moveActionData.title"
@@ -250,7 +260,7 @@ import {addSkuClassChildren, delSkuClassChildren, sortSkuClassChildren} from "..
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import SkuItem from "../../../../components/SkuItem";
 import Loading from "../../../../components/Loading";
-import {isArray, safeAreaHeight} from "../../../../util/Tools";
+import {findThisInTree, isArray, safeAreaHeight} from "../../../../util/Tools";
 import Modal from "../../../../components/Modal";
 import {SkuResultSkuJsons} from "../../../sku";
 import List from "../../../../components/List/indx";
@@ -275,18 +285,18 @@ export default {
     'skuList',
     'checkSkus',
     'sys',
-    'checkSkuClass'
+    'checkSkuClass',
+    'itemHeight',
+    'admin'
   ],
   data() {
     return {
       Sku,
       safeAreaHeight,
-      tenantAdmin: true,
       skuClassId: '',
       movableView: 0,
       skuItemHeight: 55,
       skuListLoading: false,
-      itemHeight: 48,
       moveIndex: null,
       inIndex: null,
       isMove: null,
@@ -322,7 +332,7 @@ export default {
     //   url: `/wxma/messageCallBack/${miniProgram.appId}`,
     //   method: 'POST'
     // })
-    this.tenantAdmin = this.$store.state.userInfo.tenant.admin
+
   },
   watch: {
     skuClassPage: {
@@ -544,7 +554,9 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      this.isMove = null
+      setTimeout(() => {
+        this.isMove = null
+      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -557,7 +569,11 @@ export default {
       this.$nextTick(function () {
         if (this.inIndex !== null) {
           this.moveActionShow = true
-          this.moveActionData = {...this.skuClassList[thisIndex], thisIndex, inIndex: this.inIndex}
+          this.moveActionData = {
+            ...findThisInTree(this.skuClassList[thisIndex].key, this.tree),
+            thisIndex,
+            inIndex: this.inIndex
+          }
           this.skuClassListChange(this.skuClassList)
         } else if (this.moveEndIndex !== null) {
           const skuClassList = this.skuClassList.map((item, index) => {
@@ -638,7 +654,6 @@ export default {
 
       if (this.removeSku) {
         this.onRemoveSku(thisIndex)
-        return;
       }
       if (this.skuMoveIndex !== null) {
         const _this = this
@@ -707,9 +722,15 @@ export default {
               data: {
                 skuId: _this.skuList[thisIndex].skuId,
               }
-            }).then(() => {
-              this.setRemoveSkuIds([_this.skuList[thisIndex].skuId])
-              _this.$emit('skuListChange', _this.skuList.filter(item => item.skuId !== _this.skuList[thisIndex].skuId))
+            }).then((res) => {
+              if (res.errCode === 1001) {
+                _this.$refs.modal.dialog({
+                  title: '当前物料已被使用！'
+                })
+              } else {
+                this.setRemoveSkuIds([_this.skuList[thisIndex].skuId])
+                _this.$emit('skuListChange', _this.skuList.filter(item => item.skuId !== _this.skuList[thisIndex].skuId))
+              }
               resolve(true)
             }).catch(() => {
               resolve(false)

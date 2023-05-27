@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_yjk8gz6n42.js --to ./src/static/font",
+    "iconfont-tools": "iconfont-tools --from //at.alicdn.com/t/c/font_2837038_qx7o2rcjmk.js --to ./src/static/font",
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch --minimize",
     "dev:cheng": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode cheng --watch --minimize",
     "build:hh": "cross-env NODE_ENV=production UNI_PLATFORM=mp-weixin vue-cli-service uni-build --mode hh --watch --minimize"
@@ -32,7 +32,7 @@
     "@dcloudio/uni-ui": "^1.4.26",
     "@vant/weapp": "^1.10.13",
     "@vue/shared": "^3.0.0",
-    "MES-Apis": "^0.2.135",
+    "MES-Apis": "^0.2.136",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",

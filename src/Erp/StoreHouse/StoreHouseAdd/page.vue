@@ -173,7 +173,7 @@
       >
         <Loading skeleton v-if="categoryLoading" />
         <view v-else style="padding: 12px">
-          <Tree icon="icon-gaojizujian" :data="cateGoryData" :value="classList" @input="onClassList" />
+          <Tree icon="icon-gaojizujian" :data="cateGoryData" :value="classList" @input="onClassList" multiple />
         </view>
       </Popup>
 

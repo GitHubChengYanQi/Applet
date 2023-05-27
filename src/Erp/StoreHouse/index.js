@@ -1,3 +1,5 @@
+
+
 export const addStoreHouseChildren = (key, storeHouse, storeHouseList = []) => {
     return storeHouseList.map(item => {
         if ((key + '') === (item.key + '')) {
@@ -24,6 +26,16 @@ export const delStoreHouseChildren = (key, storeHouseList = []) => {
     storeHouseList.map(item => {
         if ((key + '') !== (item.key + '')) {
             newStoreHouseList.push({...item, children: delStoreHouseChildren(key, item.children || [])})
+        }
+    })
+    return newStoreHouseList
+}
+
+export const delStoreIdsChildren = (keys = [], storeHouseList = []) => {
+    const newStoreHouseList = []
+    storeHouseList.map(item => {
+        if (keys.findIndex(id => (id + '') === (item.key + '')) === -1) {
+            newStoreHouseList.push({...item, children: delStoreIdsChildren(keys, item.children || [])})
         }
     })
     return newStoreHouseList
