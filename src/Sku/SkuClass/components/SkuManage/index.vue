@@ -155,21 +155,18 @@
                   v-if="inIndex === null  && moveIndex === skuClassList.length && index === skuClassList.length-1"
               />
             </Swipe>
-            <u-swipe-action-item
-
-            >
-
-            </u-swipe-action-item>
           </movable-view>
 
           <view
               class="item moveFixItem" v-if="isMove !== null"
-              :style="{top:`${itemHeight * isMove + (skuClassPage.length > 1 ? itemHeight : 10)}px`,left:`${itemWidth}px`}"
+              :style="{top:`${itemHeight * isMove + (skuClassPage.length > 1 ? itemHeight : 10)}px`,left:`${itemWidth}px`,height:`${itemHeight - 1}px`}"
           >
             <view class="deptIcon">
               <Icon icon="icon-fenlei1" size="40" />
             </view>
-            {{ skuClassList[isMove].title }}
+            <view class="itemTitle">
+              {{ skuClassList[isMove].title }}
+            </view>
           </view>
         </movable-area>
 

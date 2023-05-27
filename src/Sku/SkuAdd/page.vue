@@ -5,7 +5,7 @@
 
       <scroll-view class="skuAdd">
 
-        <Uploader @loading="onUploadLoading" :size="70" @onChange="imgChange">
+        <Uploader multiple @loading="onUploadLoading" :size="70" @onChange="imgChange">
           <view
               class="uploadSkuImg"
               :style="{
@@ -76,7 +76,7 @@
                       icon="icon-jidanwei"
                       label="单位"
                       :value="formRenderData.unitName"
-                      @click="inputFiled = 'unitId'"
+                      @click="filedShow = 'unitId'"
                   />
 
                   <view class="space" />
@@ -135,30 +135,31 @@
           </movable-view>
         </movable-area>
 
-        <view class="skuImgs">
-          <u--image
-              v-for="(image,index) in isArray(formRenderData.imageUrls)"
-              :key="index"
-              :showLoading="true"
-              :src="image.url"
-              :width='imgWidth'
-              :height="imgWidth"
-              @click="previewImage(image)"
-          />
-          <view v-if="uploadLoading" :style="{width:`${imgWidth}px`,height:`${imgWidth}px`}" class="imgLoading">
-            <u-loading-icon mode="circle" />
+        <scroll-view scroll-x style="width: 100vw" :scroll-left="scrollLeft" @scroll="skuImgsScroll">
+          <view class="skuImgs">
+            <u--image
+                v-for="(image,index) in isArray(formRenderData.imageUrls)"
+                :key="index"
+                :showLoading="true"
+                :src="image.url"
+                :width='imgWidth'
+                :height="imgWidth"
+                @click="previewImage(image)"
+            />
+            <view v-if="uploadLoading" :style="{width:`${imgWidth}px`,height:`${imgWidth}px`}" class="imgLoading">
+              <u-loading-icon mode="circle" />
+            </view>
           </view>
+        </scroll-view>
 
-          <view
-              v-if="Object.keys(formData).length > 0"
-              class="saveButton"
-              :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
-          >
-            <MyButton type="primary" @click="formSubmit">
-              保存
-            </MyButton>
-          </view>
-
+        <view
+            v-if="Object.keys(formData).length > 0"
+            class="saveButton"
+            :style="{bottom: `calc(${safeAreaHeight(this,8)}px)`}"
+        >
+          <MyButton type="primary" @click="formSubmit">
+            保存
+          </MyButton>
         </view>
       </scroll-view>
 
@@ -214,6 +215,7 @@
       <!--        单位-->
       <SelectUnit
           :value="formData.unitId"
+          :label="formRenderData.unitName"
           :show="filedShow === 'unitId'"
           @close="filedShow = ''"
           @select="selectUnit"
@@ -323,6 +325,7 @@ import SelectMaterial from "./components/SelectMaterial/index.vue";
 import FileUpload from "../../components/Uploader/FileUpload/index.vue";
 import SkuDescribe from "./components/SkuDescribe/index.vue";
 import SkuName from "./components/SkuName/index.vue";
+import Log from "../../Erp/Receipt/ReceiptDetail/components/Log/index.vue";
 
 export default {
   options: {
@@ -376,7 +379,9 @@ export default {
       skuShow: false,
       inputFiled: '',
       fileShow: '',
-      clickIndex: null
+      clickIndex: null,
+      scrollLeft: 0,
+      skuImgsScrollLeft: 0
     }
   },
   computed: {},
@@ -481,9 +486,9 @@ export default {
     },
     selectUnit(unit) {
       this.saveFormData({
-        unitId: unit.key
+        unitId: unit.value
       }, {
-        unitName: unit.text
+        unitName: unit.label
       })
     },
     selectBatch(batch) {
@@ -508,10 +513,18 @@ export default {
           this.moveY = 321
         })
       }
-      this.uploadLoading = loading
+      if (loading) {
+        this.uploadLoading = true
+      }
+
+      this.scrollLeft = this.skuImgsScrollLeft
+      this.$nextTick(function () {
+        if (isArray(this.formRenderData.imageUrls).length > 4) {
+          this.scrollLeft = (this.formRenderData.imageUrls.length - 3) * this.imgWidth + (this.formRenderData.imageUrls.length - 3) * 12
+        }
+      })
     },
     imgChange(value) {
-
       this.saveFormData({
         images: this.formData.images ? [...this.formData.images.split(','), value.id].join(',') : value.id,
       }, {
@@ -520,6 +533,15 @@ export default {
           value
         ]
       })
+      setTimeout(() => {
+        this.uploadLoading = false
+        this.scrollLeft = this.skuImgsScrollLeft
+        this.$nextTick(function () {
+          if (isArray(this.formRenderData.imageUrls).length > 4) {
+            this.scrollLeft = (this.formRenderData.imageUrls.length - 4) * this.imgWidth + (this.formRenderData.imageUrls.length - 4) * 12
+          }
+        })
+      }, 100)
     },
     previewImage(current) {
       const _this = this
@@ -570,6 +592,9 @@ export default {
           }
         },
       })
+    },
+    skuImgsScroll(e) {
+      this.skuImgsScrollLeft = e.detail.scrollLeft
     },
     async getCateGory(classId) {
       this.getCateGoryLoading = true
@@ -824,11 +849,11 @@ export default {
   }
 
   .skuImgs {
+    width: fit-content;
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 16px 12px 0;
-    overflow: auto;
     z-index: 1;
 
     .imgLoading {
