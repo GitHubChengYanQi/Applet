@@ -266,5 +266,20 @@ export const base64src = async (base64data) => {
     })
 };
 
+export const findThisInTree = (key, tree = []) => {
+    let _this = null
+    tree.forEach(item => {
+        if ((key + '') === (item.key + '')) {
+            _this = item
+        } else {
+            const children = findThisInTree(key, item.children)
+            if (children) {
+                _this = children
+            }
+        }
+    })
+    return _this
+};
+
 
 
