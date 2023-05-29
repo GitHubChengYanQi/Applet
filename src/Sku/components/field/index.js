@@ -19,7 +19,7 @@ import specifications from "./specifications";
 import spu from "./spu";
 import spuCoding from "./spuCoding";
 import standard from "./standard";
-import unitId from "./unitId";
+import unitId from "../../SkuAdd/components/SelectUnit";
 import viewFrame from "./viewFrame";
 import weight from "./weight";
 

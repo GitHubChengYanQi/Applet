@@ -40,12 +40,13 @@ export default {
     },
     height: {
       type: Number,
-      default: () => 0
+      default: () => 170
     },
     padding: {
       type: Array,
       default: () => [0, 0, 0, 0]
-    }
+    },
+    data: [Object, Array]
   },
   methods: {
     init() {
@@ -54,7 +55,10 @@ export default {
         node: true,
         size: true
       }).exec(res => {
-        const {node} = res[0]
+        const {node} = res[0] || {}
+        if (!node) {
+          return
+        }
         const context = node.getContext('2d') // 微信基础库2.7.0 以上支持
         const pixelRatio = uni.getSystemInfoSync().pixelRatio
         // 高清设置
@@ -63,7 +67,7 @@ export default {
         node.width = width * pixelRatio
         node.height = height * pixelRatio
         const config = {context, width, height, pixelRatio, padding: this.padding}
-        const chart = this.onInit(F2, config)
+        const chart = this.onInit(F2, config, this.data)
         if (chart) {
           this.canvasEl = chart.get('el')
         }

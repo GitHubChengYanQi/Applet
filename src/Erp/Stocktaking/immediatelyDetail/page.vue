@@ -69,7 +69,7 @@
 
     <Keybord
         :visible='visible'
-        @visiblChange="(value)=>visible = value"
+        @close="(value)=>visible = value"
         :value='updateSku.realityNumber'
         :min='0'
         @onChange="onChange"

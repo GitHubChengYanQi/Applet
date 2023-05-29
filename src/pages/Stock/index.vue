@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page ref="stock" v-if="auth" @refreshDone="refreshDone" />
+    <Page ref="page" v-if="auth" />
   </Auth>
 </template>
 <script>
@@ -10,15 +10,12 @@ import Page from "./page";
 export default {
   components: {Page, Auth},
   onPullDownRefresh() {
-    this.$refs.stock.refresh()
+    this.$refs.page.refresh()
   },
   data() {
     return {}
   },
   methods: {
-    refreshDone() {
-      uni.stopPullDownRefresh();
-    }
   },
   computed: {
     auth() {

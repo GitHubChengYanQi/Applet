@@ -23,8 +23,13 @@
     </view>
 
     <view style="padding: 0 12px 12px">
-      <List max-height="50vh" @request="Stock.stockDetailsList" :default-params="{skuId}" @listSource="listSource"
-            :list="list">
+      <List
+          max-height="50vh"
+          @request="Stock.stockDetailsList"
+          :default-params="{skuId}"
+          @listSource="listSource"
+          :list="list"
+      >
         <view class="positionItem" v-for="(pos,index) in list" :key="index">
           <view class="positionName">
             <view class="name">
@@ -38,10 +43,7 @@
             <view class="inkindItem" v-for="(sku,skuIndex) in isArray(pos.inkindList)" :key="skuIndex">
               <view class="inkindData">
                 <view class="inkindId">
-                  实物码：
-                  <view class="erWeiMaClick" @click="skuErWeiMa(sku.inkindId)">
-                    <Icon icon="icon-erweima" color="#2680EB" />
-                  </view>
+                  <Icon icon="icon-wuliaoguanli1" size="20" />
                   <view>× {{ sku.number }}</view>
                 </view>
                 <view class="brand">{{ isObject(sku.brandResult).brandName || '无品牌' }}</view>
@@ -124,12 +126,12 @@ export default {
       this.list = newData
     },
     showStoreList(positionId) {
-      this.position.forEach(pos => {
+      this.list = this.list.map(pos => {
         if (pos.positionId === positionId) {
-          pos.hidden = !pos.hidden
+          return {...pos, hidden: !pos.hidden}
         }
+        return pos
       })
-      // this.position.hidden =  !this.position.hidden
     },
     positionNumber(item) {
       let number = 0;

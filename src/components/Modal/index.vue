@@ -57,6 +57,12 @@ export default {
     }
   },
   methods: {
+    showStatus() {
+      return this.show
+    },
+    close() {
+      this.show = false
+    },
     dialog({
              title = '',
              content = '',

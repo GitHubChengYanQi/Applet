@@ -3,22 +3,24 @@
     <Empty description="暂无数据" v-if="data.length === 0" />
     <view class="aui-picker-main" v-else>
       <view class="aui-picker-nav" v-if="!noChildren">
-        <view class="aui-picker-navitem"
-              v-if="nav.length>0"
-              v-for="(item, index) in nav"
-              :key="index"
-              :data-index="index"
-              :class="[index==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+index]"
-              :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
-              @click.stop="_changeNav($event)"
-        >{{ item.name }}
+        <view
+            class="aui-picker-navitem"
+            v-if="nav.length>0"
+            v-for="(item, index) in nav"
+            :key="index"
+            :data-index="index"
+            :class="[index===navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+index]"
+            :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
+            @click.stop="_changeNav(index)"
+        >
+          {{ item.name }}
         </view>
-        <view class="aui-picker-navitem"
-              :key="nav.length"
-              :data-index="nav.length"
-              :class="[nav.length==navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+nav.length]"
-              :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
-              @click.stop="_changeNav($event)"
+        <view
+            class="aui-picker-navitem"
+            :key="nav.length"
+            :class="[nav.length===navCurrentIndex ? 'active' : '', 'aui-picker-navitem-'+nav.length]"
+            :style="{margin: nav.length>2 ? '0 10px 0 0' : '0 30px 0 0'}"
+            @click.stop="_changeNav(nav.length)"
         >
           请选择
         </view>
@@ -26,11 +28,12 @@
       </view>
       <view class="aui-picker-content" :style="{height:noChildren ? '100%' : 'calc(100% - 50px)'}">
         <view class="aui-picker-lists">
-          <view class="aui-picker-list"
-                v-for="(list, index) in queryItems.length + 1"
-                :key="index"
-                :data-index="index"
-                :class="[index==navCurrentIndex ? 'active' : '']"
+          <view
+              class="aui-picker-list"
+              v-for="(list, index) in queryItems.length + 1"
+              :key="index"
+              :data-index="index"
+              :class="[index===navCurrentIndex ? 'active' : '']"
           >
             <view class="aui-picker-list-warp" v-if="index == 0">
               <view class="aui-picker-item"
@@ -42,31 +45,42 @@
                     :data-id="item.id"
                     :data-pid="item.pid"
                     :data-name="item.name"
-                    :class="{'active': result.length>index && result[index].id==item.id}"
-                    :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
-                    @click.stop="_chooseItem($event)"
-                    @touchstart="_btnTouchStart($event)"
-                    @touchmove="_btnTouchEnd($event)"
-                    @touchend="_btnTouchEnd($event)"
-              >{{ item.name }}
+                    :class="{'activeEnd': result[result.length-1].id===item.id,'active': result.length>index && result[index].id===item.id}"
+                    :style="{'background': touchConfig.index===key && touchConfig.pindex===index ? touchConfig.style.background : ''}"
+                    @touchstart="()=>_btnTouchStart(index,key)"
+                    @touchmove="()=>_btnTouchEnd(index,key)"
+                    @touchend="()=>_btnTouchEnd(index,key)"
+              >
+                <view class="name" @click.stop="()=>_chooseItem(item,changeOnSelect)">
+                  {{ item.name }}
+                </view>
+
+                <view v-if="isArray(item.children).length > 0" @click.stop="()=>_chooseItem(item)">
+                  <u-icon name="arrow-right" size="20" />
+                </view>
               </view>
             </view>
             <view class="aui-picker-list-warp" v-else>
-              <view class="aui-picker-item"
-                    v-for="(item, key) in queryItems[index-1]"
-                    :key="key"
-                    :data-pindex="index"
-                    :data-index="key"
-                    :data-id="item.id"
-                    :data-pid="item.pid"
-                    :data-name="item.name"
-                    :class="{'active': result.length>index && result[index].id==item.id}"
-                    :style="{'background': touchConfig.index==key && touchConfig.pindex==index ? touchConfig.style.background : ''}"
-                    @click.stop="_chooseItem($event)"
-                    @touchstart="_btnTouchStart($event)"
-                    @touchmove="_btnTouchEnd($event)"
-                    @touchend="_btnTouchEnd($event)"
-              >{{ item.name }}
+              <view
+                  class="aui-picker-item"
+                  v-for="(item, key) in queryItems[index-1]"
+                  :key="key"
+                  :class="{'activeEnd': result[result.length-1].id===item.id,'active': result.length>index && result[index].id===item.id}"
+                  :style="{'background': touchConfig.index===key && touchConfig.pindex===index ? touchConfig.style.background : ''}"
+                  @touchstart="()=>_btnTouchStart(index,key)"
+                  @touchmove="()=>_btnTouchEnd(index,key)"
+                  @touchend="()=>_btnTouchEnd(index,key)"
+              >
+                <view
+                    class="name"
+                    @click.stop="()=>_chooseItem(item,isArray(item.children).length > 0 ? changeOnSelect : false)"
+                >
+                  {{ item.name }}
+                </view>
+
+                <view v-if="isArray(item.children).length > 0" @click.stop="()=>_chooseItem(item)">
+                  <u-icon name="arrow-right" size="20" />
+                </view>
               </view>
             </view>
           </view>
@@ -107,6 +121,7 @@ export default {
   },
   data() {
     return {
+      isArray,
       SHOW: false,
       FADE: -1,
       nav: [],
@@ -143,7 +158,7 @@ export default {
       const parents = this.getParents(items, this.value)
       const nav = parents.filter(item => {
         return items.filter(all => all.pid === item.id).length > 0
-      })
+      }).filter(item => item.id !== this.value)
       this.nav = nav
       this.queryItems = nav.map(item => {
         return items.filter(all => all.pid === item.id)
@@ -178,9 +193,9 @@ export default {
       _this.result = [];
     },
     //导航栏切换
-    _changeNav(e) {
+    _changeNav(navIndex) {
       const _this = this;
-      const index = Number(e.currentTarget.dataset.index);
+      const index = Number(navIndex);
       _this.navCurrentIndex = index;
       const _el = uni.createSelectorQuery().in(this).select(".aui-picker-navitem-" + index);
       _el.boundingClientRect(data => {
@@ -188,23 +203,27 @@ export default {
       }).exec();
     },
     //数据选择
-    _chooseItem(e) {
+    _chooseItem(item, changeOnSelect) {
       const _this = this;
-      const id = e.currentTarget.dataset.id;
-      const name = e.currentTarget.dataset.name;
-      const pid = e.currentTarget.dataset.pid;
+      const id = item.id;
+      const name = item.name;
+      const pid = item.pid;
       const _arr = [];
       _this.result[_this.navCurrentIndex] = {id: id, name: name, pid: pid};
       _this.result = _this.result.filter((item, index) => index <= _this.navCurrentIndex)
+      if (changeOnSelect) {
+        _this.$emit("change", {id: id, name: name, pid: pid});
+        return
+      }
       if (
           (!_this._isDefine(_this.layer) && _this._isDefine(_this._deepQuery(_this.data, id).children))
           ||
           (_this.navCurrentIndex < (Number(_this.layer) - 1) && _this._isDefine(_this._deepQuery(_this.data, id).children))
       ) { //有下级数据
         _this._deepQuery(_this.data, id).children.forEach(function (item, index) {
-          _arr.push({id: item.id, name: item.name, pid: id});
+          _arr.push({id: item.id, name: item.name, pid: id, children: item.children});
         });
-        if (_this.navCurrentIndex == _this.queryItems.length) { //选择数据
+        if (_this.navCurrentIndex === _this.queryItems.length) { //选择数据
           _this.queryItems.push(_arr);
           _this.nav.push({name: name});
         } else { //重新选择数据
@@ -218,9 +237,6 @@ export default {
         setTimeout(() => {
           _el.boundingClientRect(data => {
             _this.navBorderLeft = data.left + 20;
-            if (_this.changeOnSelect){
-              _this.$emit("change", {id: id, name: name, pid: pid});
-            }
           }).exec();
         }, 100)
       } else { //无下级数据
@@ -231,7 +247,7 @@ export default {
     //递归遍历——将树形结构数据转化为数组格式
     _flatten(tree, pid) {
       return tree.reduce((arr, {id, name, children = []}) =>
-          arr.concat([{id, name, pid}], this._flatten(children, id)), [])
+          arr.concat([{id, name, pid, children}], this._flatten(children, id)), [])
     },
     //根据id查询对应的数据(如查询id=10100对应的对象)
     _deepQuery(tree, id) {
@@ -270,25 +286,21 @@ export default {
         return true;
       }
     },
-    _btnTouchStart(e) {
-      const _this = this,
-          index = Number(e.currentTarget.dataset.index),
-          pindex = Number(e.currentTarget.dataset.pindex);
-      _this.touchConfig.index = index;
-      _this.touchConfig.pindex = pindex;
+    _btnTouchStart(_index, pIndex) {
+      const index = Number(_index)
+      const pindex = Number(pIndex)
+      this.touchConfig.index = index;
+      this.touchConfig.pindex = pindex;
     },
-    _btnTouchEnd(e) {
-      const _this = this,
-          index = Number(e.currentTarget.dataset.index),
-          pindex = Number(e.currentTarget.dataset.pindex);
-      _this.touchConfig.index = -1;
-      _this.touchConfig.pindex = -1;
+    _btnTouchEnd() {
+      this.touchConfig.index = -1;
+      this.touchConfig.pindex = -1;
     },
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* ====================
   多级联动弹窗
  =====================*/
@@ -478,24 +490,30 @@ export default {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  padding: 0 15px;
+  padding: 0 15px 0 30px;
   box-sizing: border-box;
   font-size: 15px;
   color: #333;
   position: relative;
+  display: flex;
+  align-items: center;
+
+  .name {
+    flex-grow: 1;
+  }
 }
 
 .aui-picker-item.active {
   color: #197DE0;
 }
 
-.aui-picker-item.active::after {
+.aui-picker-item.activeEnd::before {
   content: '✔';
   font-size: 15px;
   color: #197DE0;
   position: absolute;
-  top: 0px;
-  right: 10px;
+  top: 0;
+  left: 10px;
 }
 
 </style>

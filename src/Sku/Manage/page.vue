@@ -2,9 +2,9 @@
   <view class="manage">
     <view class="item" @click="skuClass">
       <view class="info">
-        分类管理
+        物料管理
         <view class="des">
-          管理物料的分类
+          管理物料信息
         </view>
       </view>
       <view>
@@ -36,7 +36,7 @@
       </view>
     </view>
 
-    <view class="item">
+    <view class="item" @click="brand">
       <view class="info">
         品牌管理
         <view class="des">
@@ -83,6 +83,11 @@ export default {
     unit() {
       uni.navigateTo({
         url: '/Sku/Unit/UnitList/index'
+      })
+    },
+    brand(){
+      uni.navigateTo({
+        url: '/Sku/Brand/BrandList/index'
       })
     }
   }

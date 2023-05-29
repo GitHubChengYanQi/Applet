@@ -1,28 +1,55 @@
 <template>
   <Auth :tenant-auth="false">
-    <Page v-if="auth && tenantId" :tenantId="tenantId" />
-    <Empty v-else description="未选择要加入的企业!" />
+    <template v-if="auth">
+      <Loading skeleton-type="page" skeleton v-if="loading" />
+      <Page ref="page" v-else-if="tenantId" :inviter="inviter" />
+      <Empty v-else description="未选择要加入的企业!" />
+    </template>
   </Auth>
 </template>
 <script>
 import Auth from '../../components/Auth/index'
 import Page from "./page";
 import Empty from "../../components/Empty";
+import {Tenant} from "MES-Apis/lib/Tenant/promise";
+import Loading from "../../components/Loading";
 
 export default {
   onLoad(option) {
-    let tenantId = ''
+    let inviteId = ''
     if (option.scene) {
-      tenantId = option.scene
-    } else if (option.tenantId) {
-      tenantId = option.tenantId
+      inviteId = option.scene
+    } else if (option.inviteId) {
+      inviteId = option.inviteId
     }
-    this.tenantId = tenantId
+    if (!inviteId) {
+      this.loading = false
+      return
+    }
+    getApp().globalData.shareInviteId = inviteId
+    this.loading = true
+    Tenant.inviteDetail({
+      data: {
+        tenantInviteLogId: inviteId
+      }
+    }).then((res) => {
+      const invite = res.data || {}
+      getApp().globalData.shareTenantId = invite.tenantId
+      this.tenantId = invite.tenantId
+      this.inviter = invite
+    }).finally(() => {
+      this.loading = false
+    })
   },
-  components: {Empty, Page, Auth},
+  onPullDownRefresh() {
+    this.$refs.page.refresh()
+  },
+  components: {Loading, Empty, Page, Auth},
   data() {
     return {
-      tenantId: ''
+      tenantId: '',
+      inviter: '',
+      loading: true
     }
   },
   computed: {

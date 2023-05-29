@@ -5,9 +5,8 @@
         <Avatar :size="size || 35" :src='user.miniAppAvatar' />
         <view>
           <view>{{ user.name }}</view>
-          <view class="info" v-if="false">
-            <template v-if="!noDept">{{ user.dept || user.deptResult && user.deptResult.fullName || '-' }} -</template>
-            {{ user.role || isArray(user.roleResults)[0] && isArray(user.roleResults)[0].name || '-' }}
+          <view class="info">
+            <slot></slot>
           </view>
         </view>
       </view>
@@ -23,7 +22,7 @@ import Avatar from "../Avatar";
 export default {
   name: 'userName',
   components: {Avatar},
-  props: ['user', 'size', 'noDept', 'noOtherInfo'],
+  props: ['user', 'size', 'showPosition'],
   data() {
     return {
       isArray

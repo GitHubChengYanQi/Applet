@@ -71,7 +71,7 @@ export default {
   methods: {
     create() {
       uni.navigateTo({
-        url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas().stringRoute}`
+        url: `/Tenant/CreateTenant/index?backUrl=${getLocalParmas('/Tenant/TenantSet/index').stringRoute}`
       })
     },
     tenantList() {
@@ -98,6 +98,7 @@ export default {
             }, {
               onSuccess: (res) => {
                 resolve(true)
+                getApp().globalData.shareTenantId = undefined
                 getApp().globalData.token = res
                 _this.$refs.modal.dialog({
                   title: '切换成功！点击返回首页',

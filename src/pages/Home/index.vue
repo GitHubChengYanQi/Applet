@@ -1,31 +1,48 @@
 <template>
   <Auth>
     <Page v-if="auth" />
-<!--    <ImageCropper img-url="https://hunts-cnc.oss-cn-beijing.aliyuncs.com/upload/png/20230427/20230427806525.png?Expires=1683858898&OSSAccessKeyId=LTAI5tRtx3bPozdsUhbF6PS1&Signature=LyqUNczLM%2FqHqLe5PUShZ3tMFfU%3D" />-->
+    <Loading :loading="loading" />
   </Auth>
 </template>
 <script>
-import Auth from '../../components/Auth/index'
 import Page from "./page";
-import ImageCropper from "../../components/ImageCropper";
+import Auth from "../../components/Auth";
+import Loading from "../../components/Loading";
 
 export default {
-  components: {ImageCropper, Page, Auth},
+  components: {Loading, Auth, Page},
   onPullDownRefresh() {
-    console.log('refresh');
     setTimeout(function () {
       uni.stopPullDownRefresh();
     }, 1000);
   },
   data() {
-    return {}
-  },
-  async onShareAppMessage(res) {
-    const tenant = this.$store.state.userInfo.tenant || {}
     return {
-      title: tenant.name || '道昕云',
+      loading: false
+    }
+  },
+  // async onShareAppMessage() {
+  //   const tenant = this.$store.state.userInfo.tenant || {}
+  //   this.loading = true
+  //   const invite = await Tenant.invite({
+  //     data: {
+  //       tenantId: tenant.tenantId,
+  //     }
+  //   }).finally(() => {
+  //     this.loading = false
+  //   })
+  //   return {
+  //     title: tenant.name || '道昕云',
+  //     path: '/pages/Home/index?shareTenantId=' + tenant.tenantId + `&inviteId=${invite.data}`,
+  //     imageUrl: userInfo.logo
+  //   }
+  // },
+  onShareAppMessage() {
+    const userInfo = this.$store.state.userInfo.userInfo || {}
+    return {
+      title: '道昕云',
       path: '/pages/Home/index',
-      imageUrl: tenant.imgLogo
+      imageUrl: userInfo.logo
     }
   },
   computed: {

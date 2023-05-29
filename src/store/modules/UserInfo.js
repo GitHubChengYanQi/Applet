@@ -2,6 +2,7 @@ import {User} from "MES-Apis/lib/User/promise";
 import {Init} from "MES-Apis/lib/Init";
 import {base64src, isArray} from "../../util/Tools";
 import {logo} from "../../images/logo";
+import UQRCode from "uqrcodejs";
 
 const init = {
     auth: false,
@@ -26,13 +27,17 @@ const actions = {
             const userRes = await User.getUserInfo()
             const userInfo = userRes.data || {}
             const url = await base64src(logo)
-            state.userInfo = {...userInfo, avatar: userInfo.miniAppAvatar || userInfo.avatar}
+            state.userInfo = {
+                ...userInfo,
+                avatar: userInfo.miniAppAvatar,
+                logo:url
+            }
             state.tenant = {
                 tenantId: userInfo.tenantId,
                 name: userInfo.tenantName,
                 logo: userInfo.tenantLogo,
                 admin: !!userInfo.isTenantAdmin,
-                imgLogo: userInfo.tenantLogo?.url || url
+                imgLogo: userInfo.tenantLogo?.url || url,
             }
             state.menus = isArray(userInfo.miniAppMenus).filter(item => isArray(item.subMenus).length > 0)
             if (!payload) {
@@ -50,11 +55,9 @@ const actions = {
         if (Object.keys(state.homeMenus).length === 0 || payload) {
 
             const menus = []
-            const menuCodes = []
             state.menus.forEach(item => {
                 const subMenus = item.subMenus
                 subMenus.forEach(item => {
-                    menuCodes.push(item.code)
                     menus.push(item)
                 })
             })
@@ -68,7 +71,7 @@ const actions = {
             const homeMenus = isArray(res.data && res.data.details)
             if (homeMenus.length > 0) {
                 // 首页菜单
-                state.homeMenus = homeMenus.filter(item => menuCodes.find(code => code === item.code))
+                state.homeMenus = menus.filter(item => homeMenus.find(homeItem => homeItem.code === item.code))
             } else {
                 // 首页默认菜单
                 const homeMenusCode = ['miniapp-outStock', 'miniapp-inStock', 'miniapp-inStockAsk', 'miniapp-stocktaking', 'miniapp-StockForewarn']

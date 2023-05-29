@@ -1,47 +1,84 @@
 <template>
   <view>
-    <Loading skeleton skeleton-type="page" v-if="loading" />
-    <view v-else>
-      <view class="header">
-        <Icon icon="icon-cangkuguanli1" size="24" />
-        <view class="text">{{ store || '-' }}</view>
-      </view>
-      <Empty description="暂无库位" v-if="positionTree.length === 0" />
-      <view v-else class="allPositions" :style="{paddingBottom: `${60+safeAreaHeight(this,8)}px`}">
-        <PositionItem
-            v-for="(item,index) in positionTree"
-            :key="index"
-            top
-            :position="item"
-            :opens="opens"
-            @openPosition="openPosition"
-            @setting="setting"
-        />
-      </view>
-
-      <BottomButton
-          only
-          text="添加库位"
-          @onClick="create"
-      />
-    </view>
-
-    <Loading :loading="getPositionAuthsLoading" />
-
-    <u-action-sheet
-        round="10"
-        :safeAreaInsetBottom="true"
-        cancelText="取消"
-        :actions="settingActions"
-        :title="settingTitle"
-        :show="settingShow"
-        @close="settingShow = false"
-        @select="settingSelect"
+    <page-container
+        :show="pageContainerShow"
+        :duration="false"
+        :overlay="false"
+        @afterleave="afterleave"
     />
+
+    <Empty v-if="error" type="error" description="获取信息异常" />
+
+    <Loading
+        skeleton-type="page"
+        skeleton
+        v-else-if="loading"
+    />
+
+    <PositionManage
+        ref="positionManage"
+        v-else
+        :admin="admin"
+        :tree="tree"
+        :list="list"
+        :page="page"
+        :itemHeight="itemHeight"
+        :itemWidth="itemWidth"
+        :movableViewY="movableViewY"
+        :movableViewX="movableViewX"
+        @listChange="listChange"
+        @onCheck="onCheck"
+        @pageClick="pageClick"
+        @treeChange="(newTree)=>tree = newTree"
+        @onDelete="(_this)=>del(_this,true)"
+        @onEdit="(_this)=>edit(_this,true)"
+        @bindSku="bind"
+        :checkList="checkList"
+        @onCheckList="onCheckList"
+        :sys="sys"
+    />
+
+    <view v-if="admin" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+      <template v-if="sys">
+        <view class="sys">
+          <view class="total">
+            已选
+            <view class="num">{{ checkList.length }}</view>
+            个
+          </view>
+          <view class="sysActions">
+            <MyButton
+                :loading="delLoading"
+                type="error"
+                :disabled="checkList.length === 0"
+                @click="batchDelete"
+            >
+              批量删除
+            </MyButton>
+            <MyButton type="primary" @click="sys = false">退出管理</MyButton>
+          </view>
+        </view>
+      </template>
+      <template v-else>
+        <view class="action">
+          <LinkButton @click="addPosition">添加子库位</LinkButton>
+        </view>
+        <view class="action">
+          <LinkButton @click="actionShow = true;checkList=[]">更多管理</LinkButton>
+          <u-action-sheet
+              cancelText="取消"
+              :actions="actionList"
+              :show="actionShow"
+              @close="actionShow = false"
+              @select="actionSelect"
+          />
+        </view>
+      </template>
+    </view>
 
     <Popup
         :show="authShow"
-        :title="authTitle"
+        :title="authData.name + ' 权限设置'"
         @close="authShow = false"
         left-text="取消"
         right-text="保存"
@@ -50,205 +87,489 @@
     >
       <Loading skeleton v-if="deptTreeLoading" />
       <view v-else class="deptTree">
-        <Tree :data="deptTree" v-model="positionAuths" />
+        <Tree icon="icon-bumen1" :data="deptTree" v-model="positionAuths" />
       </view>
     </Popup>
 
-    <Modal ref="modal" />
+    <Loading :loading="getPositionAuthsLoading || saveAuthLoading" />
 
+    <u-action-sheet
+        :title="allActionData.title"
+        cancelText="取消"
+        :actions="allActionList"
+        :show="allActionShow"
+        @close="allActionShow = false"
+        @select="allActionSelect"
+    />
+
+    <Modal ref="modal" />
   </view>
 </template>
 
 <script>
-import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
+import Search from "../../components/Search";
 import Loading from "../../components/Loading";
-import PositionItem from "./components/PositionItem";
-import {isArray, safeAreaHeight} from "../../util/Tools";
-import BottomButton from "../../components/BottomButton";
-import {Message} from "../../components/Message";
-import {Init} from "MES-Apis/lib/Init";
-import Tree from "../../components/Tree";
+import UserName from "../../components/UserName";
 import Empty from "../../components/Empty";
-import Popup from "../../components/Popup";
+import Avatar from "../../components/Avatar";
+import {isArray, safeAreaHeight} from "../../util/Tools";
+import MyButton from "../../components/MyButton";
+import Check from "../../components/Check";
 import Icon from "../../components/Icon";
+import LinkButton from "../../components/LinkButton";
+import AddUser from "../../components/AddUser";
 import Modal from "../../components/Modal";
+import {Init} from "MES-Apis/lib/Init";
+import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
+import Popup from "../../components/Popup";
+import Tree from "../../components/Tree";
 import {Dept} from "MES-Apis/lib/Dept/promise";
+import {Position} from "MES-Apis/lib/Position/promise";
+import PositionManage from "./components/PositionManage";
+import {delChildren, delIdsChildren} from "./index";
+import {SkuFormat, SkuResultSkuJsons} from "../../Sku/sku";
+import StoreHouseManage from "../StoreHouse/components/StoreHouseManage/index.vue";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Modal, Icon, Popup, Empty, Tree, BottomButton, PositionItem, Loading},
   props: ['storehouseId', 'store'],
+  name: 'SelectUser',
+  components: {
+    StoreHouseManage,
+    PositionManage,
+    Tree,
+    Popup,
+    Modal,
+    AddUser,
+    LinkButton,
+    Icon,
+    Check,
+    MyButton,
+    Avatar,
+    Empty,
+    UserName,
+    Loading,
+    Search
+  },
   data() {
     return {
       authShow: false,
-      deptTreeLoading: false,
-      getPositionAuthsLoading: false,
-      positionId: '',
-      authTitle: '',
-      safeAreaHeight,
-      positionTree: [],
-      deptTree: [],
-      positionAuths: [],
+      page: [],
       loading: true,
-      opens: [],
-      settingActions: [],
-      settingTitle: '',
-      settingShow: false,
-    }
-  },
-  mounted() {
-    const _this = this
-    uni.$on('positionsAddSuccess', () => {
-      _this.getPositionTree()
-    })
-    this.getPositionTree()
-    this.getDeptTree()
-  },
-  methods: {
-    create() {
-      uni.navigateTo({
-        url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}`
-      })
-    },
-    openPosition(position) {
-      if (this.opens.find(id => id === position.key)) {
-        const opens = []
-        this.getAllPositions(isArray(position.children), opens)
-        this.opens = this.opens.filter(id => ![...opens, position.key].includes(id))
-      } else {
-        this.opens = [...this.opens, position.key]
-      }
-    },
-    saveAuth() {
-      console.log(this.positionAuths)
-    },
-    getDeptTree() {
-      this.deptTreeLoading = true
-      Dept.deptTree().then((res) => {
-        this.deptTree = res.data || []
-      }).catch(() => {
-      }).finally(() => {
-        this.deptTreeLoading = false
-      })
-    },
-    setting(position) {
-      this.settingTitle = position.title
-      this.settingShow = true
-      this.positionId = position.key
-
-      let settingActions = [
+      list: [],
+      deptTree: [],
+      deptTreeLoading: false,
+      tree: [],
+      searchValue: '',
+      actionShow: false,
+      error: false,
+      safeAreaHeight,
+      pageContainerShow: false,
+      positionName: '',
+      admin: false,
+      getPositionAuthsLoading: false,
+      saveAuthLoading: false,
+      positionAuths: [],
+      authData: {},
+      allActionList: [
+        {
+          name: '添加子库位',
+          key: 'add'
+        },
         {
           name: '设置权限',
           // color: '#007aff',
           key: 'auth',
         },
         {
-          name: '编辑',
-          color: '#f0ad4e',
-          key: 'edit'
+          name: '绑定物料',
+          color: '#007aff',
+          key: 'bind',
+        },
+      ],
+      allActionShow: false,
+      allActionData: {},
+      itemWidth: 0,
+      movableViewY: 0,
+      movableViewX: 0,
+      itemHeight: 68,
+      sys: false,
+      checkList: [],
+      delLoading: false
+    }
+  },
+  mounted() {
+    const tenant = this.$store.state.userInfo.tenant || {}
+    this.admin = tenant.admin
+    this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
+    this.getList()
+    this.getDeptTree()
+
+    const _this = this
+
+    uni.$on('onPositionBindSkus', ({id, list}) => {
+      _this.list = _this.list.map(item => {
+        if (item.key === id) {
+          return {...item, object: list.map(item => SkuResultSkuJsons({skuResult: item.skuResult}))}
+        }
+        return item
+      })
+      _this.tree = _this.editPositionChildren({
+        key: id,
+        object: list.map(item => SkuResultSkuJsons({skuResult: item.skuResult}))
+      }, _this.tree)
+    })
+
+    uni.$on('positionsAddSuccess', () => {
+      _this.getList(true, _this.page[_this.page.length - 1].key)
+    })
+
+    uni.$on('positionsEditSuccess', (result) => {
+      _this.getList(true, _this.page[_this.page.length - 1].key)
+
+      _this.page = _this.page.map(item => {
+        if (item.key === result.id) {
+          return {...item, name: result.name}
+        }
+        return item
+      })
+    })
+  },
+  computed: {
+    actionList() {
+      return [
+        {
+          name: '修改当前库位',
+          key: 'edit',
         },
         {
-          name: '删除',
-          color: '#dd524d',
-          key: 'del'
-        }
+          name: '删除当前库位',
+          key: 'delete',
+          color: 'red',
+        },
+        {
+          name: '设置权限',
+          // color: '#007aff',
+          key: 'auth',
+        },
+        {
+          name: '绑定物料',
+          color: '#007aff',
+          key: 'bind',
+          disabled: this.list.length > 0
+        },
+        {
+          name: '管理',
+          key: 'sys',
+          color: '#007aff',
+        },
       ]
-
-      if (isArray(position.children).length === 0) {
-        settingActions = [
-          {
-            name: '绑定物料',
-            color: '#007aff',
-            key: 'bind'
-          },
-          ...settingActions
-        ]
+    }
+  },
+  methods: {
+    saveAuth() {
+      this.saveAuthLoading = true
+      Position.positionDepts({
+        data: {
+          storehousePositionsId: this.authData.key,
+          deptId: this.positionAuths.map(item => item.key).toString(),
+        }
+      }).then(() => {
+        this.authShow = false
+      }).catch(() => {
+        this.$refs.modal.dialog({
+          title: '设置失败！'
+        })
+      }).finally(() => {
+        this.saveAuthLoading = false
+      })
+    },
+    allActionSelect({key}) {
+      const thisItem = {name: this.allActionData.title, key: this.allActionData.key}
+      switch (key) {
+        case 'add':
+          this.addPosition(this.allActionData.key + '')
+          break;
+        case 'edit':
+          this.edit(thisItem, true)
+          break;
+        case 'delete':
+          this.del(thisItem, true)
+          break
+        case 'bind':
+          this.bind(thisItem)
+          break;
+        case 'auth':
+          this.auth(thisItem)
+          break;
       }
-      this.settingActions = settingActions.map(item => ({
-        ...item,
-        position
-      }))
+    },
+    edit(thisPosition, current) {
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionsAdd/index?storehousePositionsId=${thisPosition.key}&storehouseId=${this.storehouseId}&pid=${this.page[this.page.length - (current ? 1 : 2)].key}&store=${this.store}`
+      })
+    },
+    del(thisPosition, current) {
+      const _this = this
+      _this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        content: '删除库位【' + thisPosition.name + '】',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Storehouse.positionsDelete({
+              data: {storehousePositionsId: thisPosition.key}
+            }).then(() => {
+              _this.tree = delChildren(thisPosition.key, _this.tree)
+              if (current) {
+                _this.listChange(_this.list.filter(item => item.key !== thisPosition.key))
+              } else {
+                _this.pageClick(_this.page[_this.page.length - 2])
+              }
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败!'
+              })
+              resolve(true)
+            })
+          })
+        }
+      })
+    },
+    bind(thisPosition) {
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${thisPosition.key}&position=${thisPosition.name}&store=${this.store}`
+      })
+    },
+    auth(thisPosition) {
+      this.getPositionAuths(thisPosition.key)
+      this.authData = thisPosition
+    },
+    actionSelect({key}) {
+      const thisPosition = this.page[this.page.length - 1]
+      switch (key) {
+        case 'edit':
+          this.edit(thisPosition)
+          break;
+        case 'delete':
+          this.del(thisPosition)
+          break
+        case 'bind':
+          this.bind(thisPosition)
+          break;
+        case 'auth':
+          this.auth(thisPosition)
+          break;
+        case 'sys':
+          this.sys = true
+          break;
+      }
     },
     getPositionAuths(positionId) {
       this.getPositionAuthsLoading = true
       Storehouse.positionsBindGetDeptIds({
         params: {positionId}
       }).then((res) => {
-        this.positionAuths = res || []
+        this.positionAuths = (res || []).map(key => ({key}))
         this.authShow = true
       }).catch(() => {
       }).finally(() => {
         this.getPositionAuthsLoading = false
       })
     },
-    settingSelect(event) {
-      const _this = this
-      switch (event.key) {
-        case 'bind':
-          uni.navigateTo({
-            url: `/Erp/Positions/PositionBind/index?storehousePositionsId=${event.position.key}&position=${event.position.title}&store=${this.store}`
-          })
-          break;
-        case 'auth':
-          this.getPositionAuths(event.position.key)
-          this.authTitle = event.position.title + ' 权限设置'
-          break;
-        case 'edit':
-          uni.navigateTo({
-            url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}&storehousePositionsId=${event.position.key}`
-          })
-          break;
-        case 'del':
-          this.$refs.modal.dialog({
-            title: `确定要删除库位【` + event.position.title + '】吗？',
-            only: false,
-            onConfirm() {
-              return new Promise((resolve) => {
-                Storehouse.positionsDelete({
-                  data: {storehousePositionsId: event.position.key}
-                }).then(() => {
-                  _this.getPositionTree()
-                  Message.successToast('删除成功！')
-                  resolve(true)
-                }).catch(() => {
-                  _this.$refs.modal.dialog({
-                    title: Init.getNewErrorMessage()
-                  })
-                  resolve(true)
-                })
-              })
-            }
-          })
-          break;
-        default:
-          break
+    afterleave() {
+      if (this.sys || this.authShow || this.actionShow || this.allActionShow || this.$refs.modal.showStatus() || this.$refs.positionManage.showStatus()) {
+        this.sys = false
+        this.pageContainerShow = false
+        this.authShow = false
+        this.actionShow = false
+        this.allActionShow = false
+        this.$refs.modal.close()
+        this.$refs.positionManage.close()
+        setTimeout(() => {
+          this.pageContainerShow = this.page.length > 1
+        }, 0)
+        return
+      }
+      if (this.page.length > 1) {
+        this.pageContainerShow = false
+        this.pageClick(this.page[this.page.length - 2])
+        setTimeout(() => {
+          this.pageContainerShow = this.page.length > 1
+        }, 0)
       }
     },
-    getPositionTree() {
+    getDeptTree() {
+      this.deptTreeLoading = true
+      Dept.deptTree().then((res) => {
+        this.deptTree = [
+          {
+            title: this.$store.state.userInfo.tenant.name,
+            key: '0',
+            children: isArray(res.data)[0]?.children
+          }
+        ]
+      }).catch(() => {
+      }).finally(() => {
+        this.deptTreeLoading = false
+      })
+    },
+    async getList(refresh, topKey) {
       this.loading = true
-      Storehouse.positionsTreeView({
+      const res = await Storehouse.positionsTreeView({
         params: {
           ids: this.storehouseId
         }
-      }).then((res) => {
-        const opens = []
-        const tree = res.data || []
-        this.positionTree = tree
-        // this.getAllPositions(tree, opens)
-        // this.opens = opens
       }).catch(() => {
+        this.error = true
+      })
+      this.loading = false
 
-      }).finally(() => {
-        this.loading = false
+      this.tree = this.format(res.data || [])
+
+      if (refresh) {
+        if (topKey === '0') {
+          this.listChange(this.tree)
+        } else {
+          const thisStoreHouse = this.findPosition(topKey, this.tree)
+          this.listChange(thisStoreHouse.children)
+        }
+      } else {
+        this.listChange(this.tree)
+        this.page = [{key: '0', name: this.store}]
+      }
+    },
+    format(data) {
+      const list = [];
+      data.forEach(item => {
+        const obj = {
+          title: item.title,
+          key: item.key,
+          object: isArray(item.object).filter(item => item).map(item => SkuFormat(item))
+        }
+        if (isArray(item.children).length > 0) {
+          obj.children = this.format(item.children || []);
+        } else {
+          obj.children = []
+        }
+        list.push(obj);
+      })
+
+      return list;
+    },
+    async onCheck(position) {
+      const thisPosition = this.findPosition(position.key, this.tree) || {}
+      const children = thisPosition.children || []
+      if (children.length === 0) {
+        if (!this.admin) {
+          return
+        }
+        this.allActionShow = true
+        this.allActionData = position
+        return
+      }
+      this.listChange(children)
+      this.page = [...this.page, {key: thisPosition.key, name: thisPosition.title}]
+      this.pageContainerShow = true
+    },
+    async pageClick(route) {
+      if (route.key === '0') {
+        this.listChange(this.tree)
+      } else {
+        const thisPosition = this.findPosition(route.key, this.tree) || {}
+        this.listChange(thisPosition.children || [])
+      }
+
+      const newPage = []
+      let stop = false
+      this.page.forEach(item => {
+        if (!stop) {
+          newPage.push(item)
+        }
+        if (item.key === route.key) {
+          stop = true
+        }
+      })
+      this.page = newPage
+      if (newPage.length === 1) {
+        this.pageContainerShow = false
+      }
+    },
+    addPosition(pid) {
+      uni.navigateTo({
+        url: `/Erp/Positions/PositionsAdd/index?storehouseId=${this.storehouseId}&pid=${pid || this.page[this.page.length - 1].key}&store=${this.store}`
       })
     },
-    getAllPositions(tree, positions) {
-      tree.forEach(item => {
-        if (isArray(item.children).length > 0) {
-          positions.push(item.key)
-          this.getAllPositions(isArray(item.children), positions)
+    findPosition(key, list = []) {
+      let position = null
+      list.forEach(item => {
+        if ((key + '') === (item.key + '')) {
+          position = item
+        } else {
+          const children = this.findPosition(key, item.children)
+          if (children) {
+            position = children
+          }
+        }
+      })
+      return position
+    },
+    editPositionChildren(position, list = []) {
+      return list.map(item => {
+        if ((position.key + '') === (item.key + '')) {
+          return {...item, ...position}
+        } else {
+          return {...item, children: this.editPositionChildren(position, item.children || [])}
+        }
+      })
+    },
+    listChange(list) {
+      this.list = list
+      this.$nextTick(function () {
+        this.movableViewY = this.page.length > 1 ? this.itemHeight + 1 : 1
+        this.movableViewX = this.itemWidth - 0.1
+        setTimeout(() => {
+          this.movableViewY = this.page.length > 1 ? this.itemHeight : 0
+          this.movableViewX = this.itemWidth
+        }, 0)
+      })
+    },
+    onCheckList(checkItem) {
+      if (this.checkList.find(item => item.key === checkItem.key)) {
+        this.checkList = this.checkList.filter(item => item.key !== checkItem.key)
+      } else {
+        this.checkList = [...this.checkList, checkItem]
+      }
+    },
+    batchDelete() {
+      const ids = this.checkList.map(item => item.key)
+      const _this = this
+      this.$refs.modal.dialog({
+        title: '删除后不可恢复，是否确认删除？',
+        only: false,
+        confirmError: true,
+        onConfirm() {
+          return new Promise((resolve) => {
+            Storehouse.positionsDeleteBatch({
+              data: {
+                positionIds: ids
+              }
+            }).then(() => {
+              _this.listChange(_this.list.filter(item => !ids.find(id => id === item.key)))
+              _this.tree = delIdsChildren(ids, _this.tree)
+              _this.checkList = []
+              resolve(true)
+            }).catch(() => {
+              _this.$refs.modal.dialog({
+                title: Init.getNewErrorMessage() || '删除失败！'
+              })
+              resolve(true)
+            })
+          })
         }
       })
     }
@@ -258,25 +579,152 @@ export default {
 
 <style lang="scss">
 
-.header {
-  padding: 12px;
-  border-bottom: 1px solid $body-color;
+.navBar {
+  .uni-navbar__header {
+
+    > view {
+      align-items: flex-end;
+    }
+  }
+
+  .uni-navbar__content {
+    border: none;
+  }
+}
+
+.title {
+  padding: 8px;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
+
+  .tenantName {
+    font-size: 12px;
+    color: #ccc;
+  }
+}
+
+.back {
+  height: 51px;
   display: flex;
-  gap: 8px;
-  background-color: #fff;
+  align-items: center;
 }
 
-.allPositions {
-  padding: 12px 8px;
+.selectUser {
+
+  .header {
+    padding: 8px 12px;
+    background-color: #fff;
+    border-bottom: solid 1px #EEEEEE;
+  }
+
+  .users {
+    overflow: hidden auto;
+    background-color: #fff;
+  }
+
 }
 
-.u-action-sheet__header {
-  border-bottom: solid 1px #d6d7d9;
+.item {
+  padding-left: 12px;
+  border-bottom: solid 1px #f5f5f5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .itemTitle {
+    flex-grow: 1;
+
+    .itemDescribe {
+      padding-right: 12px;
+      font-size: 12px;
+      color: #808080;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+  }
+
+  .userItem {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .deptIcon {
+    //background-color: $body-color;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    //margin-left: 32px;
+  }
+
+  .backDept {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  z-index: 1;
+  position: fixed;
+  bottom: 0;
+  background-color: #eee;
+  width: calc(100% - 24px);
+
+  .checkUsers {
+    height: 35px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+  }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+
+    .total {
+      flex-grow: 1;
+      margin-top: -4px;
+
+      .num {
+        display: inline-block;
+        color: $primary-color;
+        padding: 0 4px;
+        font-size: 20px;
+      }
+    }
+
+    .sysActions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+  }
 }
 
 .deptTree {
   height: 50vh;
   overflow: auto;
 }
+
 
 </style>

@@ -1,17 +1,17 @@
 <template>
   <view class="divider" :style="style">
-    <view class="left" />
-    <view class="content">
+    <view class="divider-left" :style="{backgroundColor:color}" />
+    <view class="divider-content">
       <slot></slot>
     </view>
-    <view class="right" />
+    <view class="divider-right" :style="{backgroundColor:color}" />
   </view>
 </template>
 
 <script>
 export default {
   name: 'Divider',
-  props: ['style']
+  props: ['style', 'color']
 }
 </script>
 
@@ -21,10 +21,9 @@ export default {
   align-items: center;
   gap: 8px;
 
-  .left, .right {
+  .divider-left, .divider-right {
     height: 1px;
-    width: 100%;
-    background-color: rgb(220, 223, 230);
+    background-color: #dcdfe6;
     flex-grow: 1;
   }
 }

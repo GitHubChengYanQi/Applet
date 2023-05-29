@@ -3,6 +3,7 @@
       :disabled="loading"
       use-before-read
       @beforeRead="uploader"
+      :multiple="multiple"
   >
     <slot>
       <view v-if="file">
@@ -29,6 +30,7 @@ export default {
   name: 'Uploader',
   props: {
     value: Array,
+    multiple: Boolean,
     file: {
       type: Boolean,
       default: false
@@ -41,7 +43,8 @@ export default {
   data() {
     return {
       fielname: '',
-      loading: false
+      loading: false,
+      uploadCount: 0
     }
   },
   methods: {
@@ -62,7 +65,21 @@ export default {
         callback
       } = event;
 
-      callback(await this.uploadFile(file.url));
+      if (Array.isArray(file)) {
+        this.uploadCount = 0
+        this.batchUpload(file)
+      } else {
+        callback(await this.uploadFile(file.url));
+      }
+
+    },
+    async batchUpload(files) {
+      await this.uploadFile(files[this.uploadCount].url).then(() => {
+        this.uploadCount = this.uploadCount + 1
+        if (this.uploadCount !== files.length) {
+          this.batchUpload(files)
+        }
+      })
     },
     uploadFile(url, params) {
       const _this = this;

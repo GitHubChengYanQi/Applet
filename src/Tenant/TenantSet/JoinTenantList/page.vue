@@ -3,58 +3,56 @@
     <view class="joinTenantList">
       <Search v-model="searchValue" @onSearch="onSearch" />
       <List
+          :default-limit="20"
           ref="list"
-          :max-height="`calc(100vh - 103px - ${safeAreaHeight(this,8)}px)`"
-          @request="Tenant.joinTenantList"
-          @listSource="(newList)=>list = newList"
+          :max-height="`calc(100vh - 60px)`"
+          @request="Tenant.joinList"
+          @listSource="listSource"
           :list="list"
           :default-params="defaultParams"
+          @response="(res)=>total = res.count"
       >
         <view
             v-for="(item,index) in list"
             :key="index"
             class="user"
-            @click="checkUser(item.tenantBindId)"
         >
-          <Check :value="checked.includes(item.tenantBindId)" />
           <view class="userInfo">
-            <UserName :user="item.userResult" />
+            <UserName size="45" :user="item.userResult">
+              <view class="des">
+                {{ item.inviterUserResult && item.inviterUserResult.name || '-' }}邀请加入{{
+                  item.dept && item.dept.fullName
+                }}{{ (item.dept && item.dept.fullName) ? '' : '团队' }}
+              </view>
+              <view class="des">
+                {{ timeDifference(item.createTime) }}
+              </view>
+            </UserName>
           </view>
-          <view class="time">
-            {{ timeDifference(item.createTime) }}
+          <view class="action">
+            <view class="buttons" v-if="item.status === 1">
+              <MyButton
+                  type="error"
+                  @click="reject(item)"
+              >
+                拒绝
+              </MyButton>
+              <MyButton
+                  type="primary"
+                  @click="submit(item)"
+              >
+                通过
+              </MyButton>
+            </view>
+            <view v-else-if="item.status === 50">
+              已拒绝
+            </view>
+            <view v-else-if="item.status === 99 || item.status === -1">
+              已同意
+            </view>
           </view>
         </view>
       </List>
-    </view>
-
-    <view class="action" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
-      <view class="allCheck">
-        <view>
-          <view class="total">
-            已选
-            <view class="num">{{ this.checked.length }}</view>
-            个
-          </view>
-        </view>
-      </view>
-      <view class="buttons">
-        <MyButton
-            :loading="submitLoading"
-            :disabled="this.checked.length === 0"
-            type="error"
-            @click="reject"
-        >
-          拒绝
-        </MyButton>
-        <MyButton
-            :loading="submitLoading"
-            :disabled="this.checked.length === 0"
-            type="primary"
-            @click="submit"
-        >
-          通过
-        </MyButton>
-      </view>
     </view>
 
     <Modal ref="modal" />
@@ -74,6 +72,9 @@ import Modal from "../../../components/Modal";
 import UserName from "../../../components/UserName";
 
 export default {
+  options: {
+    styleIsolation: 'shared'
+  },
   components: {UserName, Modal, MyButton, Check, List, Search},
   data() {
     return {
@@ -83,69 +84,101 @@ export default {
       timeDifference,
       checked: [],
       searchValue: '',
-      defaultParams: {}
+      defaultParams: {},
+      total: 0
     }
   },
   created() {
     this.defaultParams = {
-      tenantId: this.$store.state.userInfo.tenant.tenantId,
-      status: 0
+      type: '申请',
+      tenantId: this.$store.state.userInfo.tenant.tenantId
     }
   },
   methods: {
+    listSource(newList) {
+      this.list = newList.map(item => {
+        const newItem = this.list.find(listItem => listItem.tenantBindLogId === item.tenantBindLogId)
+        return newItem || item
+      })
+    },
+    refresh() {
+      this.searchValue = ''
+      this.onSearch()
+    },
     onSearch() {
       this.$refs.list.submit({...this.defaultParams, keywords: this.searchValue})
+      uni.stopPullDownRefresh();
     },
-    checkUser(tenantBindId) {
-      if (this.checked.includes(tenantBindId)) {
-        this.checked = this.checked.filter(id => id !== tenantBindId)
+    checkUser(tenantBindLogId) {
+      if (this.checked.includes(tenantBindLogId)) {
+        this.checked = this.checked.filter(id => id !== tenantBindLogId)
       } else {
-        this.checked = [...this.checked, tenantBindId]
+        this.checked = [...this.checked, tenantBindLogId]
       }
     },
-    submit() {
+    allCheck() {
+      if (this.list.length === this.checked.length) {
+        this.checked = []
+      } else {
+        this.checked = this.list.map(item => item.tenantBindLogId)
+      }
+    },
+    submit(user) {
       const _this = this
       this.$refs.modal.dialog({
-        title: '确定同意' + this.checked.length + '个用户的申请吗',
+        title: '确定通过' + (user.userResult?.name || '-') + '的申请吗',
         only: false,
         onConfirm() {
           return new Promise((resolve) => {
-            Tenant.agreeJoinTenant({
+            Tenant.updateJoinStatus({
               data: {
-                tenantBindIds: _this.checked
+                tenantBindLogId: user.tenantBindLogId,
+                status: 99
               }
             }).then(() => {
-              _this.onSearch()
-              _this.$refs.modal.dialog({
-                title: '通过成功！'
+              uni.$emit('handleJoinTenant')
+              _this.checked = []
+              _this.list = _this.list.map(item => {
+                if (item.tenantBindLogId === user.tenantBindLogId) {
+                  return {...item, status: 99}
+                } else {
+                  return item
+                }
               })
               resolve(true)
             }).catch(() => {
               _this.$refs.modal.dialog({
                 title: Init.getNewErrorMessage() || '通过失败！'
               })
+              resolve(false)
             })
           })
         }
       })
     },
-    reject() {
+    reject(user) {
       const _this = this
       this.$refs.modal.dialog({
-        title: '确定拒绝' + this.checked.length + '个用户的申请吗',
+        title: '确定拒绝' + (user.userResult?.name || '-') + '的申请吗',
         only: false,
         confirmText: '拒绝',
         confirmError: true,
         onConfirm() {
           return new Promise((resolve) => {
-            Tenant.rejectJoinTenant({
+            Tenant.updateJoinStatus({
               data: {
-                tenantBindIds: _this.checked
+                tenantBindLogId: user.tenantBindLogId,
+                status: 50
               }
             }).then(() => {
-              _this.onSearch()
-              _this.$refs.modal.dialog({
-                title: '拒绝成功！'
+              uni.$emit('handleJoinTenant')
+              _this.checked = []
+              _this.list = _this.list.map(item => {
+                if (item.tenantBindLogId === user.tenantBindLogId) {
+                  return {...item, status: 50}
+                } else {
+                  return item
+                }
               })
               resolve(true)
             }).catch(() => {
@@ -177,6 +210,11 @@ export default {
     .userInfo {
       flex-grow: 1;
 
+      .des {
+        font-size: 12px;
+        color: #a4a2a2;
+      }
+
       .phone {
         font-size: 12px;
         color: #a4a2a2;
@@ -187,41 +225,28 @@ export default {
       font-size: 12px;
       color: #cccccc;
     }
-  }
-}
 
-.action {
-  display: flex;
-  align-items: center;
-  position: fixed;
-  bottom: 0;
-  background-color: #fff;
-  width: calc(100% - 24px);
-  padding: 8px 12px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+    .action {
+      color: #c7c7c7;
+      font-size: 14px;
 
-  .allCheck {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+      .buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
 
-    .total {
-      margin-top: -4px;
-
-      .num {
-        display: inline-block;
-        color: $primary-color;
-        padding: 0 4px;
-        font-size: 20px;
+        button {
+          font-size: 12px;
+          padding: 4px 8px;
+        }
       }
     }
   }
+}
 
-  .buttons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.total {
+  padding: 12px;
+  text-align: center;
+  color: #c7c7c7;
 }
 </style>

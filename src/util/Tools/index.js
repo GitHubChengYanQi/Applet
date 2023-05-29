@@ -1,12 +1,12 @@
 import moment from "util/Common/moment";
 
 // 获取当前地址信息
-export const getLocalParmas = () => {
+export const getLocalParmas = (page) => {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1]
     const search = pages[pages.length - 1]?.options || {}
     const urlSearch = Object.keys(search).length > 0 ? ('?' + Object.keys(search).map(item => item + '=' + search[item]).join('&')) : ''
-    const route = '/' + currentPage.route + urlSearch
+    const route = page || ('/' + currentPage.route + urlSearch)
     return {
         route: route,
         stringRoute: route.replaceAll(":", "%3A").replaceAll("/", "%2F").replaceAll("?", "%3F").replaceAll("=", "%3D").replaceAll("&", "%26"),
@@ -34,11 +34,10 @@ export const isArray = (array) => {
     return Array.isArray(array) ? array : [];
 };
 
-// 集合去重
-export const ArrayDuplicate = (array, key) => {
-    const res = new Map();
-    return (Array.isArray(array) ? array : []).filter((a) => !res.has(a[key]) && res.set(a[key], 1));
-};
+// 判断是否为空
+export const isNull = (str) => {
+    return !str && str !== 0;
+}
 
 // 返回空对象
 export const isObject = (object) => {
@@ -115,66 +114,6 @@ export const rateTool = (value, total, num) => {
         return rate
     }
     return rate > 0 ? `${rate}%` : 0;
-};
-
-const decNum = (a) => {/*获取小数位数*/
-    var r = 0;
-    if (a !== null && a !== undefined) {
-        a = a.toString();
-        if (a.indexOf('.') !== -1) r = a.split('.')[1].length;
-    }
-    return r;
-};
-
-const int = (a) => {/*去除小数点并转成数值*/
-    if (a !== null && a !== undefined) {
-        if (Number(a) === 0) {
-            return parseInt('0');
-        } else {
-            return parseInt(a.toString().replace('.', ''));
-        }
-    } else {
-        return parseInt('0');
-    }
-};
-
-// 数学四则运算
-export const MathCalc = (a, b, type, decimal = 2) => {//加减乘除
-    let r;
-    let da = decNum(a);
-    let db = decNum(b);
-    let dsum = da + db;
-    let dmin = Math.min(da, db);
-    let dmax = Math.max(da, db);
-    dsum += dmax - dmin;
-    dsum = Math.pow(10, dsum);
-    dmax = Math.pow(10, dmax);
-    a = int(a);
-    b = int(b);
-    if (da > db) {
-        b *= Math.pow(10, da - db);
-    } else {
-        a *= Math.pow(10, db - da);
-    }
-
-    switch (type) {
-        case 'jia':
-            r = (a + b) / dmax;
-            break;
-        case 'jian':
-            r = (a - b) / dmax;
-            break;
-        case 'cheng':
-            r = (a * b) / dsum;
-            break;
-        case 'chu':
-            if (b === 0) {
-                break;
-            }
-            r = a / b;
-            break;
-    }
-    return Number(r.toFixed(decimal));
 };
 
 export const routeReplace = (route) => {
@@ -291,7 +230,7 @@ export const base64src = async (base64data) => {
         if (!format) {
             return (new Error('ERROR_BASE64SRC_PARSE'));
         }
-        const filePath = `${wx.env.USER_DATA_PATH}/${FILE_BASE_NAME + Date.now()}.${format}`;
+        const filePath = `${wx.env.USER_DATA_PATH}/logo.${format}`;
         const buffer = uni.base64ToArrayBuffer(bodyData);
         fsm.writeFile({
             filePath,
@@ -300,11 +239,46 @@ export const base64src = async (base64data) => {
             success() {
                 resolve(filePath);
             },
-            fail() {
+            fail(res) {
+                console.log(res)
                 reject()
             },
         });
+        // fsm.readdir({
+        //     dirPath: wx.env.USER_DATA_PATH,
+        //     success(res) {
+        //         console.log(res.files)
+        //         resolve();
+        //         return
+        //         res.files.forEach((val) => {
+        //             uni.removeSavedFile({
+        //                 filePath: `${wx.env.USER_DATA_PATH}/${val}`,
+        //                 complete(res) {
+        //
+        //                 }
+        //             });
+        //         })
+        //         setTimeout(function () {
+        //
+        //         }, 1500)
+        //     }
+        // })
     })
+};
+
+export const findThisInTree = (key, tree = []) => {
+    let _this = null
+    tree.forEach(item => {
+        if ((key + '') === (item.key + '')) {
+            _this = item
+        } else {
+            const children = findThisInTree(key, item.children)
+            if (children) {
+                _this = children
+            }
+        }
+    })
+    return _this
 };
 
 

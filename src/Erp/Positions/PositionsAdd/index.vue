@@ -1,23 +1,34 @@
 <template>
   <Auth>
-    <Page v-if="auth && storehouseId" :storehouseId="storehouseId" :storehousePositionsId="storehousePositionsId" />
-
+    <Page
+        v-if="auth && storehouseId && pid"
+        :storehouseId="storehouseId"
+        :storehousePositionsId="storehousePositionsId"
+        :pid="pid"
+        :store="store"
+    />
+    <Empty v-else description="缺少参数" />
   </Auth>
 </template>
 <script>
 import Auth from '../../../components/Auth/index'
 import Page from "./page";
+import Empty from "../../../components/Empty";
 
 export default {
   onLoad(options) {
     this.storehouseId = options.storehouseId
     this.storehousePositionsId = options.storehousePositionsId
+    this.pid = options.pid
+    this.store = options.store
   },
-  components: {Page, Auth},
+  components: {Empty, Page, Auth},
   data() {
     return {
       storehouseId: '',
-      storehousePositionsId: ''
+      storehousePositionsId: '',
+      pid: '',
+      store: ''
     }
   },
   computed: {

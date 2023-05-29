@@ -138,9 +138,8 @@ export default {
         uni.navigateBack()
         return
       }
-      const backUrl = getLocalParmas().search.backUrl
       uni.reLaunch({
-        url: backUrl ? routeReplace(backUrl) : '/pages/Home/index'
+        url: '/Tenant/TenantSet/index'
       })
     },
     uploadLogo(file) {

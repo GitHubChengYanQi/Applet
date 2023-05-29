@@ -7,8 +7,8 @@ import {getLocalParmas} from "./util/Tools";
 
 Init.initBaseURL(
     process.env.NODE_ENV === "development" ?
-        // 'http://192.168.2.100'
-        'http://192.168.2.220:8885'
+        'http://192.168.2.100'
+        // 'http://192.168.2.220:8885'
         // 'https://api.hh.zz2025.com'
         :
         process.env.VUE_APP_BASE_URL
@@ -17,6 +17,16 @@ Init.initBaseURL(
 
 export default {
   onLaunch: function () {
+    this.appInit();
+  },
+  onShow: function (res) {
+    // this.globalData.shareTenantId = res.query.shareTenantId
+    // this.globalData.shareInviteId = res.query.inviteId
+
+    uni.onKeyboardHeightChange((res) => {
+      this.$store.commit('keyboard/keyboardHeightChange', res.height)
+    })
+
     const updateManager = uni.getUpdateManager();
 
     updateManager.onUpdateReady(function () {
@@ -32,10 +42,6 @@ export default {
       });
 
     });
-    this.appInit();
-  },
-  onShow: function () {
-
   },
   onHide: function () {
     // console.log('App Hide')
@@ -59,7 +65,7 @@ export default {
           })
         },
         errorMessage: (res) => {
-          Message.toast(res)
+          // Message.toast(res)
         },
       })
     }

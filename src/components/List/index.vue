@@ -3,14 +3,22 @@
     <scroll-view
         show-scrollbar
         id="scrollView"
-        scroll-y="true"
-        :style="{maxHeight}"
+        class="scrollList"
+        :scroll-y="!disabled"
+        :style="{maxHeight,height,width}"
         @scrolltolower="scrolltolower"
     >
       <slot></slot>
-      <Empty v-if="isArray(list).length === 0 && moreStatus !== 'loading'" :description="description || '暂无数据'" />
-      <view v-else @click="scrolltolower">
-        <uni-load-more :status="hasMore ? moreStatus : 'noMore'"></uni-load-more>
+      <Empty
+          :type="emptyType"
+          v-if="!noEmpty && isArray(list).length === 0 && moreStatus !== 'loading'"
+          :description="description || '暂无数据'"
+      />
+      <view v-else-if="!(isArray(list).length === 0 && moreStatus !== 'loading')" @click="scrolltolower">
+        <uni-load-more
+            v-if=" noEmpty ? moreStatus !== 'more' : true"
+            :status="hasMore ? moreStatus : 'noMore'"
+        />
       </view>
     </scroll-view>
   </view>
@@ -26,6 +34,9 @@ export default {
   name: 'List',
   components: {Empty},
   props: [
+    'emptyType',
+    'disabled',
+    'noEmpty',
     'list',
     'defaultParams',
     'topBottom',
@@ -35,8 +46,14 @@ export default {
     'noTips',
     'pullDisabled',
     'maxHeight',
-    'description'
+    'description',
+    'defaultLimit',
+    'height',
+    'width',
   ],
+  created() {
+    this.limit = this.defaultLimit || 10
+  },
   mounted() {
     this.sorter = this.defaultSorter
     this.params = this.defaultParams
@@ -83,7 +100,7 @@ export default {
             this.data = [...array]
             this.$emit('listSource', array, resData);
             this.page = this.page + 1
-            this.hasMore = resData.length === 10
+            this.hasMore = resData.length === this.limit
           } else {
             this.hasMore = false
             if (this.page === 1) {

@@ -15,7 +15,7 @@
         <Card title="生产信息" style="border-bottom: solid 1px #F5F5F5" />
         <view
             class="productionCardBom"
-            :style="{maxHeight: `calc(100vh - 110px - ${37 + safeAreaHeight(this,8)}px)`,overflow:'auto'}"
+            :style="{maxHeight: `calc(100vh - 110px - ${37 + safeAreaHeight(this,8)}px)`,overflow:'auto',backgroundColor:'#fff'}"
         >
           <ProductionCardBom
               :bom="parentBom"
@@ -32,7 +32,7 @@
 
       <keybord
           :visible='visible'
-          @visiblChange="(value)=>visible = value"
+          @close="visible = false"
           :value='number'
           :min='1'
           @onChange="onChange"

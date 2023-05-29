@@ -1,3 +1,4 @@
 VUE_APP_BASE_URL='https://api.hh.zz2025.com'
 // VUE_APP_BASE_URL='http://192.168.2.111'
 VUE_APP_PAGE_URL='https://wx.zz2025.com/cp/#/'
+VUE_APP_MAP_KEY='HHOBZ-42A3V-3G2PH-5QU27-4M2IQ-RDBHG'

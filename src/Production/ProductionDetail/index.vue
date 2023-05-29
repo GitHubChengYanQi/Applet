@@ -12,7 +12,7 @@ export default {
   onLoad(option) {
     this.id = option.id
   },
-  async onShareAppMessage(res) {
+  onShareAppMessage(res) {
     if (res.from === 'button') {
       const tenant = this.$store.state.userInfo.tenant || {}
       const target = res.target
@@ -20,8 +20,14 @@ export default {
       return {
         title: dataset.cardcoding,
         path: `/Production/ProductionCard/index?scene=${target.id}`,
-        imageUrl: dataset.skuimg ||   tenant.imgLogo
+        imageUrl: dataset.skuimg || tenant.imgLogo
       }
+    }
+    const userInfo = this.$store.state.userInfo.userInfo || {}
+    return {
+      title: '道昕云',
+      path: '/pages/Home/index',
+      imageUrl: userInfo.logo
     }
   },
   components: {Page, Auth},

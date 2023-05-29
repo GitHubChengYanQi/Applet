@@ -2,7 +2,10 @@
   <view>
     <Empty type="error" description="获取成员信息失败！" v-if="error" />
     <Loading skeleton-type="page" skeleton v-else-if="loading" />
-    <template v-else>
+    <view
+        v-else
+        :style="{paddingBottom: `${60+safeAreaHeight(this,)}px`}"
+    >
       <view class="avatar">
         <Avatar :src="userInfo.miniAppAvatar" size="84" circular @click="preview" />
       </view>
@@ -63,7 +66,7 @@
           <view class="label">职位</view>
           <view class="value">
             <LinkButton @click="openPosition">
-              {{ userInfo.positionIds[0] ? userInfo.positionNames : '设置职位' }}
+              {{ userInfo.positionIds[0] ? userInfo.positionNames.split(',')[0] : '设置职位' }}
             </LinkButton>
           </view>
         </view>
@@ -74,34 +77,36 @@
 
           <view class="label">部门</view>
           <view class="value">
-            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>
-<!--            <view-->
-<!--                v-for="(dept,index) in isArray(userInfo.depts)"-->
-<!--                :key="index"-->
-<!--                :class="{deptItem:true,firstDeptItem:index === 0}"-->
-<!--            >-->
-<!--              <view class="deptInfo">-->
-<!--                <Icon class="icon" icon="icon-bumen1" size="30" />-->
-<!--                <view>-->
-<!--                  {{ dept.title }}-->
-<!--                </view>-->
-<!--              </view>-->
-<!--              <view class="deptAction">-->
-<!--                <u-icon-->
-<!--                    v-if="!dept.admin"-->
-<!--                    name="more-dot-fill"-->
-<!--                    color="#2979ff"-->
-<!--                    size="12"-->
-<!--                    @click="deptAction(dept)"-->
-<!--                />-->
-<!--                <template v-else>-->
-<!--                  主部门-->
-<!--                </template>-->
-<!--              </view>-->
-<!--            </view>-->
-<!--            <view :class="{openDept:isArray(userInfo.depts).length > 0}">-->
-<!--              <LinkButton @click="openDept">设置部门</LinkButton>-->
-<!--            </view>-->
+            <!--            <LinkButton @click="openDept">{{ userInfo.deptId ? (userInfo.deptName || '设置部门') : '设置部门' }}</LinkButton>-->
+            <view
+                v-for="(dept,index) in isArray(userInfo.depts)"
+                :key="index"
+                :class="{deptItem:true,firstDeptItem:index === 0}"
+            >
+              <view class="deptInfo">
+                <view>
+                  {{ dept.title || tenant.name }}
+                </view>
+                <view class="describe">
+                  {{ tenant.name }}
+                </view>
+              </view>
+              <view class="deptAction">
+                <u-icon
+                    v-if="!dept.admin"
+                    name="more-dot-fill"
+                    color="#2979ff"
+                    size="12"
+                    @click="deptAction(dept)"
+                />
+                <template v-else>
+                  主部门
+                </template>
+              </view>
+            </view>
+            <view :class="{openDept:isArray(userInfo.depts).length > 0}">
+              <LinkButton @click="openDept">设置部门</LinkButton>
+            </view>
           </view>
         </view>
       </view>
@@ -112,6 +117,8 @@
           @onClick="save"
       />
 
+      <Loading :loading="saveLoading" />
+
       <Modal ref="modal" />
 
       <Popup
@@ -119,14 +126,19 @@
           title="设置部门"
           @close="deptShow = false"
           left-text="取消"
-          right-text="保存"
+          right-text="确认"
           @onLeft="deptShow = false"
           @onRight="saveDept"
       >
         <Loading skeleton v-if="deptTreeLoading" />
         <view v-else class="deptTree">
-          <Tree radio :data="deptTree" v-model="dept" />
-<!--          <Tree multiple :data="deptTree" v-model="depts" />-->
+          <!--          <Tree radio :data="deptTree" v-model="dept" />-->
+          <Tree
+              multiple
+              :data="deptTree"
+              v-model="depts"
+              icon="icon-bumen1"
+          />
         </view>
       </Popup>
 
@@ -153,7 +165,7 @@
           @select="deptActionSelect"
           @close="deptActionShow=false"
       />
-    </template>
+    </view>
   </view>
 </template>
 
@@ -169,7 +181,7 @@ import BottomButton from "../../components/BottomButton";
 import Modal from "../../components/Modal";
 import {Init} from "MES-Apis/lib/Init";
 import {Position} from "MES-Apis/lib/Position/promise";
-import {isArray} from "../../util/Tools";
+import {isArray, safeAreaHeight} from "../../util/Tools";
 import Icon from "../../components/Icon";
 import Avatar from "../../components/Avatar";
 
@@ -182,6 +194,7 @@ export default {
   data() {
     return {
       isArray,
+      safeAreaHeight,
       deptShow: false,
       showPhone: false,
       deptTreeLoading: false,
@@ -192,11 +205,13 @@ export default {
       positionColumns: [],
       depts: [],
       dept: {},
+      tenant: {},
       loading: true,
       error: false,
-      positionIndex: 0,
+      positionIndex: 1,
       positionPickerShow: false,
       positionLoading: false,
+      saveLoading: false,
       positionShow: false,
       deptActionList: [{
         name: '设为主部门',
@@ -215,6 +230,7 @@ export default {
     }
   },
   mounted() {
+    this.tenant = this.$store.state.userInfo.tenant || {}
     this.getDeptTree()
     this.userDetail()
     this.positionList()
@@ -291,25 +307,40 @@ export default {
       }).then((res) => {
         const userInfo = res.data || {}
         this.showPhone = userInfo.phone
-        this.userInfo = userInfo
-      }).catch(() => {
+        const deptList = isArray(userInfo.deptList)
+        const mainDept = deptList.find(item => item.mainDept === 1) || deptList[0] || {}
+
+        this.userInfo = {
+          ...userInfo,
+          depts: deptList.map((item, index) => {
+            if (index === 0) {
+              return {key: mainDept.deptId + '', title: mainDept.dept?.fullName, admin: 1}
+            } else if (mainDept.deptId === item.deptId) {
+              return {key: deptList[0].deptId + '', title: deptList[0].dept?.fullName}
+            } else {
+              return {key: item.deptId + '', title: item.dept?.fullName}
+            }
+          })
+        }
+      }).catch((res) => {
         this.error = true
       }).finally(() => {
         this.loading = false
       })
     },
     openPosition() {
-      this.positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0]) || 0
+      const positionIndex = this.positionColumns[0]?.findIndex(item => item.key === this.userInfo.positionIds[0])
+      this.positionIndex = positionIndex > 0 ? positionIndex : 0
       this.positionPickerShow = true
       this.positionShow = true
     },
     openDept() {
       this.deptShow = true
-      this.dept = {
-        key: this.userInfo.deptId + '',
-        title: this.userInfo.deptName
-      }
-      // this.depts = this.userInfo.depts
+      // this.dept = {
+      //   key: this.userInfo.deptId + '',
+      //   title: this.userInfo.deptName
+      // }
+      this.depts = this.userInfo.depts
     },
     deptActionSelect({key}) {
       switch (key) {
@@ -317,10 +348,8 @@ export default {
           this.userInfo = {
             ...this.userInfo,
             depts: this.userInfo.depts.map((item, index) => {
-              if (index === 0) {
-                return {...this.actionDept, admin: true}
-              } else if (this.actionDept.key === item.key) {
-                return {...this.userInfo.depts[0], admin: false}
+              if (this.actionDept.key === item.key) {
+                return {...item, admin: true}
               } else {
                 return {...item, admin: false}
               }
@@ -331,34 +360,40 @@ export default {
     },
     saveDept() {
       this.deptShow = false
-      // const userInfo = this.userInfo || {}
-      // const deptAdmin = isArray(userInfo.depts).find(dept => dept.admin)
-      // const admin = deptAdmin ? this.depts.find(dept => dept.key === deptAdmin.key) : false
+      const userInfo = this.userInfo || {}
+      const deptAdmin = isArray(userInfo.depts).find(dept => dept.admin)
+      const admin = deptAdmin ? this.depts.find(dept => dept.key === deptAdmin.key) : false
       this.userInfo = {
         ...this.userInfo,
-        deptId: this.dept.key,
-        deptName: this.dept.title,
-        // depts: this.depts.map((item, index) => {
-        //   if (admin) {
-        //     if (index === 0) {
-        //       return {...admin, admin: true}
-        //     } else if (admin.key === item.key) {
-        //       return {...this.depts[0], admin: false}
-        //     } else {
-        //       return {...item, admin: false}
-        //     }
-        //   } else if (index === 0) {
-        //     return {...item, admin: true}
-        //   } else {
-        //     return {...item, admin: false}
-        //   }
-        // })
+        // deptId: this.dept.key,
+        // deptName: this.dept.title,
+        depts: this.depts.map((item, index) => {
+          if (admin) {
+            if (index === 0) {
+              return {...admin, admin: true}
+            } else if (admin.key === item.key) {
+              return {...this.depts[0], admin: false}
+            } else {
+              return {...item, admin: false}
+            }
+          } else if (index === 0) {
+            return {...item, admin: true}
+          } else {
+            return {...item, admin: false}
+          }
+        })
       }
     },
     getDeptTree() {
       this.deptTreeLoading = true
       Dept.deptTree().then((res) => {
-        this.deptTree = isArray(res.data)[0]?.children
+        this.deptTree = [
+          {
+            title: this.tenant.name,
+            key: '0',
+            children: isArray(res.data)[0]?.children
+          }
+        ]
       }).catch(() => {
       }).finally(() => {
         this.deptTreeLoading = false
@@ -374,7 +409,11 @@ export default {
           sex: userInfo.sex,
           phone: userInfo.phone,
           email: userInfo.email,
-          deptId: userInfo.deptId,
+          // deptId: userInfo.deptId,
+          deptList: userInfo.depts.map(item => ({
+            deptId: item.key,
+            mainDept: item.admin ? 1 : 0
+          })),
           position: isArray(userInfo.positionIds).join(',')
         }
       }).then(() => {
@@ -443,9 +482,11 @@ export default {
 
         .deptInfo {
           flex-grow: 1;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+
+          .describe {
+            font-size: 12px;
+            color: #999999;
+          }
 
           .icon {
             width: 30px;

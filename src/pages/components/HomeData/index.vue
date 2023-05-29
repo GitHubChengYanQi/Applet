@@ -1,59 +1,78 @@
 <template>
-  <view class="assetData">
-    <view class="total">
-      总资产：<span class="num">￥10232.00</span>
+  <view>
+    <Empty type="error" description=" " v-if="error" />
+    <Loading skeleton v-else-if="loading" />
+    <view v-else class="assetData">
+      <view class="total">
+        总资产：<span class="num">￥{{ total }}</span>
+      </view>
+      <f2-uni
+          :padding="[20,0,20,(windowWidth / 2) - 48]"
+          :width="windowWidth - 48"
+          :height="170"
+          :onInit="onInitChart"
+          :data="data"
+      />
     </view>
-    <f2-uni
-        :padding="[20,0,20,(windowWidth / 2) - 48]"
-        :width="windowWidth - 48"
-        :height="170"
-        :onInit="onInitChart"
-    />
   </view>
 </template>
 
 <script>
 import F2Uni from "../../../components/f2-uni";
+import {Erp} from "MES-Apis/lib/Erp/promise";
+import Loading from "../../../components/Loading/index.vue";
+import Empty from "../../../components/Empty/index.vue";
 
 export default {
   name: 'HomeData',
-  components: {F2Uni},
+  components: {Empty, Loading, F2Uni},
   data() {
     return {
       current: 0,
-      windowWidth: 0
+      windowWidth: 0,
+      loading: true,
+      error: false,
+      data: [],
+      total: 0
     }
   },
   created() {
     this.windowWidth = this.$store.state.systemInfo.systemInfo.windowWidth || 0
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
-    onInitChart: (F2Constructor, config) => {
+    getData() {
+      this.loading = true
+      Erp.miniappHomeData({data: {}}).then((res) => {
+        this.total = res.data.stockMoney || 0
+        this.data = [{
+          name: '库存总额',
+          money: res.data.stockMoney || 0,
+          percent: 1,
+          color:'#1890FF'
+        }]
+      }).catch(() => {
+        this.error = true
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    onInitChart: (F2Constructor, config, data) => {
       const chart = new F2Constructor.Chart(config)
-      const map = {
-        '账户余额': '34663',
-        '库存总额': '458893',
-        '固定资产': '23622',
-        '应付欠款': '0',
-      };
-      const data = [{
-        name: '账户余额',
-        percent: 0.6,
-        a: '1'
-      }, {
-        name: '库存总额',
-        percent: 0.2,
-        a: '1'
-      }, {
-        name: '固定资产',
-        percent: 0.1,
-        a: '1'
-      }, {
-        name: '应付欠款',
-        percent: 0.1,
-        a: '1'
-      }];
-      chart.source(data, {
+      const map = {};
+
+      const newData = data.map(item => {
+        map[item.name] = item.money
+        return {
+          name: item.name,
+          percent: item.percent,
+          a: '1'
+        }
+      })
+
+      chart.source(newData, {
         percent: {
           formatter: function formatter(val) {
             return val * 100 + '%';
@@ -76,7 +95,7 @@ export default {
       chart.axis(false);
       chart.interval()
           .position('a*percent')
-          .color('name', ['#F04864', '#1890FF', '#13C2C2', '#FACC14'])
+          .color('name', data.map(item => item.color))
           .adjust('stack')
           .style({
             lineWidth: 1,

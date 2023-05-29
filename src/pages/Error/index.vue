@@ -21,6 +21,9 @@ export default {
         url: getLocalParmas().route,
       });
     }
+  },
+  mounted() {
+    // uni.showTabBar()
   }
 }
 </script>

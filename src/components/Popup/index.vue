@@ -7,14 +7,22 @@
         @open="$emit('showBefore')"
     >
       <view v-if="!noTitle" class='popupHeader' :style="{borderBottom:!noHeaderBorder ?'1px solid #EEEEEE' : 'none'}">
-        <span v-if="leftText" class='popupLeft'><LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton></span>
+        <view v-if="leftText" class='popupLeft'>
+          <LinkButton @click="$emit('onLeft')">{{ leftText }}</LinkButton>
+        </view>
         <slot name="title">{{ title || '' }}</slot>
-        <span class='popupRight' @click="!rightText && $emit('close')">
-          <span v-if="rightText"><LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton></span>
+        <view class='popupRight' @click="!rightText && $emit('close')">
+          <template v-if="rightText">
+            <slot name="rightButton">
+              <LinkButton @click="$emit('onRight')">{{ rightText }}</LinkButton>
+            </slot>
+          </template>
           <u-icon v-else name="close" />
-        </span>
+        </view>
       </view>
-      <slot></slot>
+      <view class="popupContent" :style="{maxHeight}">
+        <slot></slot>
+      </view>
     </u-popup>
   </view>
 </template>
@@ -37,6 +45,7 @@ export default {
     'getContainer',
     'noTitle',
     'noHeaderBorder',
+    'maxHeight'
   ],
   watch: {
     show(value) {
@@ -74,6 +83,11 @@ export default {
     left: 0;
     padding: 0 12px;
   }
+}
+
+.popupContent {
+  max-height: 80vh;
+  overflow: auto;
 }
 
 </style>
