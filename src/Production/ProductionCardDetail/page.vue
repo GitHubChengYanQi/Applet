@@ -26,7 +26,7 @@
       <Card title="生产信息" style="border-bottom: solid 1px #F5F5F5" />
       <view
           class="productionCardBom"
-          :style="{maxHeight: `calc(100vh - 200px - ${(parentBom.done !== 1 ? 37 : 0) + safeAreaHeight(this,8)}px)`}"
+          :style="{ maxHeight: `calc(100vh - 200px - ${(parentBom.done !== 1 ? 37 : 0) + safeAreaHeight(this,8)}px)`}"
       >
         <ProductionCardBom
             :bom="parentBom"
@@ -77,7 +77,6 @@ import MyButton from "../../components/MyButton";
 import Search from "../../components/Search";
 import {SkuResultSkuJsons} from "../../Sku/components/SkuResult_skuJsons";
 import ProductionCardBom from "./components/ProductionCardBom";
-import {Message} from "../../components/Message";
 import {Sku} from "MES-Apis/lib/Sku/promise";
 import Modal from "../../components/Modal";
 

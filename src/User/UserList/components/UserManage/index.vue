@@ -295,7 +295,7 @@ export default {
       userItemHeight: 48,
       removeUser: null,
       userMoveIndex: null,
-      loading: false
+      loading: false,
     }
   },
   watch: {
@@ -421,6 +421,10 @@ export default {
                   } else {
                     newTree = addDeptChildren(inDept ? inDept.key : top.key, moveDept, tree)
                   }
+                  _this.$emit('refreshUsers', true)
+                  setTimeout(() => {
+                    _this.$emit('refreshUsers', false)
+                  }, 0)
                   _this.deptsChange(_this.depts.filter((item, index) => index !== thisIndex))
                   _this.$emit('treeChange', newTree)
                   resolve(true)

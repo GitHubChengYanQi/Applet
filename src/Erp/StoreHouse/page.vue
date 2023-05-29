@@ -36,7 +36,7 @@
         :sys="sys"
     />
 
-    <view v-if="admin" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
+    <view class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
       <template v-if="sys">
         <view class="sys">
           <view class="total">
@@ -58,10 +58,13 @@
         </view>
       </template>
       <template v-else>
-        <view class="action">
+        <view class="action" v-if="admin">
           <LinkButton @click="addStoreHouse">添加子仓库</LinkButton>
         </view>
-        <view class="action">
+        <view class="action" v-if="!admin">
+          <LinkButton :disabled="storeHousePage.length === 1" @click="actionSelect({key:'position'})">查看当前仓库库位</LinkButton>
+        </view>
+        <view class="action" v-if="admin">
           <LinkButton @click="actionShow = true;checkList=[]">更多管理</LinkButton>
           <u-action-sheet
               cancelText="取消"
@@ -193,6 +196,21 @@ export default {
     this.itemWidth = this.$store.state.systemInfo.systemInfo.windowWidth
     const tenant = this.$store.state.userInfo.tenant || {}
     this.admin = tenant.admin
+    this.allActionList = this.admin ? [
+      {
+        name: '添加子仓库',
+        key: 'add'
+      },
+      {
+        name: '查看库位',
+        key: 'position'
+      },
+    ] : [
+      {
+        name: '查看库位',
+        key: 'position'
+      },
+    ]
     const _this = this
     uni.$on('storeHouseAddSuccess', () => {
       _this.getList(true, _this.storeHousePage[_this.storeHousePage.length - 1].key)
@@ -375,9 +393,9 @@ export default {
       const thisStoreHouse = findThisInTree(storeHouse.key, this.tree) || {}
       const children = thisStoreHouse.children || []
       if (children.length === 0) {
-        if (!this.admin) {
-          return
-        }
+        // if (!this.admin) {
+        //   return
+        // }
         this.allActionShow = true
         this.allActionData = storeHouse
         return

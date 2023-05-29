@@ -12,7 +12,7 @@
       </view>
       <view
           class="users"
-          :style="{height: `calc(100vh - ${admin ? (47+safeAreaHeight(this,8)) : 0}px - 36px)`}"
+          :style="{height: `calc(100vh - ${(47+safeAreaHeight(this,8))}px - 36px)`}"
       >
         <movable-area
             class="movableArea"

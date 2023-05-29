@@ -283,6 +283,11 @@ export default {
             }).then(() => {
               _this.tree = delSkuClassChildren(thisSkuClass.key, _this.tree)
               if (current) {
+                const newSkuList = _this.skuList
+                _this.skuList = []
+                setTimeout(() => {
+                  _this.skuList = newSkuList
+                }, 0)
                 _this.skuClassListChange(_this.skuClassList.filter(item => item.key !== thisSkuClass.key))
               } else {
                 _this.skuClassPageClick(_this.skuClassPage[_this.skuClassPage.length - 2])

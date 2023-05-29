@@ -83,6 +83,7 @@
         @onEdit="(_this)=>edit(_this,true)"
         @userDelete="removeUser"
         @userEdit="editUser"
+        @refreshUsers="(refresh)=>refreshUsers = refresh"
     />
 
     <view v-if="showFooter" class="footer" :style="{paddingBottom:`${safeAreaHeight(this,8)}px`}">
@@ -199,6 +200,7 @@ export default {
       itemWidth: 0,
       movableViewY: 0,
       movableViewX: 0,
+      refreshUsers: false
     }
   },
   mounted() {
@@ -264,6 +266,9 @@ export default {
       ]
     },
     deptUsers() {
+      if (this.refreshUsers) {
+        return []
+      }
       if (this.deptPage.length > 0) {
         if (this.searchValue) {
           return this.users.filter(item => queryString(this.searchValue, item.name))
@@ -495,6 +500,10 @@ export default {
               } else {
                 if (current) {
                   _this.deptsChange(_this.depts.filter(item => item.key !== thisDept.key))
+                  _this.refreshUsers = true
+                  setTimeout(() => {
+                    _this.refreshUsers = false
+                  }, 0)
                 } else {
                   _this.deptTree = newDeptTree
                   _this.deptPageClick(_this.deptPage[_this.deptPage.length - 2])
