@@ -122,7 +122,7 @@
           </view>
         </view>
         <view v-if="['coding'].includes(stepItem[0].key)" style="display: inline-block">
-          <view style="max-width: 105px">
+          <view style="max-width: 119px">
             <u--input
                 :placeholder="`请输入${stepItem[0].filedName || ''}`"
                 border="none"

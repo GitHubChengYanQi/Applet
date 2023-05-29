@@ -248,6 +248,18 @@
           }
         },
         {
+          "path": "Order/InStock/index",
+          "style": {
+            "navigationBarTitleText": "采购入库"
+          }
+        },
+        {
+          "path": "Order/SelectProduct/index",
+          "style": {
+            "navigationBarTitleText": "选择商品"
+          }
+        },
+        {
           "path": "Manage/index",
           "style": {
             "navigationBarTitleText": "预购管理"

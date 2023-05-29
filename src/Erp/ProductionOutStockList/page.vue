@@ -29,7 +29,7 @@ import {Process} from "MES-Apis/lib/Process/promise";
 import {ReceiptsEnums} from "../Receipt/ReceiptsEnums";
 import OutStockItem
   from "../Receipt/ReceiptList/components/MyAudit/components/ProcessList/components/OutStockItem";
-import List from "../../components/List/indx";
+import List from "../../components/List/index";
 import {safeAreaHeight} from "../../util/Tools";
 
 export default {
