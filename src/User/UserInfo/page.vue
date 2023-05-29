@@ -71,7 +71,6 @@ import Avatar from "../../components/Avatar";
 import MyButton from "../../components/MyButton";
 import Popup from "../../components/Popup";
 import Uploader from "../../components/Uploader";
-import ImageCropper from "../../components/ImageCropper";
 import {saveImg} from "../../util/Tools";
 import {Message} from "../../components/Message";
 import {User} from "MES-Apis/lib/User/promise";
@@ -81,7 +80,7 @@ export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {Loading, ImageCropper, Uploader, Popup, MyButton, Avatar},
+  components: {Loading, Uploader, Popup, MyButton, Avatar},
   data() {
     return {
       actionAvatar: false,

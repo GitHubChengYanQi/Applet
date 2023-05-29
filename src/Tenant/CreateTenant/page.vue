@@ -43,20 +43,19 @@
 import {Tenant} from "MES-Apis/lib/Tenant/promise";
 import {Message} from "../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
-import {getLocalParmas, routeReplace} from "../../util/Tools";
+import {getLocalParmas} from "../../util/Tools";
 import Modal from "../../components/Modal";
 import Icon from "../../components/Icon";
 import Uploader from "../../components/Uploader";
 import Avatar from "../../components/Avatar";
 import Loading from "../../components/Loading";
-import ImageCropper from "../../components/ImageCropper";
 import LoginByPhone from "../../components/LoginByPhone";
 
 export default {
   options: {
     styleIsolation: 'shared'
   },
-  components: {LoginByPhone, ImageCropper, Loading, Avatar, Uploader, Icon, Modal},
+  components: {LoginByPhone, Loading, Avatar, Uploader, Icon, Modal},
   data() {
     return {
       name: '',

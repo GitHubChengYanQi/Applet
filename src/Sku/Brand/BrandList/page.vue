@@ -88,7 +88,7 @@ import Modal from "../../../components/Modal";
 import {Message} from "../../../components/Message";
 import {Init} from "MES-Apis/lib/Init";
 import {Sku} from "MES-Apis/lib/Sku/promise";
-import List from "../../../components/List/indx";
+import List from "../../../components/List";
 
 export default {
   options: {

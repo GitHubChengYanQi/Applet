@@ -45,7 +45,7 @@
       />
 
       <view class="footer">
-        <img class="logo" src="@/static/images/home/logo.svg" />
+        <img class="logo" :src="home_logo" />
         <view class="slogan">
           高效、安全的数字化企业管理工具
         </view>

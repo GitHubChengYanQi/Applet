@@ -416,8 +416,8 @@ import Currency from "@/components/Currency/index.vue";
 import {ArrayDuplicate, isArray, MathCalc} from "@/util/Tools";
 import Uploader from "@/components/Uploader/index.vue";
 import FileUpload from "@/components/Uploader/FileUpload/index.vue";
-import PaymentDetail from "@/components/PaymentDetail/index.vue";
-import moment from "moment/moment";
+import PaymentDetail from "../PaymentDetail/index.vue";
+import moment from "../../../../../util/Common/moment";
 
 export default {
   name: "General",

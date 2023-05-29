@@ -169,8 +169,6 @@
             </view>
           </view>
         </movable-area>
-
-
         <movable-area
             :class="{skuMovableArea:true}"
             :style="{
@@ -260,7 +258,7 @@ import Loading from "../../../../components/Loading";
 import {findThisInTree, isArray, safeAreaHeight} from "../../../../util/Tools";
 import Modal from "../../../../components/Modal";
 import {SkuResultSkuJsons} from "../../../sku";
-import List from "../../../../components/List/indx";
+import List from "../../../../components/List";
 import axios from "axios";
 import {Init} from "MES-Apis/lib/Init";
 import Swipe from "../../../../components/Swipe/index.vue";
@@ -561,9 +559,6 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      setTimeout(() => {
-        this.isMove = null
-      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -625,6 +620,9 @@ export default {
           this.moveEndIndex = null
           this.moveIndex = null
           this.inIndex = null
+          setTimeout(() => {
+            this.isMove = null
+          }, 0)
         })
 
 

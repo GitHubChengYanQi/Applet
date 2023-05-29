@@ -494,7 +494,7 @@ export default {
         onConfirm() {
           return new Promise((resolve) => {
             Sku.spuClassBatchDelete({
-              data: {skuIds: classIds, spuClassificationIds: classIds}
+              data: {skuIds, spuClassificationIds: classIds}
             }).then(() => {
               _this.skuClassListChange(_this.skuClassList.filter(item => !classIds.find(classId => classId === item.key)))
 

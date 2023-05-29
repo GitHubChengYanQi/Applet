@@ -742,7 +742,9 @@ export default {
             title: Init.getNewErrorMessage() || '添加失败！'
           })
         }).finally(() => {
-          this.loading = false
+          setTimeout(() => {
+            this.loading = false
+          }, 0)
         })
       }
     },
@@ -1050,7 +1052,7 @@ export default {
 .skuClassPopupActions {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 8px;
 }
 
 </style>

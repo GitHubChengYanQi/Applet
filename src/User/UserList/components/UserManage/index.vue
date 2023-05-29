@@ -381,9 +381,6 @@ export default {
         return
       }
       const thisIndex = this.isMove
-      setTimeout(() => {
-        this.isMove = null
-      }, 0)
       const y = this.movableView
       let newY = 0
       if (y < this.itemHeight && y > -this.itemHeight) {
@@ -479,6 +476,9 @@ export default {
           this.moveEndIndex = null
           this.moveIndex = null
           this.inIndex = null
+          setTimeout(() => {
+            this.isMove = null
+          }, 0)
         })
 
 

@@ -44,6 +44,7 @@
         </uni-forms>
       </view>
       <BottomButton
+          :loading="loading"
           only
           text="保存"
           @onClick="save"

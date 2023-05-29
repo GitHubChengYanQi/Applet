@@ -272,12 +272,12 @@
 
 <script>
 import {request} from "MES-Apis/lib/Service/request";
-import Card from "@/components/Card/index.vue";
-import BottomButton from "@/components/BottomButton/index.vue";
-import General from "@/components/General/index.vue";
-import {ArrayDuplicate, isArray, MathCalc} from "@/util/Tools";
-import Loading from "@/components/Loading/index.vue";
-import {Message} from "@/components/Message";
+import Card from "../../../../components/Card/index.vue";
+import BottomButton from "../../../../components/BottomButton/index.vue";
+import General from "../components/General/index.vue";
+import {ArrayDuplicate, isArray, MathCalc} from "../../../../util/Tools";
+import Loading from "../../../../components/Loading/index.vue";
+import {Message} from "../../../../components/Message";
 
 
 export default {
