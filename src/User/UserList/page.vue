@@ -6,7 +6,7 @@
         :overlay="false"
         @afterleave="afterleave"
     />
-    <Empty v-if="error" type="error" description="获取信息异常" />
+    <Empty v-if="error" type="error" description="获取信息异常"/>
     <Loading
         skeleton-type="page"
         skeleton
@@ -19,11 +19,11 @@
     >
       <u-index-list :index-list="groups.length === 0 ? [''] : groups.map(item=>item.title)">
         <view class="list">
-          <Search style="padding: 0 12px" v-model="searchValue" placeholder="请输入成员姓名" no-search-button />
-          <Empty v-if="groups.length === 0" description="暂无用户" />
+          <Search style="padding: 0 12px" v-model="searchValue" placeholder="请输入成员姓名" no-search-button/>
+          <Empty v-if="groups.length === 0" description="暂无用户"/>
           <template v-else v-for="(item, index) in groups">
             <u-index-item :key="index">
-              <view v-if="index !== 0" style="height: 32px;" />
+              <view v-if="index !== 0" style="height: 32px;"/>
               <u-index-anchor bgColor="#fff" :text="groups[index].title"></u-index-anchor>
               <view class="list-cell" v-for="(user, userIndex) in item.items" :key="userIndex">
                 <view
@@ -34,10 +34,10 @@
                       v-if="!show"
                       :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)"
                   />
-                  <UserName :user="user" showRole />
+                  <UserName :user="user" showRole/>
                 </view>
                 <view v-if="user.isAdmin === 1">
-                  <u-tag text="管理员" plain />
+                  <u-tag text="管理员" plain/>
                 </view>
               </view>
             </u-index-item>
@@ -129,7 +129,7 @@
       </template>
     </view>
 
-    <AddUser :add-user-show="addUserShow" @close="addUserShow = false" :deptId="deptPage[deptPage.length - 1].key" />
+    <AddUser :add-user-show="addUserShow" @close="addUserShow = false" :deptId="deptPage[deptPage.length - 1].key"/>
 
     <u-action-sheet
         cancelText="取消"
@@ -140,7 +140,7 @@
         @select="userActionSelect"
     />
 
-    <Modal ref="modal" />
+    <Modal ref="modal"/>
   </view>
 </template>
 
@@ -521,12 +521,12 @@ export default {
       })
     },
     afterleave() {
-      if (this.addUserShow || this.actionShow || this.userActionShow || this.$refs.addDeptModal.showStatus() || this.$refs.modal.showStatus() || this.$refs.userManage.showStatus()) {
+      if (this.addUserShow || this.actionShow || this.userActionShow || this.$refs.addDeptModal?.showStatus() || this.$refs.modal.showStatus() || this.$refs.userManage.showStatus()) {
         this.pageContainerShow = false
         this.addUserShow = false
         this.actionShow = false
         this.userActionShow = false
-        this.$refs.addDeptModal.close()
+        this.$refs.addDeptModal?.close()
         this.$refs.modal.close()
         this.$refs.userManage.close()
         setTimeout(() => {
@@ -645,7 +645,11 @@ export default {
         id: getLocalParmas().search.id,
         checkUsers: this.checkUsers
       })
-      uni.navigateBack();
+      this.pageContainerShow = false
+      setTimeout(() => {
+        console.log(this.pageContainerShow)
+        uni.navigateBack();
+      }, 0)
     },
     renderList(users) {
       const charCodeOfA = 'A'.charCodeAt(0);

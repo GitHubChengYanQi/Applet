@@ -2,7 +2,7 @@
   <view>
     <view class="stock">
       <view class="stockSearch">
-        <Search placeholder="请输入物料相关信息" :value="value" :readonly="true" @click="click" />
+        <Search placeholder="请输入物料相关信息" :value="value" @onSearch="onSearch"/>
       </view>
       <view v-if="!loading" class="skuClass">
         <scroll-view scroll-x="true" class="scroll-view">
@@ -23,7 +23,7 @@
         <List
             ref="skuList"
             :list="skuList"
-            :max-height="`calc(100vh - 103px - ${0}px)`"
+            :max-height="`calc(100vh - 103px - ${70 + safeAreaHeight(this)}px)`"
             @request="Sku.listV1_1"
             @listSource="listSource"
         >
@@ -33,20 +33,89 @@
               class="skuItem"
           >
             <view class="sku">
-              <SkuItem
-                  :sku-result="skuResultFormat(item)"
-              >
+              <SkuItem extra-width="150px" :sku-result="skuResultFormat(item)">
                 <template slot="otherData">
-                  单价：￥0
+                  单价：￥{{ item.inPrice / 100 || 0 }}
                 </template>
               </SkuItem>
             </view>
-            <ShopNumber :value="0" />
+            <ShopNumber
+                actionShow
+                :min="0"
+                :value="skuNumber(item)"
+                @click="visible = true;clickSku=item;clickSkuIndex=index"
+            />
           </view>
         </List>
       </view>
 
-      <uni-fab :popMenu="false" horizontal="right" @fabClick="fabClick"></uni-fab>
+      <view class="bottomButton" :style="{paddingBottom:`${safeAreaHeight(this)}px`}">
+        <view class="cart" @click="show = !show">
+          <view class="cartCount">
+            <view class="badge">
+              <u-badge max="99" :value="shopList.length"/>
+            </view>
+            <u-icon size="30" name="shopping-cart"/>
+            已选
+          </view>
+        </view>
+        <view class='button' @click="complete">
+          <u-button type="primary">
+            确定
+          </u-button>
+        </view>
+      </view>
+
+      <uni-fab :popMenu="false" horizontal="right" @fabClick="fabClick"/>
+
+      <Popup
+          @close="show = false"
+          :show="show"
+          title="已选物料"
+      >
+        <view class="checkSkuList">
+          <Empty v-if="shopList.length === 0"/>
+          <view
+              v-for="(item,index) in shopList"
+              :key="index"
+              class="skuItem"
+          >
+            <view class="sku">
+              <SkuItem
+                  extra-width="150px"
+                  :sku-result="item.skuResult"
+              >
+                <template slot="otherData">
+                  单价：￥{{ item.skuResult ? item.skuResult.inPrice / 100 : 0 }}
+                </template>
+              </SkuItem>
+            </view>
+            <view class="shopActions">
+              <u-icon name="trash" color="#dd524d" size="20" @click="onChange(0,item,index)"/>
+              <ShopNumber
+                  action-show
+                  :min="0"
+                  :value="item.number"
+                  @click="visible = true;clickSku=item;clickSkuIndex=index"
+              />
+            </view>
+          </view>
+        </view>
+      </Popup>
+
+      <keybord
+          :visible='visible'
+          @close="visible = false"
+          :value='skuNumber(clickSku)'
+          :min='0'
+          @onChange="(num)=>onChange(num,clickSku,clickSkuIndex)"
+      />
+
+
+      <Modal ref="modal"/>
+
+      <Loading :loading="shopLoading"/>
+
     </view>
   </view>
 
@@ -57,18 +126,26 @@ import SkuItem from '../../../components/SkuItem'
 import Search from "../../../components/Search";
 import List from "../../../components/List/index";
 import {Sku} from "MES-Apis/lib/Sku/promise";
-import {isArray} from "../../../util/Tools";
+import {isArray, safeAreaHeight} from "@/util/Tools";
 import Loading from "../../../components/Loading";
 import ShopNumber from "../../../components/ShopNumber/index.vue";
+import Popup from "@/components/Popup/index.vue";
+import Empty from "@/components/Empty/index.vue";
+import {Erp} from "MES-Apis/lib/Erp/promise";
+import Modal from "@/components/Modal/index.vue";
+import {Init} from "MES-Apis/lib/Init";
+import Keybord from "@/components/Keybord/index.vue";
 
+const shopType = 'purchaseInStock'
 export default {
   options: {
     styleIsolation: 'shared'
   },
   name: 'Stock',
-  components: {ShopNumber, Loading, List, Search, SkuItem},
+  components: {Keybord, Modal, Empty, Popup, ShopNumber, Loading, List, Search, SkuItem},
   data() {
     return {
+      safeAreaHeight,
       value: '',
       eventName: 'stock',
       Sku,
@@ -76,16 +153,21 @@ export default {
       skuImages: [],
       skuClass: [],
       loading: false,
-      screenData: {}
+      screenData: {},
+      show: false,
+      shopLoading: false,
+      shopList: [],
+      visible: false,
+      clickSku: {},
+      clickSkuIndex: 0
     }
   },
+  computed: {},
   mounted() {
+    this.getShopList()
+
     const _this = this;
     _this.getSkuClass()
-    uni.$on(this.eventName, data => {
-      _this.refreshList({keyWord: data.searchValue})
-      _this.value = data.searchValue
-    })
 
     uni.$on('skuAddSuccess', _ => {
       _this.getSkuClass()
@@ -93,6 +175,10 @@ export default {
     })
   },
   methods: {
+    onSearch(value) {
+      this.refreshList({keyWord: value})
+      this.value = value
+    },
     async getSkuClass() {
       this.loading = true
       await Sku.spuClassListSelect({data: {}}).then((res) => {
@@ -107,11 +193,6 @@ export default {
         ...item,
         thumbUrl: media.thumbUrl
       }
-    },
-    click() {
-      uni.navigateTo({
-        url: '/pages/searchPage/index?eventName=' + this.eventName + '&searchValue=' + this.value
-      });
     },
     async listSource(skuList, newSkuList) {
       this.skuList = skuList
@@ -147,6 +228,62 @@ export default {
       uni.navigateTo({
         url: '/Sku/SkuAdd/index'
       })
+    },
+    complete() {
+      uni.navigateBack()
+    },
+    async getShopList() {
+      this.shopLoading = true
+      const res = await Erp.shopCartApplyList({
+        data: {type: shopType}
+      })
+      uni.$emit('shopCartApplyList', res.data || [])
+      this.shopList = res.data || []
+      this.shopLoading = false
+    },
+    skuNumber(sku) {
+      return this.shopList.find(item => item.skuId === sku.skuId)?.number || 0
+    },
+    async onChange(number, sku) {
+      this.shopLoading = true
+      const shopSku = this.shopList.find(item => item.skuId === sku.skuId)
+      if (number === 0) {
+        if (shopSku) {
+          await Erp.shopCartDelete({
+            data: {ids: [shopSku.cartId]}
+          }).catch(() => {
+            this.$refs.modal.dialog({
+              title: Init.getNewErrorMessage() || '修改失败！'
+            })
+          })
+        } else {
+          return
+        }
+      } else if (shopSku) {
+        await Erp.shopCartEdit({
+          data: {
+            cartId: shopSku.cartId,
+            number
+          }
+        }).catch(() => {
+          this.$refs.modal.dialog({
+            title: Init.getNewErrorMessage() || '修改失败！'
+          })
+        })
+      } else {
+        await Erp.shopCartAdd({
+          data: {
+            skuId: sku.skuId,
+            number,
+            type: shopType
+          }
+        }).catch(() => {
+          this.$refs.modal.dialog({
+            title: Init.getNewErrorMessage() || '添加失败！'
+          })
+        })
+      }
+      this.getShopList()
     }
   }
 }
@@ -212,15 +349,74 @@ export default {
 }
 
 .content {
-  .skuItem {
-    padding: 8px 12px;
-    border-bottom: solid 1px #eee;
+
+}
+
+.skuItem {
+  padding: 8px 12px;
+  border-bottom: solid 1px #eee;
+  display: flex;
+  align-items: center;
+
+  .sku {
+    flex-grow: 1;
+  }
+}
+
+.bottomButton {
+  padding: 0 12px;
+  z-index: 5;
+  width: calc(100% - 24px);
+  position: fixed;
+  display: flex;
+  bottom: 0;
+  left: auto;
+  right: auto;
+  align-items: center;
+  background-color: #fff;
+  box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  height: 70px;
+
+  .cartCount {
+    min-width: 100px;
     display: flex;
     align-items: center;
+    flex-direction: column;
+    position: relative;
 
-    .sku {
-      flex-grow: 1;
+    .badge {
+      position: absolute;
+      top: 0;
+      right: 30px;
     }
   }
+
+
+  .button {
+    flex-grow: 1;
+
+    button {
+      border-radius: 50px;
+      width: 100%;
+      height: 40px;
+    }
+  }
+}
+
+.uni-fab__circle {
+  bottom: 130px !important;
+}
+
+.checkSkuList {
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.shopActions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
 }
 </style>

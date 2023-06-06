@@ -1,6 +1,7 @@
 <template>
   <view>
     <u-popup
+        z
         :overlay="overlay"
         :show="visible"
         @close="$emit('close')"

@@ -4,40 +4,39 @@
       <view class="card">
         <view class="header" style="border: none" @click="visible = 'date'">
           <view class="title" style="margin: 0">日期</view>
-          <view class="flexGrow" v-if="defaultValue.date">
-            {{ defaultValue.date }}
+          <view class="flexGrow">
+            {{ formData.date || '请选择日期' }}
           </view>
-          <view class="flexGrow" v-else>{{ date }}</view>
-          <u-icon name="arrow-right"></u-icon>
+          <u-icon name="arrow-right"/>
         </view>
       </view>
       <view class="card">
-        <view class="header" @click="()=> onClick(visible = 'sellerId')">
+        <view class="header" @click="visible = 'supply'">
           <view class="title">供应商</view>
-          <view class="flexGrow" style="margin: 0 0 9px 0;max-width: calc(100% - 116px)" v-if="defaultValue.sellerName">
-            {{ defaultValue.sellerName }}
+          <view
+              :class="{flexGrow:true,placeholder:!formData.supplyId}"
+              style="margin: 0 0 9px 0;max-width: calc(100% - 116px)"
+          >
+            {{ formDataRender.supplyName || '请选择供应商' }}
           </view>
-          <view class="flexGrow" style="margin: 0 0 9px 0;max-width:calc(100% - 116px)" v-else>默认供应商</view>
           <view style="margin: 0 0 9px 0">
-            <u-icon name="arrow-right"></u-icon>
+            <u-icon name="arrow-right"/>
           </view>
         </view>
-        <view class="header" style="margin: 12px 0 0 0;border: none" @click="visible = 'purchaser'">
+        <view class="header" style="margin: 12px 0 0 0;border: none" @click="selectUser">
           <view class="title" style="margin: 0">采购员</view>
-          <view class="flexGrow" v-if="defaultValue.purchaserName">
-            {{ defaultValue.purchaserName }}
+          <view :class="{flexGrow:true,placeholder:!formData.userId}">
+            {{ formDataRender.user ? formDataRender.user.name : '请选择采购员' }}
           </view>
-          <view class="flexGrow" v-else></view>
           <u-icon name="arrow-right"></u-icon>
         </view>
       </view>
       <view class="card">
-        <view class="header" @click="visible = 'storehousePositionsId'">
+        <view class="header" @click="visible = 'storehouse'">
           <view class="title">仓库</view>
-          <view class="flexGrow" style="margin: 0 0 9px 0" v-if="defaultValue.storehousePositionsName">
-            {{ defaultValue.storehousePositionsName }}
+          <view :class="{flexGrow:true,placeholder:!formData.storeHouseId}" style="margin: 0 0 9px 0">
+            {{ formDataRender.storeHouseName || '请选择仓库' }}
           </view>
-          <view class="flexGrow" style="margin: 0 0 9px 0" v-else>默认仓库</view>
           <view style="margin: 0 0 9px 0">
             <u-icon name="arrow-right"></u-icon>
           </view>
@@ -48,28 +47,22 @@
               placeholder="请输入"
               border="none"
               fontSize="14px"
-              :value="defaultValue.remark"
-              @input="(value)=>change('remark',value)"
+              v-modal="formData.remark"
               maxlength="10"
           ></u--input>
         </view>
       </view>
       <view class="card">
-        <!--        <view class="left">-->
-        <!--          <u-button-->
-        <!--              type='primary'-->
-        <!--              color="#f5f5f5"-->
-        <!--          >-->
-        <!--            <view style="color: #000000">扫码添加</view>-->
-        <!--          </u-button>-->
-        <!--        </view>-->
         <view class="right">
           <u-button
               type='primary'
               color="#f5f5f5"
               @click="click"
           >
-            <view style="color: #000000">手动添加</view>
+            <view class="addButton">
+              手动添加
+              <u-badge max="99" :value="shopCartApplyList.length"/>
+            </view>
           </u-button>
         </view>
       </view>
@@ -80,140 +73,156 @@
     <BottomButton
         only=""
         text="保存"
+        @onClick="save"
+        :loading="saveLoading"
     />
+
+    <!--        单位-->
+    <SelectSupply
+        :value="formData.unitId"
+        :label="formDataRender.customerName"
+        :show="visible === 'supply'"
+        @close="visible = ''"
+        @select="selectSupply"
+    />
+
+    <Popup
+        @close="visible = ''"
+        :show="visible === 'storehouse'"
+        position="bottom"
+        @onLeft="visible = ''"
+        left-text="取消"
+        right-text="确定"
+        title="选择仓库"
+        @onRight="visible = ''"
+        @closeAfter="showContent = false"
+        @showBefore="showContent = true"
+    >
+      <Loading skeleton v-if="storeTreeLoading"/>
+      <Cascader
+          v-else-if="showContent"
+          :data="storeHouseData"
+          :value="formData.storeHouseId"
+          @change="onFinish"
+          @close="visible = ''"
+      />
+    </Popup>
 
     <u-datetime-picker
         mode="date"
         :show="visible === 'date'"
         ref="datetimePicker"
-        v-model="dateValue"
+        :value="formData.date"
         :formatter="formatter"
         title="时间选择"
         @cancel="visible = ''"
-        @confirm="(value) => onConfirm('date',value)"
+        @confirm="dateChange"
         closeOnClickOverlay="true"
-        @close="visible = '' ">
+        @close="visible = '' "
+    >
     </u-datetime-picker>
 
-    <u-picker
-        :show="['purchaser'].includes(visible)"
-        :columns="[[userInfo.name]]"
-        @close="visible = ''"
-        closeOnClickOverlay="true"
-        @cancel="visible = ''"
-        @confirm="(value) => purchaserChange('purchaserName',value)"
-    />
 
-    <u-picker
-        :show="['storehousePositionsId'].includes(visible)"
-        :columns="[isArray(storeHouseData).map(item => {
-          return {
-            label: item.name,
-            id: item.storehouseId
-          }
-        })]"
-        @close="visible = ''"
-        keyName="label"
-        closeOnClickOverlay="true"
-        @cancel="visible = ''"
-        @confirm="(value) => onChange('storehousePositionsName','storehousePositionsId',value)"
-    />
+    <Loading :loading="shopLoading || saveLoading"/>
 
 
-    <Loading :loading="loading"/>
+    <Modal ref="modal"/>
 
   </view>
 </template>
 <script>
 import BottomButton from "@/components/BottomButton/index.vue";
 import Loading from "@/components/Loading/index.vue";
-import {request} from "MES-Apis/lib/Service/request";
 import {isArray} from "@/util/Tools";
-import moment from "moment/moment";
-import {User} from "MES-Apis/lib/User/promise";
+import moment from "@/util/Common/moment";
+import {Erp} from "MES-Apis/lib/Erp/promise";
+import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
+import MyButton from "@/components/MyButton/index.vue";
+import Popup from "@/components/Popup/index.vue";
+import Cascader from "@/components/Cascader/index.vue";
+import SelectSupply from "@/Purchase/Order/InStock/components/SelectSupply/index.vue";
+import {Order} from "MES-Apis/lib/Order/promise";
+import Modal from "@/components/Modal/index.vue";
+import {Init} from "MES-Apis/lib/Init";
 
+const shopType = 'purchaseInStock'
 export default {
   name: "page",
-  components: {Loading, BottomButton},
+  components: {Modal, SelectSupply, Cascader, Popup, MyButton, Loading, BottomButton},
   data() {
     return {
+      isArray,
       visible: '',
-      userInfo: {},
-      defaultValue: {},
-      storeHouseData: {},
-      date: '',
-      dateValue: Number(new Date()),
-      loading: true,
+      storeHouseData: [],
+      formData: {
+        date: moment().format('YYYY-MM-DD')
+      },
+      formDataRender: {},
+      shopCartApplyList: [],
+      shopLoading: false,
+      storeTreeLoading: false,
+      showContent: false,
+      saveLoading: false
     }
   },
   mounted() {
-    this.get()
+    this.storeHouseList()
+    this.getShopList()
+    uni.$on('shopCartApplyList', (list) => {
+      this.shopCartApplyList = list
+    })
+    uni.$on('selectUser', (res) => {
+      const user = res.checkUsers[0] || {};
+      this.formDataChange({userId: user.userId}, {user})
+    })
   },
   methods: {
-    isArray,
-    async get() {
-      const _this = this
-      this.date = moment(this.dateValue).format('YYYY-MM-DD')
-      const userRes = await User.getUserInfo()
-      this.userInfo = userRes.data || {}
-      this.loading = true
-      _this.selfEnterpriseDetail()
-      _this.storeHouseList()
-      this.loading = false
+    formDataChange(formData, formDataRender) {
+      this.formData = {
+        ...this.formData,
+        ...formData
+      }
+      this.formDataRender = {
+        ...this.formDataRender,
+        ...formDataRender
+      }
     },
-    selfEnterpriseDetail() {
-      const _this = this
-      return request({
-        url: "/selfEnterprise/detail",
-        method: 'post',
-        data: {}
-      }).then(async res => {
-        let info = {
-          buyerId: res.data.customerId,
-          buyerName: res.data.customerName,
-          partyAAdressId: res.data.defaultAddress,
-          partyAAdressName: res.data.address?.detailLocation || res.data.address?.location,
-          partyAContactsId: res.data.defaultContacts,
-          partyAContactsName: res.data.contact?.contactsName,
-          partyABankId: res.data.invoiceResult?.bankId,
-          partyABankName: res.data.invoiceResult?.bankResult?.bankName,
-          partyABankAccount: res.data.invoiceResult?.invoiceId,
-          partyABankAccountName: res.data.invoiceResult?.bankAccount,
-          partyABankNo: res.data.invoiceResult?.bankNo,
-        };
-        _this.defaultValue = {
-          ..._this.defaultValue,
-          ...info
-        }
+    async getShopList() {
+      this.shopLoading = true
+      const res = await Erp.shopCartApplyList({
+        data: {type: shopType}
       })
+      this.shopCartApplyList = res.data || []
+      this.shopLoading = false
     },
     storeHouseList() {
-      return request({
-        url: "/storehouse/list",
-        method: 'post',
-        data: {}
-      }).then(res => {
-        const _this = this
-        _this.storeHouseData = res.data
+      this.storeTreeLoading = true
+      Storehouse.storeHouseTreeV2_0().then(res => {
+        this.storeHouseData = this.format(res.data || [])
+      }).finally(() => {
+        this.storeTreeLoading = false
       })
     },
-    onClick(visible) {
-      if (visible === 'sellerId') {
-        uni.navigateTo({
-          url: `/Crm/Supplier/index`
-        })
-      }
+    format(data) {
+      const list = [];
+      data.forEach(item => {
+        const obj = {
+          name: item.name,
+
+          id: item.storehouseId
+        }
+        if (isArray(item.childrenList).length > 0) {
+          obj.children = this.format(item.childrenList || []);
+        }
+        list.push(obj);
+      })
+
+      return list
     },
     click() {
       uni.navigateTo({
         url: `/Purchase/Order/SelectProduct/index`
       })
-    },
-    change(key, e) {
-      this.defaultValue = {
-        ...this.defaultValue,
-        [key]: e
-      }
     },
     formatter(type, value) {
       if (type === 'year') {
@@ -226,36 +235,86 @@ export default {
         return `${value}日`
       }
     },
-    onConfirm(key, e) {
-      this.defaultValue = {
-        ...this.defaultValue,
-        [key]: moment(e.value).format('YYYY-MM-DD')
-      }
+    dateChange(e) {
+      this.formDataChange({date: moment(e.value).format('YYYY-MM-DD')})
       this.visible = ''
     },
-    purchaserChange(key, e) {
-      this.defaultValue = {
-        ...this.defaultValue,
-        [key]: e.value[0]
-      }
-      this.visible = ''
+    onFinish({id, name}) {
+      this.formDataChange({storeHouseId: id}, {storeHouseName: name})
     },
-    onChange(key, id, e) {
-      if (e.value[0] !== undefined && e.value[0].id === undefined) {
-        this.defaultValue = {
-          ...this.defaultValue,
-          [key]: (e.value[0] !== undefined) && (e.value[0].label),
-          [id]: (e.value[0] !== undefined) && (e.value[0].value)
+    selectSupply(supply) {
+      this.formDataChange({
+        supplyId: supply.value
+      }, {
+        supplyName: supply.label
+      })
+    },
+    selectUser() {
+      const _this = this
+      uni.navigateTo({
+        url: `/User/UserList/index?type=radio`,
+        success: function (res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('checkUsers', {
+            checkUsers: _this.formData.userId ? [_this.formDataRender.user] : [],
+          })
         }
+      })
+    },
+    save() {
+      const formData = this.formData
+      if (!formData.supplyId) {
+        this.$refs.modal.dialog({
+          title: '请选择供应商!'
+        })
+      } else if (!formData.userId) {
+        this.$refs.modal.dialog({
+          title: '请选择采购员!'
+        })
+      } else if (!formData.storeHouseId) {
+        this.$refs.modal.dialog({
+          title: '请选择仓库!'
+        })
       } else {
-        this.defaultValue = {
-          ...this.defaultValue,
-          [key]: (e.value[0] !== undefined) && (e.value[0].label),
-          [id]: (e.value[0] !== undefined) && (e.value[0].id)
-        }
+        this.saveLoading = true
+        Order.autoInStock({
+          data: {
+            orderParam:{
+              type: 1,
+              currency: '人民币',
+              sellerId: formData.supplyId,
+              date: formData.date,
+              partyAContactsId: formData.userId,
+              storehouseId: formData.storeHouseId,
+              remark: formData.remark,
+              detailParams: this.shopCartApplyList.map(item => {
+                return {
+                  skuId: item.skuId,
+                  purchaseNumber: item.number,
+                  onePrice: item.skuResult?.inPrice,
+                  totalPrice: (item.skuResult?.inPrice || 0) * item.number,
+                  unitId: item.skuResult?.spuResult?.unitId
+                }
+              })
+            }
+          }
+        }).then(() => {
+          this.$refs.modal.dialog({
+            title: '保存成功！',
+            onConfirm() {
+              uni.navigateBack()
+              return true
+            }
+          })
+        }).catch(() => {
+          this.$refs.modal.dialog({
+            title: Init.getNewErrorMessage() || '保存失败！'
+          })
+        }).finally(() => {
+          this.saveLoading = false
+        })
       }
-      console.log(this.defaultValue)
-      this.visible = ''
+
     }
   }
 }
@@ -282,6 +341,10 @@ export default {
 
     .flexGrow {
       flex-grow: 1;
+    }
+
+    .placeholder {
+      color: #999999;
     }
   }
 
@@ -332,6 +395,13 @@ export default {
   display: flex;
   align-items: center;
   margin: 0 0 9px 0;
+}
+
+.addButton {
+  color: #000000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 </style>

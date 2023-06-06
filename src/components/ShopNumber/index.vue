@@ -12,6 +12,9 @@
         <view v-else-if="value">
           {{ value }}
         </view>
+        <view v-else>
+          0
+        </view>
       </view>
     </view>
     <view v-else>
@@ -21,7 +24,7 @@
           @click="click"
       >
         <view v-if="!number">
-          × {{ value }}
+          × {{ value || 0 }}
         </view>
         <view v-else-if="value">
           {{ value }}

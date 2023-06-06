@@ -217,7 +217,7 @@
                   <Check v-if="!show" :value="checkUsers.find(checkUser=>checkUser.userId === user.userId)" />
                   <UserName :user="user" showRole />
                 </view>
-                <view v-if="user.isAdmin === 1">
+                <view v-if="user.isAdmin === 1" style="padding-right: 12px">
                   <u-tag text="管理员" plain />
                 </view>
                 <view

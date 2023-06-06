@@ -138,7 +138,6 @@ export default {
       this.loading = false
     },
     search(value) {
-      this.searchValue = value
       clearTimeout(this.time);
       this.time = setTimeout(() => {
         this.get(value);

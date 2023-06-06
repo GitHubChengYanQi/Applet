@@ -59,5 +59,9 @@ export const routes = [
         name: '生产卡片',
         key: 'miniapp-productionCard',
         url: '/Production/ProductionCard/index'
+    }, {
+        name: '采购入库',
+        key: 'miniapp-purchaseInStock',
+        url: '/Purchase/Order/InStock/index'
     }
 ]
