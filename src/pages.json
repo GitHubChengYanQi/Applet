@@ -337,6 +337,18 @@
           "style": {
             "navigationBarTitleText": "选择合同模板"
           }
+        },
+        {
+          "path": "OutStock/index",
+          "style": {
+            "navigationBarTitleText": "销售出库"
+          }
+        },
+        {
+          "path": "OutStock/SelectProduct/index",
+          "style": {
+            "navigationBarTitleText": "选择商品"
+          }
         }
       ]
     },
