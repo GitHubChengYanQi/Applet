@@ -24,9 +24,9 @@
           </view>
         </view>
         <view class="header" style="margin: 12px 0 0 0;border: none" @click="selectUser">
-          <view class="title" style="margin: 0">业务员</view>
+          <view class="title" style="margin: 0">领料人</view>
           <view :class="{flexGrow:true,placeholder:!formData.userId}">
-            {{ formDataRender.user ? formDataRender.user.name : '请选择业务员' }}
+            {{ formDataRender.user ? formDataRender.user.name : '请选择领料人' }}
           </view>
           <u-icon name="arrow-right"></u-icon>
         </view>
@@ -279,12 +279,12 @@ export default {
         this.saveLoading = true
         Crm.outStock({
           data: {
+            userId:formData.userId,
             orderParam:{
               type: 2,
               currency: '人民币',
               buyerId: formData.customerId,
               date: formData.date,
-              partyBContactsId: formData.userId,
               storehouseId: formData.storeHouseId,
               remark: formData.remark,
               detailParams: this.shopCartApplyList.map(item => {
