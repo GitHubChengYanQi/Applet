@@ -1,6 +1,6 @@
 <template>
   <Auth>
-    <Page v-if="auth && show" storeId="storeId"/>
+    <Page v-if="auth && show" :storeId="storeId"/>
   </Auth>
 </template>
 <script>

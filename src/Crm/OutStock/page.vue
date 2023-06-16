@@ -66,7 +66,6 @@
           </u-button>
         </view>
       </view>
-
     </view>
 
 
@@ -139,11 +138,11 @@ import {Storehouse} from "MES-Apis/lib/Storehouse/promise";
 import MyButton from "@/components/MyButton/index.vue";
 import Popup from "@/components/Popup/index.vue";
 import Cascader from "@/components/Cascader/index.vue";
-import {Order} from "MES-Apis/lib/Order/promise";
 import Modal from "@/components/Modal/index.vue";
 import {Init} from "MES-Apis/lib/Init";
 import SelectCustomer from "@/Crm/OutStock/components/SelectCustomer/index.vue";
 import {Crm} from "MES-Apis/lib/Crm/promise";
+import {Message} from "@/components/Message";
 
 const shopType = 'crmOutStock'
 export default {
@@ -167,7 +166,6 @@ export default {
   },
   mounted() {
     this.storeHouseList()
-    this.getShopList()
     uni.$on('shopCartApplyList', (list) => {
       this.shopCartApplyList = list
     })
@@ -187,10 +185,10 @@ export default {
         ...formDataRender
       }
     },
-    async getShopList() {
+    async getShopList(storehouseId) {
       this.shopLoading = true
       const res = await Erp.shopCartApplyList({
-        data: {type: shopType}
+        data: {type: shopType, storehouseId}
       })
       this.shopCartApplyList = res.data || []
       this.shopLoading = false
@@ -220,6 +218,10 @@ export default {
       return list
     },
     click() {
+      if (!this.formData.storeHouseId) {
+        Message.toast('请先选择仓库！')
+        return
+      }
       uni.navigateTo({
         url: `/Crm/OutStock/SelectProduct/index?storeId=${this.formData.storeHouseId}`
       })
@@ -241,6 +243,7 @@ export default {
     },
     onFinish({id, name}) {
       this.formDataChange({storeHouseId: id}, {storeHouseName: name})
+      this.getShopList(id)
     },
     selectCustomer(customer) {
       this.formDataChange({
@@ -279,8 +282,8 @@ export default {
         this.saveLoading = true
         Crm.outStock({
           data: {
-            userId:formData.userId,
-            orderParam:{
+            userId: formData.userId,
+            orderParam: {
               type: 2,
               currency: '人民币',
               buyerId: formData.customerId,
@@ -290,6 +293,7 @@ export default {
               detailParams: this.shopCartApplyList.map(item => {
                 return {
                   skuId: item.skuId,
+                  brandId: 0,
                   purchaseNumber: item.number,
                   onePrice: item.skuResult?.outPrice,
                   totalPrice: (item.skuResult?.outPrice || 0) * item.number,

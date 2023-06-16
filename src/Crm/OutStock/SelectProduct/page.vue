@@ -34,7 +34,7 @@
               class="skuItem"
           >
             <view class="sku">
-              <SkuItem extra-width="150px" :sku-result="skuResultFormat(item)">
+              <SkuItem extra-width="150px" :sku-result="skuResultFormat(item)" :number="skuStockNumberFormat(item)">
                 <template slot="otherData">
                   单价：￥{{ item.outPrice / 100 || 0 }}
                 </template>
@@ -83,8 +83,10 @@
           >
             <view class="sku">
               <SkuItem
+                  no-view
                   extra-width="150px"
                   :sku-result="item.skuResult"
+                  :number="skuStockNumberFormat(item)"
               >
                 <template slot="otherData">
                   单价：￥{{ item.skuResult ? item.skuResult.outPrice / 100 : 0 }}
@@ -109,7 +111,7 @@
           @close="visible = false"
           :value='skuNumber(clickSku)'
           :min='0'
-          :max="clickSku.stockNum"
+          :max="skuStockNumberFormat(clickSku)"
           @onChange="(num)=>onChange(num,clickSku,clickSkuIndex)"
       />
 
@@ -162,7 +164,8 @@ export default {
       shopList: [],
       visible: false,
       clickSku: {},
-      clickSkuIndex: 0
+      clickSkuIndex: 0,
+      skuStockNumbers: []
     }
   },
   computed: {},
@@ -202,16 +205,29 @@ export default {
         thumbUrl: media.thumbUrl
       }
     },
-    async listSource(skuList, newSkuList) {
+    skuStockNumberFormat(item) {
+      const stockSKu = this.skuStockNumbers.find(stockSkuItem => stockSkuItem.skuId === item.skuId) || {}
+      return stockSKu.number || 0
+    },
+    listSource(skuList, newSkuList) {
       this.skuList = skuList
       if (newSkuList.length > 0) {
-        await Sku.getMediaUrls({
+        Sku.getMediaUrls({
           mediaIds: newSkuList.map(item => item.images?.split(',')[0]),
           option: 'image/resize,m_fill,h_74,w_74',
         }).then((res) => {
           isArray(res?.data).map(item => {
             this.skuImages.push(item)
           })
+        }).catch(() => {
+        })
+        Erp.getStockNumber({
+          data: {
+            storehouseId: this.storeId,
+            skuIds: newSkuList.map(item => item.skuId)
+          }
+        }).then((res) => {
+          this.skuStockNumbers = [...this.skuStockNumbers, ...isArray(res?.data).filter(skuNum => !this.skuStockNumbers.find(item => item.skuId === skuNum.skuId))]
         }).catch(() => {
         })
       }
@@ -225,6 +241,8 @@ export default {
         ...data,
         inStock: 1
       }
+      this.skuImages = []
+      this.skuStockNumbers = []
       this.screenData = newScreenData
       this.$refs.skuList.submit(newScreenData)
     },
@@ -244,10 +262,20 @@ export default {
     async getShopList() {
       this.shopLoading = true
       const res = await Erp.shopCartApplyList({
-        data: {type: shopType}
+        data: {type: shopType, storehouseId: this.storeId}
       })
-      uni.$emit('shopCartApplyList', res.data || [])
-      this.shopList = res.data || []
+      const skuList = res.data || []
+      await Erp.getStockNumber({
+        data: {
+          storehouseId: this.storeId,
+          skuIds: skuList.map(item => item.skuId)
+        }
+      }).then((res) => {
+        this.skuStockNumbers = [...this.skuStockNumbers, ...isArray(res?.data).filter(skuNum => !this.skuStockNumbers.find(item => item.skuId === skuNum.skuId))]
+      }).catch(() => {
+      })
+      uni.$emit('shopCartApplyList', skuList)
+      this.shopList = skuList
       this.shopLoading = false
     },
     skuNumber(sku) {
@@ -284,7 +312,8 @@ export default {
           data: {
             skuId: sku.skuId,
             number,
-            type: shopType
+            type: shopType,
+            storehouseId: this.storeId
           }
         }).catch(() => {
           this.$refs.modal.dialog({

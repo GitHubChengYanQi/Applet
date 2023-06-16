@@ -12,7 +12,7 @@ import Loading from "../Loading";
 import Error from "../../pages/Error";
 import GetUserInfo from "../../util/GetUserInfo";
 import {Login} from "MES-Apis/lib/Login/promise";
-import {getLocalParmas, queryString} from "../../util/Tools";
+import {getLocalParmas, queryString} from "@/util/Tools";
 import MyButton from "../MyButton";
 import LinkButton from "../LinkButton";
 import Guide from "../Guide";
